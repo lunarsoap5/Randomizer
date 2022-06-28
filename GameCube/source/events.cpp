@@ -31,30 +31,36 @@ namespace mod::events
 
     void onLoad( rando::Randomizer* randomizer )
     {
-        if ( randoIsEnabled( randomizer ) )
+        // Make sure the randomizer is loaded/enabled and a seed is loaded
+        if ( !getCurrentSeed( randomizer ) )
         {
-            randomizer->onStageLoad();
+            return;
         }
+
+        randomizer->onStageLoad();
     }
 
     void offLoad( rando::Randomizer* randomizer )
     {
-        if ( randoIsEnabled( randomizer ) )
+        // Make sure the randomizer is loaded/enabled and a seed is loaded
+        if ( !getCurrentSeed( randomizer ) )
         {
-            // Check if the seed is already applied to the save-file (flags etc.)
-            // Try to do it otherwise
-            if ( !randomizer->m_SeedInit &&
-                 ( strcmp( libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mStage, "F_SP108" ) == 0 ) &&
-                 ( libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mRoomNo == 1 ) &&
-                 ( libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mPoint == 0x15 ) )
-            {
-                randomizer->initSave();
-            }
-            randomizer->overrideEventARC();
-            randomizer->overrideObjectARC();
-            user_patch::setHUDCosmetics( randomizer );
-            user_patch::setLanternColor( randomizer );
+            return;
         }
+
+        // Check if the seed is already applied to the save-file (flags etc.)
+        // Try to do it otherwise
+        if ( !randomizer->m_SeedInit &&
+             ( strcmp( libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mStage, "F_SP108" ) == 0 ) &&
+             ( libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mRoomNo == 1 ) &&
+             ( libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mPoint == 0x15 ) )
+        {
+            randomizer->initSave();
+        }
+
+        randomizer->overrideObjectARC();
+        randomizer->overrideEventARC();
+        user_patch::setLanternColor( randomizer );
     }
 
     void onRELLink( rando::Randomizer* randomizer, libtp::tp::dynamic_link::DynamicModuleControl* dmc )
@@ -312,6 +318,14 @@ namespace mod::events
                 // set y_pos of drop to be at ground level
                 *reinterpret_cast<uint32_t*>( relPtrRaw + 0x2474 ) = 0x00000000;     // 0.0f
             }
+
+            // d_a_kytag03.rel
+            case 0x10C:
+            {
+                // Modify draw function to draw the Reekfish path so long as we have smelled the fish once.
+                libtp::patch::writeBranchBL( reinterpret_cast<void*>( relPtrRaw + 0x66C ),
+                                             reinterpret_cast<void*>( assembly::asmShowReekfishPath ) );
+            }
         }
     }
 
@@ -427,6 +441,9 @@ namespace mod::events
             case Heart_Container:
             case Piece_of_Heart:
             case Zora_Armor:
+            case Arrows_10:
+            case Arrows_20:
+            case Arrows_30:
             {
                 *reinterpret_cast<float*>( reinterpret_cast<uint32_t>( daObjLife ) + 0x7c ) = 1.0f;     // scale
                 break;
@@ -482,8 +499,10 @@ namespace mod::events
         return mod::return_query022( unk1, unk2, unk3 );
     }
 
-    bool proc_query023( void* unk1, void* unk2, int32_t unk3 )
+    int32_t proc_query023( void* unk1, void* unk2, int32_t unk3 )
     {
+        // return the original function as we need its value
+        int32_t numBombs = mod::return_query023( unk1, unk2, unk3 );
         // Check to see if currently in one of the Kakariko interiors
         if ( libtp::tools::playerIsInRoomStage(
                  1,
@@ -498,7 +517,14 @@ namespace mod::events
             // have bombs or not
             else
             {
-                return true;
+                if ( numBombs == 0 )
+                {
+                    return 1;
+                }
+                else
+                {
+                    return mod::return_query023( unk1, unk2, unk3 );
+                }
             }
         }
 
@@ -631,7 +657,6 @@ namespace mod::events
 
     void handleQuickTransform()
     {
-        uint32_t zButtonAlphaPtr = reinterpret_cast<uint32_t>( libtp::tp::d_meter2_info::wZButtonPtr );
         libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
 
         // Ensure that Link is loaded on the map.
@@ -646,7 +671,14 @@ namespace mod::events
             return;
         }
 
+        // Check to see if Link has the ability to transform.
+        if ( !libtp::tp::d_a_alink::dComIfGs_isEventBit( 0xD04 ) )
+        {
+            return;
+        }
+
         // Ensure there is a proper pointer to the Z Button Alpha.
+        uint32_t zButtonAlphaPtr = reinterpret_cast<uint32_t>( libtp::tp::d_meter2_info::wZButtonPtr );
         if ( !zButtonAlphaPtr )
         {
             return;
@@ -671,17 +703,13 @@ namespace mod::events
             return;
         }
 
-        // Check to see if Link has the ability to transform.
-        if ( !libtp::tp::d_a_alink::dComIfGs_isEventBit( 0xD04 ) )
-        {
-            return;
-        }
-
+        // The game will crash if trying to quick transform while holding the Ball and Chain
         if ( linkMapPtr->mEquipItem == libtp::data::items::Ball_and_Chain )
         {
             return;
         }
 
+        // Make sure Link isn't riding anything (horse, boar, etc.)
         if ( libtp::tp::d_camera::checkRide( linkMapPtr ) )
         {
             return;
@@ -691,13 +719,16 @@ namespace mod::events
         {
             if ( randomizer->m_Seed->m_Header->transformAnywhere )
             {
+                // Allow transforming regardless of whether there are people around
                 libtp::tp::d_a_alink::procCoMetamorphoseInit( linkMapPtr );
+                return;
             }
             else
             {
                 CMEB tempCMEB = checkNpcTransform;
                 if ( tempCMEB )
                 {
+                    // Use the game's default checks for if the player can currently transform
                     if ( !tempCMEB( libtp::tp::d_a_player::m_midnaActor ) )
                     {
                         return;
@@ -706,6 +737,7 @@ namespace mod::events
             }
         }
 
+        // Check if the player has scared someone in the current area in wolf form
         if ( ( libtp::tp::d_kankyo::env_light.mEvilPacketEnabled & 0x80 ) != 0 )
         {
             return;
@@ -755,6 +787,7 @@ namespace mod::events
     {
         libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
 
+        // Ensure that Link is loaded on the map.
         if ( !linkMapPtr )
         {
             return false;
@@ -766,9 +799,35 @@ namespace mod::events
             return false;
         }
 
+        // Make sure Link isn't riding anything (horse, boar, etc.)
         if ( libtp::tp::d_camera::checkRide( linkMapPtr ) )
         {
             return false;
+        }
+
+        // Check if Midna has actually been unlocked and is on the Z button
+        // This is needed because the Z button will always be dimmed if she has not been unlocked
+        if ( libtp::tp::d_a_alink::dComIfGs_isEventBit( 0xC10 ) )
+        {
+            // Ensure there is a proper pointer to the Z Button Alpha.
+            uint32_t zButtonAlphaPtr = reinterpret_cast<uint32_t>( libtp::tp::d_meter2_info::wZButtonPtr );
+            if ( !zButtonAlphaPtr )
+            {
+                return false;
+            }
+
+            zButtonAlphaPtr = *reinterpret_cast<uint32_t*>( zButtonAlphaPtr + 0x10C );
+            if ( !zButtonAlphaPtr )
+            {
+                return false;
+            }
+
+            // Ensure that the Z Button is not dimmed
+            float zButtonAlpha = *reinterpret_cast<float*>( zButtonAlphaPtr + 0x720 );
+            if ( zButtonAlpha != 1.f )
+            {
+                return false;
+            }
         }
 
         // Make sure Link is not underwater or talking to someone.

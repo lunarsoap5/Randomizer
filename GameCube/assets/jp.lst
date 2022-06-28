@@ -30,6 +30,7 @@
 8002586C:actorCommonLayerInit
 80025bfc:tgscInfoInit
 80026bbc:roomLoader
+80026b58:stageLoader
 
 // data
 8044AD74:archiveHeap
@@ -113,6 +114,7 @@
 801412b0:dComIfGs_isItemFirstBit
 8011ac60:procCoGetItem
 800cffdc:dComIfGp_setItemLifeCount
+800be41c:checkRestartRoom
 
 // data
 80388C0C:climbVars
@@ -260,6 +262,9 @@
 
 //dvdfs.o
 8034a9c4:DVDConvertPathToEntrynum
+8034ad2c:DVDOpen
+8034adf4:DVDClose
+8034b2e0:DVDReadPrio
 
 // m_Do_MemCard.o
 // data

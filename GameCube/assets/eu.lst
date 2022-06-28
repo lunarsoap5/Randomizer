@@ -30,6 +30,7 @@
 80025914:actorCommonLayerInit
 80025ca4:tgscInfoInit
 80026c64:roomLoader
+80026c00:stageLoader
 
 // data
 80452BF4:archiveHeap
@@ -113,6 +114,7 @@
 801362f8:procWolfDamageInit
 8011ae34:procCoGetItem
 800d01b0:dComIfGp_setItemLifeCount
+800be5f0:checkRestartRoom
 
 // data
 8039038C:climbVars
@@ -266,6 +268,9 @@
 
 //dvdfs.o
 80349394:DVDConvertPathToEntrynum
+803496fc:DVDOpen
+803497c4:DVDClose
+80349cb0:DVDReadPrio
 
 //d_s_logo.o
 802591F8:getPalLanguage2

@@ -3,6 +3,12 @@
 #include <cstdint>
 #include <cstring>
 
+#ifdef DVD
+#include "gc_wii/dvd.h"
+#else
+#include "gc_wii/card.h"
+#endif
+
 #include "Z2AudioLib/Z2AudioMgr.h"
 #include "data/items.h"
 #include "data/stages.h"
@@ -25,9 +31,9 @@
 #include "tp/f_op_scene_req.h"
 #include "tp/f_pc_node_req.h"
 #include "tp/m_do_controller_pad.h"
-#include "gc_wii/card.h"
 #include "tp/m_do_audio.h"
 #include "item_wheel_menu.h"
+#include "user_patch/03_customCosmetics.h"
 
 namespace mod
 {
@@ -41,7 +47,7 @@ namespace mod
     KEEP_VAR uint32_t m_TotalMsgEntries = 0;
     libtp::tp::J2DPicture::J2DPicture* bgWindow = nullptr;
     uint32_t lastButtonInput = 0;
-    int32_t lastLoadingState = 0;
+    bool roomReloadingState = false;
     bool consoleState = true;
     uint8_t gameState = GAME_BOOT;
     void* Z2ScenePtr = nullptr;
@@ -76,6 +82,8 @@ namespace mod
     KEEP_VAR int32_t ( *return_tgscInfoInit )( void* stageDt, void* i_data, int32_t entryNum, void* param_3 ) = nullptr;
 
     KEEP_VAR void ( *return_roomLoader )( void* data, void* stageDt, int32_t roomNo ) = nullptr;
+
+    KEEP_VAR void ( *return_stageLoader )( void* data, void* stageDt ) = nullptr;
 
     // GetLayerNo trampoline
     KEEP_VAR int32_t ( *return_getLayerNo_common_common )( const char* stageName,
@@ -134,7 +142,7 @@ namespace mod
 
     // Query/Event functions.
     KEEP_VAR bool ( *return_query022 )( void* unk1, void* unk2, int32_t unk3 ) = nullptr;
-    KEEP_VAR bool ( *return_query023 )( void* unk1, void* unk2, int32_t unk3 ) = nullptr;
+    KEEP_VAR int32_t ( *return_query023 )( void* unk1, void* unk2, int32_t unk3 ) = nullptr;
     KEEP_VAR bool ( *return_query025 )( void* unk1, void* unk2, int32_t unk3 ) = nullptr;
     KEEP_VAR bool ( *return_query042 )( void* unk1, void* unk2, int32_t unk3 ) = nullptr;
     KEEP_VAR int32_t ( *return_query004 )( void* unk1, void* unk2, int32_t unk3 ) = nullptr;
@@ -170,10 +178,15 @@ namespace mod
     void main()
     {
         // Call the boot REL
+#ifdef DVD
+        // The seedlist will be generated in the boot REL
+        libtp::tools::callRelProlog( "/mod/boot.rel" );
+#else
         // The seedlist will be generated in the boot REL, so avoid mounting/unmounting the memory card multiple times
         constexpr int32_t chan = CARD_SLOT_A;
         libtp::tools::callRelProlog( chan, SUBREL_BOOT_ID, false, true );
         libtp::gc_wii::card::CARDUnmount( chan );
+#endif
     }
 
     void exit() {}
@@ -326,20 +339,27 @@ namespace mod
             uint8_t currentSeedRelAction = seedRelAction;
             if ( !randoIsEnabled( randomizer ) && ( seedList->m_numSeeds > 0 ) && ( currentSeedRelAction == SEED_ACTION_NONE ) )
             {
+#ifndef DVD
                 constexpr int32_t chan = CARD_SLOT_A;
+#endif
                 if ( !randomizer )
                 {
                     seedRelAction = SEED_ACTION_LOAD_SEED;
 
                     // m_Enabled will be set to true in the seed REL
                     // The seed REL will set seedRelAction to SEED_ACTION_NONE if it ran successfully
+#ifdef DVD
+                    if ( !libtp::tools::callRelProlog( "/mod/seed.rel" ) )
+#else
                     // Only mount/unmount the memory card once
                     if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
+#endif
                     {
                         currentSeedRelAction = SEED_ACTION_FATAL;
                     }
-
+#ifndef DVD
                     libtp::gc_wii::card::CARDUnmount( chan );
+#endif
                 }
                 else
                 {
@@ -353,13 +373,18 @@ namespace mod
                         seedRelAction = SEED_ACTION_CHANGE_SEED;
 
                         // The seed REL will set seedRelAction to SEED_ACTION_NONE if it ran successfully
+#ifdef DVD
+                        if ( !libtp::tools::callRelProlog( "/mod/seed.rel" ) )
+#else
                         // Only mount/unmount the memory card once
                         if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
+#endif
                         {
                             currentSeedRelAction = SEED_ACTION_FATAL;
                         }
-
+#ifndef DVD
                         libtp::gc_wii::card::CARDUnmount( chan );
+#endif
                     }
                     else
                     {
@@ -369,15 +394,12 @@ namespace mod
                 }
 
                 // Make sure no errors occurred
-                if ( randoIsEnabled( randomizer ) && ( currentSeedRelAction == SEED_ACTION_NONE ) )
+                rando::Seed* seed = getCurrentSeed( randomizer );
+                if ( seed && ( currentSeedRelAction == SEED_ACTION_NONE ) )
                 {
-                    rando::Seed* seed = randomizer->m_Seed;
-                    if ( seed )
-                    {
-                        // Volatile patches need to be applied whenever a file is loaded
-                        mod::console << "Applying volatile patches:\n";
-                        seed->applyVolatilePatches( true );
-                    }
+                    // Volatile patches need to be applied whenever a file is loaded
+                    mod::console << "Applying volatile patches:\n";
+                    seed->applyVolatilePatches( true );
                 }
 
                 seedRelAction = currentSeedRelAction;
@@ -395,16 +417,41 @@ namespace mod
         }
 
         // Custom events
-        if ( !lastLoadingState && tp::f_op_scene_req::isLoading )
+        bool currentReloadingState;
+        libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
+        if ( linkMapPtr )
         {
-            // OnLoad
-            events::onLoad( randomizer );
+            // checkRestartRoom is needed for voiding
+            currentReloadingState = libtp::tp::d_a_alink::checkRestartRoom( linkMapPtr );
+        }
+        else
+        {
+            // If linkMapPtr is not set, then assume a room is being loaded
+            // In most cases this will be used for triggering onLoad
+            currentReloadingState = true;
         }
 
-        if ( lastLoadingState && !tp::f_op_scene_req::isLoading )
+        bool prevReloadingState = roomReloadingState;
+
+        // Custom events
+        if ( currentReloadingState )
         {
-            // OffLoad
-            events::offLoad( randomizer );
+            if ( !prevReloadingState )
+            {
+                // OnLoad
+                events::onLoad( randomizer );
+            }
+        }
+        else
+        {
+            if ( prevReloadingState )
+            {
+                // OffLoad
+                events::offLoad( randomizer );
+
+                // SetHUDCosmetics
+                user_patch::setHUDCosmetics( randomizer );
+            }
         }
 
         if ( isFoolishTrapQueued )
@@ -412,7 +459,7 @@ namespace mod
             handleFoolishItem();
         }
 
-        lastLoadingState = tp::f_op_scene_req::isLoading;
+        roomReloadingState = currentReloadingState;
         rand( &nextVal );
         // End of custom events
 
@@ -490,6 +537,13 @@ namespace mod
                            rando::FileDirectory::Stage );     // Replace stage based checks.
         }
         return return_roomLoader( data, stageDt, roomNo );
+    }
+
+    KEEP_FUNC void handle_stageLoader( void* data, void* stageDt )
+    {
+        // This function is a placeholder for now. May work with Taka on getting some ARC checks converted over to use this
+        // function instead of roomLoader
+        return return_stageLoader( data, stageDt );
     }
 
     KEEP_FUNC int32_t handle_createItemForBoss( const float pos[3],
@@ -589,6 +643,7 @@ namespace mod
             using namespace libtp::tp;
             using namespace libtp::data;
             using namespace libtp::data::stage;
+
             case items::Hylian_Shield:
             {
                 // Check if we are at Kakariko Malo mart and verify that we have not bought the shield.
@@ -612,7 +667,6 @@ namespace mod
                 }
                 break;
             }
-
             case items::Ordon_Pumpkin:
             case items::Ordon_Goat_Cheese:
             {
@@ -626,10 +680,10 @@ namespace mod
             }
             default:
             {
-                // Call original function if the conditions are not met.
-                return return_checkItemGet( item, defaultValue );
+                break;
             }
         }
+
         return return_checkItemGet( item, defaultValue );
     }
 
@@ -674,17 +728,11 @@ namespace mod
         }
     }
 
-    KEEP_FUNC char handle_parseCharacter_1Byte( const char** text )
-    {
-        return return_parseCharacter_1Byte( text );
-    }
+    KEEP_FUNC char handle_parseCharacter_1Byte( const char** text ) { return return_parseCharacter_1Byte( text ); }
 
-    KEEP_FUNC bool handle_query022( void* unk1, void* unk2, int32_t unk3 )
-    {
-        return events::proc_query022( unk1, unk2, unk3 );
-    }
+    KEEP_FUNC bool handle_query022( void* unk1, void* unk2, int32_t unk3 ) { return events::proc_query022( unk1, unk2, unk3 ); }
 
-    KEEP_FUNC bool handle_query023( void* unk1, void* unk2, int32_t unk3 )
+    KEEP_FUNC int32_t handle_query023( void* unk1, void* unk2, int32_t unk3 )
     {
         return events::proc_query023( unk1, unk2, unk3 );
     }
@@ -725,10 +773,7 @@ namespace mod
         return menuType;
     }
 
-    KEEP_FUNC bool handle_query042( void* unk1, void* unk2, int32_t unk3 )
-    {
-        return events::proc_query042( unk1, unk2, unk3 );
-    }
+    KEEP_FUNC bool handle_query042( void* unk1, void* unk2, int32_t unk3 ) { return events::proc_query042( unk1, unk2, unk3 ); }
 
     KEEP_FUNC uint32_t handle_event000( void* messageFlow, void* nodeEvent, void* actrPtr )
     {
@@ -1123,10 +1168,7 @@ namespace mod
         return return_onSwitch_dSv_memBit( memoryBit, flag );
     }
 
-    KEEP_FUNC bool handle_checkTreasureRupeeReturn( void* unk1, int32_t item )
-    {
-        return false;
-    }
+    KEEP_FUNC bool handle_checkTreasureRupeeReturn( void* unk1, int32_t item ) { return false; }
 
     KEEP_FUNC void handle_collect_save_open_init( uint8_t param_1 )
     {
@@ -1238,13 +1280,13 @@ namespace mod
         return val;
     }
 
-    uint32_t ulRand( uint32_t range )
+    uint32_t ulRand( uint32_t* seed, uint32_t range )
     {
         uint32_t ret;
 
         if ( range > 0 )
         {
-            ret = rand( &nextVal );
+            ret = rand( seed );
             ret -= ( ret / range ) * range;
         }
         else
@@ -1255,8 +1297,5 @@ namespace mod
         return ret;
     }
 
-    float __attribute__( ( noinline ) ) intToFloat( int32_t value )
-    {
-        return static_cast<float>( value );
-    }
+    float __attribute__( ( noinline ) ) intToFloat( int32_t value ) { return static_cast<float>( value ); }
 }     // namespace mod

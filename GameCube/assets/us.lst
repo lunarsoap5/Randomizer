@@ -30,6 +30,7 @@
 8002586C:actorCommonLayerInit
 80025bfc:tgscInfoInit
 80026bbc:roomLoader
+80026b58:stageLoader
 
 // data
 80450C34:archiveHeap
@@ -120,6 +121,7 @@
 800d96dc:procCoLargeDamageInit
 8011ac28:procCoGetItem
 800cffa4:dComIfGp_setItemLifeCount
+800be3e4:checkRestartRoom
 
 // data
 8038EB8C:climbVars
@@ -252,6 +254,9 @@
 8042CA54:env_light
 801ac70c:dKy_darkworld_stage_check
 
+// d_kankyo_rain.o
+8006be0c:dKyr_odour_draw
+
 // JFWSystem.o
 // data
 804511B8:systemConsole
@@ -278,6 +283,9 @@
 
 //dvdfs.o
 80348528:DVDConvertPathToEntrynum
+80348890:DVDOpen
+80348958:DVDClose
+80348e44:DVDReadPrio
 
 //d_meter2_info.o
 80430188:g_meter2_info

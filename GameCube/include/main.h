@@ -26,9 +26,11 @@
 #define GAME_TITLE 1      // When user is on title screen; let them choose their seed etc.
 #define GAME_ACTIVE 2     // When user is ingame and rando should be active
 
+#ifndef DVD
 // Subrel module ids
 #define SUBREL_SEED_ID 0X1001
 #define SUBREL_BOOT_ID 0X1002
+#endif
 
 // Seed REL actions
 #define SEED_ACTION_NONE 0
@@ -53,7 +55,7 @@ namespace mod
     extern uint32_t m_TotalMsgEntries;     // Number of currently loaded custom string
     extern libtp::tp::J2DPicture::J2DPicture* bgWindow;
     extern uint32_t lastButtonInput;
-    extern int32_t lastLoadingState;
+    extern bool roomReloadingState;
     extern uint32_t nextVal;
     extern bool consoleState;
     extern uint8_t gameState;
@@ -66,7 +68,7 @@ namespace mod
     void hookFunctions();
     void setScreen( bool state );     // Sets visibility of console
     uint32_t rand( uint32_t* seed );
-    uint32_t ulRand( uint32_t range );
+    uint32_t ulRand( uint32_t* seed, uint32_t range );
     float intToFloat( int32_t value );
     void handleInput( uint32_t inputs );
     void handleFoolishItem();
@@ -80,6 +82,16 @@ namespace mod
         }
 
         return rando->m_Enabled;
+    }
+
+    inline rando::Seed* getCurrentSeed( rando::Randomizer* rando )
+    {
+        if ( !randoIsEnabled( rando ) )
+        {
+            return nullptr;
+        }
+
+        return rando->m_Seed;
     }
 
     // Function hook handlers & trampolines
@@ -126,6 +138,9 @@ namespace mod
 
     void handle_roomLoader( void* data, void* stageDt, int32_t roomNo );
     extern void ( *return_roomLoader )( void* data, void* stageDt, int32_t roomNo );
+
+    void handle_stageLoader( void* data, void* stageDt );
+    extern void ( *return_stageLoader )( void* data, void* stageDt );
 
     // State functions
     extern int32_t ( *return_getLayerNo_common_common )( const char* stageName, int32_t roomId, int32_t layerOverride );
@@ -229,8 +244,8 @@ namespace mod
     bool handle_query022( void* unk1, void* unk2, int32_t unk3 );
     extern bool ( *return_query022 )( void* unk1, void* unk2, int32_t unk3 );
 
-    bool handle_query023( void* unk1, void* unk2, int32_t unk3 );
-    extern bool ( *return_query023 )( void* unk1, void* unk2, int32_t unk3 );
+    int32_t handle_query023( void* unk1, void* unk2, int32_t unk3 );
+    extern int32_t ( *return_query023 )( void* unk1, void* unk2, int32_t unk3 );
 
     bool handle_query025( void* unk1, void* unk2, int32_t unk3 );
     extern bool ( *return_query025 )( void* unk1, void* unk2, int32_t unk3 );
