@@ -152,7 +152,9 @@
 
 // Card 
 80353AC8:CARDInit
-80353bb4:__CARDGetControlBlock
+80353BB4:__CARDGetControlBlock
+80353C6C:__CARDPutControlBlock
+8035577C:__CARDGetDirBlock
 803568F4:CARDCheck
 803572F4:CARDMount
 803573d8:CARDUnmount

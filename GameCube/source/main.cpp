@@ -1496,17 +1496,23 @@ namespace mod
     KEEP_FUNC bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
     {
         bool result = return_mDoMemCd_Ctrl_c__loadfile( _this );
-        if ( result == true )
-        {
-            libtp::util::card::DirectoryEntry dirEntries[127];
-            int32_t count = 0;
 
-            int32_t cardResult = libtp::util::card::GetDirectoryEntries( _this->mChannel, dirEntries, &count, false );
-            if ( cardResult != CARD_RESULT_READY )
-            {
-                return false;
-            }
+        // Run into issues once the array gets a little over 110 elements long
+        // when not using heap. Need to support 127 (max files on memory card).
+        libtp::util::card::DirectoryEntry* dirEntries = new libtp::util::card::DirectoryEntry[127];
+        int32_t count = 0;
+
+        int32_t getDirEntriesResult = libtp::util::card::GetDirectoryEntries( _this->mChannel, dirEntries, &count, false );
+
+        if ( getDirEntriesResult == CARD_RESULT_READY )
+        {
+            // Construct seedList2 from data.
+
+            return result;
         }
+
+        delete[] dirEntries;
+
         return result;
     }
 
