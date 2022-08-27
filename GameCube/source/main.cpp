@@ -40,6 +40,7 @@
 #include "tp/m_do_ext.h"
 #include "patch.h"
 #include "asm.h"
+#include "util/cardutils.h"
 
 namespace mod
 {
@@ -208,6 +209,8 @@ namespace mod
     KEEP_VAR libtp::tp::d_resource::dRes_info_c* ( *return_getResInfo )( const char* arcName,
                                                                          libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                          int size ) = nullptr;
+
+    KEEP_VAR bool ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this ) = nullptr;
 
     void main()
     {
@@ -1488,6 +1491,23 @@ namespace mod
             randomizer->overrideObjectARC( resourcePtr, arcName );
         }
         return resourcePtr;
+    }
+
+    KEEP_FUNC bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
+    {
+        bool result = return_mDoMemCd_Ctrl_c__loadfile( _this );
+        if ( result == true )
+        {
+            libtp::util::card::DirectoryEntry dirEntries[127];
+            int32_t count = 0;
+
+            int32_t cardResult = libtp::util::card::GetDirectoryEntries( _this->mChannel, dirEntries, &count, false );
+            if ( cardResult != CARD_RESULT_READY )
+            {
+                return false;
+            }
+        }
+        return result;
     }
 
     uint32_t rand( uint32_t* seed )

@@ -22,6 +22,7 @@
 #include "Z2AudioLib/Z2SoundMgr.h"
 #include "tp/dynamic_link.h"
 #include "gc_wii/OSTime.h"
+#include "m_Do/m_Do_MemCard.h"
 
 #include <cstdint>
 
@@ -176,6 +177,10 @@ namespace mod
 
         // Archive/Resource functions
         return_getResInfo = patch::hookFunction( libtp::tp::d_resource::getResInfo, mod::handle_getResInfo );
+
+        // Reading save file from memory card
+        return_mDoMemCd_Ctrl_c__loadfile =
+            patch::hookFunction( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c__loadfile, mod::handle_mDoMemCd_Ctrl_c__loadfile );
     }
 
     void initRandNext()

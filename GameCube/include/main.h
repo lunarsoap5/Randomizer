@@ -22,6 +22,7 @@
 #include "Z2AudioLib/Z2SceneMgr.h"
 #include "events.h"
 #include "tp/d_resource.h"
+#include "m_Do/m_Do_MemCard.h"
 
 // Game States
 #define GAME_BOOT 0       // Default; At startup (should only ever be active once)
@@ -366,6 +367,10 @@ namespace mod
     extern libtp::tp::d_resource::dRes_info_c* ( *return_getResInfo )( const char* arcName,
                                                                        libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                        int size );
+
+    // Test seed funcs
+    bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    extern bool ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
 
 }     // namespace mod
 #endif
