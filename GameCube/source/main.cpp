@@ -19,6 +19,7 @@
 #include "rando/data.h"
 #include "rando/randomizer.h"
 #include "rando/seedlist.h"
+#include "rando/seedlist2.h"
 #include "tools.h"
 #include "tp/J2DPicture.h"
 #include "tp/JKRArchive.h"
@@ -48,6 +49,7 @@ namespace mod
     KEEP_VAR libtp::display::Console* console = nullptr;
     KEEP_VAR rando::Randomizer* randomizer = nullptr;
     KEEP_VAR rando::SeedList* seedList = nullptr;
+    KEEP_VAR rando::SeedList2* seedList2 = nullptr;
 
     // Variables
     KEEP_VAR uint8_t* m_MsgTableInfo = nullptr;
@@ -1507,8 +1509,7 @@ namespace mod
         if ( getDirEntriesResult == CARD_RESULT_READY )
         {
             // Construct seedList2 from data.
-
-            return result;
+            seedList2 = rando::SeedList2::fromDirectoryEntries( dirEntries, count );
         }
 
         delete[] dirEntries;
