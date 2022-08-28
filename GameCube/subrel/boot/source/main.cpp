@@ -57,7 +57,8 @@ namespace mod
                      << "Please avoid [re]starting rando unnecessarily\n"
                      << "on ORIGINAL HARDWARE as it wears down your\n"
                      << "Memory Card!\n"
-                     << "Press R + Z to close the console.\n\n";
+                     << "Press R + Z to close the console.\n\n"
+                     << "Checking for seeds...";
 
         // Generate our seedList
         // Align to void*, as pointers use the largest variable type in the SeedList class

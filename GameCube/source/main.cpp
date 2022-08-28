@@ -1519,6 +1519,12 @@ namespace mod
 
             // Can maybe skip over the entire part above once player already has a
             // seed loaded.
+
+            if ( gameState == GAME_BOOT )
+            {
+                libtp::display::clearConsole( 14, 1 );
+                getConsole() << "\r" << seedList2.getCount() << " seed(s) available.\n";
+            }
         }
 
         return return_mDoMemCd_Ctrl_c__loadfile( _this );
