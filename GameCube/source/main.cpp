@@ -49,7 +49,7 @@ namespace mod
     KEEP_VAR libtp::display::Console* console = nullptr;
     KEEP_VAR rando::Randomizer* randomizer = nullptr;
     KEEP_VAR rando::SeedList* seedList = nullptr;
-    KEEP_VAR rando::SeedList2* seedList2 = nullptr;
+    KEEP_VAR rando::SeedList2 seedList2;
 
     // Variables
     KEEP_VAR uint8_t* m_MsgTableInfo = nullptr;
@@ -57,7 +57,8 @@ namespace mod
     libtp::tp::J2DPicture::J2DPicture* bgWindow = nullptr;
     uint32_t lastButtonInput = 0;
     bool roomReloadingState = false;
-    bool consoleState = true;
+    // bool consoleState = true;
+    bool consoleState = false;
     uint8_t gameState = GAME_BOOT;
     void* Z2ScenePtr = nullptr;
     uint8_t foolishTrapCount = 0;
@@ -301,22 +302,15 @@ namespace mod
 
         if ( input && gameState == GAME_TITLE )
         {
-            // Handle seed selection if necessary
-            if ( seedList->m_numSeeds > 1 )
+            if ( seedList2.getCount() > 1 )
             {
                 if ( checkBtn( Button_X ) )
                 {
-                    seedList->m_selectedSeed++;
-
-                    if ( seedList->m_selectedSeed >= seedList->m_numSeeds )
-                        seedList->m_selectedSeed = 0;
+                    seedList2.incrementSelectedEntry();
                 }
                 else if ( checkBtn( Button_Y ) )
                 {
-                    if ( seedList->m_selectedSeed == 0 )
-                        seedList->m_selectedSeed = seedList->m_numSeeds;
-
-                    seedList->m_selectedSeed--;
+                    seedList2.decrementSelectedEntry();
                 }
 
                 // 8 is the line it typically appears
@@ -324,8 +318,8 @@ namespace mod
                 getConsole() << "\r"
                              << "Press X/Y to select a seed\n"
                              << "Press R + Z to close the console\n"
-                             << "[" << seedList->m_selectedSeed + 1 << "/" << static_cast<int32_t>( seedList->m_numSeeds )
-                             << "] Seed: " << seedList->m_seedInfo[seedList->m_selectedSeed].header.seed << "\n";
+                             << "[" << seedList2.getSelectedIndex() + 1 << "/" << seedList2.getCount()
+                             << "] Seed: " << seedList2.getSelectedEntry()->playthroughName() << "\n";
             }
         }
         // End of handling title screen inputs
@@ -376,7 +370,7 @@ namespace mod
                 // Handle console differently when the user first loads it
                 if ( prevState == GAME_BOOT )
                 {
-                    switch ( seedList->m_numSeeds )
+                    switch ( seedList2.getCount() )
                     {
                         case 0:
                             // Err, no seeds
@@ -1497,28 +1491,35 @@ namespace mod
 
     KEEP_FUNC bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
     {
-        // Run into issues once the array gets a little over 110 elements long
-        // when not using heap. Need to support 127 (max files on memory card).
-        libtp::util::card::DirectoryEntry* dirEntries = new libtp::util::card::DirectoryEntry[127];
-        int32_t count = 0;
+        // This function is called immediately after the game recognizes a
+        // memory card was mounted successfully. We hook in to where the game
+        // would try to read the "gczelda2" file from the memory card, and this
+        // code executes right before that. This is the earliest that the memory
+        // card Directory is loaded in the vanilla game. This gets called again
+        // if you take the memory card out and put it back in.
 
-        int32_t getDirEntriesResult = libtp::util::card::GetDirectoryEntries( _this->mChannel, dirEntries, &count, false );
-
-        if ( getDirEntriesResult == CARD_RESULT_READY )
+        if ( _this->mChannel == CARD_SLOT_A )
         {
-            if ( seedList2 != nullptr )
+            // Not messing with slot B until there is a reason to. This matches
+            // current behavior.
+
+            // Run into issues once the array gets a little over 110 elements long
+            // when not using heap. Need to support 127 (max files on memory card).
+            libtp::util::card::DirectoryEntry* dirEntries = new libtp::util::card::DirectoryEntry[CARD_MAX_FILE];
+            int32_t count = 0;
+
+            int32_t getDirEntriesResult = libtp::util::card::GetDirectoryEntries( _this->mChannel, dirEntries, &count, false );
+
+            if ( getDirEntriesResult == CARD_RESULT_READY )
             {
-                delete seedList2;
+                seedList2.updateEntries( dirEntries, count );
             }
 
-            // Construct seedList2 from directoryEntries.
-            seedList2 = rando::SeedList2::fromDirectoryEntries( dirEntries, count );
+            delete[] dirEntries;
+
+            // Can maybe skip over the entire part above once player already has a
+            // seed loaded.
         }
-
-        delete[] dirEntries;
-
-        // Can maybe skip over the entire part above once player already has a
-        // seed loaded.
 
         return return_mDoMemCd_Ctrl_c__loadfile( _this );
     }

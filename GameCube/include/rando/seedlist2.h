@@ -42,15 +42,21 @@ namespace mod::rando
     class SeedList2
     {
        public:
-        static SeedList2* fromDirectoryEntries( libtp::util::card::DirectoryEntry* dirEntries, int count );
-
+        SeedList2();
         ~SeedList2( void );
 
-       private:
-        int count;
-        SeedListEntry* entries;
+        int8_t getCount() { return count; }
+        int8_t getSelectedIndex() { return selectedIndex; }
+        void updateEntries( libtp::util::card::DirectoryEntry* dirEntries, int count );
+        void clearEntries();
+        SeedListEntry* getSelectedEntry();
+        void incrementSelectedEntry();
+        void decrementSelectedEntry();
 
-        SeedList2( SeedListEntry* entries, int count );
+       private:
+        int8_t count = 0;
+        int8_t selectedIndex = -1;
+        SeedListEntry* entries = nullptr;
 
         // SeedInfo FindSeed( uint64_t seed );
 

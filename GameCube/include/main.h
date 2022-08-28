@@ -53,7 +53,7 @@ namespace mod
     extern libtp::display::Console* console;
     extern rando::Randomizer* randomizer;
     extern rando::SeedList* seedList;
-    extern rando::SeedList2* seedList2;
+    extern rando::SeedList2 seedList2;
 
     // Variables
     extern uint8_t* m_MsgTableInfo;        // Custom message string data

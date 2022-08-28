@@ -79,28 +79,24 @@ namespace mod::rando
         }
     }
 
-    SeedList2::SeedList2( SeedListEntry* entries, int count )
-    {
-        this->count = count;
-        this->entries = new SeedListEntry[count];
-
-        for ( int i = 0; i < count; i++ )
-        {
-            this->entries[i] = entries[i];
-        }
-    }
+    SeedList2::SeedList2() {}
 
     SeedList2::~SeedList2()
     {
         delete[] entries;
     }
 
-    SeedList2* SeedList2::fromDirectoryEntries( libtp::util::card::DirectoryEntry* dirEntries, int count )
+    void SeedList2::updateEntries( libtp::util::card::DirectoryEntry* dirEntries, int numDirEntries )
     {
-        SeedListEntry* workingEntries = new SeedListEntry[count];
+        if ( this->entries != nullptr )
+        {
+            delete[] this->entries;
+        }
+
+        SeedListEntry* workingEntries = new SeedListEntry[numDirEntries];
         int totalEntries = 0;
 
-        for ( int i = 0; i < count; i++ )
+        for ( int i = 0; i < numDirEntries; i++ )
         {
             libtp::util::card::DirectoryEntry& dirEntry = dirEntries[i];
             if ( dirEntry.filename[0] == 's' && dirEntry.filename[1] == 'd' )
@@ -112,11 +108,55 @@ namespace mod::rando
             }
         }
 
-        SeedList2* seedlist2 = new SeedList2( workingEntries, totalEntries );
+        // Update properties of instance.
+        this->count = totalEntries;
+        this->entries = new SeedListEntry[totalEntries];
+        for ( int i = 0; i < totalEntries; i++ )
+        {
+            this->entries[i] = workingEntries[i];
+        }
+        this->selectedIndex = totalEntries > 0 ? 0 : -1;
 
         delete[] workingEntries;
+    }
 
-        return seedlist2;
+    void SeedList2::clearEntries()
+    {
+        if ( entries != nullptr )
+        {
+            delete[] entries;
+        }
+
+        count = 0;
+        selectedIndex = -1;
+    }
+
+    SeedListEntry* SeedList2::getSelectedEntry()
+    {
+        if ( selectedIndex >= 0 && selectedIndex < count )
+        {
+            return &( entries[selectedIndex] );
+        }
+
+        return nullptr;
+    }
+
+    void SeedList2::incrementSelectedEntry()
+    {
+        if ( selectedIndex < 0 )
+            return;
+
+        int8_t newIndex = selectedIndex + 1;
+        selectedIndex = newIndex >= count ? 0 : newIndex;
+    }
+
+    void SeedList2::decrementSelectedEntry()
+    {
+        if ( selectedIndex < 0 )
+            return;
+
+        int8_t newIndex = selectedIndex - 1;
+        selectedIndex = newIndex < 0 ? count - 1 : newIndex;
     }
 
 }     // namespace mod::rando
