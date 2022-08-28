@@ -1497,8 +1497,6 @@ namespace mod
 
     KEEP_FUNC bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
     {
-        bool result = return_mDoMemCd_Ctrl_c__loadfile( _this );
-
         // Run into issues once the array gets a little over 110 elements long
         // when not using heap. Need to support 127 (max files on memory card).
         libtp::util::card::DirectoryEntry* dirEntries = new libtp::util::card::DirectoryEntry[127];
@@ -1508,13 +1506,21 @@ namespace mod
 
         if ( getDirEntriesResult == CARD_RESULT_READY )
         {
-            // Construct seedList2 from data.
+            if ( seedList2 != nullptr )
+            {
+                delete seedList2;
+            }
+
+            // Construct seedList2 from directoryEntries.
             seedList2 = rando::SeedList2::fromDirectoryEntries( dirEntries, count );
         }
 
         delete[] dirEntries;
 
-        return result;
+        // Can maybe skip over the entire part above once player already has a
+        // seed loaded.
+
+        return return_mDoMemCd_Ctrl_c__loadfile( _this );
     }
 
     uint32_t rand( uint32_t* seed )
