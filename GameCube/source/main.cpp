@@ -313,13 +313,42 @@ namespace mod
                     seedList2.decrementSelectedEntry();
                 }
 
+                rando::SeedListEntry* selectedSeed = seedList2.getSelectedEntry();
+
                 // 8 is the line it typically appears
                 getConsole().setLine( 8 );
                 getConsole() << "\r"
                              << "Press X/Y to select a seed\n"
                              << "Press R + Z to close the console\n"
                              << "[" << seedList2.getSelectedIndex() + 1 << "/" << seedList2.getCount()
-                             << "] Seed: " << seedList2.getSelectedEntry()->playthroughName() << "\n";
+                             << "] Seed: " << selectedSeed->playthroughName() << "\n";
+
+                if ( selectedSeed->status() == rando::SeedListEntryStatus::VERSION_UNKNOWN )
+                {
+                    getConsole() << "v?.?";
+                }
+                else
+                {
+                    // Static cast to int32_t so prints like "v1.0" instead of "v0001.0000".
+                    getConsole() << "v" << static_cast<int32_t>( selectedSeed->verMajor() ) << "."
+                                 << static_cast<int32_t>( selectedSeed->verMinor() );
+                }
+
+                switch ( selectedSeed->status() )
+                {
+                    case rando::SeedListEntryStatus::FULLY_SUPPORTED:
+                        break;
+                    case rando::SeedListEntryStatus::PARTIALLY_SUPPORTED:
+                        getConsole() << " (partial support)";
+                        break;
+                    default:
+                        // case rando::SeedListEntryStatus::VERSION_UNKNOWN:
+                        // case rando::SeedListEntryStatus::NOT_SUPPORTED:
+                        getConsole() << " (NOT SUPPORTED)";
+                        break;
+                }
+
+                getConsole() << "\n";
             }
         }
         // End of handling title screen inputs
@@ -417,9 +446,12 @@ namespace mod
             {
                 doInput( padInfo->buttonInput );
 
-                // Disable input so game doesn't notice
-                padInfo->buttonInput = 0;
-                padInfo->buttonInputTrg = 0;
+                if ( gameState != GAME_BOOT )
+                {
+                    // Disable input so game doesn't notice
+                    padInfo->buttonInput = 0;
+                    padInfo->buttonInputTrg = 0;
+                }
             }
 
             else if ( ( padInfo->buttonInput & ( PadInputs::Button_R | PadInputs::Button_Y ) ) ==
@@ -677,8 +709,8 @@ namespace mod
         itemID = game_patch::_04_verifyProgressiveItem( mod::randomizer, itemID );
         uint32_t params = 0xFF0000 | ( parameters & 0xFF ) << 0x8 | ( itemID & 0xFF );
 
-        // If we are in hyrule field then the function is running to give us the Hot Springwater heart piece and we want it to
-        // spawn on the ground.
+        // If we are in hyrule field then the function is running to give us the Hot Springwater heart piece and we want it
+        // to spawn on the ground.
         if ( libtp::tp::d_a_alink::checkStageName( libtp::data::stage::allStages[libtp::data::stage::stageIDs::Hyrule_Field] ) )
         {
             *const_cast<float*>( &pos[1] ) = -190.f;
@@ -1042,8 +1074,8 @@ namespace mod
             {
                 if ( checkStageName( allStages[stageIDs::Ordon_Village_Interiors] ) )
                 {
-                    if ( dComIfGs_isEventBit(
-                             libtp::data::flags::HEARD_BO_TEXT_AFTER_SUMO_FIGHT ) )     // Talked to Bo after chest is spawned
+                    if ( dComIfGs_isEventBit( libtp::data::flags::HEARD_BO_TEXT_AFTER_SUMO_FIGHT ) )     // Talked to Bo after
+                                                                                                         // chest is spawned
                     {
                         return true;
                     }
@@ -1293,8 +1325,8 @@ namespace mod
                                       allStages[stageIDs::Faron_Woods] ) &&
                              !libtp::tp::d_a_alink::dComIfGs_isEventBit( 0x3C10 ) )
                         {
-                            // If we are in the hidden skill area and the wolf is trying to force load room 6, we know that we
-                            // are trying to go back to faron so we want to use the default state instead of forcing 0.
+                            // If we are in the hidden skill area and the wolf is trying to force load room 6, we know that
+                            // we are trying to go back to faron so we want to use the default state instead of forcing 0.
                             events::setSaveFileEventFlag(
                                 0x3C10 );     // a vanilla unused bit that is now checked for the faron wolf
                             events::onHiddenSkill( randomizer, 0x3D6 );     // give the item for the faron golden wolf
@@ -1320,8 +1352,8 @@ namespace mod
             if ( flag == 0x66 )     // Check for escort completed flag
             {
                 if ( !libtp::tp::d_a_alink::dComIfGs_isEventBit(
-                         libtp::data::flags::GOT_ZORA_ARMOR_FROM_RUTELA ) )     // return false if we haven't gotten the item
-                                                                                // from Rutella.
+                         libtp::data::flags::GOT_ZORA_ARMOR_FROM_RUTELA ) )     // return false if we haven't gotten the
+                                                                                // item from Rutella.
                 {
                     return false;
                 }

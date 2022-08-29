@@ -60,22 +60,24 @@ namespace mod::rando
             // Incompatible. Unable to parse version numbers.
             m_status = SeedListEntryStatus::VERSION_UNKNOWN;
         }
-        else if ( !( CHECK_MIN_SUPPORTED_SEED_DATA_VER_MAJOR( versionMajor ) ) ||
-                  !( CHECK_MIN_SUPPORTED_SEED_DATA_VER_MINOR( header.versionMinor ) ) )
+        else if ( CHECK_MIN_SUPPORTED_SEED_DATA_VER_MAJOR( versionMajor ) &&
+                  CHECK_MIN_SUPPORTED_SEED_DATA_VER_MINOR( versionMinor ) &&
+                  CHECK_MAX_FULLY_SUPPORTED_SEED_DATA_VER_MAJOR( versionMajor ) )
         {
-            // Incompatible. Too old, no longer supported
-            m_status = SeedListEntryStatus::NOT_SUPPORTED;
-        }
-        else if ( !( CHECK_MAX_FULLY_SUPPORTED_SEED_DATA_VER_MAJOR( versionMajor ) ) ||
-                  !( CHECK_MAX_FULLY_SUPPORTED_SEED_DATA_VER_MINOR( versionMinor ) ) )
-        {
-            // Newer and not fully supported
-            m_status = SeedListEntryStatus::PARTIALLY_SUPPORTED;
+            if ( CHECK_MAX_FULLY_SUPPORTED_SEED_DATA_VER_MINOR( versionMinor ) )
+            {
+                m_status = SeedListEntryStatus::FULLY_SUPPORTED;
+            }
+            else
+            {
+                // For example, maxFullySupportedVer is 12.5 and the seed is v12.8.
+                m_status = SeedListEntryStatus::PARTIALLY_SUPPORTED;
+            }
         }
         else
         {
-            // Fully supported
-            m_status = SeedListEntryStatus::FULLY_SUPPORTED;
+            // Newer (but not too new) and not fully supported
+            m_status = SeedListEntryStatus::NOT_SUPPORTED;
         }
     }
 

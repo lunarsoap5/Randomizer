@@ -52,12 +52,8 @@
     static_cast<uint16_t>( version ) <= MAX_FULLY_SUPPORTED_SEED_DATA_VER_MAJOR
 #endif
 
-#if MAX_FULLY_SUPPORTED_SEED_DATA_VER_MINOR == 0
-#define CHECK_MAX_FULLY_SUPPORTED_SEED_DATA_VER_MINOR( version ) 1
-#else
 #define CHECK_MAX_FULLY_SUPPORTED_SEED_DATA_VER_MINOR( version ) \
     static_cast<uint16_t>( version ) <= MAX_FULLY_SUPPORTED_SEED_DATA_VER_MINOR
-#endif
 
 namespace mod::rando
 {
