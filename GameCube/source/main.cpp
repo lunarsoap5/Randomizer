@@ -384,12 +384,12 @@ namespace mod
             uint8_t state = *reinterpret_cast<uint8_t*>( reinterpret_cast<uint32_t>( l_fpcNdRq_Queue ) + 0x59 );
 
             // Normal/Loading into game
-            if ( prevState != GAME_ACTIVE && state == 11 )
+            if ( prevState == GAME_TITLE && state == 11 )
             {
                 // check whether we're in title screen CS
                 if ( 0 != strcmp( "S_MV000", gameInfo->play.mNextStage.stageValues.mStage ) )
                 {
-                    gameState = GAME_ACTIVE;
+                    gameState = GAME_TRY_LOAD_SEED;
                 }
             }
             else if ( prevState != GAME_TITLE && ( state == 12 || state == 13 ) )
@@ -463,41 +463,60 @@ namespace mod
             }
         }
 
+        bool shouldDisableRando = false;
+
         // Handle rando state
-        if ( gameState == GAME_ACTIVE )
+        if ( gameState == GAME_TRY_LOAD_SEED )
         {
-            if ( !getCurrentSeed( randomizer ) && ( seedList->m_numSeeds > 0 ) && ( seedRelAction == SEED_ACTION_NONE ) )
+            gameState = GAME_ACTIVE;
+
+            rando::SeedListEntry* selectedSeedEntry = seedList2.getSelectedEntry();
+
+            // if ( !getCurrentSeed( randomizer ) && ( selectedSeedEntry != nullptr ) && ( seedRelAction == SEED_ACTION_NONE ) )
+            if ( ( selectedSeedEntry != nullptr ) && selectedSeedEntry->isCompatibleWithRando() )
             {
-#ifndef DVD
-                constexpr int32_t chan = CARD_SLOT_A;
-#endif
-                if ( !randomizer || !randomizer->m_Seed )
+                if ( ( seedRelAction == SEED_ACTION_NONE ) )
                 {
-                    seedRelAction = SEED_ACTION_LOAD_SEED;
+                    // Skip doing anything to the seed if the seedRelAction is
+                    // not SEED_ACTION_NONE. It should always be
+                    // SEED_ACTION_NONE when reaching this code, but just in
+                    // case, we are keeping the same check.
+#ifndef DVD
+                    constexpr int32_t chan = CARD_SLOT_A;
+#endif
+                    if ( !randomizer || !randomizer->m_Seed )
+                    {
+                        // Load in new seed
 
-                    // m_Enabled will be set to true in the seed REL
-                    // The seed REL will set seedRelAction to SEED_ACTION_NONE if it ran successfully
+                        seedList2.setCurrentEntryToActive();
+                        seedRelAction = SEED_ACTION_LOAD_SEED;
+
+                        // m_Enabled will be set to true in the seed REL
+                        // The seed REL will set seedRelAction to SEED_ACTION_NONE if it ran successfully
 #ifdef DVD
-                    if ( !libtp::tools::callRelProlog( "/mod/seed.rel" ) )
+                        if ( !libtp::tools::callRelProlog( "/mod/seed.rel" ) )
 #else
-                    // Only mount/unmount the memory card once
-                    if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
+                        // Only mount/unmount the memory card once
+                        if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
 #endif
-                    {
-                        seedRelAction = SEED_ACTION_FATAL;
-                    }
+                        {
+                            seedList2.clearActiveEntry();
+                            seedRelAction = SEED_ACTION_FATAL;
+                        }
 #ifndef DVD
-                    libtp::gc_wii::card::CARDUnmount( chan );
+                        libtp::gc_wii::card::CARDUnmount( chan );
 #endif
-                }
-                else
-                {
-                    // Enable the randomizer
-                    randomizer->m_Enabled = true;
-
-                    // Check if loading a different seed
-                    if ( randomizer->m_CurrentSeed != seedList->m_selectedSeed )
+                    }
+                    else if ( seedList2.shouldSwapSeedToSelected() )
                     {
+                        // Change to a new seed if the rando currently had a
+                        // loaded seed, but it does not match the selected one.
+
+                        // Enable the randomizer
+                        randomizer->m_Enabled = true;
+
+                        // randomizer->m_CurrentSeed != seedList->m_selectedSeed )
+                        seedList2.setCurrentEntryToActive();
                         getConsole() << "Changing seed:\n";
                         seedRelAction = SEED_ACTION_CHANGE_SEED;
 
@@ -509,6 +528,7 @@ namespace mod
                         if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
 #endif
                         {
+                            seedList2.clearActiveEntry();
                             seedRelAction = SEED_ACTION_FATAL;
                         }
 #ifndef DVD
@@ -517,27 +537,40 @@ namespace mod
                     }
                     else
                     {
+                        // Had a loaded seed, and we don't need to change to a different seed.
                         // Not loading a different seed, so load checks for first load
                         randomizer->onStageLoad();
                     }
-                }
 
-                // Make sure no errors occurred
-                rando::Seed* seed = getCurrentSeed( randomizer );
-                if ( seed && ( seedRelAction == SEED_ACTION_NONE ) )
-                {
-                    // Volatile patches need to be applied whenever a file is loaded
-                    getConsole() << "Applying volatile patches:\n";
-                    seed->applyVolatilePatches( true );
+                    // Make sure no errors occurred
+                    rando::Seed* seed = getCurrentSeed( randomizer );
+                    if ( seed && ( seedRelAction == SEED_ACTION_NONE ) )
+                    {
+                        // Volatile patches need to be applied whenever a file is loaded
+                        getConsole() << "Applying volatile patches:\n";
+                        seed->applyVolatilePatches( true );
+                    }
                 }
             }
+            else
+            {
+                // Entering the game with no seed or a non-supported seed selected.
+                seedList2.clearActiveEntry();
+                shouldDisableRando = true;
+            }
         }
-        else
+        else if ( gameState == GAME_TITLE )
+        {
+            // Temporarily disable the randomizer when on the title screen
+            shouldDisableRando = true;
+        }
+
+        if ( shouldDisableRando )
         {
             seedRelAction = SEED_ACTION_NONE;
             if ( randoIsEnabled( randomizer ) )
             {
-                // Temporarily disable the randomizer
+                // Temporarily disable the randomizer without unloading the seed.
                 randomizer->m_Enabled = false;
                 randomizer->m_SeedInit = false;
             }

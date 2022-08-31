@@ -13,10 +13,12 @@
 
 namespace mod::rando
 {
-    Randomizer::Randomizer( SeedInfo* seedInfo, uint8_t selectedSeed )
+    // Randomizer::Randomizer( SeedInfo* seedInfo, uint8_t selectedSeed )
+    Randomizer::Randomizer()
     {
         getConsole() << "Rando loading...\n";
-        loadSeed( seedInfo, selectedSeed );
+        // loadSeed( seedInfo, selectedSeed );
+        loadSeed();
     }
 
     Randomizer::~Randomizer( void )
@@ -27,21 +29,28 @@ namespace mod::rando
         delete m_Seed;
     }
 
-    void Randomizer::loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed )
+    // void Randomizer::loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed )
+    void Randomizer::loadSeed()
     {
-        if ( seedInfo->fileIndex == 0xFF )
+        SeedListEntry* activeEntry = seedList2.getActiveEntry();
+
+        // if ( seedInfo->fileIndex == 0xFF )
+        if ( activeEntry == nullptr )
         {
-            getConsole() << "<Randomizer> Error: No such seed (0xFF)\n";
+            // getConsole() << "<Randomizer> Error: No such seed (0xFF)\n";
+            getConsole() << "<Randomizer> Error: Valid seed not selected.\n";
         }
         else
         {
-            getConsole() << "Seed: " << seedInfo->header.seed << "\n";
+            // getConsole() << "Seed: " << seedInfo->header.seed << "\n";
+            getConsole() << "Seed: " << activeEntry->playthroughName() << "\n";
             // Load the seed
-            m_SeedInfo = seedInfo;
-            m_CurrentSeed = selectedSeed;
+            // m_SeedInfo = seedInfo;
+            seedList2.setCurrentEntryToActive();
 
             // Align to void*, as pointers use the largest variable type in the Seed class
-            m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedInfo );
+            // m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedInfo );
+            m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedList2.getActiveEntry() );
 
             if ( m_Seed->checkIfSeedLoaded() )
             {
@@ -52,23 +61,21 @@ namespace mod::rando
             {
                 // The seed failed to load, so clear the seed
                 delete m_Seed;
-                m_SeedInfo = nullptr;
                 m_Seed = nullptr;
-                m_CurrentSeed = 0xFF;
             }
         }
     }
 
-    void Randomizer::changeSeed( SeedInfo* seedInfo, uint8_t newSeed )
+    // void Randomizer::changeSeed( SeedInfo* seedInfo, uint8_t newSeed )
+    void Randomizer::changeSeed()
     {
         getConsole() << "Seed unloading...\n";
         delete m_Seed;
-        m_SeedInfo = nullptr;
         m_Seed = nullptr;
         m_SeedInit = false;
-        m_CurrentSeed = 0xFF;
 
         getConsole() << "Seed Loading...\n";
-        loadSeed( seedInfo, newSeed );
+        // loadSeed( seedInfo, newSeed );
+        loadSeed();
     }
 }     // namespace mod::rando

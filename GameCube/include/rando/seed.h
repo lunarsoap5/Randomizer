@@ -17,6 +17,7 @@
 
 #include "rando/data.h"
 #include "tools.h"
+#include "rando/seedlist2.h"
 
 namespace mod::rando
 {
@@ -117,7 +118,8 @@ namespace mod::rando
          *
          *  @param seedInfo Pointer to the seedinfo that we intend to load
          */
-        Seed( int32_t chan, SeedInfo* seedInfo );
+        // Seed( int32_t chan, SeedInfo* seedInfo );
+        Seed( int32_t chan, SeedListEntry* seedListEntry );
 
         /**
          *  @brief Deletes all allocated members and unpatches all the previously applied patches
@@ -134,6 +136,7 @@ namespace mod::rando
         void loadShopModels();
 
        private:
+        uint8_t* m_fileBytes = nullptr;
         uint8_t* m_GCIData = nullptr;     // GCI Data including header
         uint8_t m_fileIndex = 0xFF;       // GCI Fileindex
         int32_t m_CardSlot = 0;           // Selected Card slot

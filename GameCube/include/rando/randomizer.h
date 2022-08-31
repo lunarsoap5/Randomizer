@@ -38,21 +38,17 @@ namespace mod::rando
         uint8_t getHiddenSkillItem( uint16_t eventIndex );
 
         // Subrel
-        Randomizer( SeedInfo* seedInfo, uint8_t selectedSeed );
-        void loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed );
-        void changeSeed( SeedInfo* seedInfo, uint8_t newSeed );
-
-        /**
-         * @brief Returns the seed
-         */
-        inline uint64_t getSeed() { return m_SeedInfo->header.seed; }
+        // Randomizer( SeedInfo* seedInfo, uint8_t selectedSeed );
+        Randomizer();
+        // void loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed );
+        void loadSeed();
+        // void changeSeed( SeedInfo* seedInfo, uint8_t newSeed );
+        void changeSeed();
 
        public:
-        SeedInfo* m_SeedInfo = nullptr;     // SeedInfo associated with this randomizer instance
         Seed* m_Seed;
-        bool m_Enabled = true;            // True if the randomizer is currently enabled
-        bool m_SeedInit = false;          // True if seed-specific patches, flags, etc. have been applied to the save-file
-        uint8_t m_CurrentSeed = 0xFF;     // The seed that is currently loaded
+        bool m_Enabled = true;       // True if the randomizer is currently enabled
+        bool m_SeedInit = false;     // True if seed-specific patches, flags, etc. have been applied to the save-file
     };
 }     // namespace mod::rando
 #endif

@@ -62,7 +62,7 @@ namespace mod
 
         // Generate our seedList
         // Align to void*, as pointers use the largest variable type in the SeedList class
-        seedList = new ( sizeof( void* ) ) rando::SeedList();
+        // seedList = new ( sizeof( void* ) ) rando::SeedList();
 
         // Handle the main function hooks
         hookFunctions();

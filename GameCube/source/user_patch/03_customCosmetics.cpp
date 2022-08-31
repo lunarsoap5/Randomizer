@@ -92,7 +92,8 @@ namespace mod::user_patch
     void setHUDCosmetics( rando::Randomizer* randomizer )
     {
         // Make sure the randomizer is loaded/enabled and a seed is loaded
-        if ( !getCurrentSeed( randomizer ) )
+        rando::Seed* currentSeed = getCurrentSeed( randomizer );
+        if ( currentSeed == nullptr )
         {
             return;
         }
@@ -100,7 +101,8 @@ namespace mod::user_patch
         using namespace libtp::tp::d_meter2_info;
         using namespace libtp::data::items;
 
-        const rando::Header* seedHeader = &randomizer->m_SeedInfo->header;
+        const rando::Header* seedHeader = currentSeed->m_Header;
+
         const uint8_t heartColorIndex = seedHeader->heartColor;
         const uint8_t aButtonColorIndex = seedHeader->aButtonColor;
         const uint8_t bButtonColorIndex = seedHeader->bButtonColor;
@@ -282,7 +284,8 @@ namespace mod::user_patch
     void setLanternColor( rando::Randomizer* randomizer )
     {
         // Make sure the randomizer is loaded/enabled and a seed is loaded
-        if ( !getCurrentSeed( randomizer ) )
+        rando::Seed* currentSeed = getCurrentSeed( randomizer );
+        if ( currentSeed == nullptr )
         {
             return;
         }
@@ -291,7 +294,7 @@ namespace mod::user_patch
 
         // Set lantern variables
         daAlinkHIO_kandelaar_c0* tempLanternVars = &lanternVars;
-        const uint8_t* lanternColor = &lanternColors[randomizer->m_SeedInfo->header.lanternColor][0];
+        const uint8_t* lanternColor = &lanternColors[currentSeed->m_Header->lanternColor][0];
         daAlinkHIO_huLight_c0* tempHuLightVars = &huLightVars;
 
         tempLanternVars->innerSphereR = lanternColor[0];

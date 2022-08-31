@@ -41,7 +41,8 @@ namespace mod::rando
         }
         else
         {
-            getConsole() << "FATAL: Couldn't read Seed #" << m_fileIndex << "\n";
+            // getConsole() << "FATAL: Couldn't read Seed #" << m_fileIndex << "\n";
+            getConsole() << "FATAL: Couldn't read Seed\n";
             getConsole() << "ERROR: " << m_CARDResult << "\n";
             return false;
         }

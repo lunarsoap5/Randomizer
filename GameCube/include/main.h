@@ -26,9 +26,16 @@
 #include "m_Do/m_Do_MemCard.h"
 
 // Game States
-#define GAME_BOOT 0       // Default; At startup (should only ever be active once)
-#define GAME_TITLE 1      // When user is on title screen; let them choose their seed etc.
-#define GAME_ACTIVE 2     // When user is ingame and rando should be active
+// Default; At startup (should only ever be active once)
+#define GAME_BOOT 0
+// When user is on title screen; let them choose their seed etc.
+#define GAME_TITLE 1
+// User is starting to play, so we should try to load the selected seed (if
+// exists and is valid).
+#define GAME_TRY_LOAD_SEED 2
+// When user has entered the game (no longer on the title screen). This will be
+// the state regardless or whether or not the rando is active.
+#define GAME_ACTIVE 3
 
 #ifndef DVD
 // Subrel module ids

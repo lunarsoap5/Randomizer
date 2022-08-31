@@ -26,28 +26,31 @@
 #include "tp/d_a_shop_item_static.h"
 #include "tp/d_item_data.h"
 #include "user_patch/user_patch.h"
+#include "rando/seedlist2.h"
 
 namespace mod::rando
 {
-    Seed::Seed( int32_t chan, SeedInfo* seedInfo ): m_CardSlot( chan )
+    // Seed::Seed( int32_t chan, SeedInfo* seedInfo ): m_CardSlot( chan )
+    Seed::Seed( int32_t chan, SeedListEntry* seedEntry ): m_CardSlot( chan )
     {
-        m_Header = &seedInfo->header;
+        // m_Header = &seedInfo->header;
         // Loading seed rando-dataX '<seed>'...
 
         // Store our filename index
-        m_fileIndex = seedInfo->fileIndex;
+        // m_fileIndex = seedInfo->fileIndex;
 
-        getConsole() << "Loading seed " << m_fileIndex << ": '" << m_Header->seed << "'...\n";
+        getConsole() << "Loading seed: '" << seedEntry->playthroughName() << "'...\n";
 
         // Load the whole GCI locally to reduce number of reads (memcard)
         char fileName[32];
 #ifdef DVD
         snprintf( fileName, sizeof( fileName ), "/mod/rando-data%c", static_cast<char>( '0' + m_fileIndex ) );
 #else
-        snprintf( fileName, sizeof( fileName ), "rando-data%c", static_cast<char>( '0' + m_fileIndex ) );
+        snprintf( fileName, sizeof( fileName ), seedEntry->filename() );
 #endif
         // Allocate the buffer to the back of the heap to prevent fragmentation
-        uint32_t totalSize = m_Header->totalSize;
+        // uint32_t totalSize = m_Header->totalSize;
+        uint32_t totalSize = seedEntry->blockCount() * CARD_BLOCK_SIZE;
 
         // Align to 0x20 for safety, since some functions may cast parts of it to classes/structs/arrays/etc.
         uint8_t* data = new ( -0x20 ) uint8_t[totalSize];
@@ -56,15 +59,23 @@ namespace mod::rando
         if ( m_CARDResult == DVD_STATE_END )
 #else
         // The memory card should already be mounted
-        m_CARDResult = libtp::tools::ReadGCIMounted( m_CardSlot, fileName, totalSize, 0, data, true );
+        // m_CARDResult = libtp::tools::ReadGCIMounted( m_CardSlot, fileName, totalSize, 0, data, true );
+        m_CARDResult = libtp::tools::ReadGCIMounted( m_CardSlot, fileName, totalSize, 0, data, false );
         if ( m_CARDResult == CARD_RESULT_READY )
 #endif
         {
+            void* headerDataPtr = data + seedEntry->commentsOffset() + 0x40;
+
+            Header* tempHeader = static_cast<Header*>( headerDataPtr );
+
             // Get the main seed data
             // Align to 0x20 for safety, since some functions cast parts of it to classes/structs/arrays/etc.
-            uint32_t dataSize = m_Header->dataSize;
-            m_GCIData = new ( 0x20 ) uint8_t[dataSize];
-            memcpy( m_GCIData, &data[m_Header->headerSize], dataSize );
+            uint32_t dataSize = tempHeader->dataSize;
+            m_fileBytes = new ( 0x20 ) uint8_t[dataSize];
+            memcpy( m_fileBytes, headerDataPtr, dataSize );
+
+            m_Header = static_cast<Header*>( static_cast<void*>( m_fileBytes ) );
+            m_GCIData = &m_fileBytes[m_Header->headerSize];
 
             // Create the required dungeons text that is displayed when reading the sign in front of Link's house
             link_house_sign::createRequiredDungeonsString( this, m_Header->requiredDungeons );

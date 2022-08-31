@@ -15,6 +15,7 @@
 #include "gc_wii/card.h"
 #endif
 
+#include "string.h"
 #include "rando/seedlist.h"
 #include "rando/seedlist2.h"
 
@@ -44,6 +45,27 @@ namespace mod::rando
         return result;
     }
 
+    void SeedListEntry::copyFrom( SeedListEntry& dest, const SeedListEntry& src )
+    {
+        dest.m_verMajor = src.m_verMajor;
+        dest.m_verMinor = src.m_verMinor;
+        dest.m_fileBlockCount = src.m_fileBlockCount;
+        dest.m_commentsOffset = src.m_commentsOffset;
+        memcpy( dest.m_filename, src.m_filename, 33 );
+        dest.m_status = src.m_status;
+    }
+
+    SeedListEntry::SeedListEntry( const SeedListEntry& other )
+    {
+        copyFrom( *this, other );
+    }
+
+    SeedListEntry& SeedListEntry::operator=( SeedListEntry other )
+    {
+        copyFrom( *this, other );
+        return *this;
+    }
+
     void SeedListEntry::updateFromDirectoryEntry( libtp::util::card::DirectoryEntry& dirEntry )
     {
         std::memset( m_filename, 0, 33 );
@@ -54,6 +76,8 @@ namespace mod::rando
 
         m_verMajor = versionMajor;
         m_verMinor = versionMinor;
+        m_fileBlockCount = dirEntry.numBlocks;
+        m_commentsOffset = dirEntry.commentsOffset;
 
         if ( versionMajor == VersionDecodeFailure || versionMinor == VersionDecodeFailure )
         {
@@ -159,6 +183,45 @@ namespace mod::rando
 
         int8_t newIndex = selectedIndex - 1;
         selectedIndex = newIndex < 0 ? count - 1 : newIndex;
+    }
+
+    void SeedList2::clearActiveEntry()
+    {
+        if ( activeEntry != nullptr )
+        {
+            delete activeEntry;
+            activeEntry = nullptr;
+        }
+    }
+
+    void SeedList2::setCurrentEntryToActive()
+    {
+        if ( selectedIndex >= 0 && selectedIndex < count )
+        {
+            // Updating activeEntry.
+            if ( activeEntry == nullptr )
+            {
+                activeEntry = new SeedListEntry();
+            }
+            *activeEntry = entries[selectedIndex];
+        }
+        else
+        {
+            clearActiveEntry();
+        }
+    }
+
+    bool SeedList2::shouldSwapSeedToSelected()
+    {
+        if ( selectedIndex < 0 || selectedIndex >= count )
+        {
+            // Should not swap if the current selection is invalid (no seeds in the seedList).
+            return false;
+        }
+
+        // Should swap to the valid selected entry if we have no activeEntry or
+        // if the activeEntry has a different filename from the selected one.
+        return ( activeEntry == nullptr || strcmp( activeEntry->filename(), entries[selectedIndex].filename() ) != 0 );
     }
 
 }     // namespace mod::rando
