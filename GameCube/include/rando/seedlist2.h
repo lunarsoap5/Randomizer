@@ -68,10 +68,19 @@ namespace mod::rando
         // bool checkActiveEntryMatchesSelected();
         bool shouldSwapSeedToSelected();
         void clearActiveEntry();
+        void handleMemCardDetach();
 
        private:
+        enum PrevMemCardAction : uint8_t
+        {
+            NONE,
+            LOADFILE,
+            DETACH,
+        };
+
         int8_t count = 0;
         int8_t selectedIndex = -1;
+        PrevMemCardAction prevMemCardAction = NONE;
         SeedListEntry* entries = nullptr;
         // activeEntry points to its own copy of the entry data for that seed.
         SeedListEntry* activeEntry = nullptr;

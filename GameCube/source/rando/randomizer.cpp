@@ -38,8 +38,11 @@ namespace mod::rando
         Seed* seed;
         if ( seed = getCurrentSeed( this ), !seed )
         {
+            getConsole() << "No current seed\n";
             return;
         }
+
+        getConsole() << "afdsferererafter\n";
 
         const char* stage = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage.stageValues.mStage;
         seed->LoadChecks( stage );

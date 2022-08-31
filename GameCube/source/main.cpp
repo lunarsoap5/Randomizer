@@ -66,6 +66,7 @@ namespace mod
     KEEP_VAR uint8_t seedRelAction = SEED_ACTION_NONE;
     uint32_t randNext = 0;
     KEEP_VAR const char* m_DonationText = nullptr;
+    bool pendingSeedlistConsoleChange = false;
 
     // Function hook return trampolines
     KEEP_VAR void ( *return_fapGm_Execute )( void ) = nullptr;
@@ -214,6 +215,7 @@ namespace mod
                                                                          int size ) = nullptr;
 
     KEEP_VAR bool ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this ) = nullptr;
+    KEEP_VAR void ( *return_mDoMemCd_Ctrl_c__detach )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this ) = nullptr;
 
     void main()
     {
@@ -302,54 +304,61 @@ namespace mod
 
         if ( input && gameState == GAME_TITLE )
         {
-            if ( seedList2.getCount() > 1 )
+            // if ( seedList2.getCount() > 0 )
+            // {
+            if ( checkBtn( Button_X ) )
             {
-                if ( checkBtn( Button_X ) )
-                {
-                    seedList2.incrementSelectedEntry();
-                }
-                else if ( checkBtn( Button_Y ) )
-                {
-                    seedList2.decrementSelectedEntry();
-                }
-
-                rando::SeedListEntry* selectedSeed = seedList2.getSelectedEntry();
-
-                // 8 is the line it typically appears
-                getConsole().setLine( 8 );
-                getConsole() << "\r"
-                             << "Press X/Y to select a seed\n"
-                             << "Press R + Z to close the console\n"
-                             << "[" << seedList2.getSelectedIndex() + 1 << "/" << seedList2.getCount()
-                             << "] Seed: " << selectedSeed->playthroughName() << "\n";
-
-                if ( selectedSeed->status() == rando::SeedListEntryStatus::VERSION_UNKNOWN )
-                {
-                    getConsole() << "v?.?";
-                }
-                else
-                {
-                    // Static cast to int32_t so prints like "v1.0" instead of "v0001.0000".
-                    getConsole() << "v" << static_cast<int32_t>( selectedSeed->verMajor() ) << "."
-                                 << static_cast<int32_t>( selectedSeed->verMinor() );
-                }
-
-                switch ( selectedSeed->status() )
-                {
-                    case rando::SeedListEntryStatus::FULLY_SUPPORTED:
-                        break;
-                    case rando::SeedListEntryStatus::PARTIALLY_SUPPORTED:
-                        getConsole() << " (partial support)";
-                        break;
-                    default:
-                        // case rando::SeedListEntryStatus::VERSION_UNKNOWN:
-                        // case rando::SeedListEntryStatus::NOT_SUPPORTED:
-                        getConsole() << " (NOT SUPPORTED)";
-                        break;
-                }
-
-                getConsole() << "\n";
+                seedList2.incrementSelectedEntry();
             }
+            else if ( checkBtn( Button_Y ) )
+            {
+                seedList2.decrementSelectedEntry();
+            }
+
+            rando::SeedListEntry* selectedSeed = seedList2.getSelectedEntry();
+
+            // 8 is the line it typically appears
+            getConsole().setLine( 8 );
+            getConsole() << "\r"
+                         << "Press X/Y to select a seed\n"
+                         << "Press R + Z to close the console\n"
+                         << "[" << seedList2.getSelectedIndex() + 1 << "/" << seedList2.getCount() << "] Seed: ";
+
+            if ( selectedSeed == nullptr )
+            {
+                getConsole() << "None\n";
+                return;
+            }
+
+            getConsole() << selectedSeed->playthroughName() << "\n";
+
+            if ( selectedSeed->status() == rando::SeedListEntryStatus::VERSION_UNKNOWN )
+            {
+                getConsole() << "v?.?";
+            }
+            else
+            {
+                // Static cast to int32_t so prints like "v1.0" instead of "v0001.0000".
+                getConsole() << "v" << static_cast<int32_t>( selectedSeed->verMajor() ) << "."
+                             << static_cast<int32_t>( selectedSeed->verMinor() );
+            }
+
+            switch ( selectedSeed->status() )
+            {
+                case rando::SeedListEntryStatus::FULLY_SUPPORTED:
+                    break;
+                case rando::SeedListEntryStatus::PARTIALLY_SUPPORTED:
+                    getConsole() << " (partial support)";
+                    break;
+                default:
+                    // case rando::SeedListEntryStatus::VERSION_UNKNOWN:
+                    // case rando::SeedListEntryStatus::NOT_SUPPORTED:
+                    getConsole() << " (NOT SUPPORTED)";
+                    break;
+            }
+
+            getConsole() << "\n";
+            // }
         }
         // End of handling title screen inputs
     }
@@ -407,11 +416,11 @@ namespace mod
                             setScreen( true );
                             break;
 
-                        case 1:
-                            // Only one seed present, auto-select it and disable console for convenience
-                            getConsole() << "First and only seed automatically applied...\n";
-                            setScreen( false );
-                            break;
+                            // case 1:
+                            //     // Only one seed present, auto-select it and disable console for convenience
+                            //     getConsole() << "First and only seed automatically applied...\n";
+                            //     setScreen( false );
+                            //     break;
 
                         default:
                             // User has to select one of the seeds
@@ -426,6 +435,12 @@ namespace mod
             }
         }
         // End of handling gameStates
+
+        if ( gameState == GAME_TITLE && pendingSeedlistConsoleChange )
+        {
+            pendingSeedlistConsoleChange = false;
+            doInput( Button_Start );
+        }
 
         // handle button inputs only if buttons are being held that weren't held last time
         if ( padInfo->buttonInput != lastButtonInput )
@@ -468,6 +483,8 @@ namespace mod
         // Handle rando state
         if ( gameState == GAME_TRY_LOAD_SEED )
         {
+            getConsole() << "in TRY_LOAD_SEED\n";
+
             gameState = GAME_ACTIVE;
 
             rando::SeedListEntry* selectedSeedEntry = seedList2.getSelectedEntry();
@@ -537,6 +554,10 @@ namespace mod
                     }
                     else
                     {
+                        // Enable the randomizer
+                        randomizer->m_Enabled = true;
+
+                        getConsole() << "doing onSTAGELOAD\n";
                         // Had a loaded seed, and we don't need to change to a different seed.
                         // Not loading a different seed, so load checks for first load
                         randomizer->onStageLoad();
@@ -551,9 +572,14 @@ namespace mod
                         seed->applyVolatilePatches( true );
                     }
                 }
+                else
+                {
+                    getConsole() << "not SEED_ACTION_NONE\n";
+                }
             }
             else
             {
+                getConsole() << "SHDFIOHSOFIHSIOHFOISHF\n";
                 // Entering the game with no seed or a non-supported seed selected.
                 seedList2.clearActiveEntry();
                 shouldDisableRando = true;
@@ -1590,9 +1616,30 @@ namespace mod
                 libtp::display::clearConsole( 14, 1 );
                 getConsole() << "\r" << seedList2.getCount() << " seed(s) available.\n";
             }
+
+            pendingSeedlistConsoleChange = true;
         }
 
         return return_mDoMemCd_Ctrl_c__loadfile( _this );
+    }
+
+    KEEP_FUNC void handle_mDoMemCd_Ctrl_c__detach( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
+    {
+        // This function is called immediately after the game recognizes a
+        // memory card was mounted successfully. We hook in to where the game
+        // would try to read the "gczelda2" file from the memory card, and this
+        // code executes right before that. This is the earliest that the memory
+        // card Directory is loaded in the vanilla game. This gets called again
+        // if you take the memory card out and put it back in.
+
+        if ( _this->mChannel == CARD_SLOT_A )
+        {
+            seedList2.handleMemCardDetach();
+            pendingSeedlistConsoleChange = true;
+        }
+
+        // Call original function
+        return_mDoMemCd_Ctrl_c__detach( _this );
     }
 
     uint32_t rand( uint32_t* seed )

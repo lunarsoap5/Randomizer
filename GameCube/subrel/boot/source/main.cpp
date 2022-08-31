@@ -182,6 +182,10 @@ namespace mod
         // Reading save file from memory card
         return_mDoMemCd_Ctrl_c__loadfile =
             patch::hookFunction( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c__loadfile, mod::handle_mDoMemCd_Ctrl_c__loadfile );
+
+        // Memory card is detaching
+        return_mDoMemCd_Ctrl_c__detach =
+            patch::hookFunction( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c__detach, mod::handle_mDoMemCd_Ctrl_c__detach );
     }
 
     void initRandNext()

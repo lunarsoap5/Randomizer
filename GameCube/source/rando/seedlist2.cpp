@@ -114,13 +114,25 @@ namespace mod::rando
 
     void SeedList2::updateEntries( libtp::util::card::DirectoryEntry* dirEntries, int numDirEntries )
     {
+        prevMemCardAction = LOADFILE;
+
+        bool hasPrevFilename = false;
+        char prevFilename[33];
+
         if ( this->entries != nullptr )
         {
+            if ( selectedIndex >= 0 && selectedIndex < count )
+            {
+                hasPrevFilename = true;
+                memcpy( prevFilename, this->entries[selectedIndex].filename(), 33 );
+            }
+
             delete[] this->entries;
         }
 
         SeedListEntry* workingEntries = new SeedListEntry[numDirEntries];
         int totalEntries = 0;
+        int8_t idxForPrevFilename = -1;
 
         for ( int i = 0; i < numDirEntries; i++ )
         {
@@ -129,6 +141,10 @@ namespace mod::rando
             {
                 // Filename starting with "sd" indicates this is a seed file.
                 workingEntries[totalEntries].updateFromDirectoryEntry( dirEntry );
+                if ( hasPrevFilename && strcmp( prevFilename, workingEntries[totalEntries].filename() ) == 0 )
+                {
+                    idxForPrevFilename = totalEntries;
+                }
 
                 totalEntries += 1;
             }
@@ -141,21 +157,24 @@ namespace mod::rando
         {
             this->entries[i] = workingEntries[i];
         }
-        this->selectedIndex = totalEntries > 0 ? 0 : -1;
+
+        if ( idxForPrevFilename >= 0 && idxForPrevFilename < totalEntries )
+        {
+            this->selectedIndex = idxForPrevFilename;
+        }
+        else if ( totalEntries > 0 )
+        {
+            this->selectedIndex = 0;
+        }
+        else
+        {
+            this->selectedIndex = -1;
+        }
 
         delete[] workingEntries;
     }
 
-    void SeedList2::clearEntries()
-    {
-        if ( entries != nullptr )
-        {
-            delete[] entries;
-        }
-
-        count = 0;
-        selectedIndex = -1;
-    }
+    void SeedList2::clearEntries() {}
 
     SeedListEntry* SeedList2::getSelectedEntry()
     {
@@ -222,6 +241,36 @@ namespace mod::rando
         // Should swap to the valid selected entry if we have no activeEntry or
         // if the activeEntry has a different filename from the selected one.
         return ( activeEntry == nullptr || strcmp( activeEntry->filename(), entries[selectedIndex].filename() ) != 0 );
+    }
+
+    // Clear all entries except the activeEntry if it exists.
+    void SeedList2::handleMemCardDetach()
+    {
+        // This can get called several times. For example, when resetting to the
+        // title screen, it seems to get called every frame.
+        if ( prevMemCardAction != DETACH )
+        {
+            prevMemCardAction = DETACH;
+
+            if ( entries != nullptr )
+            {
+                delete[] entries;
+            }
+
+            if ( activeEntry != nullptr )
+            {
+                entries = new SeedListEntry[1];
+                count = 1;
+                selectedIndex = 0;
+                entries[0] = *activeEntry;
+            }
+            else
+            {
+                entries = nullptr;
+                count = 0;
+                selectedIndex = -1;
+            }
+        }
     }
 
 }     // namespace mod::rando
