@@ -70,9 +70,9 @@ namespace mod::rando
 
             // Get the main seed data
             // Align to 0x20 for safety, since some functions cast parts of it to classes/structs/arrays/etc.
-            uint32_t dataSize = tempHeader->dataSize;
-            m_fileBytes = new ( 0x20 ) uint8_t[dataSize];
-            memcpy( m_fileBytes, headerDataPtr, dataSize );
+            uint32_t totalByteLength = tempHeader->totalSize;
+            m_fileBytes = new ( 0x20 ) uint8_t[totalByteLength];
+            memcpy( m_fileBytes, headerDataPtr, totalByteLength );
 
             m_Header = static_cast<Header*>( static_cast<void*>( m_fileBytes ) );
             m_GCIData = &m_fileBytes[m_Header->headerSize];

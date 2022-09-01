@@ -35,7 +35,7 @@ namespace mod::rando
         uint16_t blockCount() { return m_fileBlockCount; }
         uint32_t commentsOffset() { return m_commentsOffset; }
         const char* filename() { return m_filename; }
-        const char* playthroughName() { return &m_filename[8]; }
+        const char* playthroughName() { return m_playthroughName; }
         SeedListEntryStatus status() { return m_status; }
         bool isCompatibleWithRando() { return m_status == FULLY_SUPPORTED || m_status == PARTIALLY_SUPPORTED; }
 
@@ -45,6 +45,7 @@ namespace mod::rando
         uint16_t m_fileBlockCount;
         uint16_t m_commentsOffset;
         char m_filename[33];
+        char m_playthroughName[25];
         SeedListEntryStatus m_status;
 
         static void copyFrom( SeedListEntry& dest, const SeedListEntry& src );

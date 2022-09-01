@@ -22,27 +22,88 @@
 namespace mod::rando
 {
     static const uint16_t VersionDecodeFailure = 0xFFFF;
-    static const char* asdf = "0123456789abcDefghiJkLmNopQrstuVwxyzABEHR";
 
-    uint16_t decodeU16From3Chars( char* chars )
+    // Converts 4 chars representing 24 bits to u16 verMajor and verMinor
+    void decodeVersion( uint16_t* outVersions, const char* verStr )
     {
-        int result = 0;
+        uint32_t parsed24Bits = 0;
+        uint8_t shiftAmt = 18;
+        bool error = false;
 
-        for ( int i = 0; i < 3; i++ )
+        for ( uint8_t i = 0; i < 4; i++ )
         {
-            char character = chars[i];
-            const char* charPtr = std::find( asdf, asdf + 41, character );
-            if ( charPtr == asdf + 41 )
+            char charVal = verStr[i];
+            uint8_t numericalValue;
+
+            if ( charVal < '0' )
             {
-                // Failed to map character to number.
-                return VersionDecodeFailure;
+                error = true;
+                break;
+            }
+            else if ( charVal <= '9' )
+            {
+                numericalValue = charVal - '0';
+            }
+            else if ( charVal < 'A' )
+            {
+                error = true;
+                break;
+            }
+            else if ( charVal <= 'Z' )
+            {
+                numericalValue = charVal - 'A' + 10;
+            }
+            else if ( charVal < 'a' )
+            {
+                error = true;
+                break;
+            }
+            else if ( charVal <= 'z' )
+            {
+                numericalValue = charVal - 'a' + 36;
+            }
+            else
+            {
+                error = true;
+                break;
             }
 
-            result *= 41;
-            result += std::distance( asdf, charPtr );
+            parsed24Bits |= ( numericalValue << shiftAmt );
+            shiftAmt -= 6;
         }
 
-        return result;
+        if ( error )
+        {
+            outVersions[0] = VersionDecodeFailure;
+            outVersions[1] = VersionDecodeFailure;
+            return;
+        }
+
+        // 24 bits. First 4 are a value 0 through 15. 1 plus this (1 through 16)
+        // says how many bits are for the major version (follows the first 4
+        // bits). The remaining bits (up to 19) are treated as a u16 and used
+        // for the minor version. This lets us represent any version number we
+        // might realistically see (up to version 65534.15) in 4 characters
+        // instead of 6.
+
+        // Example of versions which cause a forced major version update are
+        // 32767.31, 16383.63, 8191.127, 4095.255, 2047.511, 1023.1023. As you
+        // can see, we are unlikely to run into any of these limits. Since the
+        // minor version resets whenever the major version increments, we would
+        // have to go through thousands of major verions before we even have a
+        // chance of a forced major version update (which isn't even a big deal
+        // if we had one by some miracle).
+
+        uint8_t numBitsForVerMajor = 1 + ( ( parsed24Bits >> 20 ) & 0xF );
+
+        uint32_t verMajorBitMask = 0xFFFF0 & ( 0xFFFF0 << ( 16 - numBitsForVerMajor ) );
+        uint16_t verMajor = ( parsed24Bits & verMajorBitMask ) >> ( 20 - numBitsForVerMajor );
+
+        uint32_t verMinorBitMask = 0xFFFFF & ( 0xFFFFF >> ( numBitsForVerMajor ) );
+        uint16_t verMinor = parsed24Bits & verMinorBitMask;
+
+        outVersions[0] = verMajor;
+        outVersions[1] = verMinor;
     }
 
     void SeedListEntry::copyFrom( SeedListEntry& dest, const SeedListEntry& src )
@@ -52,6 +113,7 @@ namespace mod::rando
         dest.m_fileBlockCount = src.m_fileBlockCount;
         dest.m_commentsOffset = src.m_commentsOffset;
         memcpy( dest.m_filename, src.m_filename, 33 );
+        memcpy( dest.m_playthroughName, src.m_playthroughName, 25 );
         dest.m_status = src.m_status;
     }
 
@@ -68,11 +130,35 @@ namespace mod::rando
 
     void SeedListEntry::updateFromDirectoryEntry( libtp::util::card::DirectoryEntry& dirEntry )
     {
+        // Copy filename
         std::memset( m_filename, 0, 33 );
         std::memcpy( m_filename, &dirEntry.filename, 32 );
 
-        uint16_t versionMajor = decodeU16From3Chars( &m_filename[2] );
-        uint16_t versionMinor = decodeU16From3Chars( &m_filename[5] );
+        // Create playthroughName
+        char* playthroughNamePtr = &dirEntry.filename[12];
+
+        std::memset( m_playthroughName, 0, 25 );
+
+        uint8_t nameAdjNounLength = 20;
+        for ( uint8_t i = 0; i < 20; i++ )
+        {
+            if ( playthroughNamePtr[i] == 0 )
+            {
+                nameAdjNounLength = i;
+                break;
+            }
+        }
+
+        std::memcpy( m_playthroughName, playthroughNamePtr, nameAdjNounLength );
+        m_playthroughName[nameAdjNounLength] = '_';
+        std::memcpy( &m_playthroughName[nameAdjNounLength + 1], &dirEntry.filename[9], 3 );
+
+        // Decode version numbers
+        uint16_t versionNums[2];
+        decodeVersion( versionNums, &dirEntry.filename[2] );
+
+        uint16_t versionMajor = versionNums[0];
+        uint16_t versionMinor = versionNums[1];
 
         m_verMajor = versionMajor;
         m_verMinor = versionMinor;

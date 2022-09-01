@@ -246,6 +246,7 @@ namespace mod::rando
 
         seed->LoadARCChecks( seed->m_StageIDX, fileDirectory, roomNo );
         uint32_t numReplacements = seed->m_numLoadedArcReplacements;
+
         // Loop through all ArcChecks and replace the item at an offset given the fileIndex.
         for ( uint32_t i = 0; i < numReplacements; i++ )
         {
