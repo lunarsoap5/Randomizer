@@ -579,11 +579,25 @@ namespace mod
             }
             else
             {
-                getConsole() << "SHDFIOHSOFIHSIOHFOISHF\n";
+                if ( seedList2.getCount() > 0 )
+                {
+                    getConsole() << "UNSUPPORTED SEED SELECTED\n";
+                }
+                else
+                {
+                    getConsole() << "NO SEED SELECTED.\n";
+                }
                 // Entering the game with no seed or a non-supported seed selected.
                 seedList2.clearActiveEntry();
                 shouldDisableRando = true;
             }
+
+            // Regardless of what happens, free the seed entries memory. The
+            // memory card detaches whenever the player returns to the title
+            // screen, so we can go ahead and run the detach here since the seed
+            // entries are only used on the title screen.
+            seedList2.handleMemCardDetach();
+            pendingSeedlistConsoleChange = true;
         }
         else if ( gameState == GAME_TITLE )
         {
