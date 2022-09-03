@@ -61,7 +61,7 @@ namespace mod::rando
         int8_t getCount() { return count; }
         int8_t getSelectedIndex() { return selectedIndex; }
         SeedListEntry* getActiveEntry() { return activeEntry; }
-        void updateEntries( libtp::gc_wii::card::__DirEntry* dirEntries, int numDirEntries );
+        void updateEntries( libtp::gc_wii::card::__DirEntries* dirEntries, int numDirEntries );
         void clearEntries();
         SeedListEntry* getSelectedEntry();
         void incrementSelectedEntry();

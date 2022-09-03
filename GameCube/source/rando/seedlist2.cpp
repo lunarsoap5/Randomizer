@@ -21,6 +21,7 @@
 
 namespace mod::rando
 {
+    using libtp::gc_wii::card::__DirEntries;
     using libtp::gc_wii::card::__DirEntry;
 
     static const uint16_t VersionDecodeFailure = 0xFFFF;
@@ -200,7 +201,7 @@ namespace mod::rando
         delete[] entries;
     }
 
-    void SeedList2::updateEntries( __DirEntry* dirEntries, int numDirEntries )
+    void SeedList2::updateEntries( __DirEntries* dirEntries, int numDirEntries )
     {
         prevMemCardAction = LOADFILE;
 
@@ -222,9 +223,11 @@ namespace mod::rando
         int totalEntries = 0;
         int8_t idxForPrevFilename = -1;
 
+        __DirEntry* entries = dirEntries->entries;
+
         for ( int i = 0; i < numDirEntries; i++ )
         {
-            __DirEntry& dirEntry = dirEntries[i];
+            __DirEntry& dirEntry = entries[i];
             if ( dirEntry.filename[0] == 's' && dirEntry.filename[1] == 'd' )
             {
                 // Filename starting with "sd" indicates this is a seed file.

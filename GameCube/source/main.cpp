@@ -1605,14 +1605,14 @@ namespace mod
 
         if ( _this->mChannel == CARD_SLOT_A )
         {
-            using libtp::gc_wii::card::__DirEntry;
-
             // Not messing with slot B until there is a reason to. This matches
             // current behavior.
 
+            using libtp::gc_wii::card::__DirEntries;
+
             // Run into issues once the array gets a little over 110 elements long
             // when not using heap. Need to support 127 (max files on memory card).
-            __DirEntry* dirEntries = new __DirEntry[CARD_MAX_FILE];
+            __DirEntries* dirEntries = new __DirEntries;
             int32_t count = 0;
 
             int32_t getDirEntriesResult = libtp::util::card::GetDirEntries( _this->mChannel, dirEntries, &count, false );
@@ -1622,7 +1622,7 @@ namespace mod
                 seedList2.updateEntries( dirEntries, count );
             }
 
-            delete[] dirEntries;
+            delete dirEntries;
 
             if ( gameState == GAME_BOOT )
             {
