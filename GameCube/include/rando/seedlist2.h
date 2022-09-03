@@ -9,6 +9,7 @@
 
 #include <cstdint>
 
+#include "gc_wii/card.h"
 #include "util/cardUtils.h"
 
 namespace mod::rando
@@ -28,7 +29,7 @@ namespace mod::rando
         SeedListEntry( const SeedListEntry& existingInst );
         SeedListEntry& operator=( const SeedListEntry& other );
 
-        void updateFromDirectoryEntry( libtp::util::card::DirectoryEntry& dirEntry );
+        void updateFromDirectoryEntry( libtp::gc_wii::card::__DirEntry& dirEntry );
 
         uint16_t verMajor() { return m_verMajor; }
         uint16_t verMinor() { return m_verMinor; }
@@ -60,7 +61,7 @@ namespace mod::rando
         int8_t getCount() { return count; }
         int8_t getSelectedIndex() { return selectedIndex; }
         SeedListEntry* getActiveEntry() { return activeEntry; }
-        void updateEntries( libtp::util::card::DirectoryEntry* dirEntries, int count );
+        void updateEntries( libtp::gc_wii::card::__DirEntry* dirEntries, int numDirEntries );
         void clearEntries();
         SeedListEntry* getSelectedEntry();
         void incrementSelectedEntry();

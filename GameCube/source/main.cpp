@@ -1605,15 +1605,17 @@ namespace mod
 
         if ( _this->mChannel == CARD_SLOT_A )
         {
+            using libtp::gc_wii::card::__DirEntry;
+
             // Not messing with slot B until there is a reason to. This matches
             // current behavior.
 
             // Run into issues once the array gets a little over 110 elements long
             // when not using heap. Need to support 127 (max files on memory card).
-            libtp::util::card::DirectoryEntry* dirEntries = new libtp::util::card::DirectoryEntry[CARD_MAX_FILE];
+            __DirEntry* dirEntries = new __DirEntry[CARD_MAX_FILE];
             int32_t count = 0;
 
-            int32_t getDirEntriesResult = libtp::util::card::GetDirectoryEntries( _this->mChannel, dirEntries, &count, false );
+            int32_t getDirEntriesResult = libtp::util::card::GetDirEntries( _this->mChannel, dirEntries, &count, false );
 
             if ( getDirEntriesResult == CARD_RESULT_READY )
             {
