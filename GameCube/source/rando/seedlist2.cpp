@@ -122,7 +122,7 @@ namespace mod::rando
         copyFrom( *this, other );
     }
 
-    SeedListEntry& SeedListEntry::operator=( SeedListEntry other )
+    SeedListEntry& SeedListEntry::operator=( const SeedListEntry& other )
     {
         copyFrom( *this, other );
         return *this;

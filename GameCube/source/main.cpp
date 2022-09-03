@@ -1608,9 +1608,6 @@ namespace mod
 
             delete[] dirEntries;
 
-            // Can maybe skip over the entire part above once player already has a
-            // seed loaded.
-
             if ( gameState == GAME_BOOT )
             {
                 libtp::display::clearConsole( 14, 1 );

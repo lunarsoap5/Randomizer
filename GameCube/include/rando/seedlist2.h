@@ -26,7 +26,7 @@ namespace mod::rando
        public:
         SeedListEntry() {}
         SeedListEntry( const SeedListEntry& existingInst );
-        SeedListEntry& operator=( SeedListEntry other );
+        SeedListEntry& operator=( const SeedListEntry& other );
 
         void updateFromDirectoryEntry( libtp::util::card::DirectoryEntry& dirEntry );
 
