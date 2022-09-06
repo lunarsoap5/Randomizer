@@ -378,8 +378,8 @@ namespace mod
                                                                        int size );
 
     // Test seed funcs
-    bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
-    extern bool ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    int32_t handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    extern int32_t ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
 
     void handle_mDoMemCd_Ctrl_c__detach( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
     extern void ( *return_mDoMemCd_Ctrl_c__detach )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );

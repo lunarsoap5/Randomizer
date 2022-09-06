@@ -201,6 +201,82 @@ namespace mod::rando
         delete[] entries;
     }
 
+    void merge( SeedListEntry* seedEntries,
+                uint8_t* outArr,
+                uint8_t* leftArr,
+                int leftCount,
+                uint8_t* rightArr,
+                int rightCount )
+    {
+        uint8_t i = 0;
+        uint8_t l = 0;
+        uint8_t r = 0;
+
+        while ( l < leftCount && r < rightCount )
+        {
+            // Sort by playthroughName A-Z (ascending).
+            if ( strcmp( seedEntries[leftArr[l]].playthroughName(), seedEntries[rightArr[r]].playthroughName() ) < 0 )
+            {
+                outArr[i++] = leftArr[l++];
+            }
+            else
+            {
+                outArr[i++] = rightArr[r++];
+            }
+        }
+
+        while ( l < leftCount )
+        {
+            outArr[i++] = leftArr[l++];
+        }
+        while ( r < rightCount )
+        {
+            outArr[i++] = rightArr[r++];
+        }
+    }
+
+    void mergeSortSeedEntries( SeedListEntry* seedEntries, uint8_t* outArr, int count )
+    {
+        if ( count < 2 )
+        {
+            return;
+        }
+
+        int mid = count / 2;
+
+        int leftArrLen = mid;
+        int rightArrLen = count - mid;
+
+        uint8_t* leftArr = new uint8_t[leftArrLen];
+        uint8_t* rightArr = new uint8_t[rightArrLen];
+
+        uint8_t rightArrIdx = 0;
+        for ( uint8_t idx = 0; idx < count; idx++ )
+        {
+            if ( idx < leftArrLen )
+            {
+                leftArr[idx] = outArr[idx];
+            }
+            else
+            {
+                rightArr[rightArrIdx] = outArr[idx];
+                rightArrIdx++;
+            }
+        }
+
+        mergeSortSeedEntries( seedEntries, leftArr, leftArrLen );
+        mergeSortSeedEntries( seedEntries, rightArr, rightArrLen );
+        merge( seedEntries, outArr, leftArr, leftArrLen, rightArr, rightArrLen );
+
+        delete[] leftArr;
+        delete[] rightArr;
+    }
+
+    void sortSeedEntries( uint8_t* outArr, int count, SeedListEntry* seedEntries )
+    {
+        mergeSortSeedEntries( seedEntries, outArr, count );
+    }
+
     void SeedList2::updateEntries( CARDDirEntries* dirEntries, int numDirEntries )
     {
         prevMemCardAction = LOADFILE;
@@ -241,17 +317,36 @@ namespace mod::rando
             }
         }
 
+        // If workingEntries had playthroughNames ["b", "c", "a"], then after
+        // sorting, sortedIndex would contain [2,0,1]. Meaning index 2 (for "a")
+        // would come first, then index 0 ("b"), then index 1 ("c").
+        uint8_t sortedIndexes[CARD_MAX_FILE];
+        for ( uint8_t i = 0; i < totalEntries; i++ )
+        {
+            sortedIndexes[i] = i;
+        }
+        mergeSortSeedEntries( workingEntries, sortedIndexes, totalEntries );
+
         // Update properties of instance.
         this->count = totalEntries;
         this->entries = new SeedListEntry[totalEntries];
         for ( int i = 0; i < totalEntries; i++ )
         {
-            this->entries[i] = workingEntries[i];
+            // Copy from workingEntries in sorted order.
+            this->entries[i] = workingEntries[sortedIndexes[i]];
         }
 
         if ( idxForPrevFilename >= 0 && idxForPrevFilename < totalEntries )
         {
-            this->selectedIndex = idxForPrevFilename;
+            this->selectedIndex = 0;
+            for ( uint8_t i = 0; i < totalEntries; i++ )
+            {
+                if ( sortedIndexes[i] == idxForPrevFilename )
+                {
+                    this->selectedIndex = i;
+                    break;
+                }
+            }
         }
         else if ( totalEntries > 0 )
         {

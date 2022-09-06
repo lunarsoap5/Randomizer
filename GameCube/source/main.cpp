@@ -213,7 +213,7 @@ namespace mod
                                                                          libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                          int size ) = nullptr;
 
-    KEEP_VAR bool ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this ) = nullptr;
+    KEEP_VAR int32_t ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this ) = nullptr;
     KEEP_VAR void ( *return_mDoMemCd_Ctrl_c__detach )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this ) = nullptr;
 
     void main()
@@ -1593,7 +1593,7 @@ namespace mod
         return resourcePtr;
     }
 
-    KEEP_FUNC bool handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
+    KEEP_FUNC int32_t handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
     {
         // This function is called immediately after the game recognizes a
         // memory card was mounted successfully. We hook in to where the game
