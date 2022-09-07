@@ -12,7 +12,6 @@
 
 #include "display/console.h"
 #include "rando/randomizer.h"
-#include "rando/seedlist.h"
 #include "rando/seedlist2.h"
 #include "tp/d_save.h"
 #include "tp/dynamic_link.h"
@@ -59,7 +58,6 @@ namespace mod
     // General public objects
     extern libtp::display::Console* console;
     extern rando::Randomizer* randomizer;
-    extern rando::SeedList* seedList;
     extern rando::SeedList2 seedList2;
 
     // Variables

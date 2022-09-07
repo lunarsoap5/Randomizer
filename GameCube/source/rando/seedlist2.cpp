@@ -16,7 +16,6 @@
 #endif
 
 #include "string.h"
-#include "rando/seedlist.h"
 #include "rando/seedlist2.h"
 
 namespace mod::rando
@@ -183,18 +182,19 @@ namespace mod::rando
             }
             else
             {
-                // For example, maxFullySupportedVer is 12.5 and the seed is v12.8.
+                // For example, maxFullySupportedVer is 12.5 and the seed is
+                // v12.8.
                 m_status = SeedListEntryStatus::PARTIALLY_SUPPORTED;
             }
         }
         else
         {
-            // Newer (but not too new) and not fully supported
+            // Either too old or too new to support.
             m_status = SeedListEntryStatus::NOT_SUPPORTED;
         }
     }
 
-    SeedList2::SeedList2() {}
+    // SeedList2::SeedList2() {}
 
     SeedList2::~SeedList2()
     {
@@ -357,8 +357,6 @@ namespace mod::rando
 
         delete[] workingEntries;
     }
-
-    void SeedList2::clearEntries() {}
 
     SeedListEntry* SeedList2::getSelectedEntry()
     {

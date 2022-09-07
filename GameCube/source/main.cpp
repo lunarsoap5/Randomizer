@@ -18,7 +18,6 @@
 #include "memory.h"
 #include "rando/data.h"
 #include "rando/randomizer.h"
-#include "rando/seedlist.h"
 #include "rando/seedlist2.h"
 #include "tools.h"
 #include "tp/J2DPicture.h"
@@ -47,7 +46,6 @@ namespace mod
     // Bind extern global variables
     KEEP_VAR libtp::display::Console* console = nullptr;
     KEEP_VAR rando::Randomizer* randomizer = nullptr;
-    KEEP_VAR rando::SeedList* seedList = nullptr;
     KEEP_VAR rando::SeedList2 seedList2;
 
     // Variables
