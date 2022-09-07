@@ -242,10 +242,8 @@ namespace mod::rando
             return;
         }
 
-        int mid = count / 2;
-
-        int leftArrLen = mid;
-        int rightArrLen = count - mid;
+        int leftArrLen = count / 2;
+        int rightArrLen = count - leftArrLen;
 
         uint8_t* leftArr = new uint8_t[leftArrLen];
         uint8_t* rightArr = new uint8_t[rightArrLen];
