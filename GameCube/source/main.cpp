@@ -55,8 +55,7 @@ namespace mod
     libtp::tp::J2DPicture::J2DPicture* bgWindow = nullptr;
     uint32_t lastButtonInput = 0;
     bool roomReloadingState = false;
-    // bool consoleState = true;
-    bool consoleState = false;
+    bool consoleState = true;
     uint8_t gameState = GAME_BOOT;
     void* Z2ScenePtr = nullptr;
     uint8_t foolishTrapCount = 0;
