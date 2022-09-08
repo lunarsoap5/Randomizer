@@ -315,7 +315,7 @@ namespace mod
             getConsole().setLine( CONSOLE_PROTECTED_LINES - 1 );
             getConsole() << "\r"
                          << "Press X/Y to select a seed\n"
-                         << "Press R + Z to close the console\n"
+                         << "Press R + Z to close the console\n\n"
                          << "[" << seedList.getSelectedIndex() + 1 << "/" << seedList.getCount() << "] Seed: ";
 
             if ( selectedSeed == nullptr )
@@ -395,34 +395,6 @@ namespace mod
             else if ( prevState != GAME_TITLE && ( state == 12 || state == 13 ) )
             {
                 gameState = GAME_TITLE;
-
-                // Handle console differently when the user first loads it
-                if ( prevState == GAME_BOOT )
-                {
-                    switch ( seedList.getCount() )
-                    {
-                        case 0:
-                            // Err, no seeds
-                            getConsole() << "No seeds available! Please check your memory\ncard and region!\n";
-                            setScreen( true );
-                            break;
-
-                            // case 1:
-                            //     // Only one seed present, auto-select it and disable console for convenience
-                            //     getConsole() << "First and only seed automatically applied...\n";
-                            //     setScreen( false );
-                            //     break;
-
-                        default:
-                            // User has to select one of the seeds
-
-                            // trigger a dummy input to print the current selection
-                            doInput( Button_Start );
-
-                            setScreen( true );
-                            break;
-                    }
-                }
             }
         }
         // End of handling gameStates
@@ -1603,8 +1575,21 @@ namespace mod
 
             if ( gameState == GAME_BOOT )
             {
-                libtp::display::clearConsole( 14, 1 );
-                getConsole() << "\r" << seedList.getCount() << " seed(s) available.\n";
+                getConsole().setLine( CONSOLE_PROTECTED_LINES + 3 );
+
+                int8_t numSeeds = seedList.getCount();
+
+                // "\r\n" clears the line we need to. Otherwise we have a dot
+                // left at the end like "3 seed(s) available.."
+                getConsole() << "\r\n";
+                if ( numSeeds > 0 )
+                {
+                    getConsole() << seedList.getCount() << " seed(s) available.\n";
+                }
+                else
+                {
+                    getConsole() << "No seeds available! Please check your memory\ncard and region!\n";
+                }
             }
 
             pendingSeedlistConsoleChange = true;
