@@ -143,7 +143,7 @@ namespace mod::rando
 
         // Adjective and Noun both have a max of 10 chars.
         uint8_t nameAdjNounLength = 20;
-        for ( uint8_t i = 0; i < 20; i++ )
+        for ( uint8_t i = 0; i < nameAdjNounLength; i++ )
         {
             if ( playthroughNamePtr[i] == 0 )
             {
@@ -195,11 +195,13 @@ namespace mod::rando
         }
     }
 
-    // SeedList::SeedList() {}
-
     SeedList::~SeedList()
     {
-        delete[] entries;
+        if ( entries != nullptr )
+        {
+            delete[] entries;
+            entries = nullptr;
+        }
     }
 
     void merge( SeedListEntry* seedEntries,
@@ -236,6 +238,7 @@ namespace mod::rando
         }
     }
 
+    // Merge sort implementation to show seeds on title screen in alphabetical order.
     void mergeSortSeedEntries( SeedListEntry* seedEntries, uint8_t* outArr, int count )
     {
         if ( count < 2 )
@@ -269,11 +272,6 @@ namespace mod::rando
 
         delete[] leftArr;
         delete[] rightArr;
-    }
-
-    void sortSeedEntries( uint8_t* outArr, int count, SeedListEntry* seedEntries )
-    {
-        mergeSortSeedEntries( seedEntries, outArr, count );
     }
 
     void SeedList::updateEntries( CARDDirEntries* dirEntries, int numDirEntries )
