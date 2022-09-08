@@ -141,6 +141,7 @@ namespace mod::rando
 
         std::memset( m_playthroughName, 0, 25 );
 
+        // Adjective and Noun both have a max of 10 chars.
         uint8_t nameAdjNounLength = 20;
         for ( uint8_t i = 0; i < 20; i++ )
         {
