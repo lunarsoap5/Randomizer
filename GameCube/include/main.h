@@ -378,7 +378,7 @@ namespace mod
                                                                        libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                        int size );
 
-    // Test seed funcs
+    // Vanilla memory card function hooks
     int32_t handle_mDoMemCd_Ctrl_c__loadfile( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
     extern int32_t ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
 

@@ -1,11 +1,11 @@
-/**	@file seedlist2.h
+/**	@file seedlist.h
  *  @brief Stores list of seeds
  *
  *	@author Isaac
  *	@bug No known bugs.
  */
-#ifndef RANDO_SEEDLIST2_H
-#define RANDO_SEEDLIST2_H
+#ifndef RANDO_SEEDLIST_H
+#define RANDO_SEEDLIST_H
 
 #include <cstdint>
 

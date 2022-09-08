@@ -1,4 +1,4 @@
-/**	@file seedlist2.h
+/**	@file seedlist.cpp
  *  @brief Stores list of seeds
  *
  *	@author Isaac
