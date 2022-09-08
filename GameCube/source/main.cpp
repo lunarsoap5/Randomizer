@@ -1600,15 +1600,15 @@ namespace mod
 
     KEEP_FUNC void handle_mDoMemCd_Ctrl_c__detach( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this )
     {
-        // This function is called immediately after the game recognizes a
-        // memory card was mounted successfully. We hook in to where the game
-        // would try to read the "gczelda2" file from the memory card, and this
-        // code executes right before that. This is the earliest that the memory
-        // card Directory is loaded in the vanilla game. This gets called again
-        // if you take the memory card out and put it back in.
+        // This gets called when the memcard detaches. This can get called
+        // several times. For example, when resetting to the title screen, it
+        // seems to get called every frame.
 
         if ( _this->mChannel == CARD_SLOT_A )
         {
+            // Not messing with slot B until there is a reason to. This matches
+            // current behavior.
+
             seedList.handleMemCardDetach();
             pendingSeedlistConsoleChange = true;
         }
