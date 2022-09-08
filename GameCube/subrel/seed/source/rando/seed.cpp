@@ -83,13 +83,13 @@ namespace mod::rando
         // Make sure to delete tempcheck buffers
         this->ClearChecks();
 
-        // Only work with m_GCIData if the buffer is populated
-        if ( m_GCIData )
+        // Only work with m_fileBytes if the buffer is populated
+        if ( m_fileBytes )
         {
             this->applyOneTimePatches( false );
 
             // Last clear gcibuffer as other functions before rely on it
-            delete[] m_GCIData;
+            delete[] m_fileBytes;
         }
 
         // Clear the memory used by the required dungeons text that is displayed when reading the sign in front of Link's house

@@ -135,10 +135,12 @@ namespace mod::rando
         void loadShopModels();
 
        private:
+        // m_fileBytes points to all of the bytes extracted from the seed file.
+        // All other pointers just point to a location within the m_fileBytes
+        // data.
         uint8_t* m_fileBytes = nullptr;
-        uint8_t* m_GCIData = nullptr;     // GCI Data including header
-        uint8_t m_fileIndex = 0xFF;       // GCI Fileindex
-        int32_t m_CardSlot = 0;           // Selected Card slot
+        uint8_t* m_GCIData = nullptr;     // GCI Data (points to bytes after header)
+        int32_t m_CardSlot = 0;           // Selected Card slot (hardcoded to slot A)
         void ClearChecks( void );
         void loadBgmData( uint8_t* data );
 
