@@ -22,7 +22,7 @@
 #include "Z2AudioLib/Z2SoundMgr.h"
 #include "tp/dynamic_link.h"
 #include "gc_wii/OSTime.h"
-#include "m_Do/m_Do_MemCard.h"
+#include "tp/m_do_memcard.h"
 
 #include <cstdint>
 
@@ -179,11 +179,11 @@ namespace mod
 
         // Reading save file from memory card
         return_mDoMemCd_Ctrl_c__loadfile =
-            patch::hookFunction( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c__loadfile, mod::handle_mDoMemCd_Ctrl_c__loadfile );
+            patch::hookFunction( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c__loadfile, mod::handle_mDoMemCd_Ctrl_c__loadfile );
 
         // Memory card is detaching
         return_mDoMemCd_Ctrl_c__detach =
-            patch::hookFunction( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c__detach, mod::handle_mDoMemCd_Ctrl_c__detach );
+            patch::hookFunction( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c__detach, mod::handle_mDoMemCd_Ctrl_c__detach );
     }
 
     void initRandNext()

@@ -22,7 +22,7 @@
 #include "Z2AudioLib/Z2SceneMgr.h"
 #include "events.h"
 #include "tp/d_resource.h"
-#include "m_Do/m_Do_MemCard.h"
+#include "tp/m_do_memcard.h"
 
 // Number of lines that should not be cleared when flushing the screen
 #define CONSOLE_PROTECTED_LINES 5
@@ -379,11 +379,11 @@ namespace mod
                                                                        int size );
 
     // Test seed funcs
-    int32_t handle_mDoMemCd_Ctrl_c__loadfile( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
-    extern int32_t ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    int32_t handle_mDoMemCd_Ctrl_c__loadfile( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    extern int32_t ( *return_mDoMemCd_Ctrl_c__loadfile )( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
 
-    void handle_mDoMemCd_Ctrl_c__detach( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
-    extern void ( *return_mDoMemCd_Ctrl_c__detach )( libtp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    void handle_mDoMemCd_Ctrl_c__detach( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
+    extern void ( *return_mDoMemCd_Ctrl_c__detach )( libtp::tp::m_Do_MemCard::mDoMemCd_Ctrl_c* _this );
 
 }     // namespace mod
 #endif
