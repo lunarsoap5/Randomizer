@@ -301,8 +301,6 @@ namespace mod
 
         if ( input && gameState == GAME_TITLE )
         {
-            // if ( seedList2.getCount() > 0 )
-            // {
             if ( checkBtn( Button_X ) )
             {
                 seedList2.incrementSelectedEntry();
@@ -326,16 +324,16 @@ namespace mod
                 return;
             }
 
-            getConsole() << selectedSeed->playthroughName() << "\n";
+            getConsole() << selectedSeed->playthroughName() << "\nv";
 
             if ( selectedSeed->status() == rando::SeedListEntryStatus::VERSION_UNKNOWN )
             {
-                getConsole() << "v?.?";
+                getConsole() << "?.?";
             }
             else
             {
                 // Static cast to int32_t so prints like "v1.0" instead of "v0001.0000".
-                getConsole() << "v" << static_cast<int32_t>( selectedSeed->verMajor() ) << "."
+                getConsole() << static_cast<int32_t>( selectedSeed->verMajor() ) << "."
                              << static_cast<int32_t>( selectedSeed->verMinor() );
             }
 
@@ -347,14 +345,11 @@ namespace mod
                     getConsole() << " (partial support)";
                     break;
                 default:
-                    // case rando::SeedListEntryStatus::VERSION_UNKNOWN:
-                    // case rando::SeedListEntryStatus::NOT_SUPPORTED:
                     getConsole() << " (NOT SUPPORTED)";
                     break;
             }
 
             getConsole() << "\n";
-            // }
         }
         // End of handling title screen inputs
     }
