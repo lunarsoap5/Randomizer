@@ -47,7 +47,7 @@ namespace mod
     // Bind extern global variables
     KEEP_VAR libtp::display::Console* console = nullptr;
     KEEP_VAR rando::Randomizer* randomizer = nullptr;
-    KEEP_VAR rando::SeedList2 seedList2;
+    KEEP_VAR rando::SeedList seedList;
 
     // Variables
     KEEP_VAR uint8_t* m_MsgTableInfo = nullptr;
@@ -304,20 +304,20 @@ namespace mod
         {
             if ( checkBtn( Button_X ) )
             {
-                seedList2.incrementSelectedEntry();
+                seedList.incrementSelectedEntry();
             }
             else if ( checkBtn( Button_Y ) )
             {
-                seedList2.decrementSelectedEntry();
+                seedList.decrementSelectedEntry();
             }
 
-            rando::SeedListEntry* selectedSeed = seedList2.getSelectedEntry();
+            rando::SeedListEntry* selectedSeed = seedList.getSelectedEntry();
 
             getConsole().setLine( CONSOLE_PROTECTED_LINES - 1 );
             getConsole() << "\r"
                          << "Press X/Y to select a seed\n"
                          << "Press R + Z to close the console\n"
-                         << "[" << seedList2.getSelectedIndex() + 1 << "/" << seedList2.getCount() << "] Seed: ";
+                         << "[" << seedList.getSelectedIndex() + 1 << "/" << seedList.getCount() << "] Seed: ";
 
             if ( selectedSeed == nullptr )
             {
@@ -400,7 +400,7 @@ namespace mod
                 // Handle console differently when the user first loads it
                 if ( prevState == GAME_BOOT )
                 {
-                    switch ( seedList2.getCount() )
+                    switch ( seedList.getCount() )
                     {
                         case 0:
                             // Err, no seeds
@@ -479,7 +479,7 @@ namespace mod
 
             gameState = GAME_ACTIVE;
 
-            rando::SeedListEntry* selectedSeedEntry = seedList2.getSelectedEntry();
+            rando::SeedListEntry* selectedSeedEntry = seedList.getSelectedEntry();
 
             // if ( !getCurrentSeed( randomizer ) && ( selectedSeedEntry != nullptr ) && ( seedRelAction == SEED_ACTION_NONE ) )
             if ( ( selectedSeedEntry != nullptr ) && selectedSeedEntry->isCompatibleWithRando() )
@@ -497,7 +497,7 @@ namespace mod
                     {
                         // Load in new seed
 
-                        seedList2.setCurrentEntryToActive();
+                        seedList.setCurrentEntryToActive();
                         seedRelAction = SEED_ACTION_LOAD_SEED;
 
                         // m_Enabled will be set to true in the seed REL
@@ -509,14 +509,14 @@ namespace mod
                         if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
 #endif
                         {
-                            seedList2.clearActiveEntry();
+                            seedList.clearActiveEntry();
                             seedRelAction = SEED_ACTION_FATAL;
                         }
 #ifndef DVD
                         libtp::gc_wii::card::CARDUnmount( chan );
 #endif
                     }
-                    else if ( seedList2.shouldSwapSeedToSelected() )
+                    else if ( seedList.shouldSwapSeedToSelected() )
                     {
                         // Change to a new seed if the rando currently had a
                         // loaded seed, but it does not match the selected one.
@@ -525,7 +525,7 @@ namespace mod
                         randomizer->m_Enabled = true;
 
                         // randomizer->m_CurrentSeed != seedList->m_selectedSeed )
-                        seedList2.setCurrentEntryToActive();
+                        seedList.setCurrentEntryToActive();
                         getConsole() << "Changing seed:\n";
                         seedRelAction = SEED_ACTION_CHANGE_SEED;
 
@@ -537,7 +537,7 @@ namespace mod
                         if ( !libtp::tools::callRelProlog( chan, SUBREL_SEED_ID, false, true ) )
 #endif
                         {
-                            seedList2.clearActiveEntry();
+                            seedList.clearActiveEntry();
                             seedRelAction = SEED_ACTION_FATAL;
                         }
 #ifndef DVD
@@ -571,7 +571,7 @@ namespace mod
             }
             else
             {
-                if ( seedList2.getCount() > 0 )
+                if ( seedList.getCount() > 0 )
                 {
                     getConsole() << "UNSUPPORTED SEED SELECTED\n";
                 }
@@ -580,7 +580,7 @@ namespace mod
                     getConsole() << "NO SEED SELECTED.\n";
                 }
                 // Entering the game with no seed or a non-supported seed selected.
-                seedList2.clearActiveEntry();
+                seedList.clearActiveEntry();
                 shouldDisableRando = true;
             }
 
@@ -588,7 +588,7 @@ namespace mod
             // memory card detaches whenever the player returns to the title
             // screen, so we can go ahead and run the detach here since the seed
             // entries are only used on the title screen.
-            seedList2.handleMemCardDetach();
+            seedList.handleMemCardDetach();
             pendingSeedlistConsoleChange = true;
         }
         else if ( gameState == GAME_TITLE )
@@ -1612,7 +1612,7 @@ namespace mod
 
             if ( getDirEntriesResult == CARD_RESULT_READY )
             {
-                seedList2.updateEntries( dirEntries, count );
+                seedList.updateEntries( dirEntries, count );
             }
 
             delete dirEntries;
@@ -1620,7 +1620,7 @@ namespace mod
             if ( gameState == GAME_BOOT )
             {
                 libtp::display::clearConsole( 14, 1 );
-                getConsole() << "\r" << seedList2.getCount() << " seed(s) available.\n";
+                getConsole() << "\r" << seedList.getCount() << " seed(s) available.\n";
             }
 
             pendingSeedlistConsoleChange = true;
@@ -1640,7 +1640,7 @@ namespace mod
 
         if ( _this->mChannel == CARD_SLOT_A )
         {
-            seedList2.handleMemCardDetach();
+            seedList.handleMemCardDetach();
             pendingSeedlistConsoleChange = true;
         }
 

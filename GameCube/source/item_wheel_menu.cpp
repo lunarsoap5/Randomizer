@@ -193,7 +193,7 @@ namespace mod::item_wheel_menu
             // rando::SeedInfo* seedInfo = randomizer->m_SeedInfo;
             // if ( seedInfo )
 
-            rando::SeedListEntry* activeEntry = seedList2.getActiveEntry();
+            rando::SeedListEntry* activeEntry = seedList.getActiveEntry();
 
             if ( activeEntry != nullptr )
             {

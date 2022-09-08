@@ -32,7 +32,7 @@ namespace mod::rando
     // void Randomizer::loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed )
     void Randomizer::loadSeed()
     {
-        SeedListEntry* activeEntry = seedList2.getActiveEntry();
+        SeedListEntry* activeEntry = seedList.getActiveEntry();
 
         // if ( seedInfo->fileIndex == 0xFF )
         if ( activeEntry == nullptr )
@@ -46,11 +46,11 @@ namespace mod::rando
             getConsole() << "Seed: " << activeEntry->playthroughName() << "\n";
             // Load the seed
             // m_SeedInfo = seedInfo;
-            seedList2.setCurrentEntryToActive();
+            seedList.setCurrentEntryToActive();
 
             // Align to void*, as pointers use the largest variable type in the Seed class
             // m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedInfo );
-            m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedList2.getActiveEntry() );
+            m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedList.getActiveEntry() );
 
             if ( m_Seed->checkIfSeedLoaded() )
             {

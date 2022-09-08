@@ -195,9 +195,9 @@ namespace mod::rando
         }
     }
 
-    // SeedList2::SeedList2() {}
+    // SeedList::SeedList() {}
 
-    SeedList2::~SeedList2()
+    SeedList::~SeedList()
     {
         delete[] entries;
     }
@@ -276,7 +276,7 @@ namespace mod::rando
         mergeSortSeedEntries( seedEntries, outArr, count );
     }
 
-    void SeedList2::updateEntries( CARDDirEntries* dirEntries, int numDirEntries )
+    void SeedList::updateEntries( CARDDirEntries* dirEntries, int numDirEntries )
     {
         prevMemCardAction = LOADFILE;
 
@@ -359,7 +359,7 @@ namespace mod::rando
         delete[] workingEntries;
     }
 
-    SeedListEntry* SeedList2::getSelectedEntry()
+    SeedListEntry* SeedList::getSelectedEntry()
     {
         if ( selectedIndex >= 0 && selectedIndex < count )
         {
@@ -369,7 +369,7 @@ namespace mod::rando
         return nullptr;
     }
 
-    void SeedList2::incrementSelectedEntry()
+    void SeedList::incrementSelectedEntry()
     {
         if ( selectedIndex < 0 )
             return;
@@ -378,7 +378,7 @@ namespace mod::rando
         selectedIndex = newIndex >= count ? 0 : newIndex;
     }
 
-    void SeedList2::decrementSelectedEntry()
+    void SeedList::decrementSelectedEntry()
     {
         if ( selectedIndex < 0 )
             return;
@@ -387,7 +387,7 @@ namespace mod::rando
         selectedIndex = newIndex < 0 ? count - 1 : newIndex;
     }
 
-    void SeedList2::clearActiveEntry()
+    void SeedList::clearActiveEntry()
     {
         if ( activeEntry != nullptr )
         {
@@ -396,7 +396,7 @@ namespace mod::rando
         }
     }
 
-    void SeedList2::setCurrentEntryToActive()
+    void SeedList::setCurrentEntryToActive()
     {
         if ( selectedIndex >= 0 && selectedIndex < count )
         {
@@ -413,7 +413,7 @@ namespace mod::rando
         }
     }
 
-    bool SeedList2::shouldSwapSeedToSelected()
+    bool SeedList::shouldSwapSeedToSelected()
     {
         if ( selectedIndex < 0 || selectedIndex >= count )
         {
@@ -427,7 +427,7 @@ namespace mod::rando
     }
 
     // Clear all entries except the activeEntry if it exists.
-    void SeedList2::handleMemCardDetach()
+    void SeedList::handleMemCardDetach()
     {
         // This can get called several times. For example, when resetting to the
         // title screen, it seems to get called every frame.

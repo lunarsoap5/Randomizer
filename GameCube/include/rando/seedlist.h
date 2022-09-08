@@ -91,11 +91,11 @@ namespace mod::rando
         static void copyFrom( SeedListEntry& dest, const SeedListEntry& src );
     };
 
-    class SeedList2
+    class SeedList
     {
        public:
-        SeedList2() {}
-        ~SeedList2();
+        SeedList() {}
+        ~SeedList();
 
         int8_t getCount() { return count; }
         int8_t getSelectedIndex() { return selectedIndex; }
