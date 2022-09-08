@@ -475,13 +475,10 @@ namespace mod
         // Handle rando state
         if ( gameState == GAME_TRY_LOAD_SEED )
         {
-            getConsole() << "in TRY_LOAD_SEED\n";
-
             gameState = GAME_ACTIVE;
 
             rando::SeedListEntry* selectedSeedEntry = seedList.getSelectedEntry();
 
-            // if ( !getCurrentSeed( randomizer ) && ( selectedSeedEntry != nullptr ) && ( seedRelAction == SEED_ACTION_NONE ) )
             if ( ( selectedSeedEntry != nullptr ) && selectedSeedEntry->isCompatibleWithRando() )
             {
                 if ( ( seedRelAction == SEED_ACTION_NONE ) )
@@ -524,7 +521,6 @@ namespace mod
                         // Enable the randomizer
                         randomizer->m_Enabled = true;
 
-                        // randomizer->m_CurrentSeed != seedList->m_selectedSeed )
                         seedList.setCurrentEntryToActive();
                         getConsole() << "Changing seed:\n";
                         seedRelAction = SEED_ACTION_CHANGE_SEED;
@@ -546,12 +542,12 @@ namespace mod
                     }
                     else
                     {
+                        // Had a loaded seed, and we don't need to change to a
+                        // different seed. Not loading a different seed, so load
+                        // checks for first load
+
                         // Enable the randomizer
                         randomizer->m_Enabled = true;
-
-                        getConsole() << "doing onSTAGELOAD\n";
-                        // Had a loaded seed, and we don't need to change to a different seed.
-                        // Not loading a different seed, so load checks for first load
                         randomizer->onStageLoad();
                     }
 
@@ -563,10 +559,6 @@ namespace mod
                         getConsole() << "Applying volatile patches:\n";
                         seed->applyVolatilePatches( true );
                     }
-                }
-                else
-                {
-                    getConsole() << "not SEED_ACTION_NONE\n";
                 }
             }
             else
@@ -593,7 +585,7 @@ namespace mod
         }
         else if ( gameState == GAME_TITLE )
         {
-            // Temporarily disable the randomizer when on the title screen
+            // Will temporarily disable the randomizer when on the title screen
             shouldDisableRando = true;
         }
 
@@ -1139,15 +1131,8 @@ namespace mod
             {
                 if ( checkStageName( allStages[stageIDs::Ordon_Village_Interiors] ) )
                 {
-                    if ( dComIfGs_isEventBit( libtp::data::flags::HEARD_BO_TEXT_AFTER_SUMO_FIGHT ) )     // Talked to Bo after
-                                                                                                         // chest is spawned
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    // Talked to Bo after chest is spawned
+                    return dComIfGs_isEventBit( libtp::data::flags::HEARD_BO_TEXT_AFTER_SUMO_FIGHT );
                 }
                 break;
             }
