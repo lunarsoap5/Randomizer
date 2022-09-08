@@ -18,7 +18,7 @@
 #include "memory.h"
 #include "rando/data.h"
 #include "rando/randomizer.h"
-#include "rando/seedlist2.h"
+#include "rando/seedlist.h"
 #include "tools.h"
 #include "tp/J2DPicture.h"
 #include "tp/JKRArchive.h"

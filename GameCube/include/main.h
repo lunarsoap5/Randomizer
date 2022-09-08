@@ -12,7 +12,7 @@
 
 #include "display/console.h"
 #include "rando/randomizer.h"
-#include "rando/seedlist2.h"
+#include "rando/seedlist.h"
 #include "tp/d_save.h"
 #include "tp/dynamic_link.h"
 #include "tp/dzx.h"

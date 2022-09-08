@@ -16,7 +16,7 @@
 #endif
 
 #include "string.h"
-#include "rando/seedlist2.h"
+#include "rando/seedlist.h"
 
 namespace mod::rando
 {

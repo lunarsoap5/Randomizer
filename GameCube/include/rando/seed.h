@@ -17,7 +17,7 @@
 
 #include "rando/data.h"
 #include "tools.h"
-#include "rando/seedlist2.h"
+#include "rando/seedlist.h"
 
 namespace mod::rando
 {

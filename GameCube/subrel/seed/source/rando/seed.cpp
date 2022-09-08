@@ -26,7 +26,7 @@
 #include "tp/d_a_shop_item_static.h"
 #include "tp/d_item_data.h"
 #include "user_patch/user_patch.h"
-#include "rando/seedlist2.h"
+#include "rando/seedlist.h"
 
 namespace mod::rando
 {
