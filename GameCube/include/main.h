@@ -24,6 +24,9 @@
 #include "tp/d_resource.h"
 #include "m_Do/m_Do_MemCard.h"
 
+// Number of lines that should not be cleared when flushing the screen
+#define CONSOLE_PROTECTED_LINES 5
+
 // Game States
 // Default; At startup (should only ever be active once)
 #define GAME_BOOT 0
