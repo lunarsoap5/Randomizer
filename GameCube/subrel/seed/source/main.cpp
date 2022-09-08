@@ -23,7 +23,6 @@ namespace mod
 
     void main()
     {
-        // uint8_t selectedSeed = seedList->m_selectedSeed;
         switch ( seedRelAction )
         {
             case SEED_ACTION_LOAD_SEED:

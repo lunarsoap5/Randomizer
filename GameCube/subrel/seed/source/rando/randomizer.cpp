@@ -16,7 +16,6 @@ namespace mod::rando
     Randomizer::Randomizer()
     {
         getConsole() << "Rando loading...\n";
-        // loadSeed( seedInfo, selectedSeed );
         loadSeed();
     }
 
@@ -34,7 +33,6 @@ namespace mod::rando
 
         if ( activeEntry == nullptr )
         {
-            // getConsole() << "<Randomizer> Error: No such seed (0xFF)\n";
             getConsole() << "<Randomizer> Error: Valid seed not selected.\n";
         }
         else

@@ -42,7 +42,6 @@ namespace mod::rando
         snprintf( fileName, sizeof( fileName ), seedEntry->filename() );
 #endif
         // Allocate the buffer to the back of the heap to prevent fragmentation
-        // uint32_t totalSize = m_Header->totalSize;
         uint32_t totalSize = seedEntry->blockCount() * CARD_BLOCK_SIZE;
 
         // Align to 0x20 for safety, since some functions may cast parts of it to classes/structs/arrays/etc.
