@@ -27,6 +27,8 @@
 80452BFC:HostIOHeap
 
 // m_Do_MemCard.o
+800170C4:mDoMemCd_Ctrl_c__detach
+80017228:mDoMemCd_Ctrl_c__loadfile
 // data
 803E2EE0:MemCardWorkArea0
 
@@ -148,6 +150,9 @@
 
 // Card
 803548F8:CARDInit
+803549E4:__CARDGetControlBlock
+80354A9C:__CARDPutControlBlock
+803565AC:__CARDGetDirBlock
 80357724:CARDCheck
 80358124:CARDMount
 80358208:CARDUnmount
