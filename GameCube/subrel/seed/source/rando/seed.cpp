@@ -30,15 +30,8 @@
 
 namespace mod::rando
 {
-    // Seed::Seed( int32_t chan, SeedInfo* seedInfo ): m_CardSlot( chan )
     Seed::Seed( int32_t chan, SeedListEntry* seedEntry ): m_CardSlot( chan )
     {
-        // m_Header = &seedInfo->header;
-        // Loading seed rando-dataX '<seed>'...
-
-        // Store our filename index
-        // m_fileIndex = seedInfo->fileIndex;
-
         getConsole() << "Loading seed: '" << seedEntry->playthroughName() << "'...\n";
 
         // Load the whole GCI locally to reduce number of reads (memcard)
@@ -59,12 +52,11 @@ namespace mod::rando
         if ( m_CARDResult == DVD_STATE_END )
 #else
         // The memory card should already be mounted
-        // m_CARDResult = libtp::tools::ReadGCIMounted( m_CardSlot, fileName, totalSize, 0, data, true );
         m_CARDResult = libtp::tools::ReadGCIMounted( m_CardSlot, fileName, totalSize, 0, data, false );
         if ( m_CARDResult == CARD_RESULT_READY )
 #endif
         {
-            void* headerDataPtr = data + seedEntry->commentsOffset() + 0x40;
+            void* headerDataPtr = data + seedEntry->commentsOffset() + CARD_COMMENTS_LENGTH;
 
             Header* tempHeader = static_cast<Header*>( headerDataPtr );
 

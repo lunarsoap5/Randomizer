@@ -118,7 +118,6 @@ namespace mod::rando
          *
          *  @param seedInfo Pointer to the seedinfo that we intend to load
          */
-        // Seed( int32_t chan, SeedInfo* seedInfo );
         Seed( int32_t chan, SeedListEntry* seedListEntry );
 
         /**

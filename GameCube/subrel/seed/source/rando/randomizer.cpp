@@ -13,7 +13,6 @@
 
 namespace mod::rando
 {
-    // Randomizer::Randomizer( SeedInfo* seedInfo, uint8_t selectedSeed )
     Randomizer::Randomizer()
     {
         getConsole() << "Rando loading...\n";
@@ -29,12 +28,10 @@ namespace mod::rando
         delete m_Seed;
     }
 
-    // void Randomizer::loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed )
     void Randomizer::loadSeed()
     {
         SeedListEntry* activeEntry = seedList.getActiveEntry();
 
-        // if ( seedInfo->fileIndex == 0xFF )
         if ( activeEntry == nullptr )
         {
             // getConsole() << "<Randomizer> Error: No such seed (0xFF)\n";
@@ -42,14 +39,11 @@ namespace mod::rando
         }
         else
         {
-            // getConsole() << "Seed: " << seedInfo->header.seed << "\n";
             getConsole() << "Seed: " << activeEntry->playthroughName() << "\n";
             // Load the seed
-            // m_SeedInfo = seedInfo;
             seedList.setCurrentEntryToActive();
 
             // Align to void*, as pointers use the largest variable type in the Seed class
-            // m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedInfo );
             m_Seed = new ( sizeof( void* ) ) Seed( CARD_SLOT_A, seedList.getActiveEntry() );
 
             if ( m_Seed->checkIfSeedLoaded() )
@@ -66,7 +60,6 @@ namespace mod::rando
         }
     }
 
-    // void Randomizer::changeSeed( SeedInfo* seedInfo, uint8_t newSeed )
     void Randomizer::changeSeed()
     {
         getConsole() << "Seed unloading...\n";
@@ -75,7 +68,6 @@ namespace mod::rando
         m_SeedInit = false;
 
         getConsole() << "Seed Loading...\n";
-        // loadSeed( seedInfo, newSeed );
         loadSeed();
     }
 }     // namespace mod::rando

@@ -36,7 +36,6 @@ namespace mod
 
                 // The randomizer constructor sets m_Enabled to true
                 // Align to void*, as pointers use the largest variable type in the Randomizer class
-                // randomizer = new ( sizeof( void* ) ) rando::Randomizer( &seedList->m_seedInfo[selectedSeed], selectedSeed );
                 randomizer = new ( sizeof( void* ) ) rando::Randomizer();
 
                 // One-time patches need to be applied whenever a seed is loaded
@@ -45,7 +44,6 @@ namespace mod
             }
             case SEED_ACTION_CHANGE_SEED:
             {
-                // randomizer->changeSeed( &seedList->m_seedInfo[selectedSeed], selectedSeed );
                 randomizer->changeSeed();
 
                 // One-time patches need to be applied whenever a seed is loaded

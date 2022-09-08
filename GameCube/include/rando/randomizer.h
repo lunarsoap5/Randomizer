@@ -37,11 +37,8 @@ namespace mod::rando
         uint8_t getHiddenSkillItem( uint16_t eventIndex );
 
         // Subrel
-        // Randomizer( SeedInfo* seedInfo, uint8_t selectedSeed );
         Randomizer();
-        // void loadSeed( SeedInfo* seedInfo, uint8_t selectedSeed );
         void loadSeed();
-        // void changeSeed( SeedInfo* seedInfo, uint8_t newSeed );
         void changeSeed();
 
        public:

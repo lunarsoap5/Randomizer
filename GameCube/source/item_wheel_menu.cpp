@@ -190,14 +190,10 @@ namespace mod::item_wheel_menu
         bool seedIsLoaded = false;
         if ( randoIsEnabled( randomizer ) )
         {
-            // rando::SeedInfo* seedInfo = randomizer->m_SeedInfo;
-            // if ( seedInfo )
-
             rando::SeedListEntry* activeEntry = seedList.getActiveEntry();
 
             if ( activeEntry != nullptr )
             {
-                // snprintf( buf, sizeof( buf ), "%s: 0x%016" PRIx64, strings->seedIsLoaded, seedInfo->header.seed );
                 snprintf( buf, sizeof( buf ), "%s: %s", strings->seedIsLoaded, activeEntry->playthroughName() );
                 seedIsLoaded = true;
             }

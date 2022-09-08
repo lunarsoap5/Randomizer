@@ -38,11 +38,8 @@ namespace mod::rando
         Seed* seed;
         if ( seed = getCurrentSeed( this ), !seed )
         {
-            getConsole() << "No current seed\n";
             return;
         }
-
-        getConsole() << "afdsferererafter\n";
 
         const char* stage = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage.stageValues.mStage;
         seed->LoadChecks( stage );
@@ -246,7 +243,6 @@ namespace mod::rando
 
         seed->LoadARCChecks( seed->m_StageIDX, fileDirectory, roomNo );
         uint32_t numReplacements = seed->m_numLoadedArcReplacements;
-
         // Loop through all ArcChecks and replace the item at an offset given the fileIndex.
         for ( uint32_t i = 0; i < numReplacements; i++ )
         {
