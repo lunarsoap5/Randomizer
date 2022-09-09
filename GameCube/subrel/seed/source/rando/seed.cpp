@@ -72,7 +72,7 @@ namespace mod::rando
             link_house_sign::createRequiredDungeonsString( this, m_Header->requiredDungeons );
 
             // Generate the BGM/Fanfare table data
-            this->loadBgmData( data );
+            this->loadBgmData();
         }
         delete[] data;
     }
@@ -134,12 +134,17 @@ namespace mod::rando
         }
     }
 
-    void Seed::loadBgmData( uint8_t* data )
+    void Seed::loadBgmData()
     {
+        if ( m_fileBytes == nullptr )
+        {
+            return;
+        }
+
         uint32_t headerOffset = m_Header->headerSize + m_Header->bgmHeaderOffset;
 
         // Get the Bgm Header
-        bgmHeader* customBgmHeader = reinterpret_cast<bgmHeader*>( &data[headerOffset] );
+        bgmHeader* customBgmHeader = reinterpret_cast<bgmHeader*>( &m_fileBytes[headerOffset] );
 
         // Handle any bgm entries
         uint32_t bgmTableEntries = customBgmHeader->bgmTableNumEntries;
@@ -149,7 +154,7 @@ namespace mod::rando
             uint32_t bgmTableSize = customBgmHeader->bgmTableSize;
             uint8_t* buf = new ( sizeof( uint32_t ) ) uint8_t[bgmTableSize];
             uint32_t offset = headerOffset + customBgmHeader->bgmTableOffset;
-            memcpy( buf, &data[offset], bgmTableSize );
+            memcpy( buf, &m_fileBytes[offset], bgmTableSize );
 
             // Assign the entry count and buffer
             m_BgmTableEntries = static_cast<uint8_t>( bgmTableEntries );
@@ -164,7 +169,7 @@ namespace mod::rando
             uint32_t fanfareTableSize = customBgmHeader->fanfareTableSize;
             uint8_t* buf = new ( sizeof( uint32_t ) ) uint8_t[fanfareTableSize];
             uint32_t offset = headerOffset + customBgmHeader->fanfareTableOffset;
-            memcpy( buf, &data[offset], fanfareTableSize );
+            memcpy( buf, &m_fileBytes[offset], fanfareTableSize );
 
             // Assign the entry count and buffer
             m_FanfareTableEntries = static_cast<uint8_t>( fanfareTableEntries );

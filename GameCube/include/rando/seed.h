@@ -142,7 +142,7 @@ namespace mod::rando
         uint8_t* m_GCIData = nullptr;     // GCI Data (points to bytes after header)
         int32_t m_CardSlot = 0;           // Selected Card slot (hardcoded to slot A)
         void ClearChecks( void );
-        void loadBgmData( uint8_t* data );
+        void loadBgmData();
 
         // Main
         void applyEventFlags( void );
