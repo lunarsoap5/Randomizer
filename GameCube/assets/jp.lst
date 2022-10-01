@@ -143,6 +143,9 @@
 802D1C48:do_free_JKRExpHeap
 802D2040:do_getFreeSize_JKRExpHeap
 
+// JKRArchivePri.o
+802D8A40:JKRArchive_findFsResource
+
 // Card
 80355F64:CARDInit
 80358D90:CARDCheck
