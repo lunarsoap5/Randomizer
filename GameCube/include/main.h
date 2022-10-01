@@ -10,6 +10,7 @@
 #define MAIN_H
 #include <cstdint>
 
+#include "keep.h"
 #include "display/console.h"
 #include "rando/randomizer.h"
 #include "rando/seedlist.h"
@@ -23,6 +24,8 @@
 #include "Z2AudioLib/Z2SceneMgr.h"
 #include "events.h"
 #include "tp/d_resource.h"
+#include "tp/JKRMemArchive.h"
+#include "tp/m_Do_dvd_thread.h"
 
 // Number of lines that should not be cleared when flushing the screen
 #define CONSOLE_PROTECTED_LINES 4
@@ -43,11 +46,6 @@
 #define SEED_ACTION_LOAD_SEED 1
 #define SEED_ACTION_CHANGE_SEED 2
 #define SEED_ACTION_FATAL 255
-
-// May be moved somewhere else later
-// Required for keeping certain unused functions/variables from being removed
-#define KEEP_FUNC __attribute__( ( used, visibility( "default" ) ) )
-#define KEEP_VAR __attribute__( ( visibility( "default" ) ) )
 
 namespace mod
 {
@@ -381,6 +379,11 @@ namespace mod
     extern libtp::tp::d_resource::dRes_info_c* ( *return_getResInfo )( const char* arcName,
                                                                        libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                        int32_t size );
+
+    extern void handle_custom_hook_mDoDvdThd_mountArchive_c__execute( libtp::tp::JKRMemArchive* jkrMemArchive,
+                                                                      libtp::tp::mDoDvdThd_mountArchive_c* mountArchive );
+    extern void ( *return_custom_hook_mDoDvdThd_mountArchive_c__execute )( libtp::tp::JKRMemArchive* jkrMemArchive,
+                                                                           libtp::tp::mDoDvdThd_mountArchive_c* mountArchive );
 
 }     // namespace mod
 #endif

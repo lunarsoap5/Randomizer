@@ -26,6 +26,7 @@
 #include "tp/d_a_shop_item_static.h"
 #include "tp/d_item_data.h"
 #include "user_patch/user_patch.h"
+#include "rando/clr0.h"
 
 namespace mod::rando
 {
@@ -75,6 +76,8 @@ namespace mod::rando
 
             // Generate the BGM/Fanfare table data
             this->loadBgmData( data );
+
+            this->m_CLR0 = reinterpret_cast<CLR0*>( m_GCIData + headerPtr->clr0Offset );
         }
         delete[] data;
     }

@@ -12,82 +12,45 @@
 #include "tp/d_a_alink.h"
 #include "tp/d_meter2_info.h"
 #include "user_patch/user_patch.h"
+#include "rando/clr0.h"
 
 namespace mod::user_patch
 {
-    // Color definitions for different icons.
-    const uint32_t heartColorRGBA[] = {
-        0xFFFFFFFF,     // Default
-        0xFFA0FFFF,     // Pink
-        0xFFFF40FF,     // Orange
-        0x00E87BFF,     // Green
-        0x00F3FFFF,     // Teal
-        0x00AAFFFF,     // Blue
-        0x6078FFFF,     // Purple
-        0x000000FF      // Black
-    };
+    void getLanternGlowColor( uint8_t* outLanternColors )
+    {
+        uint8_t* lanternGlowRgb = randomizer->getRecolorRgb( rando::RecolorId::LanternGlow );
+        if ( lanternGlowRgb != nullptr )
+        {
+            outLanternColors[0] = lanternGlowRgb[0];
+            outLanternColors[1] = lanternGlowRgb[1];
+            outLanternColors[2] = lanternGlowRgb[2];
+            outLanternColors[3] = lanternGlowRgb[0];
+            outLanternColors[4] = lanternGlowRgb[1];
+            outLanternColors[5] = lanternGlowRgb[2];
+        }
+        else
+        {
+            // Default colors
+            outLanternColors[0] = 0x50;
+            outLanternColors[1] = 0x28;
+            outLanternColors[2] = 0x14;
+            outLanternColors[3] = 0x28;
+            outLanternColors[4] = 0x1E;
+            outLanternColors[5] = 0x0A;
+        }
+    }
 
-    const uint32_t aButtonColorRGBA[] = {
-        0xFFFFFFFF,     // Default
-        0xFF0000FF,     // Red
-        0xFF5000FF,     // Orange
-        0xFFAF00FF,     // Yellow
-        0x0080FFFF,     // Dark Green
-        0x0000FFFF,     // Blue
-        0x8000FFFF,     // Purple
-        0x000000FF,     // Black
-        0x5555FFFF,     // Grey
-        0xFF20FFFF,     // Pink
-    };
-
-    const uint32_t bButtonColorRGBA[] = {
-        0xFFFFFFFF,     // Default
-        0xFFFF40FF,     // Orange
-        0xFFA0FFFF,     // Pink
-        0x00E87BFF,     // Green
-        0x00AAFFFF,     // Blue
-        0x6078FFFF,     // Purple
-        0x000000FF,     // Black
-        0x00F3FFFF,     // Teal
-    };
-
-    const uint32_t xyButtonColorRGBA[] = {
-        0xFFFFFFFF,     // Default
-        0xFF0000FF,     // Red
-        0xFF8200FF,     // Orange
-        0xF7DF00FF,     // Yellow
-        0x70FF00FF,     // Lime Green
-        0x00BD11FF,     // Dark Green
-        0x0000FFFF,     // Blue
-        0x880088FF,     // Purple
-        0x000000FF,     // Black
-        0xFF00AAFF,     // Pink
-        0x00FFFFFF      // Cyan
-    };
-
-    const uint32_t zButtonColorRGBA[] = {
-        0xFFFFFFFF,     // Default
-        0xFF0000FF,     // Red
-        0xFF8200FF,     // Orange
-        0xF7DF00FF,     // Yellow
-        0x70FF00FF,     // Lime Green
-        0x00BD11FF,     // Dark Green
-        0x880088FF,     // Purple
-        0x000000FF,     // Black
-        0x00FFFFFF      // Light Blue
-    };
-
-    const uint8_t lanternColors[][6] = {
-        { 0x50, 0x28, 0x14, 0x28, 0x1E, 0x0A },     // Default
-        { 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00 },     // Red
-        { 0xF6, 0x88, 0x21, 0xF6, 0x88, 0x21 },     // Orange
-        { 0xF6, 0xF3, 0x21, 0xF6, 0xF3, 0x21 },     // Yellow
-        { 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00 },     // Green
-        { 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF },     // Blue
-        { 0x80, 0x00, 0xFF, 0x80, 0x00, 0xFF },     // Purple
-        { 0xA0, 0xA0, 0xA0, 0xA0, 0xA0, 0xA0 },     // White
-        { 0x30, 0xD0, 0xD0, 0x30, 0xD0, 0xD0 },     // Cyan
-    };
+    // Returns a u32 where the first 3 bytes are R, G, and B, and the 4th byte
+    // is always 0xFF.
+    uint32_t getButtonColor( rando::RecolorId recolorId )
+    {
+        uint8_t* aBtnRgb = randomizer->getRecolorRgb( recolorId );
+        if ( aBtnRgb != nullptr )
+        {
+            return *reinterpret_cast<uint32_t*>( aBtnRgb ) | 0xFF;
+        }
+        return 0xFFFFFFFF;
+    }
 
     void setHUDCosmetics( rando::Randomizer* randomizer )
     {
@@ -100,14 +63,6 @@ namespace mod::user_patch
         using namespace libtp::tp::d_meter2_info;
         using namespace libtp::data::items;
 
-        const rando::Header* seedHeader = &randomizer->m_SeedInfo.header;
-        const uint8_t heartColorIndex = seedHeader->heartColor;
-        const uint8_t aButtonColorIndex = seedHeader->aButtonColor;
-        const uint8_t bButtonColorIndex = seedHeader->bButtonColor;
-        const uint8_t xButtonColorIndex = seedHeader->xButtonColor;
-        const uint8_t yButtonColorIndex = seedHeader->yButtonColor;
-        const uint8_t zButtonColorIndex = seedHeader->zButtonColor;
-
         libtp::tp::d_meter2_draw::dMeter2Draw_c* mpMeterDraw = g_meter2_info.mMeterClass->mpMeterDraw;
 
         uint32_t mWindowARaw = reinterpret_cast<uint32_t>( mpMeterDraw->mpButtonA->mWindow );
@@ -116,11 +71,11 @@ namespace mod::user_patch
         uint32_t mWindowYRaw = reinterpret_cast<uint32_t>( mpMeterDraw->mpButtonXY[1]->mWindow );
         uint32_t mWindowZRaw = reinterpret_cast<uint32_t>( mpMeterDraw->mpButtonXY[2]->mWindow );
 
-        const uint32_t aButtonColor = aButtonColorRGBA[aButtonColorIndex];
-        const uint32_t bButtonColor = bButtonColorRGBA[bButtonColorIndex];
-        const uint32_t xButtonColor = xyButtonColorRGBA[xButtonColorIndex];
-        const uint32_t yButtonColor = xyButtonColorRGBA[yButtonColorIndex];
-        const uint32_t zButtonColor = zButtonColorRGBA[zButtonColorIndex];
+        const uint32_t aButtonColor = getButtonColor( rando::RecolorId::ABtn );
+        const uint32_t bButtonColor = getButtonColor( rando::RecolorId::BBtn );
+        const uint32_t xButtonColor = getButtonColor( rando::RecolorId::XBtn );
+        const uint32_t yButtonColor = getButtonColor( rando::RecolorId::YBtn );
+        const uint32_t zButtonColor = getButtonColor( rando::RecolorId::ZBtn );
 
         for ( uint32_t i = 0x248; i <= 0x254; i += 0x4 )
         {
@@ -156,21 +111,38 @@ namespace mod::user_patch
         }
 
         // Patch Heart Color
-        // uint32_t bigHeartColor = 0;
         uint32_t mWindowRaw;
 
-        const uint32_t* tempHeartColorRGBA = heartColorRGBA;
-        constexpr uint32_t heartListSize = sizeof( heartColorRGBA ) / sizeof( heartColorRGBA[0] );
+        uint32_t* tempHeartColorRGBA;
+        uint32_t heartListSize = 1;
 
-        // Failsafe: Make sure heartColorIndex is valid
-        uint32_t heartColor;
-        if ( heartColorIndex < heartListSize )
+        rando::CLR0RgbArray heartRgbArr;
+        if ( randomizer->getRecolorRgbArray( rando::RecolorId::Hearts, &heartRgbArr ) )
         {
-            heartColor = tempHeartColorRGBA[heartColorIndex];
+            heartListSize = heartRgbArr.arrLength;
+
+            tempHeartColorRGBA = new uint32_t[heartListSize];
+
+            for ( uint8_t rgbIdx = 0; rgbIdx < heartListSize; rgbIdx++ )
+            {
+                uint8_t* rgbPtr = heartRgbArr.rgbArrPtr + 3 * rgbIdx;
+                uint32_t rgba = *reinterpret_cast<uint32_t*>( rgbPtr ) | 0xFF;
+                tempHeartColorRGBA[rgbIdx] = rgba;
+            }
         }
         else
         {
-            heartColor = 0;
+            tempHeartColorRGBA = new uint32_t[1];
+
+            uint8_t* heartRgb = randomizer->getRecolorRgb( rando::RecolorId::Hearts );
+            if ( heartRgb != nullptr )
+            {
+                tempHeartColorRGBA[0] = *reinterpret_cast<uint32_t*>( heartRgb ) | 0xFF;
+            }
+            else
+            {
+                tempHeartColorRGBA[0] = 0xFFFFFFFF;
+            }
         }
 
         /*
@@ -178,8 +150,7 @@ namespace mod::user_patch
             libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.maxHealth / 5;
         */
 
-        const bool heartColorIsRainbow = heartColorIndex == 8;
-        for ( uint32_t i = 0, heartIndex = 0; i < 20; i++, heartIndex++ )
+        for ( uint32_t i = 0; i < 20; i++ )
         {
             libtp::tp::d_pane_class::CPaneMgr* currentLifeTexture = mpMeterDraw->mpLifeTexture[i][1];
             if ( !currentLifeTexture )
@@ -193,38 +164,10 @@ namespace mod::user_patch
                 continue;
             }
 
-            if ( heartColorIsRainbow )
+            const uint32_t currentHeartIndexColor = tempHeartColorRGBA[i % heartListSize];
+            for ( uint32_t j = 0x138; j <= 0x144; j += 0x4 )
             {
-                const uint32_t currentHeartIndexColor = tempHeartColorRGBA[heartIndex];
-                for ( uint32_t j = 0x138; j <= 0x144; j += 0x4 )
-                {
-                    *reinterpret_cast<uint32_t*>( mWindowRaw + j ) = currentHeartIndexColor;
-                }
-
-                /*
-                if ( i == maxHeart )
-                {
-                    // Failsafe: Make sure heartIndex is at least 1 for accessing tempHeartColorRGBA
-                    if ( heartIndex < 1 )
-                    {
-                        heartIndex = 1;
-                    }
-
-                    bigHeartColor = tempHeartColorRGBA[( heartIndex - 1 )];
-                }
-                */
-
-                if ( heartIndex >= heartListSize )
-                {
-                    heartIndex = 0;
-                }
-            }
-            else
-            {
-                for ( uint32_t j = 0x138; j <= 0x144; j += 0x4 )
-                {
-                    *reinterpret_cast<uint32_t*>( mWindowRaw + j ) = heartColor;
-                }
+                *reinterpret_cast<uint32_t*>( mWindowRaw + j ) = currentHeartIndexColor;
             }
         }
 
@@ -249,14 +192,13 @@ namespace mod::user_patch
         }
 
         uint32_t tempBigHeartColor;
-        if ( heartColorIsRainbow )
+        if ( heartListSize > 1 )
         {
-            // tempBigHeartColor = bigHeartColor;
             tempBigHeartColor = tempHeartColorRGBA[ulRand( &randNext, heartListSize )];
         }
         else
         {
-            tempBigHeartColor = heartColor;
+            tempBigHeartColor = tempHeartColorRGBA[0];
         }
 
         mWindowRaw = reinterpret_cast<uint32_t>( mpMeterDraw->mpBigHeart->mWindow );
@@ -277,6 +219,8 @@ namespace mod::user_patch
                 }
             }
         }
+
+        delete[] tempHeartColorRGBA;
     }
 
     void setLanternColor( rando::Randomizer* randomizer )
@@ -291,17 +235,19 @@ namespace mod::user_patch
 
         // Set lantern variables
         daAlinkHIO_kandelaar_c0* tempLanternVars = &lanternVars;
-        const uint8_t* lanternColor = &lanternColors[randomizer->m_SeedInfo.header.lanternColor][0];
         daAlinkHIO_huLight_c0* tempHuLightVars = &huLightVars;
 
-        tempLanternVars->innerSphereR = lanternColor[0];
-        tempLanternVars->innerSphereG = lanternColor[1];
-        tempLanternVars->innerSphereB = lanternColor[2];
-        tempLanternVars->outerSphereR = lanternColor[3];
-        tempLanternVars->outerSphereG = lanternColor[4];
-        tempLanternVars->outerSphereB = lanternColor[5];
-        tempHuLightVars->lanternAmbienceR = lanternColor[0];
-        tempHuLightVars->lanternAmbienceG = lanternColor[1];
-        tempHuLightVars->lanternAmbienceB = lanternColor[2];
+        uint8_t lanternGlowColors[6];
+        getLanternGlowColor( lanternGlowColors );
+
+        tempLanternVars->innerSphereR = lanternGlowColors[0];
+        tempLanternVars->innerSphereG = lanternGlowColors[1];
+        tempLanternVars->innerSphereB = lanternGlowColors[2];
+        tempLanternVars->outerSphereR = lanternGlowColors[3];
+        tempLanternVars->outerSphereG = lanternGlowColors[4];
+        tempLanternVars->outerSphereB = lanternGlowColors[5];
+        tempHuLightVars->lanternAmbienceR = lanternGlowColors[0];
+        tempHuLightVars->lanternAmbienceG = lanternGlowColors[1];
+        tempHuLightVars->lanternAmbienceB = lanternGlowColors[2];
     }
 }     // namespace mod::user_patch

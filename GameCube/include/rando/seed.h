@@ -17,6 +17,7 @@
 
 #include "rando/data.h"
 #include "tools.h"
+#include "rando/clr0.h"
 
 namespace mod::rando
 {
@@ -69,6 +70,8 @@ namespace mod::rando
         bgmReplacement* m_FanfareTable = nullptr;     // Fanfare replacement data
         uint8_t m_BgmTableEntries;
         uint8_t m_FanfareTableEntries;
+
+        CLR0* m_CLR0 = nullptr;
 
         // Member functions
        public:

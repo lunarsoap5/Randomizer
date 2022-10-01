@@ -14,6 +14,7 @@
 #include "tp/dynamic_link.h"
 #include "tp/dzx.h"
 #include "tp/d_resource.h"
+#include "rando/clr0.h"
 
 namespace mod::rando
 {
@@ -36,6 +37,8 @@ namespace mod::rando
         void overrideEventARC();
         uint8_t overrideBugReward( uint8_t bugID );
         uint8_t getHiddenSkillItem( uint16_t eventIndex );
+        uint8_t* getRecolorRgb( RecolorId recolorId );
+        bool getRecolorRgbArray( RecolorId recolorId, CLR0RgbArray* outStruct );
 
         // Subrel
         Randomizer( MinSeedInfo* minSeedInfo, uint8_t selectedSeed );

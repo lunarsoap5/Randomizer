@@ -56,18 +56,11 @@ namespace mod::rando
         /* 0x44 */ entryInfo shopItemCheckInfo;
         /* 0x48 */ entryInfo startingItemInfo;
         /* 0x4C */ uint16_t bgmHeaderOffset;
-        /* 0x4E */ uint8_t heartColor;
-        /* 0x4F */ uint8_t aButtonColor;
-        /* 0x50 */ uint8_t bButtonColor;
-        /* 0x51 */ uint8_t xButtonColor;
-        /* 0x52 */ uint8_t yButtonColor;
-        /* 0x53 */ uint8_t zButtonColor;
-        /* 0x54 */ uint8_t lanternColor;
-        /* 0x55 */ uint8_t transformAnywhere;
-        /* 0x56 */ uint8_t quickTransform;
-        /* 0x57 */ uint8_t castleRequirements;
-        /* 0x58 */ uint8_t palaceRequirements;
-        /* 0x59 */ uint8_t padding[3];
+        /* 0x4E */ uint16_t clr0Offset;
+        /* 0x50 */ uint8_t transformAnywhere;
+        /* 0x51 */ uint8_t quickTransform;
+        /* 0x52 */ uint8_t castleRequirements;
+        /* 0x53 */ uint8_t palaceRequirements;
     } __attribute__( ( __packed__ ) );
 
     // Minimum amount of data needed for keeping track of a seed
