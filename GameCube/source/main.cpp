@@ -1608,36 +1608,14 @@ namespace mod
             }
             else
             {
-                if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectKmdl ) )
+                for ( uint32_t res = 0; res < DvdEntryNumId::DvdEntryNumIdSize; res++ )
                 {
-                    // this assumes we already have the list of bmd files to be edited: m_BmdList. This code goes in the
-                    // mountArchive__execute hook
-                    rando::BmdEntry* m_BmdEntries = randomizer->m_Seed->m_BmdEntries;
-                    getConsole() << reinterpret_cast<uint32_t>( m_BmdEntries ) << "\n";
-                    for ( uint32_t i = 0; i < randomizer->m_Seed->m_CLR0->numBmdEntries; i++ )
-                    {
-                        char buf[64];     // a little extra to be safe
-                        snprintf( buf, sizeof( buf ), "bmwr/%s", m_BmdEntries[i].bmdRes );
-                        JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive_findFsResource( mountArchive->mArchive, buf, 0 );
-                        if ( alBmdFileEntry )
-                        {
-                            uint8_t* tex1Addr =
-                                findTex1InBmd( mountArchive->mArchive->mArchiveData + alBmdFileEntry->data_offset );
-                            if ( tex1Addr )
-                            {
-                                if ( m_BmdEntries[i].recolorType == 0 )     // CMPR
-                                {
-                                    rando::CMPRTextureEntry* currentTextures = reinterpret_cast<rando::CMPRTextureEntry*>(
-                                        reinterpret_cast<uint32_t>( randomizer->m_Seed->m_CLR0 ) +
-                                        m_BmdEntries[i].textureListOffset );
-                                    for ( uint32_t j = 0; j < m_BmdEntries[i].numTextures; j++ )
-                                    {
-                                        recolorCmprTexture( tex1Addr,
-                                                            currentTextures[j].textureName,
-                                                            reinterpret_cast<uint8_t*>( &currentTextures[j].rgba ) );
-                                    }
-                                }
-                            }
+                    if ( mountArchive->mEntryNumber == getDvdEntryNum( static_cast<DvdEntryNumId>( res ) ) )
+                    {     // The currently loaded archive is an archive we are looking for
+                        rando::BmdEntry* m_BmdEntries = randomizer->generateBmdEntries( static_cast<DvdEntryNumId>( res ) );
+                        if ( m_BmdEntries != nullptr )
+                        {     // If we have a populated list, this means we have textures that we can recolor.
+                            randomizer->recolorArchiveTextures( m_BmdEntries, mountArchive );
                         }
                     }
                 }

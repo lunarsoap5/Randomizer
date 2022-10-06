@@ -148,15 +148,15 @@ namespace mod::user_patch
 
             uint8_t* lanternGlowColors = reinterpret_cast<uint8_t*>( &lanternColor );
 
-            tempLanternVars->innerSphereR = lanternGlowColors[1];
-            tempLanternVars->innerSphereG = lanternGlowColors[2];
-            tempLanternVars->innerSphereB = lanternGlowColors[3];
-            tempLanternVars->outerSphereR = lanternGlowColors[1];
-            tempLanternVars->outerSphereG = lanternGlowColors[2];
-            tempLanternVars->outerSphereB = lanternGlowColors[3];
-            tempHuLightVars->lanternAmbienceR = lanternGlowColors[1];
-            tempHuLightVars->lanternAmbienceG = lanternGlowColors[2];
-            tempHuLightVars->lanternAmbienceB = lanternGlowColors[3];
+            tempLanternVars->innerSphereR = lanternGlowColors[0];
+            tempLanternVars->innerSphereG = lanternGlowColors[1];
+            tempLanternVars->innerSphereB = lanternGlowColors[2];
+            tempLanternVars->outerSphereR = lanternGlowColors[0];
+            tempLanternVars->outerSphereG = lanternGlowColors[1];
+            tempLanternVars->outerSphereB = lanternGlowColors[2];
+            tempHuLightVars->lanternAmbienceR = lanternGlowColors[0];
+            tempHuLightVars->lanternAmbienceG = lanternGlowColors[1];
+            tempHuLightVars->lanternAmbienceB = lanternGlowColors[2];
         }
     }
 }     // namespace mod::user_patch

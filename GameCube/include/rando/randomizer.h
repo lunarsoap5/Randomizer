@@ -14,6 +14,8 @@
 #include "tp/dynamic_link.h"
 #include "tp/dzx.h"
 #include "tp/d_resource.h"
+#include "tp/m_Do_dvd_thread.h"
+#include "rando/dvdentrynum.h"
 
 namespace mod::rando
 {
@@ -36,6 +38,9 @@ namespace mod::rando
         void overrideEventARC();
         uint8_t overrideBugReward( uint8_t bugID );
         uint8_t getHiddenSkillItem( uint16_t eventIndex );
+        BmdEntry* generateBmdEntries( dvdentrynum::DvdEntryNumId );
+        void recolorArchiveTextures( BmdEntry* m_BmdEntries,
+                                     libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive );
 
         // Subrel
         Randomizer( MinSeedInfo* minSeedInfo, uint8_t selectedSeed );
