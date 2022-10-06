@@ -292,9 +292,6 @@ namespace mod
     bool handle_query042( void* unk1, void* unk2, int32_t unk3 );
     extern bool ( *return_query042 )( void* unk1, void* unk2, int32_t unk3 );
 
-    int32_t handle_query004( void* unk1, void* unk2, int32_t unk3 );
-    extern int32_t ( *return_query004 )( void* unk1, void* unk2, int32_t unk3 );
-
     int32_t handle_query037( void* unk1, void* unk2, int32_t unk3 );
     extern int32_t ( *return_query037 )( void* unk1, void* unk2, int32_t unk3 );
 
@@ -303,9 +300,6 @@ namespace mod
 
     int32_t handle_event017( void* messageFlow, void* nodeEvent, void* actrPtr );
     extern int32_t ( *return_event017 )( void* messageFlow, void* nodeEvent, void* actrPtr );
-
-    int32_t handle_event003( void* messageFlow, void* nodeEvent, void* actrPtr );
-    extern int32_t ( *return_event003 )( void* messageFlow, void* nodeEvent, void* actrPtr );
 
     int32_t handle_event041( void* messageFlow, void* nodeEvent, void* actrPtr );
     extern int32_t ( *return_event041 )( void* messageFlow, void* nodeEvent, void* actrPtr );

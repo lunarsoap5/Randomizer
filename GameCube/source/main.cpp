@@ -976,19 +976,6 @@ namespace mod
         return return_query025( unk1, unk2, unk3 );
     }
 
-    KEEP_FUNC int32_t handle_query004( void* unk1, void* unk2, int32_t unk3 )
-    {
-        if ( libtp::tools::playerIsInRoomStage( 2, libtp::data::stage::allStages[libtp::data::stage::stageIDs::Castle_Town] ) )
-        {
-            uint16_t donationCheck = *reinterpret_cast<uint16_t*>( reinterpret_cast<uint32_t>( unk2 ) + 4 );
-            if ( donationCheck == 0x1E )
-            {
-                *reinterpret_cast<uint16_t*>( reinterpret_cast<uint32_t>( unk2 ) + 4 ) = 100;
-            }
-        }
-        return return_query004( unk1, unk2, unk3 );
-    }
-
     KEEP_FUNC int32_t handle_query037( void* unk1, void* unk2, int32_t unk3 )
     {
         // Return the original function immediately as we need its output
@@ -1025,20 +1012,6 @@ namespace mod
             *reinterpret_cast<uint16_t*>( reinterpret_cast<uint32_t>( nodeEvent ) + 4 ) = 0x0000;
         }
         return return_event017( messageFlow, nodeEvent, actrPtr );
-    }
-
-    KEEP_FUNC int32_t handle_event003( void* messageFlow, void* nodeEvent, void* actrPtr )
-    {
-        // If we are donating to charlo, we want to remove 100 rupees instead of the normal 30
-        if ( libtp::tools::playerIsInRoomStage( 2, libtp::data::stage::allStages[libtp::data::stage::stageIDs::Castle_Town] ) )
-        {
-            uint32_t donationAmount = *reinterpret_cast<uint32_t*>( reinterpret_cast<uint32_t>( nodeEvent ) + 4 );
-            if ( donationAmount == 0x1E )
-            {
-                *reinterpret_cast<uint32_t*>( reinterpret_cast<uint32_t>( nodeEvent ) + 4 ) = 100;
-            }
-        }
-        return return_event003( messageFlow, nodeEvent, actrPtr );
     }
 
     KEEP_FUNC int32_t handle_event041( void* messageFlow, void* nodeEvent, void* actrPtr )
