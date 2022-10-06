@@ -143,9 +143,6 @@
 802D1C48:do_free_JKRExpHeap
 802D2040:do_getFreeSize_JKRExpHeap
 
-// JKRArchivePri.o
-802D8A40:JKRArchive_findFsResource
-
 // Card
 80355F64:CARDInit
 80358D90:CARDCheck
@@ -254,6 +251,7 @@
 8002b3f4:dComIfG_get_timelayer
 8002dca8:dComIfGs_getMaxLifeGauge
 8002d2fc:dComIfGp_setNextStage
+8002d7d0:dComIfGs_onStageBossEnemy
 
 // data
 80400300:dComIfG_gameInfo
@@ -396,3 +394,8 @@
 // d_a_itembase.o
 80037b78:CheckFieldItemCreateHeap
 80037b0c:CheckItemCreateHeap
+
+// m_Do_dvd_thread.o
+80015edc:mountArchive_execute
+// JKRArchivePri.o
+802D8A40:JKRArchive_findFsResource

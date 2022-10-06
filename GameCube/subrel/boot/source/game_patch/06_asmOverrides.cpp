@@ -11,7 +11,8 @@
 #include "events.h"
 #include "tp/d_kankyo_rain.h"
 #include "asm.h"
-#include "tp/d_event.h"
+#include "tp/d_com_inf_game.h"
+#include "tp/m_Do_dvd_thread.h"
 
 namespace mod::game_patch
 {
@@ -25,19 +26,19 @@ namespace mod::game_patch
         uint32_t screenSetAddress = reinterpret_cast<uint32_t>( libtp::tp::d_menu_collect::dMenuCollect_screenSet );
         uint32_t odourDrawAddress = reinterpret_cast<uint32_t>( libtp::tp::d_kankyo_rain::dKyr_odour_draw );
         uint32_t skipperFunctionAddress = reinterpret_cast<uint32_t>( libtp::tp::d_event::skipper );
+        uint32_t onStageBossEnemyAddress = reinterpret_cast<uint32_t>( libtp::tp::d_com_inf_game::dComIfGs_onStageBossEnemy );
+        uint32_t mDoDvdThd_mountArchive_c__execute_setOffset0xcTo1 =
+            reinterpret_cast<uint32_t>( libtp::tp::m_Do_dvd_thread::mountArchive__execute );
 
 #ifdef TP_US
         uint32_t* enableCrashScreen = reinterpret_cast<uint32_t*>( 0x8000B8A4 );
         uint32_t* patchMessageCalculation = reinterpret_cast<uint32_t*>( 0x80238F58 );
-        uint32_t* mDoDvdThd_mountArchive_c__execute_setOffset0xcTo1 = reinterpret_cast<uint32_t*>( 0x800160DC );
 #elif defined TP_EU
         uint32_t* enableCrashScreen = reinterpret_cast<uint32_t*>( 0x8000B878 );
         uint32_t* patchMessageCalculation = reinterpret_cast<uint32_t*>( 0x802395D8 );
-        uint32_t* mDoDvdThd_mountArchive_c__execute_setOffset0xcTo1 = reinterpret_cast<uint32_t*>( 0x80016090 );
 #elif defined TP_JP
         uint32_t* enableCrashScreen = reinterpret_cast<uint32_t*>( 0x8000B8A4 );
         uint32_t* patchMessageCalculation = reinterpret_cast<uint32_t*>( 0x802398E0 );
-        uint32_t* mDoDvdThd_mountArchive_c__execute_setOffset0xcTo1 = reinterpret_cast<uint32_t*>( 0x800160DC );
 #endif
 
         // Perform the overwrites
@@ -74,6 +75,10 @@ namespace mod::game_patch
         *reinterpret_cast<uint32_t*>( procCoGetItemAddress + 0x56C ) = ASM_COMPARE_LOGICAL_WORD_IMMEDIATE( 0, 19 );
         *reinterpret_cast<uint32_t*>( procCoGetItemAddress + 0x580 ) = ASM_COMPARE_LOGICAL_WORD_IMMEDIATE( 0, 59 );
 
+        // Prevent onStageBossEnemyAddress from setting the Ooccoo flag when defeating a boss.
+        *reinterpret_cast<uint32_t*>( onStageBossEnemyAddress + 0x60 ) = ASM_NOP;     // Previous 480070e9
+        *reinterpret_cast<uint32_t*>( onStageBossEnemyAddress + 0x8C ) = ASM_NOP;     // Previous 480070bd
+
         // Modify getRupeeMax calls in screenSet to display the proper wallet in the pause menu
         libtp::patch::writeBranchBL( reinterpret_cast<void*>( screenSetAddress + 0xDCC ),
                                      reinterpret_cast<void*>( events::getPauseRupeeMax ) );
@@ -81,12 +86,6 @@ namespace mod::game_patch
         libtp::patch::writeBranchBL( reinterpret_cast<void*>( screenSetAddress + 0xDF0 ),
                                      reinterpret_cast<void*>( events::getPauseRupeeMax ) );
 
-        // Prep for hooking into RARC loading. Prevent setting offset 0xC to 1
-        // which would indicate to another thread which is polling this byte
-        // that the loading has finished and it can do its thing. Instead, put
-        // r26 (this) into r4. We will hook into the instruction 8 bytes later
-        // so that we can do any necessary transforms to the loaded RARC data
-        // before setting offset 0xC to 1 to indicate that loading has finished.
-        *mDoDvdThd_mountArchive_c__execute_setOffset0xcTo1 = 0x7f44d378;     // or r4, r26, r26
+        events::performStaticASMReplacement( mDoDvdThd_mountArchive_c__execute_setOffset0xcTo1 + 0x200, ASM_NOP );
     }
 }     // namespace mod::game_patch

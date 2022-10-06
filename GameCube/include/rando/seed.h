@@ -17,7 +17,7 @@
 
 #include "rando/data.h"
 #include "tools.h"
-#include "rando/clr0.h"
+#include "data.h"
 
 namespace mod::rando
 {
@@ -71,7 +71,9 @@ namespace mod::rando
         uint8_t m_BgmTableEntries;
         uint8_t m_FanfareTableEntries;
 
-        CLR0* m_CLR0 = nullptr;
+        CLR0Header* m_CLR0 = nullptr;
+        RawRGBTable* m_RawRGBTable = nullptr;
+        BmdEntry* m_BmdEntries = nullptr;
 
         // Member functions
        public:

@@ -20,7 +20,6 @@
 #include "tp/d_meter2_info.h"
 #include "tp/dzx.h"
 #include "memory.h"
-#include "rando/clr0.h"
 
 namespace mod::rando
 {
@@ -349,6 +348,14 @@ namespace mod::rando
                         replacementValue + 0x65;
                     break;
                 }
+                case rando::ReplacementType::Instruction:
+                {
+                    *reinterpret_cast<uint32_t*>( ( fileAddr + seed->m_ArcReplacements[i].offset ) ) =
+                        seed->m_ArcReplacements[i].replacementValue;
+
+                    getConsole() << "hit\n";
+                    break;
+                }
 
                 default:
                 {
@@ -418,23 +425,5 @@ namespace mod::rando
         }
         // Default
         return libtp::data::items::Recovery_Heart;
-    }
-
-    uint8_t* Randomizer::getRecolorRgb( RecolorId recolorId )
-    {
-        if ( m_Seed->m_CLR0 != nullptr )
-        {
-            return m_Seed->m_CLR0->getRecolorRgb( recolorId );
-        }
-        return nullptr;
-    }
-
-    bool Randomizer::getRecolorRgbArray( RecolorId recolorId, CLR0RgbArray* outStruct )
-    {
-        if ( m_Seed->m_CLR0 != nullptr )
-        {
-            return m_Seed->m_CLR0->getRecolorRgbArray( recolorId, outStruct );
-        }
-        return false;
     }
 }     // namespace mod::rando

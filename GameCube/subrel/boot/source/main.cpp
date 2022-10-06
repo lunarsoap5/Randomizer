@@ -22,11 +22,10 @@
 #include "Z2AudioLib/Z2SoundMgr.h"
 #include "tp/dynamic_link.h"
 #include "gc_wii/OSTime.h"
+#include "tp/d_a_itembase.h"
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "rando/dvdentrynum.h"
-#include "asm.h"
-#include "tp/d_a_itembase.h"
 
 #include <cstdint>
 
@@ -185,10 +184,8 @@ namespace mod
         // Archive/Resource functions
         return_getResInfo = patch::hookFunction( libtp::tp::d_resource::getResInfo, mod::handle_getResInfo );
 
-        return_custom_hook_mDoDvdThd_mountArchive_c__execute = patch::hookFunction(
-            reinterpret_cast<void ( * )( libtp::tp::JKRMemArchive*, libtp::tp::mDoDvdThd_mountArchive_c* )>(
-                mDoDvdThd_mountArchive_c__execute_customHookAddr ),
-            mod::handle_custom_hook_mDoDvdThd_mountArchive_c__execute );
+        return_mountArchive__execute =
+            patch::hookFunction( libtp::tp::m_Do_dvd_thread::mountArchive__execute, mod::handle_mountArchive__execute );
     }
 
     void initRandNext()

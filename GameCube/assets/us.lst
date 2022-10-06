@@ -150,9 +150,6 @@
 802CF7AC:do_free_JKRExpHeap
 802CFBA4:do_getFreeSize_JKRExpHeap
 
-// JKRArchivePri.o
-802D65A4:JKRArchive_findFsResource
-
 // Card 
 80353AC8:CARDInit
 803568F4:CARDCheck
@@ -265,6 +262,7 @@
 8002f434:dComIfG_getStageRes
 8002dca8:dComIfGs_getMaxLifeGauge
 8002d2fc:dComIfGp_setNextStage
+8002d7d0:dComIfGs_onStageBossEnemy
 
 // d_kankyo.o
 // data
@@ -404,3 +402,8 @@
 // d_a_itembase.o
 80037b78:CheckFieldItemCreateHeap
 80037b0c:CheckItemCreateHeap
+
+// m_Do_dvd_thread.o
+80015edc:mountArchive__execute
+// JKRArchivePri.o
+802D65A4:JKRArchive_findFsResource

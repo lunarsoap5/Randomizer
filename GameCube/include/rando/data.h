@@ -222,5 +222,57 @@ namespace mod::rando
         CustomMessageEntryInfo entry[];     // Size is totalLanguages
     } __attribute__( ( __packed__ ) );
 
+    struct CLR0Header
+    {
+        /* 0x00 */ char magic[4];                 // Should always be "CLR0".
+        /* 0x04 */ uint32_t totalByteLength;      // Total byte size of the entire CLR0 chunk
+        /* 0x08 */ uint32_t numBmdEntries;        // Total number of bmd replacement entries.
+        /* 0x0C */ uint16_t bmdEntriesOffset;     // Offset to the list of bmd entries
+        /* 0x0E */ uint16_t rawRGBOffset;         // Offset to the list of raw RGB entries
+    } __attribute__( ( __packed__ ) );
+
+    struct BmdEntry
+    {
+        /* 0x00 */ uint8_t recolorType;            // 0: CMPR, 1: MAT, etc.
+        /* 0x01 */ uint8_t numTextures;            // number of textures that are being recolored in this bmd file.
+        /* 0x02 */ uint16_t textureListOffset;     // offset to the list of textures being recolored.
+        /* 0x04 */ char bmdRes[0x10];              // names are of varying size, but I haven't seen one over 0x10 yet.
+    } __attribute__( ( __packed__ ) );
+
+    struct CMPRTextureEntry
+    {
+        /* 0x00 */ uint32_t rgba;
+        /* 0x04 */ char textureName[0xC];
+    } __attribute__( ( __packed__ ) );
+
+    enum RecolorType : uint8_t
+    {
+        CMPR = 0,
+        MAT = 1,
+        Invalid = 0xFF,
+    };
+
+    enum RawRGBId : uint8_t
+    {
+        LanternGlow,
+        Hearts,
+        ABtn,
+        BBtn,
+        XBtn,
+        YBtn,
+        ZBtn
+    };
+
+    struct RawRGBTable
+    {
+        uint32_t lanternColor;
+        uint32_t heartColor;
+        uint32_t aButtonColor;
+        uint32_t bButtonColor;
+        uint32_t xButtonColor;
+        uint32_t yButtonColor;
+        uint32_t zButtonColor;
+    } __attribute__( ( __packed__ ) );
+
 }     // namespace mod::rando
 #endif

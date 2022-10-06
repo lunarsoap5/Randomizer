@@ -37,15 +37,15 @@
 #include "user_patch/03_customCosmetics.h"
 #include "data/flags.h"
 #include "tp/JKRExpHeap.h"
-#include "tp/JKRMemArchive.h"
-#include "tp/m_Do_dvd_thread.h"
 #include "tp/m_do_ext.h"
 #include "patch.h"
 #include "asm.h"
+#include "tp/d_a_itembase.h"
+#include "tp/JKRMemArchive.h"
+#include "tp/m_Do_dvd_thread.h"
 #include "rando/dvdentrynum.h"
 #include "util/texture_utils.h"
-#include "rando/clr0.h"
-#include "tp/d_a_itembase.h"
+#include "rando/data.h"
 
 namespace mod
 {
@@ -221,10 +221,8 @@ namespace mod
     KEEP_VAR libtp::tp::d_resource::dRes_info_c* ( *return_getResInfo )( const char* arcName,
                                                                          libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                          int32_t size ) = nullptr;
-
-    KEEP_VAR void ( *return_custom_hook_mDoDvdThd_mountArchive_c__execute )(
-        libtp::tp::JKRMemArchive* jkrMemArchive,
-        libtp::tp::mDoDvdThd_mountArchive_c* mountArchive ) = nullptr;
+    KEEP_VAR bool ( *return_mountArchive__execute )( libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive ) =
+        nullptr;
 
     void main()
     {
@@ -1038,7 +1036,6 @@ namespace mod
             if ( donationAmount == 0x1E )
             {
                 *reinterpret_cast<uint32_t*>( reinterpret_cast<uint32_t>( nodeEvent ) + 4 ) = 100;
-                return 1;
             }
         }
         return return_event003( messageFlow, nodeEvent, actrPtr );
@@ -1498,9 +1495,9 @@ namespace mod
             if ( main2DArchive )
             {
                 // Get the image to use for the background window
-                void* bg = libtp::tp::JKRArchive_getResource2( main2DArchive,
-                                                               0x54494D47,     // TIMG
-                                                               "tt_block_grade.bti" );
+                void* bg = libtp::tp::JKRArchive::JKRArchive_getResource2( main2DArchive,
+                                                                           0x54494D47,     // TIMG
+                                                                           "tt_block_grade.bti" );
 
                 if ( bg )
                 {
@@ -1582,11 +1579,6 @@ namespace mod
         return resourcePtr;
     }
 
-    inline uint8_t* getRecolorRgb( mod::rando::RecolorId recolorId )
-    {
-        return mod::randomizer ? mod::randomizer->getRecolorRgb( recolorId ) : nullptr;
-    }
-
     // This is called in the NON-MAIN thread which is loading the archive where
     // `mountArchive->mIsDone = true;` would be called normally (this is the
     // last thing that gets called before the archive is considered loaded). The
@@ -1594,260 +1586,69 @@ namespace mod
     // this ourselves when we are done. (This indicates that the archive is
     // loaded, and whatever was waiting on it will see this byte change the next
     // time it polls the completion status (polling happens once per frame?))
-    KEEP_FUNC void handle_custom_hook_mDoDvdThd_mountArchive_c__execute( libtp::tp::JKRMemArchive* jkrMemArchive,
-                                                                         libtp::tp::mDoDvdThd_mountArchive_c* mountArchive )
+    KEEP_FUNC bool handle_mountArchive__execute( libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive )
     {
-        using libtp::tp::JKRArchive;
-        using libtp::tp::JKRArchive_findFsResource;
+        using libtp::tp::JKRArchive::JKRArchive;
+        using libtp::tp::JKRArchive::JKRArchive_findFsResource;
         using libtp::util::texture::findTex1InBmd;
         using libtp::util::texture::recolorCmprTexture;
         using mod::dvdentrynum::DvdEntryNumId;
         using mod::dvdentrynum::getDvdEntryNum;
-        using rando::RecolorId;
 
-        if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectKmdl ) )
+        const bool ret = return_mountArchive__execute( mountArchive );
+
+        if ( ret )
         {
-            // Link wearing Hero's Clothes
-            uint8_t* recolorRgb = getRecolorRgb( RecolorId::HerosClothes );
-            if ( recolorRgb != nullptr )
+            // Make sure the randomizer is loaded/enabled and a seed is loaded
+            rando::Seed* seed;
+            if ( seed = getCurrentSeed( randomizer ), !seed )
             {
-                // Note: you could maybe improve this slightly by finding the
-                // `bmwr` directory a single time and passing the context as the
-                // 3rd arg instead of 0 I think, but I'm not worrying about it
-                // right now. - Isaac
-                JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive_findFsResource( jkrMemArchive, "bmwr/al.bmd", 0 );
-
-                if ( alBmdFileEntry )
+                mountArchive->mIsDone = true;
+                return ret;
+            }
+            else
+            {
+                if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectKmdl ) )
                 {
-                    uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alBmdFileEntry->data_offset );
-                    if ( tex1Addr )
+                    // this assumes we already have the list of bmd files to be edited: m_BmdList. This code goes in the
+                    // mountArchive__execute hook
+                    rando::BmdEntry* m_BmdEntries = randomizer->m_Seed->m_BmdEntries;
+                    getConsole() << reinterpret_cast<uint32_t>( m_BmdEntries ) << "\n";
+                    for ( uint32_t i = 0; i < randomizer->m_Seed->m_CLR0->numBmdEntries; i++ )
                     {
-                        // Green part above belt
-                        recolorCmprTexture( tex1Addr, "al_upbody", recolorRgb );
-                        // Green part below belt
-                        recolorCmprTexture( tex1Addr, "al_lowbody", recolorRgb );
-                    }
-                }
-
-                JKRArchive::SDIFileEntry* alHeadBmdFileEntry =
-                    JKRArchive_findFsResource( jkrMemArchive, "bmwr/al_head.bmd", 0 );
-
-                if ( alHeadBmdFileEntry )
-                {
-                    uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alHeadBmdFileEntry->data_offset );
-                    if ( tex1Addr )
-                    {
-                        // Hat
-                        recolorCmprTexture( tex1Addr, "al_cap", recolorRgb );
+                        char buf[64];     // a little extra to be safe
+                        snprintf( buf, sizeof( buf ), "bmwr/%s", m_BmdEntries[i].bmdRes );
+                        JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive_findFsResource( mountArchive->mArchive, buf, 0 );
+                        if ( alBmdFileEntry )
+                        {
+                            uint8_t* tex1Addr =
+                                findTex1InBmd( mountArchive->mArchive->mArchiveData + alBmdFileEntry->data_offset );
+                            if ( tex1Addr )
+                            {
+                                if ( m_BmdEntries[i].recolorType == 0 )     // CMPR
+                                {
+                                    rando::CMPRTextureEntry* currentTextures = reinterpret_cast<rando::CMPRTextureEntry*>(
+                                        reinterpret_cast<uint32_t>( randomizer->m_Seed->m_CLR0 ) +
+                                        m_BmdEntries[i].textureListOffset );
+                                    for ( uint32_t j = 0; j < m_BmdEntries[i].numTextures; j++ )
+                                    {
+                                        recolorCmprTexture( tex1Addr,
+                                                            currentTextures[j].textureName,
+                                                            reinterpret_cast<uint8_t*>( &currentTextures[j].rgba ) );
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        // Note: Leaving in the below comments regarding recoloring other
-        // things. Not everything can be recolored this way -- only CMPR
-        // textures in MemArchives. Even then, it works best when the entire
-        // texture was already the same color. This method looks weird on the
-        // Hylian Shield for example since it is a large number of colors
-        // together. I messed around with just recoloring the red bird, and that
-        // was okay, but probably better to spend more time on it before saying
-        // "well, this is the best we can do".
-
-        // Note that this method is NOT how you recolor things on Midna. Well,
-        // you can recolor some things, but not what anyone is looking for.
-        // IIRC, the body marking color could be changed through MATs (though it
-        // is a different location for her hands when they are actually moving I
-        // think). Midna's hair has a handful of colors which are stored as
-        // properties on her instance, or something along those lines. And the
-        // colors which are used when you are holding B to do the attack are
-        // different as well. Her color during MDH is controlled through a
-        // single-frame color animation IIRC. Note that the Midna you would want
-        // to recolor is actually part of the Wmdl.arc contents (wolf model;
-        // Link in wolf form)  - Isaac
-
-        // // else if ( mountArchive->mEntryNumber == 0xc83 )
-        // // else if ( mountArchive->mEntryNumber == rando::getDvdEntryNum( rando::DvdEntryNumId::ResObjectZmdl ) )
-        // else if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectZmdl ) )
-        // {
-        //     // Zmdl (Zora Armor)
-        //     // uint8_t recolorColor[3] = { 0xff, 0, 0 };
-        //     uint8_t recolorColor[3] = { 0xff, 0, 0 };
-        //     uint8_t recolorColor2[3] = { 0xff, 0xff, 0 };
-        //     uint8_t recolorColorHelmet[3] = { 0, 0xff, 0 };
-
-        //     JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive__findFsResource( jkrMemArchive, "bmwr/zl.bmd", 0 );
-
-        //     if ( alBmdFileEntry != nullptr )
-        //     {
-        //         uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alBmdFileEntry->data_offset );
-        //         if ( tex1Addr != nullptr )
-        //         {
-        //             // this is the lower layer
-        //             recolorCmprTexture( tex1Addr, "zl_body", recolorColor2 );
-        //             // blue part not on legs
-        //             recolorCmprTexture( tex1Addr, "zl_armor", recolorColor );
-
-        //             // blue part on arms?
-        //             recolorCmprTexture( tex1Addr, "al_armL", recolorColor );
-
-        //             // "zl_mask" is the mask on your lower face when you are underwater
-        //             recolorCmprTexture( tex1Addr, "zl_mask", recolorColor2 );
-        //             // "zl_boots" is your flippers
-        //             recolorCmprTexture( tex1Addr, "zl_boots", recolorColor );
-        //         }
-        //     }
-
-        //     // libtp::JSystem::JKernel::JKRArchive::SDIFileEntry* alBmdFileEntryFace =
-        //     //     libtp::JSystem::JKernel::JKRArchive__findFsResource( jkrMemArchive, "bmwr/zl_face.bmd", 0 );
-
-        //     // if ( alBmdFileEntryFace != nullptr )
-        //     // {
-        //     //     uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alBmdFileEntryFace->data_offset );
-        //     //     if ( tex1Addr != nullptr )
-        //     //     {
-        //     //         // libtp::util::color::recolorCmprTexture( tex1Addr, "zl_body", recolorColor ); // this is the
-        //     //         lower
-        //     //         // layer
-        //     //         // libtp::util::color::recolorCmprTexture( tex1Addr, "zl_armor", recolorColor ); // blue part not
-        //     //         on
-        //     //         // legs
-        //     //         // "zl_mask" is the mask on your lower face when you are underwater
-        //     //         // libtp::util::color::recolorCmprTexture( tex1Addr, "zl_mask", recolorColor );
-        //     //         // "zl_boots" is your flippers
-        //     //         libtp::util::color::recolorCmprTexture( tex1Addr, "zl_face", recolorColor );
-        //     //     }
-        //     // }
-
-        //     JKRArchive::SDIFileEntry* alHeadBmdFileEntry = JKRArchive__findFsResource( jkrMemArchive, "bmwr/zl_head.bmd", 0
-        //     );
-
-        //     if ( alHeadBmdFileEntry )
-        //     {
-        //         uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alHeadBmdFileEntry->data_offset );
-        //         if ( tex1Addr )
-        //         {
-        //             recolorCmprTexture( tex1Addr, "zl_cap", recolorColor );
-        //             recolorCmprTexture( tex1Addr, "zl_helmet", recolorColorHelmet );
-        //         }
-        //     }
-        // }
-        // // else if ( mountArchive->mEntryNumber == 0x7f5 )
-        // else if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectCWShd ) )
-        // {
-        //     // CWShd (Ordon shield)
-        //     uint8_t shieldColor[3] = { 0xff, 0, 0xff };
-
-        //     JKRArchive::SDIFileEntry* alShbFileEntry = JKRArchive__findFsResource( jkrMemArchive, "bmwr/al_shb.bmd", 0 );
-
-        //     if ( alShbFileEntry )
-        //     {
-        //         uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alShbFileEntry->data_offset );
-        //         if ( tex1Addr )
-        //         {
-        //             recolorCmprTexture( tex1Addr, "al_SHB", shieldColor );
-        //         }
-        //     }
-        // }
-        // // else if ( mountArchive->mEntryNumber == 0xbc5 )
-        // else if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectSWShd ) )
-        // {
-        //     // SWShd (Wooden shield)
-        //     // uint8_t shieldColor[3] = { 0, 0xff, 0xff };
-        //     uint8_t shieldColor[3] = { 0x50, 0xad, 0x5d };
-
-        //     JKRArchive::SDIFileEntry* alShbFileEntry = JKRArchive__findFsResource( jkrMemArchive, "bmwr/al_shc.bmd", 0 );
-
-        //     if ( alShbFileEntry )
-        //     {
-        //         uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alShbFileEntry->data_offset );
-        //         if ( tex1Addr )
-        //         {
-        //             recolorCmprTexture( tex1Addr, "al_SHC", shieldColor );
-        //         }
-        //     }
-        // }
-        // // else if ( mountArchive->mEntryNumber == 0x923 )
-        // else if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectHyShd ) )
-        // {
-        //     // HyShd (Hylian Shield)
-        //     // uint8_t shieldColor[3] = { 0xff, 0, 0xff };
-        //     // uint8_t shieldColor[3] = { 0x90, 0xee, 0x90 };     // light green
-        //     // uint8_t shieldColor[3] = { 0xff, 0xff, 0xff };
-        //     // uint8_t shieldColor[3] = { 0x51, 0x08, 0x7e };     // indigo (purple-y)
-        //     // uint8_t shieldColor[3] = { 0xa0, 0x20, 0xf0 };     // light purple
-        //     // uint8_t shieldColor[3] = { 0xfc, 0xae, 0x1e };     // marigold (light orange)
-        //     // uint8_t shieldColor[3] = { 0xff, 0xff, 0 };     // yellow
-        //     // uint8_t shieldColor[3] = { 0xcb, 0xcb, 0 };     // yellow, darker
-        //     // uint8_t shieldColor[3] = { 0x3d, 0xe2, 0x2f };     // lch hue, green
-        //     // uint8_t shieldColor[3] = { 0xcb, 0x4f, 0x6b };
-
-        //     // Actually calced from red (b9694d, which seems to blend to default red)
-        //     // uint8_t shieldColor[3] = { 0x85, 0x76, 0xc3 };     // purp, hue 296.494
-        //     // uint8_t shieldColor[3] = { 0x5e, 0x8b, 0x41 };     // green, hue 127.494
-        //     // uint8_t shieldColor[3] = { 0, 0x8a, 0xbe };     // blue, hue 244.494
-        //     uint8_t shieldColor[3] = { 0xa7, 0x74, 0x3a };     // orange-y, hue 67.494
-
-        //     JKRArchive::SDIFileEntry* alShbFileEntry = JKRArchive__findFsResource( jkrMemArchive, "bmwr/al_sha.bmd", 0 );
-
-        //     if ( alShbFileEntry )
-        //     {
-        //         uint8_t* tex1Addr = findTex1InBmd( jkrMemArchive->mArchiveData + alShbFileEntry->data_offset );
-        //         if ( tex1Addr )
-        //         {
-        //             recolorCmprTexture( tex1Addr, "al_SHA", shieldColor );
-        //         }
-        //     }
-        // }
-        // // else if ( mountArchive->mEntryNumber == 0xc55 )
-        // else if ( mountArchive->mEntryNumber == getDvdEntryNum( DvdEntryNumId::ResObjectWmdl ) )
-        // {
-        //     // Wmdl (Wolf Link, including Midna on back. Midna.arc is
-        //     // one that shows up when you press Z)
-
-        //     // libtp::JSystem::JKernel::JKRArchive::SDIFileEntry* mdHairHandFileEntry =
-        //     //     libtp::JSystem::JKernel::JKRArchive__findFsResource( jkrMemArchive, "bmdv/md_hair_hand.bmd", 0 );
-
-        //     // if ( mdHairHandFileEntry != nullptr )
-        //     // {
-        //     //     uint8_t* mdHairHandBmdAddr = jkrMemArchive->mArchiveData + mdHairHandFileEntry->data_offset;
-        //     //     // uint32_t* ptt = reinterpret_cast<uint32_t*>( mdHairHandBmdAddr + 0x4174 );
-        //     //     // ptt[0] = 0;
-        //     //     // ptt[1] = 0;
-        //     //     // ptt[2] = 0;
-        //     //     // ptt[3] = 0x00ff00ff;
-        //     //     for ( int i = 0; i < 4; i++ )
-        //     //     {
-        //     //         // ptt[i] = 0x000000ff;
-        //     //         // ptt[i] = 0xffff00ff;
-        //     //         // ptt[i] = 0xff000000;
-        //     //     }
-
-        //     //     // mdHairHandBmdAddr[0x41b1] = 0xE;
-
-        //     //     // mdHairHandBmdAddr[0x41c5] = 0xE;
-        //     //     // mdHairHandBmdAddr[0x41c8] = 0xF;
-        //     // }
-
-        //     // libtp::JSystem::JKernel::JKRArchive::SDIFileEntry* mdFileEntry =
-        //     //     libtp::JSystem::JKernel::JKRArchive__findFsResource( jkrMemArchive, "bmdv/md.bmd", 0 );
-
-        //     // if ( mdFileEntry != nullptr )
-        //     // {
-        //     //     uint8_t* mdHairHandBmdAddr = jkrMemArchive->mArchiveData + mdFileEntry->data_offset;
-        //     //     uint32_t* ptt = reinterpret_cast<uint32_t*>( mdHairHandBmdAddr + 0x11290 );
-        //     //     for ( int i = 0; i < 6; i++ )
-        //     //     {
-        //     //         ptt[i] = 0x0;
-        //     //     }
-        //     //     ptt[2] = 0x00ff00ff;
-        //     // }
-        // }
-
         // Need to mark the archive as loaded once we are done modifying its
         // contents.
         mountArchive->mIsDone = true;
 
-        return return_custom_hook_mDoDvdThd_mountArchive_c__execute( jkrMemArchive, mountArchive );
+        return ret;
     };
 
     uint32_t rand( uint32_t* seed )

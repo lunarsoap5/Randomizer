@@ -31,17 +31,6 @@
 // section (as seen on line 14 of d_a_obj_Lv5Key.map).
 #define d_a_obj_Lv5Key__Wait_offset 0xBC + 0x4E4
 
-#ifdef TP_US
-// This is where we do our custom hook to modify MemArchive contents in the
-// thread in which they are being loaded right before they would normally be
-// marked as fully loaded.
-#define mDoDvdThd_mountArchive_c__execute_customHookAddr 0x800160E4
-#elif defined TP_EU
-#define mDoDvdThd_mountArchive_c__execute_customHookAddr 0x80016098
-#elif defined TP_JP
-#define mDoDvdThd_mountArchive_c__execute_customHookAddr 0x800160E4
-#endif
-
 namespace mod::assembly
 {
     extern "C"

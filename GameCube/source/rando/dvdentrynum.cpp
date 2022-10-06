@@ -7,12 +7,10 @@
  */
 
 #include <cstdint>
-
-#include "keep.h"
 #include "rando/dvdentrynum.h"
 #include "gc_wii/dvdfs.h"
 
 namespace mod::dvdentrynum
 {
-    KEEP_VAR int32_t lookupTable[DvdEntryNumIdSize];
+    int32_t lookupTable[DvdEntryNumIdSize];
 }     // namespace mod::dvdentrynum
