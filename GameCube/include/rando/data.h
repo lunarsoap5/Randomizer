@@ -275,5 +275,25 @@ namespace mod::rando
         uint32_t zButtonColor;
     } __attribute__( ( __packed__ ) );
 
+    enum DvdEntryNumId : uint8_t
+    {
+        // DO NOT set any of these enums to a specific value. The exact values
+        // and the order are irrelevant (other than `DvdEntryNumIdSize` which
+        // must go last).
+        ResObjectKmdl,     // Link wearing Hero's Clothes
+                           // ResObjectZmdl,      // Link wearing Zora Armor
+                           // ResObjectWmdl,      // Wolf Link and Midna on back
+                           // ResObjectCWShd,     // Ordon Shield
+                           // ResObjectSWShd,     // Wooden Shield
+                           // ResObjectHyShd,     // Hylian Shield
+
+        DvdEntryNumIdSize,
+        // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above
+        // this one and don't forget to actually add the lookup in the
+        // `dvdentrynum.cpp` file!
+    };
+
+    extern int32_t lookupTable[DvdEntryNumIdSize];
+
 }     // namespace mod::rando
 #endif

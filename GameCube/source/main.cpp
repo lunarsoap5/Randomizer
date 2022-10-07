@@ -43,7 +43,6 @@
 #include "tp/d_a_itembase.h"
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
-#include "rando/dvdentrynum.h"
 #include "util/texture_utils.h"
 #include "rando/data.h"
 
@@ -1561,13 +1560,6 @@ namespace mod
     // time it polls the completion status (polling happens once per frame?))
     KEEP_FUNC bool handle_mountArchive__execute( libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive )
     {
-        using libtp::tp::JKRArchive::JKRArchive;
-        using libtp::tp::JKRArchive::JKRArchive_findFsResource;
-        using libtp::util::texture::findTex1InBmd;
-        using libtp::util::texture::recolorCmprTexture;
-        using mod::dvdentrynum::DvdEntryNumId;
-        using mod::dvdentrynum::getDvdEntryNum;
-
         const bool ret = return_mountArchive__execute( mountArchive );
 
         if ( ret )
@@ -1579,20 +1571,7 @@ namespace mod
                 mountArchive->mIsDone = true;
                 return ret;
             }
-            else
-            {
-                for ( uint32_t res = 0; res < DvdEntryNumId::DvdEntryNumIdSize; res++ )
-                {
-                    if ( mountArchive->mEntryNumber == getDvdEntryNum( static_cast<DvdEntryNumId>( res ) ) )
-                    {     // The currently loaded archive is an archive we are looking for
-                        rando::BmdEntry* m_BmdEntries = randomizer->generateBmdEntries( static_cast<DvdEntryNumId>( res ) );
-                        if ( m_BmdEntries != nullptr )
-                        {     // If we have a populated list, this means we have textures that we can recolor.
-                            randomizer->recolorArchiveTextures( m_BmdEntries, mountArchive );
-                        }
-                    }
-                }
-            }
+            randomizer->recolorArchiveTextures( mountArchive );
         }
 
         // Need to mark the archive as loaded once we are done modifying its

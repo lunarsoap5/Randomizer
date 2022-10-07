@@ -25,7 +25,7 @@
 #include "tp/d_a_itembase.h"
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
-#include "rando/dvdentrynum.h"
+#include "gc_wii/dvdfs.h"
 
 #include <cstdint>
 
@@ -64,7 +64,7 @@ namespace mod
         // Align to void*, as pointers use the largest variable type in the SeedList class
         seedList = new ( sizeof( void* ) ) rando::SeedList();
 
-        dvdentrynum::initLookupTable();
+        initLookupTable();
 
         // Handle the main function hooks
         hookFunctions();
@@ -197,5 +197,17 @@ namespace mod
         } while ( next == 0 );
 
         randNext = next;
+    }
+
+    void initLookupTable()
+    {
+        using libtp::gc_wii::dvdfs::DVDConvertPathToEntrynum;
+
+        rando::lookupTable[rando::ResObjectKmdl] = DVDConvertPathToEntrynum( "/res/Object/Kmdl.arc" );
+        // lookupTable[ResObjectZmdl] = DVDConvertPathToEntrynum( "/res/Object/Zmdl.arc" );
+        // lookupTable[ResObjectWmdl] = DVDConvertPathToEntrynum( "/res/Object/Wmdl.arc" );
+        // lookupTable[ResObjectCWShd] = DVDConvertPathToEntrynum( "/res/Object/CWShd.arc" );
+        // lookupTable[ResObjectSWShd] = DVDConvertPathToEntrynum( "/res/Object/SWShd.arc" );
+        // lookupTable[ResObjectHyShd] = DVDConvertPathToEntrynum( "/res/Object/HyShd.arc" );
     }
 }     // namespace mod
