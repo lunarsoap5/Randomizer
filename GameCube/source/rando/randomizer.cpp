@@ -358,8 +358,6 @@ namespace mod::rando
                 {
                     *reinterpret_cast<uint32_t*>( ( fileAddr + seed->m_ArcReplacements[i].offset ) ) =
                         seed->m_ArcReplacements[i].replacementValue;
-
-                    getConsole() << "hit\n";
                     break;
                 }
 
@@ -451,6 +449,7 @@ namespace mod::rando
         }
         if ( j == 0 )     // no matches were found or there are no entries in the seed.
         {
+            delete[] loadedBmdEntries;
             return nullptr;
         }
         return loadedBmdEntries;
@@ -462,45 +461,65 @@ namespace mod::rando
         using libtp::tp::JKRArchive::JKRArchive_findFsResource;
         using libtp::util::texture::findTex1InBmd;
         using libtp::util::texture::recolorCmprTexture;
-        uint32_t numEntries = m_Seed->m_CLR0->numBmdEntries;
+        CLR0Header* clr0Header = m_Seed->m_CLR0;
+        uint32_t numEntries = clr0Header->numBmdEntries;
 
         for ( uint32_t res = 0; res < DvdEntryNumId::DvdEntryNumIdSize; res++ )
         {
-            if ( mountArchive->mEntryNumber == getDvdEntryNum( static_cast<DvdEntryNumId>( res ) ) )
-            {     // The currently loaded archive is an archive we are looking for
-                BmdEntry* loadedBmdEntries = generateBmdEntries( static_cast<DvdEntryNumId>( res ), numEntries );
-                if ( loadedBmdEntries != nullptr )
-                {     // If we have a populated list, this means we have textures that we can recolor.
-                    for ( uint32_t i = 0; i < numEntries; i++ )
+            if ( mountArchive->mEntryNumber != getDvdEntryNum( static_cast<DvdEntryNumId>( res ) ) )
+            {
+                continue;
+            }
+
+            // The currently loaded archive is an archive we are looking for
+            BmdEntry* loadedBmdEntries = generateBmdEntries( static_cast<DvdEntryNumId>( res ), numEntries );
+            if ( !loadedBmdEntries )
+            {
+                continue;
+            }
+
+            // If we have a populated list, this means we have textures that we can recolor.
+            for ( uint32_t i = 0; i < numEntries; i++ )
+            {
+                BmdEntry* currentBmdEntry = &loadedBmdEntries[i];
+                char buf[64];     // a little extra to be safe
+                snprintf( buf, sizeof( buf ), "bmwr/%s", currentBmdEntry->bmdRes );
+                JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive_findFsResource( mountArchive->mArchive, buf, 0 );
+                if ( !alBmdFileEntry )
+                {
+                    delete[] loadedBmdEntries;
+                    continue;
+                }
+
+                uint8_t* tex1Addr = findTex1InBmd( mountArchive->mArchive->mArchiveData + alBmdFileEntry->data_offset );
+                if ( !tex1Addr )
+                {
+                    delete[] loadedBmdEntries;
+                    continue;
+                }
+
+                switch ( currentBmdEntry->recolorType )
+                {
+                    case 0:     // CMPR
                     {
-                        char buf[64];     // a little extra to be safe
-                        snprintf( buf, sizeof( buf ), "bmwr/%s", loadedBmdEntries[i].bmdRes );
-                        JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive_findFsResource( mountArchive->mArchive, buf, 0 );
-                        if ( alBmdFileEntry )
+                        CMPRTextureEntry* bmdTextures = reinterpret_cast<CMPRTextureEntry*>(
+                            reinterpret_cast<uint32_t>( clr0Header ) + currentBmdEntry->textureListOffset );
+                        for ( uint32_t j = 0; j < currentBmdEntry->numTextures; j++ )
                         {
-                            uint8_t* tex1Addr =
-                                findTex1InBmd( mountArchive->mArchive->mArchiveData + alBmdFileEntry->data_offset );
-                            if ( tex1Addr )
-                            {
-                                if ( loadedBmdEntries[i].recolorType == 0 )     // CMPR
-                                {
-                                    rando::CMPRTextureEntry* currentTextures = reinterpret_cast<rando::CMPRTextureEntry*>(
-                                        reinterpret_cast<uint32_t>( m_Seed->m_CLR0 ) + loadedBmdEntries[i].textureListOffset );
-                                    for ( uint32_t j = 0; j < loadedBmdEntries[i].numTextures; j++ )
-                                    {
-                                        recolorCmprTexture( tex1Addr,
-                                                            currentTextures[j].textureName,
-                                                            reinterpret_cast<uint8_t*>( &currentTextures[j].rgba ) );
-                                    }
-                                }
-                            }
+                            CMPRTextureEntry* currentTexture = &bmdTextures[j];
+                            recolorCmprTexture( tex1Addr,
+                                                currentTexture->textureName,
+                                                reinterpret_cast<uint8_t*>( &currentTexture->rgba ) );
                         }
+                        break;
+                    }
+                    default:
+                    {
+                        break;
                     }
                 }
-                delete[] loadedBmdEntries;
             }
+            delete[] loadedBmdEntries;
         }
-
-        return;
     }
 }     // namespace mod::rando

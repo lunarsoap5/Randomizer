@@ -1566,14 +1566,10 @@ namespace mod
         {
             // Make sure the randomizer is loaded/enabled and a seed is loaded
             rando::Seed* seed;
-            if ( seed = getCurrentSeed( randomizer ), !seed )
+            if ( seed = getCurrentSeed( randomizer ), seed )
             {
-                // Need to mark the archive as loaded once we are done modifying its
-                // contents.
-                mountArchive->mIsDone = true;
-                return ret;
+                randomizer->recolorArchiveTextures( mountArchive );
             }
-            randomizer->recolorArchiveTextures( mountArchive );
         }
 
         // Need to mark the archive as loaded once we are done modifying its

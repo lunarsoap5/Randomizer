@@ -43,7 +43,7 @@ namespace mod::user_patch
         const uint32_t yButtonColor = rawRGBListPtr->yButtonColor;
         const uint32_t zButtonColor = rawRGBListPtr->zButtonColor;
         const uint32_t heartColorRGBA = rawRGBListPtr->heartColor;
-        uint32_t lanternColor = rawRGBListPtr->lanternColor;
+        uint8_t* lanternColor = reinterpret_cast<uint8_t*>( &rawRGBListPtr->lanternColor );
         for ( uint32_t i = 0x248; i <= 0x254; i += 0x4 )
         {
             // Patch the A Button Color
@@ -139,24 +139,23 @@ namespace mod::user_patch
             }
         }
 
-        if ( lanternColor != 0xffffffff )     // Don't set the value if there isn't a replacement
+        if ( *reinterpret_cast<uint32_t*>( lanternColor ) !=
+             0xffffffff )     // Don't set the value if there isn't a replacement
         {
             using namespace libtp::tp::d_a_alink;
             // Set lantern variables
             daAlinkHIO_kandelaar_c0* tempLanternVars = &lanternVars;
             daAlinkHIO_huLight_c0* tempHuLightVars = &huLightVars;
 
-            uint8_t* lanternGlowColors = reinterpret_cast<uint8_t*>( &lanternColor );
-
-            tempLanternVars->innerSphereR = lanternGlowColors[0];
-            tempLanternVars->innerSphereG = lanternGlowColors[1];
-            tempLanternVars->innerSphereB = lanternGlowColors[2];
-            tempLanternVars->outerSphereR = lanternGlowColors[0];
-            tempLanternVars->outerSphereG = lanternGlowColors[1];
-            tempLanternVars->outerSphereB = lanternGlowColors[2];
-            tempHuLightVars->lanternAmbienceR = lanternGlowColors[0];
-            tempHuLightVars->lanternAmbienceG = lanternGlowColors[1];
-            tempHuLightVars->lanternAmbienceB = lanternGlowColors[2];
+            tempLanternVars->innerSphereR = lanternColor[0];
+            tempLanternVars->innerSphereG = lanternColor[1];
+            tempLanternVars->innerSphereB = lanternColor[2];
+            tempLanternVars->outerSphereR = lanternColor[0];
+            tempLanternVars->outerSphereG = lanternColor[1];
+            tempLanternVars->outerSphereB = lanternColor[2];
+            tempHuLightVars->lanternAmbienceR = lanternColor[0];
+            tempHuLightVars->lanternAmbienceG = lanternColor[1];
+            tempHuLightVars->lanternAmbienceB = lanternColor[2];
         }
     }
 }     // namespace mod::user_patch
