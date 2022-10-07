@@ -204,7 +204,7 @@ namespace mod
         using libtp::gc_wii::dvdfs::DVDConvertPathToEntrynum;
 
         rando::lookupTable[rando::ResObjectKmdl] = DVDConvertPathToEntrynum( "/res/Object/Kmdl.arc" );
-        // lookupTable[ResObjectZmdl] = DVDConvertPathToEntrynum( "/res/Object/Zmdl.arc" );
+        rando::lookupTable[rando::ResObjectZmdl] = DVDConvertPathToEntrynum( "/res/Object/Zmdl.arc" );
         // lookupTable[ResObjectWmdl] = DVDConvertPathToEntrynum( "/res/Object/Wmdl.arc" );
         // lookupTable[ResObjectCWShd] = DVDConvertPathToEntrynum( "/res/Object/CWShd.arc" );
         // lookupTable[ResObjectSWShd] = DVDConvertPathToEntrynum( "/res/Object/SWShd.arc" );

@@ -224,11 +224,10 @@ namespace mod::rando
 
     struct CLR0Header
     {
-        /* 0x00 */ char magic[4];                 // Should always be "CLR0".
-        /* 0x04 */ uint32_t totalByteLength;      // Total byte size of the entire CLR0 chunk
-        /* 0x08 */ uint32_t numBmdEntries;        // Total number of bmd replacement entries.
-        /* 0x0C */ uint16_t bmdEntriesOffset;     // Offset to the list of bmd entries
-        /* 0x0E */ uint16_t rawRGBOffset;         // Offset to the list of raw RGB entries
+        /* 0x00 */ uint32_t totalByteLength;      // Total byte size of the entire CLR0 chunk
+        /* 0x04 */ uint32_t numBmdEntries;        // Total number of bmd replacement entries.
+        /* 0x08 */ uint16_t bmdEntriesOffset;     // Offset to the list of bmd entries
+        /* 0x0A */ uint16_t rawRGBOffset;         // Offset to the list of raw RGB entries
     } __attribute__( ( __packed__ ) );
 
     struct BmdEntry
@@ -281,7 +280,7 @@ namespace mod::rando
         // and the order are irrelevant (other than `DvdEntryNumIdSize` which
         // must go last).
         ResObjectKmdl,     // Link wearing Hero's Clothes
-                           // ResObjectZmdl,      // Link wearing Zora Armor
+        ResObjectZmdl,     // Link wearing Zora Armor
                            // ResObjectWmdl,      // Wolf Link and Midna on back
                            // ResObjectCWShd,     // Ordon Shield
                            // ResObjectSWShd,     // Wooden Shield

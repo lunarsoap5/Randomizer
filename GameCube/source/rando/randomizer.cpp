@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cstdio>
 
+#include "cxx.h"
 #include "rando/randomizer.h"
 #include "data/items.h"
 #include "data/stages.h"
@@ -432,10 +433,11 @@ namespace mod::rando
         return libtp::data::items::Recovery_Heart;
     }
 
+    // NOTE: This function returns dynamic memory
     BmdEntry* Randomizer::generateBmdEntries( DvdEntryNumId entryNum, uint32_t numEntries )
     {
         BmdEntry* allEntries = m_Seed->m_BmdEntries;
-        BmdEntry* m_BmdEntries = new BmdEntry[numEntries];
+        BmdEntry* loadedBmdEntries = new ( -sizeof( uint16_t ) ) BmdEntry[numEntries];
         uint32_t j = 0;
 
         for ( uint32_t i = 0; i < numEntries; i++ )
@@ -443,7 +445,7 @@ namespace mod::rando
             if ( allEntries[i].archiveIndex == entryNum )
             {
                 // Store the i'th BmdEntry into the j'th loaded BmdEntry if the entryNum matches
-                memcpy( &m_BmdEntries[j], &allEntries[i], sizeof( BmdEntry ) );
+                memcpy( &loadedBmdEntries[j], &allEntries[i], sizeof( BmdEntry ) );
                 j++;
             }
         }
@@ -451,7 +453,7 @@ namespace mod::rando
         {
             return nullptr;
         }
-        return m_BmdEntries;
+        return loadedBmdEntries;
     }
 
     void Randomizer::recolorArchiveTextures( libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive )
@@ -466,13 +468,13 @@ namespace mod::rando
         {
             if ( mountArchive->mEntryNumber == getDvdEntryNum( static_cast<DvdEntryNumId>( res ) ) )
             {     // The currently loaded archive is an archive we are looking for
-                BmdEntry* m_BmdEntries = generateBmdEntries( static_cast<DvdEntryNumId>( res ), numEntries );
-                if ( m_BmdEntries != nullptr )
+                BmdEntry* loadedBmdEntries = generateBmdEntries( static_cast<DvdEntryNumId>( res ), numEntries );
+                if ( loadedBmdEntries != nullptr )
                 {     // If we have a populated list, this means we have textures that we can recolor.
                     for ( uint32_t i = 0; i < numEntries; i++ )
                     {
                         char buf[64];     // a little extra to be safe
-                        snprintf( buf, sizeof( buf ), "bmwr/%s", m_BmdEntries[i].bmdRes );
+                        snprintf( buf, sizeof( buf ), "bmwr/%s", loadedBmdEntries[i].bmdRes );
                         JKRArchive::SDIFileEntry* alBmdFileEntry = JKRArchive_findFsResource( mountArchive->mArchive, buf, 0 );
                         if ( alBmdFileEntry )
                         {
@@ -480,11 +482,11 @@ namespace mod::rando
                                 findTex1InBmd( mountArchive->mArchive->mArchiveData + alBmdFileEntry->data_offset );
                             if ( tex1Addr )
                             {
-                                if ( m_BmdEntries[i].recolorType == 0 )     // CMPR
+                                if ( loadedBmdEntries[i].recolorType == 0 )     // CMPR
                                 {
                                     rando::CMPRTextureEntry* currentTextures = reinterpret_cast<rando::CMPRTextureEntry*>(
-                                        reinterpret_cast<uint32_t>( m_Seed->m_CLR0 ) + m_BmdEntries[i].textureListOffset );
-                                    for ( uint32_t j = 0; j < m_BmdEntries[i].numTextures; j++ )
+                                        reinterpret_cast<uint32_t>( m_Seed->m_CLR0 ) + loadedBmdEntries[i].textureListOffset );
+                                    for ( uint32_t j = 0; j < loadedBmdEntries[i].numTextures; j++ )
                                     {
                                         recolorCmprTexture( tex1Addr,
                                                             currentTextures[j].textureName,
@@ -495,6 +497,7 @@ namespace mod::rando
                         }
                     }
                 }
+                delete[] loadedBmdEntries;
             }
         }
 

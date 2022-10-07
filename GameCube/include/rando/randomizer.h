@@ -37,7 +37,10 @@ namespace mod::rando
         void overrideEventARC();
         uint8_t overrideBugReward( uint8_t bugID );
         uint8_t getHiddenSkillItem( uint16_t eventIndex );
+
+        // NOTE: This function returns dynamic memory
         BmdEntry* generateBmdEntries( mod::rando::DvdEntryNumId arcIndex, uint32_t numEntries );
+
         void recolorArchiveTextures( libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive );
 
         // Subrel
