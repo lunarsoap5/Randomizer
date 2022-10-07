@@ -64,7 +64,8 @@ namespace mod
         // Align to void*, as pointers use the largest variable type in the SeedList class
         seedList = new ( sizeof( void* ) ) rando::SeedList();
 
-        initLookupTable();
+        // Initialize the table of archive file entries that are used for texture recoloring.
+        initArcLookupTable();
 
         // Handle the main function hooks
         hookFunctions();
@@ -199,12 +200,12 @@ namespace mod
         randNext = next;
     }
 
-    void initLookupTable()
+    void initArcLookupTable()
     {
         using libtp::gc_wii::dvdfs::DVDConvertPathToEntrynum;
 
-        rando::lookupTable[rando::ResObjectKmdl] = DVDConvertPathToEntrynum( "/res/Object/Kmdl.arc" );
-        rando::lookupTable[rando::ResObjectZmdl] = DVDConvertPathToEntrynum( "/res/Object/Zmdl.arc" );
+        rando::lookupTable[rando::ResObjectKmdl] = DVDConvertPathToEntrynum( "/res/Object/Kmdl.arc" );     // Hero's Clothes
+        rando::lookupTable[rando::ResObjectZmdl] = DVDConvertPathToEntrynum( "/res/Object/Zmdl.arc" );     // Zora Armor
         // lookupTable[ResObjectWmdl] = DVDConvertPathToEntrynum( "/res/Object/Wmdl.arc" );
         // lookupTable[ResObjectCWShd] = DVDConvertPathToEntrynum( "/res/Object/CWShd.arc" );
         // lookupTable[ResObjectSWShd] = DVDConvertPathToEntrynum( "/res/Object/SWShd.arc" );
