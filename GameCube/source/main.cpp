@@ -1074,7 +1074,7 @@ namespace mod
     {
         return events::proc_query042( unk1, unk2, unk3 );
     }
-
+  
     KEEP_FUNC uint32_t handle_event000( void* messageFlow, void* nodeEvent, void* actrPtr )
     {
         // Prevent the hidden skill CS from setting the proper flags
@@ -1359,6 +1359,15 @@ namespace mod
                 if ( checkStageName( allStages[stageIDs::Snowpeak] ) )
                 {
                     return false;     // Return false so the player can howl at the stone multiple times to remove map glitch
+                }
+                break;
+            }
+
+            case GOT_REEKFISH_SCENT:
+            {
+                if (checkStageName(allStages[stageIDs::Snowpeak]) ) // Only check for the item if we are in Snowpeak
+                {
+                    return (events::haveItem( libtp::data::items::Coral_Earring ) || return_isEventBit( eventPtr, flag ));
                 }
                 break;
             }
