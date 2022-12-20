@@ -91,6 +91,15 @@ namespace mod::events
             }
         }
 
+        // Check to see if currently in Snowpeak Ruins
+        if ( strcmp( currentStage, libtp::data::stage::allStages[libtp::data::stage::stageIDs::City_in_the_Sky] ) == 0 )
+        {
+            libtp::tp::d_save::offSwitch_dSv_memBit( &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
+                                                     0xA );     // Fan in main room active
+            libtp::tp::d_save::offSwitch_dSv_memBit( &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
+                                                     0xF );     // Main Room 1F explored
+        }
+
         randomizer->overrideEventARC();
     }
 
@@ -971,7 +980,7 @@ namespace mod::events
             tools::SpawnActor( 6, ImpPoeActr );
         }
         else if ( tp::d_a_alink::checkStageName( data::stage::allStages[data::stage::stageIDs::Bulblin_Camp] ) &&
-                  !libtp::tp::d_a_alink::dComIfGs_isEventBit( libtp::data::flags::ESCAPED_BURNING_TENT_IN_BUBLIN_CAMP ) )
+                  !libtp::tp::d_a_alink::dComIfGs_isEventBit( libtp::data::flags::ESCAPED_BURNING_TENT_IN_BULBLIN_CAMP ) )
         {
             tools::SpawnActor( 1, CampBoarActr );
         }
