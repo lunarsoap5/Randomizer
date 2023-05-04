@@ -252,9 +252,10 @@ namespace mod::game_patch
         getSeTypePtr[items::Coro_Bottle] = getSeTypePtr[items::Orange_Rupee];
         getSeTypePtr[items::Aurus_Memo] = getSeTypePtr[items::Clawshot];
         getSeTypePtr[items::Empty_Bottle] = getSeTypePtr[items::Orange_Rupee];
-        getSeTypePtr[items::Asheis_Sketch] = getSeTypePtr[items::Clawshot];
+        getSeTypePtr[items::Asheis_Sketch] = getSeTypePtr[items::Orange_Rupee];
         getSeTypePtr[items::Hawkeye] = getSeTypePtr[items::Orange_Rupee];
         getSeTypePtr[items::Ordon_Shield] = getSeTypePtr[items::Orange_Rupee];
+        getSeTypePtr[items::Hylian_Shield] = getSeTypePtr[items::Orange_Rupee];
     }
 
     void setCustomItemResourceData()
