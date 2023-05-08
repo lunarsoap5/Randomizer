@@ -70,24 +70,23 @@ namespace mod::game_patch
         using namespace rando::customItems;
         using namespace libtp::data::items;
 
-        if ( events::haveItem( Ancient_Sky_Book_Completed ) )
+        if ( !events::haveItem( Ancient_Sky_Book_Completed ) )
         {
-            return Ancient_Sky_Book_Completed;
-        }
-        const uint8_t progressiveSkyBooksList[] = { Ancient_Sky_Book_Empty,
-                                                    Ancient_Sky_Book_First_Character,
-                                                    Ancient_Sky_Book_Second_Character,
-                                                    Ancient_Sky_Book_Third_Character,
-                                                    Ancient_Sky_Book_Fourth_Character,
-                                                    Ancient_Sky_Book_Fifth_Character };
+            const uint8_t progressiveSkyBooksList[] = { Ancient_Sky_Book_Empty,
+                                                        Ancient_Sky_Book_First_Character,
+                                                        Ancient_Sky_Book_Second_Character,
+                                                        Ancient_Sky_Book_Third_Character,
+                                                        Ancient_Sky_Book_Fourth_Character,
+                                                        Ancient_Sky_Book_Fifth_Character };
 
-        const uint32_t listLength = sizeof( progressiveSkyBooksList ) / sizeof( progressiveSkyBooksList[0] );
-        for ( uint32_t i = 0; i < listLength; i++ )
-        {
-            uint32_t item = progressiveSkyBooksList[i];
-            if ( !events::haveItem( item ) )
+            const uint32_t listLength = sizeof( progressiveSkyBooksList ) / sizeof( progressiveSkyBooksList[0] );
+            for ( uint32_t i = 0; i < listLength; i++ )
             {
-                return item;
+                uint32_t item = progressiveSkyBooksList[i];
+                if ( !events::haveItem( item ) )
+                {
+                    return item;
+                }
             }
         }
 
