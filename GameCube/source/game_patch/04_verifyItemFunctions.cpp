@@ -69,6 +69,11 @@ namespace mod::game_patch
     {
         using namespace rando::customItems;
         using namespace libtp::data::items;
+
+        if ( events::haveItem( Ancient_Sky_Book_Completed ) )
+        {
+            return Ancient_Sky_Book_Completed;
+        }
         const uint8_t progressiveSkyBooksList[] = { Ancient_Sky_Book_Empty,
                                                     Ancient_Sky_Book_First_Character,
                                                     Ancient_Sky_Book_Second_Character,
@@ -201,7 +206,7 @@ namespace mod::game_patch
                 case Clawshot:
                 case Double_Clawshots:
                 {
-                    if ( events::haveItem( Clawshot ) )
+                    if ( events::haveItem( Clawshot ) || events::haveItem( Double_Clawshots ) )
                     {
                         itemID = Double_Clawshots;
                     }
