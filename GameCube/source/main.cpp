@@ -176,8 +176,11 @@ namespace mod
     KEEP_VAR void (*return_setLineUpItem)(libtp::tp::d_save::dSv_player_item_c*) = nullptr;
 
     // ItemGet functions.
-    KEEP_VAR void (*return_execItemGet)(uint8_t item) = nullptr;
-    KEEP_VAR int32_t (*return_checkItemGet)(uint8_t item, int32_t defaultValue) = nullptr;
+
+    KEEP_VAR void ( *return_execItemGet )( uint8_t item ) = nullptr;
+    KEEP_VAR int32_t ( *return_checkItemGet )( uint8_t item, int32_t defaultValue ) = nullptr;
+    KEEP_VAR void ( *return_item_func_ASHS_SCRIBBLING )() = nullptr;
+
 
     // Message functions
     KEEP_VAR bool (*return_setMessageCode_inSequence)(libtp::tp::control::TControl* control,
@@ -1103,10 +1106,20 @@ namespace mod
         return return_checkItemGet(item, defaultValue);
     }
 
-    KEEP_FUNC bool handle_setMessageCode_inSequence(libtp::tp::control::TControl* control,
-                                                    const void* TProcessor,
-                                                    uint16_t unk3,
-                                                    uint16_t msgId)
+    KEEP_FUNC void handle_item_func_ASHS_SCRIBBLING()
+    {
+        using namespace libtp::data::flags;
+        if ( !libtp::tp::d_a_alink::dComIfGs_isEventBit( GOT_CORAL_EARRING_FROM_RALIS ) )
+        {
+            return_item_func_ASHS_SCRIBBLING();
+        }
+    }
+
+    KEEP_FUNC bool handle_setMessageCode_inSequence( libtp::tp::control::TControl* control,
+                                                     const void* TProcessor,
+                                                     uint16_t unk3,
+                                                     uint16_t msgId )
+
     {
         // Call the original function immediately, as a lot of stuff needs to be set before our code runs
         const bool ret = return_setMessageCode_inSequence(control, TProcessor, unk3, msgId);

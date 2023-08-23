@@ -152,8 +152,12 @@ namespace mod
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__draw, item_wheel_menu::handle_dMenuRing__draw);
 
         // ItemGet functions
-        return_execItemGet = patch::hookFunction(libtp::tp::d_item::execItemGet, mod::handle_execItemGet);
-        return_checkItemGet = patch::hookFunction(libtp::tp::d_item::checkItemGet, mod::handle_checkItemGet);
+
+        return_execItemGet = patch::hookFunction( libtp::tp::d_item::execItemGet, mod::handle_execItemGet );
+        return_checkItemGet = patch::hookFunction( libtp::tp::d_item::checkItemGet, mod::handle_checkItemGet );
+        return_item_func_ASHS_SCRIBBLING =
+            patch::hookFunction( libtp::tp::d_item::item_func_ASHS_SCRIBBLING, mod::handle_item_func_ASHS_SCRIBBLING );
+
 
         // Message Functions
         return_setMessageCode_inSequence =
