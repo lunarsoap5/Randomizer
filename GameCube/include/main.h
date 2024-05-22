@@ -68,6 +68,13 @@
 
 namespace mod
 {
+    enum EventItemStatus : uint8_t
+    {
+        QUEUE_EMPTY = 0,
+        ITEM_IN_QUEUE = 1,
+        CLEAR_QUEUE = 2,
+    };
+
     // General public objects
     extern libtp::display::Console* console;
     extern rando::Randomizer* randomizer;
@@ -75,7 +82,6 @@ namespace mod
 
     extern void* z2ScenePtr;
     extern uint32_t randState;
-    extern const char* m_DonationText;
 
     // Variables
     extern uint8_t* m_MsgTableInfo;     // Custom message string data
@@ -95,7 +101,7 @@ namespace mod
     extern bool transformAnywhereEnabled;
     extern uint8_t damageMultiplier;
     extern bool bonksDoDamage;
-    extern bool giveItemToPlayer;
+    extern EventItemStatus giveItemToPlayer;
 
 #ifdef TP_EU
     extern libtp::tp::d_s_logo::Languages currentLanguage;
@@ -337,6 +343,9 @@ namespace mod
 
     int32_t handle_query023(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*return_query023)(void* unk1, void* unk2, int32_t unk3);
+
+    int32_t handle_query025(void* unk1, void* unk2, int32_t unk3);
+    extern int32_t (*return_query025)(void* unk1, void* unk2, int32_t unk3);
 
     uint8_t handle_checkEmptyBottle(libtp::tp::d_save::dSv_player_item_c* playerItem);
     extern uint8_t (*return_checkEmptyBottle)(libtp::tp::d_save::dSv_player_item_c* playerItem);

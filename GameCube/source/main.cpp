@@ -68,7 +68,6 @@ namespace mod
     // Variables
     void* z2ScenePtr = nullptr;
     uint32_t randState = 0;
-    KEEP_VAR const char* m_DonationText = nullptr;
 
     // Analog L is currently not being used, so commented out
     // float prevFrameAnalogL = 0.f;
@@ -91,7 +90,7 @@ namespace mod
     bool transformAnywhereEnabled = false;
     uint8_t damageMultiplier = 1;
     bool bonksDoDamage = false;
-    bool giveItemToPlayer = false;
+    EventItemStatus giveItemToPlayer = QUEUE_EMPTY;
 
 #ifdef TP_EU
     KEEP_VAR libtp::tp::d_s_logo::Languages currentLanguage = libtp::tp::d_s_logo::Languages::uk;
@@ -209,6 +208,7 @@ namespace mod
     // Query/Event functions.
     KEEP_VAR int32_t (*return_query022)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR int32_t (*return_query023)(void* unk1, void* unk2, int32_t unk3) = nullptr;
+    KEEP_VAR int32_t (*return_query025)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR uint8_t (*return_checkEmptyBottle)(libtp::tp::d_save::dSv_player_item_c* playerItem) = nullptr;
     KEEP_VAR int32_t (*return_query042)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR int32_t (*return_query004)(void* unk1, void* unk2, int32_t unk3) = nullptr;
@@ -802,8 +802,6 @@ namespace mod
             case d_a_alink::PROC_WOLF_WAIT:
             case d_a_alink::PROC_WOLF_TIRED_WAIT:
             case d_a_alink::PROC_WOLF_MOVE:
-            case d_a_alink::PROC_SERVICE_WAIT:
-            case d_a_alink::PROC_WOLF_SERVICE_WAIT:
             {
                 // Check if link is currently in a cutscene
                 if (d_a_alink::checkEventRun(linkMapPtr))
@@ -827,8 +825,19 @@ namespace mod
 
                     if (storedItem)
                     {
+                        // If we have the call to clear the queue, then we want to clear the item and break out.
+                        if (giveItemToPlayer == CLEAR_QUEUE)
+                        {
+                            reserveBytesPtr[i] = 0;
+                            giveItemToPlayer = QUEUE_EMPTY;
+                            break;
+                        }
+                        // If the queue is empty and we have an item to give, update the queue state.
+                        else if (giveItemToPlayer == QUEUE_EMPTY)
+                        {
+                            giveItemToPlayer = ITEM_IN_QUEUE;
+                        }
                         itemToGive = storedItem;
-                        reserveBytesPtr[i] = 0;
                         break;
                     }
                 }
@@ -853,10 +862,6 @@ namespace mod
 
                 // Finally we want to modify the event stack to prioritize our custom event so that it happens next.
                 libtp::tp::f_op_actor_mng::fopAcM_orderChangeEventId(linkMapPtr, eventIdx, 1, 0xFFFF);
-
-                // Once we are done, we set a global bool that is checked in procCoGetItemInit to give the player
-                // the item.
-                giveItemToPlayer = true;
             }
             default:
             {
@@ -889,6 +894,7 @@ namespace mod
     {
         // Load DZX based randomizer checks that are stored in the local DZX
         events::onDZX(randomizer, chunkTypeInfo);
+        events::loadCustomActors(mStatus_roomControl);
         return return_actorInit(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
     }
 
@@ -1232,6 +1238,17 @@ namespace mod
                 }
                 break;
             }
+            case items::Wooden_Shield:
+            {
+                // Check if we are at Kakariko Malo Mart and that the Wooden Shield has not been bought.
+                if (libtp::tools::playerIsInRoomStage(3, stagesPtr[StageIDs::Kakariko_Village_Interiors]) &&
+                    !libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags, 0x3A))
+                {
+                    // Return false so we can buy the hawkeye.
+                    return 0;
+                }
+                break;
+            }
             case items::Ordon_Pumpkin:
             case items::Ordon_Goat_Cheese:
             {
@@ -1324,6 +1341,11 @@ namespace mod
         return events::proc_query023(unk1, unk2, unk3);
     }
 
+    KEEP_FUNC int32_t handle_query025(void* unk1, void* unk2, int32_t unk3)
+    {
+        return events::proc_query025(unk1, unk2, unk3);
+    }
+
     KEEP_FUNC uint8_t handle_checkEmptyBottle(libtp::tp::d_save::dSv_player_item_c* playerItem)
     {
         if (libtp::tp::d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Cave_of_Ordeals]))
@@ -1396,6 +1418,7 @@ namespace mod
                                     libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
                                     int32_t i_flow)
     {
+        using namespace libtp::data::stage;
         if (msgFlow->mFlow == 0xFFFE) // Check if it equals our custom flow value
         {
             if (msgFlow->mMsg == 0xFFFFFFFF)
@@ -1407,13 +1430,25 @@ namespace mod
                 // to unset it.
                 msgFlow->field_0x26 = 0;
 
-                if (libtp::tp::d_a_alink::checkStageName(
-                        libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hyrule_Field]) ||
-                    libtp::tp::d_a_alink::checkStageName(
-                        libtp::data::stage::allStages[libtp::data::stage::StageIDs::Outside_Castle_Town]))
+                if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Hyrule_Field]) ||
+                    libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Outside_Castle_Town]) ||
+                    libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Lake_Hylia]))
                 {
-                    // Hyrule Field does not have a valid flow node for node 0 so we want it to use its native node (8)
+                    // Hyrule Field and outside Lake Hylia do not have a valid flow node for node 0 so we want it to use its
+                    // native node (8)
                     msgFlow->field_0x10 = 0x8;
+                }
+                else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Castle_Town]))
+                {
+                    // For Castle Town, both 1 and 2 seem to work at the very
+                    // least. If you use 4, you will also get shiny shoes.
+                    msgFlow->field_0x10 = 0x2;
+                }
+                else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Death_Mountain]))
+                {
+                    // Death Mountain does not have a valid flow node for node 0 so we want it to use its
+                    // native node (4)
+                    msgFlow->field_0x10 = 0x4;
                 }
                 else
                 {
@@ -2109,8 +2144,14 @@ namespace mod
                                             libtp::tp::f_op_actor::fopAc_ac_c* actor,
                                             void* msgFlow)
     {
-        // We want the shop item to have its flag updated no matter what.
-        libtp::tp::d_shop_system::setSoldOutFlag(shopPtr);
+        using namespace libtp::data::stage;
+
+        const auto stagesPtr = &allStages[0];
+        if (libtp::tools::playerIsInRoomStage(3, stagesPtr[StageIDs::Kakariko_Village_Interiors]))
+        {
+            // We want the shop item to have its flag updated no matter what in kak malo mart
+            libtp::tp::d_shop_system::setSoldOutFlag(shopPtr);
+        }
 
         return return_seq_decide_yes(shopPtr, actor, msgFlow);
     }
@@ -2119,9 +2160,9 @@ namespace mod
     {
         // If we are giving a custom item, we want to set mParam0 to 0x100 so that instead of trying to search for an item actor
         // that doesnt exist we want the game to create one using the item id in mGtItm.
-        if (giveItemToPlayer)
+        if (giveItemToPlayer == ITEM_IN_QUEUE)
         {
-            giveItemToPlayer = false;
+            giveItemToPlayer = CLEAR_QUEUE;
             libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer->mDemo.mParam0 = 0x100;
         }
 
