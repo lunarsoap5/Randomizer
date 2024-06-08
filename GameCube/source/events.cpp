@@ -293,6 +293,17 @@ namespace mod::events
                 break;
             }
 
+            case D_A_NPC_WRESTLER:
+            {
+                 if (libtp::tools::playerIsInRoomStage(0, stagesPtr[libtp::data::stage::StageIDs::Ordon_Village_Interiors]))
+                {
+                // nop out the multiplication of f1 (the random number of frames) to f0 (the base number of frames) so
+                // bo always do the sidestep attack
+                   performStaticASMReplacement(relPtrRaw + 0x41B0, ASM_NOP); // Previous : fmuls f31,f0,f1
+                }
+                break;
+            }
+
             // Owl Statues
             case D_A_TAG_STATUE_EVT:
             {
@@ -365,6 +376,11 @@ namespace mod::events
                             case items::Giant_Quiver:
                             {
                                 *reinterpret_cast<float*>(reinterpret_cast<uint32_t>(daObjLifePtr) + 0x4D4) = height + 40.f;
+                                break;
+                            }
+                               case items::Aurus_Memo:
+                            {
+                                *reinterpret_cast<float*>(reinterpret_cast<uint32_t>(daObjLifePtr) + 0x4E4) = 48.f;
                                 break;
                             }
                             case customItems::Forest_Temple_Small_Key:
