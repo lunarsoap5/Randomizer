@@ -489,8 +489,7 @@ namespace mod
                 }
 
                 getConsole().setLine(CONSOLE_PROTECTED_LINES - 1);
-                getConsole() << "\r"
-                             << "Press X/Y to select a seed\n"
+                getConsole() << "\r" << "Press X/Y to select a seed\n"
                              << "Press R + Z to close the console\n"
                              << "[" << static_cast<int32_t>(selectedSeed) + 1 << "/" << static_cast<int32_t>(numSeeds)
                              << "] Seed: " << seedList->m_minSeedInfo[selectedSeed].fileName << "\n";
@@ -512,7 +511,6 @@ namespace mod
         drawHeapDebugInfo();
 #undef DRAW_DEBUG_HEAP_INFO
 #endif
-
         // New frame, so the ring will be redrawn
         item_wheel_menu::ringDrawnThisFrame = false;
 
@@ -646,6 +644,11 @@ namespace mod
         {
             if (!getCurrentSeed(rando) && (seedList->m_numSeeds > 0) && (seedRelAction == SEED_ACTION_NONE))
             {
+                // giveItemToPlayer needs to be reset to QUEUE_EMPTY upon loading a file, as the player potentially could have
+                // saved/died after initializing getting an item (which would set giveItemToPlayer to ITEM_IN_QUEUE), and then
+                // chosen to return to the title screen.
+                giveItemToPlayer = QUEUE_EMPTY;
+
                 // Interrupts are required to be enabled for CARD/DVD functions to work properly
                 const bool enable = libtp::gc_wii::os_interrupt::OSEnableInterrupts();
 #ifndef DVD
@@ -803,6 +806,8 @@ namespace mod
             case d_a_alink::PROC_WOLF_WAIT:
             case d_a_alink::PROC_WOLF_TIRED_WAIT:
             case d_a_alink::PROC_WOLF_MOVE:
+            case d_a_alink::PROC_ATN_MOVE:
+            case d_a_alink::PROC_WOLF_ATN_AC_MOVE:
             {
                 // Check if link is currently in a cutscene
                 if (d_a_alink::checkEventRun(linkMapPtr))
@@ -820,7 +825,7 @@ namespace mod
                 uint8_t* reserveBytesPtr = &gameInfo->save.save_file.reserve.unk[0];
                 uint32_t itemToGive = 0xFF;
 
-                for (uint32_t i = 0; i < 4; i++)
+                for (uint32_t i = 0; i < GIVE_PLAYER_ITEM_RESERVED_BYTES; i++)
                 {
                     const uint32_t storedItem = reserveBytesPtr[i];
 
@@ -833,12 +838,13 @@ namespace mod
                             giveItemToPlayer = QUEUE_EMPTY;
                             break;
                         }
+
                         // If the queue is empty and we have an item to give, update the queue state.
                         else if (giveItemToPlayer == QUEUE_EMPTY)
                         {
                             giveItemToPlayer = ITEM_IN_QUEUE;
                         }
-                        itemToGive = storedItem;
+                        itemToGive = game_patch::_04_verifyProgressiveItem(randomizer, storedItem);
                         break;
                     }
                 }
@@ -1069,6 +1075,22 @@ namespace mod
         return return_dStage_playerInit(stageDt, i_data, num, raw_data);
     }
 
+    KEEP_FUNC int32_t procCoGetItemInitCreateItem(const float pos[3],
+                                                  int32_t item,
+                                                  uint8_t unk3,
+                                                  int32_t unk4,
+                                                  int32_t unk5,
+                                                  const float rot[3],
+                                                  const float scale[3])
+    {
+        if (giveItemToPlayer == ITEM_IN_QUEUE)
+        {
+            giveItemToPlayer = CLEAR_QUEUE;
+        }
+
+        return libtp::tp::f_op_actor_mng::createItemForPresentDemo(pos, item, unk3, unk4, unk5, rot, scale);
+    }
+
     KEEP_FUNC int32_t handle_createItemForBoss(const float pos[3],
                                                int32_t item,
                                                int32_t roomNo,
@@ -1243,9 +1265,9 @@ namespace mod
             {
                 // Check if we are at Kakariko Malo Mart and that the Wooden Shield has not been bought.
                 if (libtp::tools::playerIsInRoomStage(3, stagesPtr[StageIDs::Kakariko_Village_Interiors]) &&
-                    !libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags, 0x3A))
+                    !libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags, 0x5))
                 {
-                    // Return false so we can buy the hawkeye.
+                    // Return false so we can buy the wooden shield.
                     return 0;
                 }
                 break;
@@ -2189,7 +2211,6 @@ namespace mod
         // that doesnt exist we want the game to create one using the item id in mGtItm.
         if (giveItemToPlayer == ITEM_IN_QUEUE)
         {
-            giveItemToPlayer = CLEAR_QUEUE;
             libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer->mDemo.mParam0 = 0x100;
         }
 
