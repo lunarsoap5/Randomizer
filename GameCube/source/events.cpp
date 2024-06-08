@@ -75,7 +75,7 @@ namespace mod::events
     // Creating new actors uses less memory than modifying a template due to the amount of memory used by instructions.
     // (0x28 vs 0x48 bytes)
     libtp::tp::dzx::ACTR KakShopSlot2Actr =
-        {"TGSPITM", 0x02FFFFFF, -650.f, 450.f, -500.f, 0x147, static_cast<int16_t>(0x8000), 0x3AFF, 0xFFFF};
+        {"TGSPITM", 0x02FFFFFF, -650.f, 450.f, -500.f, 0x147, static_cast<int16_t>(0x8000), 0x05FF, 0xFFFF};
 
     // Sign Actors
     libtp::tp::dzx::ACTR SignActor = {"Obj_kn2",
@@ -221,12 +221,20 @@ namespace mod::events
             // Generic Poe
             case D_A_E_HP:
             {
-                libtp::patch::writeStandardBranches(relPtrRaw + e_hp_ExecDead_liOffset,
-                                                    assembly::asmAdjustPoeItemStart,
-                                                    assembly::asmAdjustPoeItemEnd);
+                // Force the poe to be despawned immediately without playing the get item animation
+                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_beqOffset, ASM_NOP);
+
+                // Initialize giving the proper item rather than the poe soul
+                libtp::patch::writeBranchBL(relPtrRaw + e_hp_ExecDead_incOffset, assembly::asmAdjustPoeItem);
 
                 // Disable Poe increment (handled through item_get_func; see game_patches)
-                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_incOffset, ASM_NOP);
+                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_incOffset + 0x4, ASM_BRANCH(0x18));
+
+                // Skip checking for setting the flag for having obtained 20 poe souls
+
+                // This cannot be combined with the previous branch due to a value being stored in a class in the middle of the
+                // branches
+                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_incOffset + 0x24, ASM_BRANCH(0x28));
 
                 break;
             }
@@ -238,8 +246,9 @@ namespace mod::events
                                                     assembly::asmAdjustAGPoeItemStart,
                                                     assembly::asmAdjustAGPoeItemEnd);
 
-                // Disable Poe increment (handled through item_get_func; see game_patches)
-                performStaticASMReplacement(relPtrRaw + e_po_ExecDead_incOffset, ASM_NOP);
+                // Disable Poe increment (handled through item_get_func; see game_patches) and skip checking for setting the
+                // flag for having obtained 20 poe souls
+                performStaticASMReplacement(relPtrRaw + e_po_ExecDead_incOffset, ASM_BRANCH(0x44));
                 break;
             }
 
@@ -1002,7 +1011,7 @@ namespace mod::events
 
         const auto stagesPtr = &allStages[0];
 
-        // Check to see if currently in one of the Ordon interiors
+        // Check to see if currently in one of the Kakariko interiors
         if (libtp::tools::playerIsInRoomStage(3, stagesPtr[StageIDs::Kakariko_Village_Interiors]))
         {
             // Return 0 so the player can buy the red potion item from the shop.
