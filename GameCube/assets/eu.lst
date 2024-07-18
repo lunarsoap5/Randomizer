@@ -398,6 +398,8 @@
 
 //d_camera.o
 80182ce4:checkRide
+801619bc:updatePad
+80161AA8:updatePadEnd
 
 //d_a_player.o
 80452fd8:m_midnaActor

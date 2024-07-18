@@ -104,6 +104,9 @@ namespace mod::assembly
         // vi.o
         void asmCallCodehandler();
 
+        // d_camera.o
+        void asmInvertCameraXAxis();
+
         // d_a_alink.o
 #ifdef TP_JP
         void asmUnpatchMapGlitchStart();

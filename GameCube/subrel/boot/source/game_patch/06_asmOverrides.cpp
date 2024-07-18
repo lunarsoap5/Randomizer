@@ -17,6 +17,7 @@
 #include "Z2AudioLib/Z2SceneMgr.h"
 #include "tp/d_msg_object.h"
 #include "tp/d_meter2_draw.h"
+#include "tp/d_camera.h"
 
 namespace mod::game_patch
 {
@@ -111,5 +112,7 @@ namespace mod::game_patch
                                             assembly::asmUnpatchMapGlitchStart,
                                             assembly::asmUnpatchMapGlitchEnd);
 #endif
+        uint32_t updatePadAdresse = reinterpret_cast<uint32_t>(libtp::tp::d_camera::updatePad);
+        libtp::patch::writeBranch(updatePadAdresse + 0xE8, assembly::asmInvertCameraXAxis);
     }
 } // namespace mod::game_patch
