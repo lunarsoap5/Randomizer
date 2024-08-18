@@ -101,6 +101,9 @@ namespace mod
         // Display some info
         getConsole() << "Seed: " << seedPtr->getHeaderPtr()->getSeedNamePtr() << " successfully applied.\n"
                      << "Press R + Z to close the console.\n\n";
+
+        // Hide the console
+        setConsoleScreen(false);
     }
 
     void exit() {}

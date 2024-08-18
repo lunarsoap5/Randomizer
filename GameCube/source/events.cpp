@@ -105,6 +105,11 @@ namespace mod::events
         using namespace libtp::tp;
         using namespace libtp::data;
 
+        if (!randomizer->randomizerIsEnabled())
+        {
+            return;
+        }
+
         libtp::tp::d_com_inf_game::dComIfG_play* playPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play;
         d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
         d_stage::dStage_startStage* startStagePtr = &playPtr->mStartStage;

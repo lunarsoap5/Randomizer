@@ -262,6 +262,10 @@ namespace mod
                     randoPtr->setGameState(GameState::GAME_ACTIVE);
                 }
             }
+            else if ((prevState != GameState::GAME_TITLE) && ((state == 12) || (state == 13)))
+            {
+                randoPtr->setGameState(GameState::GAME_TITLE);
+            }
         }
         // End of handling gameStates
 
