@@ -15,44 +15,11 @@
 #include "tp/d_a_alink.h"
 #include "tp/d_msg_class.h"
 #include "data/flags.h"
+#include "functionHooks.h"
 
 namespace mod::item_wheel_menu
 {
     using namespace libtp::data::stage;
-
-    ItemWheelMenuData itemWheelMenuData;
-    bool ringDrawnThisFrame = false;
-    bool displayMenu = false;
-
-    KEEP_VAR void (*return_dMenuRing__create)(void* dMenuRing) = nullptr;
-    KEEP_VAR void (*return_dMenuRing__delete)(void* dMenuRing) = nullptr;
-    KEEP_VAR void (*return_dMenuRing__draw)(void* dMenuRing) = nullptr;
-
-    // Set up an array to hold each area's color id
-    const uint8_t areaColorIds[] = {MSG_COLOR_GREEN_HEX,
-                                    MSG_COLOR_RED_HEX,
-                                    CUSTOM_MSG_COLOR_BLUE_HEX,
-                                    MSG_COLOR_ORANGE_HEX,
-                                    MSG_COLOR_LIGHT_BLUE_HEX,
-                                    CUSTOM_MSG_COLOR_DARK_GREEN_HEX,
-                                    MSG_COLOR_YELLOW_HEX,
-                                    MSG_COLOR_PURPLE_HEX,
-                                    CUSTOM_MSG_COLOR_SILVER_HEX,
-                                    MSG_COLOR_GREEN_HEX,
-                                    MSG_COLOR_ORANGE_HEX};
-
-    // Set up an array with all of the area node ids that small keys are tracked
-    const AreaNodesID smallKeyAreaNodes[] = {AreaNodesID::Forest_Temple,
-                                             AreaNodesID::Goron_Mines,
-                                             AreaNodesID::Lakebed_Temple,
-                                             AreaNodesID::Arbiters_Grounds,
-                                             AreaNodesID::Snowpeak_Ruins,
-                                             AreaNodesID::Temple_of_Time,
-                                             AreaNodesID::City_in_the_Sky,
-                                             AreaNodesID::Palace_of_Twilight,
-                                             AreaNodesID::Hyrule_Castle,
-                                             AreaNodesID::Faron,
-                                             AreaNodesID::Gerudo_Desert};
 
     void setHUDButtonsAlpha(bool menuIsDisplayed)
     {
@@ -72,10 +39,10 @@ namespace mod::item_wheel_menu
     KEEP_FUNC void handle_dMenuRing__create(void* dMenuRing)
     {
         // Handle whether the controller buttons should be displayed or not
-        setHUDButtonsAlpha(displayMenu);
+        setHUDButtonsAlpha(rando::gRandomizer->getItemWheelMenuPtr()->shouldDisplayMenu());
 
         // Call the original function
-        return_dMenuRing__create(dMenuRing);
+        gReturn_dMenuRing__create(dMenuRing);
     }
 
     KEEP_FUNC void handle_dMenuRing__delete(void* dMenuRing)
@@ -88,7 +55,7 @@ namespace mod::item_wheel_menu
 
         // If the item wheel is being closed, we also want to close the menu. This way, if the player forgets to close it or
         // cannot remember how, closing the item wheel will also close the menu.
-        displayMenu = false;
+        rando::gRandomizer->getItemWheelMenuPtr()->dontDisplayMenu();
 
         // dMenuRing__delete is an empty function, so don't need to call the original function
     }
@@ -98,35 +65,37 @@ namespace mod::item_wheel_menu
         using namespace libtp::tp::m_do_controller_pad;
         using namespace libtp::data::items;
 
-        const ItemWheelMenuData* data = &itemWheelMenuData;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        ItemWheelMenu* itemWheelMenuPtr = randoPtr->getItemWheelMenuPtr();
+        ItemWheelMenuData* data = itemWheelMenuPtr->getDataPtr();
 
         // Failsafe: If textData is not defined, then none of the strings are loaded
-        if (!data->textData)
+        if (!data->getTextDataPtr())
         {
             // Call the original function before returning
-            return return_dMenuRing__draw(dMenuRing);
+            return gReturn_dMenuRing__draw(dMenuRing);
         }
 
         // Check if the menu should be drawn
-        bool shouldDisplayMenu = displayMenu;
+        bool shouldDisplayMenu = itemWheelMenuPtr->shouldDisplayMenu();
 
         // If the ring was already drawn this frame, then dont check the buttons
-        if (!ringDrawnThisFrame)
+        if (!itemWheelMenuPtr->shouldDrawRingThisFrame())
         {
             // Check if either Start or Z were pressed this frame
             if (checkButtonsPressedThisFrame(PadInputs::Button_Start | PadInputs::Button_Z))
             {
                 shouldDisplayMenu = !shouldDisplayMenu;
-                displayMenu = shouldDisplayMenu;
-                ringDrawnThisFrame = true;
+                itemWheelMenuPtr->setDisplayMenu(shouldDisplayMenu);
+                itemWheelMenuPtr->drawRingThisFrame();
 
                 // Handle whether the controller buttons should be displayed or not
                 setHUDButtonsAlpha(shouldDisplayMenu);
             }
         }
 
-        const ItemWheelMenuStrings* strings = &data->strings;
-        const ItemWheelMenuOffsets* offsets = &data->offsets;
+        const ItemWheelMenuStrings* strings = data->getStringsPtr();
+        const ItemWheelMenuOffsets* offsets = data->getOffsetsPtr();
 
         // Get the current position of the ring
         const float* ringPos = reinterpret_cast<float*>(reinterpret_cast<uint32_t>(dMenuRing) + 0x568);
@@ -158,7 +127,7 @@ namespace mod::item_wheel_menu
         }
 
         // Call the original function now, as everything else should be drawn on top of the vanilla stuff
-        return_dMenuRing__draw(dMenuRing);
+        gReturn_dMenuRing__draw(dMenuRing);
 
         // Everything after this point is only drawn in the menu
         if (!shouldDisplayMenu)
@@ -190,35 +159,14 @@ namespace mod::item_wheel_menu
             }
         };
 
-        // Get the current seed
-        bool seedIsLoaded = false;
-        rando::Randomizer* rando = randomizer;
+        // Get the current seed name
+        snprintf(buf, sizeof(buf), "%s: %s", strings->seedIsLoaded, randoPtr->getSeedPtr()->getHeaderPtr()->getSeedNamePtr());
 
-        if (randoIsEnabled(rando))
-        {
-            rando::MinSeedInfo* minSeedInfo = rando->m_SeedInfo.minSeedInfo;
-            if (minSeedInfo)
-            {
-                snprintf(buf, sizeof(buf), "%s: %s", strings->seedIsLoaded, minSeedInfo->fileName);
-                seedIsLoaded = true;
-            }
-        }
-
-        const char* seedText;
-        if (seedIsLoaded)
-        {
-            seedText = buf;
-        }
-        else
-        {
-            seedText = strings->seedIsNotLoaded;
-        }
-
-        // Draw the current seed
+        // Draw the current seed name
         constexpr int32_t currentSeedPosXOffset = windowPosXOffset + 7;
         constexpr int32_t currentSeedPosYOffset = windowPosYOffset + 20;
 
-        events::drawText(seedText, ringPosX + currentSeedPosXOffset, ringPosY + currentSeedPosYOffset, mainTextColor, textSize);
+        events::drawText(buf, ringPosX + currentSeedPosXOffset, ringPosY + currentSeedPosYOffset, mainTextColor, textSize);
 
         // Draw the main text for the fused shadows and mirror shards
         constexpr int32_t shadowsAndShardsMainPosXOffset = currentSeedPosXOffset;
@@ -434,7 +382,8 @@ namespace mod::item_wheel_menu
         int32_t tempPosY = ringPosY + areasPosYOffset;
 
         const char* const* areas = strings->areasBeingTracked;
-        const uint8_t* areaColorsPtr = &areaColorIds[0];
+        const uint8_t* areaColorsPtr = data->getAreaColorIdsPtr();
+        const AreaNodesID* smallKeyAreaNodesPtr = data->getSmallKeyAreaNodesPtr();
 
         for (uint32_t i = 0; i < TrackedAreas::TRACKED_AREAS_END; i++)
         {
@@ -448,7 +397,7 @@ namespace mod::item_wheel_menu
             {
                 // Get the small key count for the current area
                 const uint8_t* memoryFlags =
-                    events::getNodeMemoryFlags(smallKeyAreaNodes[i], static_cast<AreaNodesID>(currentAreaNodeId));
+                    events::getNodeMemoryFlags(smallKeyAreaNodesPtr[i], static_cast<AreaNodesID>(currentAreaNodeId));
 
                 const uint32_t smallKeyCount = memoryFlags[0x1C];
                 const uint32_t dungeonBits = memoryFlags[0x1D];

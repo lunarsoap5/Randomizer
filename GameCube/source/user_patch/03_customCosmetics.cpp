@@ -22,14 +22,8 @@ namespace mod::user_patch
         using namespace libtp::data::items;
         using namespace libtp::tp::d_a_alink;
 
-        // Make sure the randomizer is loaded/enabled and a seed is loaded
-        if (!getCurrentSeed(randomizer))
-        {
-            return;
-        }
-
         libtp::tp::d_meter2_draw::dMeter2Draw_c* mpMeterDraw = g_meter2_info.mMeterClass->mpMeterDraw;
-        rando::RawRGBTable* rawRGBListPtr = randomizer->m_Seed->m_RawRGBTable;
+        const rando::RawRGBTable* rawRGBListPtr = randomizer->getSeedPtr()->getRawRGBTablePtr();
 
         uint32_t mWindowARaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonA->mWindow);
         uint32_t mWindowBRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonB->mWindow);
@@ -37,14 +31,14 @@ namespace mod::user_patch
         uint32_t mWindowYRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonXY[1]->mWindow);
         uint32_t mWindowZRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonXY[2]->mWindow);
 
-        const uint32_t aButtonColor = rawRGBListPtr->aButtonColor;
-        const uint32_t bButtonColor = rawRGBListPtr->bButtonColor;
-        const uint32_t xButtonColor = rawRGBListPtr->xButtonColor;
-        const uint32_t yButtonColor = rawRGBListPtr->yButtonColor;
-        const uint32_t zButtonColor = rawRGBListPtr->zButtonColor;
-        const uint32_t heartColorRGBA = rawRGBListPtr->heartColor;
+        const uint32_t aButtonColor = rawRGBListPtr->getAButtonColor();
+        const uint32_t bButtonColor = rawRGBListPtr->getBButtonColor();
+        const uint32_t xButtonColor = rawRGBListPtr->getXButtonColor();
+        const uint32_t yButtonColor = rawRGBListPtr->getYButtonColor();
+        const uint32_t zButtonColor = rawRGBListPtr->getZButtonColor();
+        const uint32_t heartColorRGBA = rawRGBListPtr->getHeartColor();
 
-        uint8_t* lanternColor = reinterpret_cast<uint8_t*>(&rawRGBListPtr->lanternColor);
+        const uint8_t* lanternColor = rawRGBListPtr->getLanternColorPtr();
 
         for (uint32_t i = 0x248; i <= 0x254; i += 0x4)
         {
@@ -141,7 +135,7 @@ namespace mod::user_patch
             }
         }
 
-        if (*reinterpret_cast<uint32_t*>(lanternColor) != 0x502814ff) // Don't set the value if it is already vanilla
+        if (rawRGBListPtr->getLanternColor() != 0x502814ff) // Don't set the value if it is already vanilla
         {
             // Set lantern variables
             daAlinkHIO_kandelaar_c0* tempLanternVars = &lanternVars;

@@ -15,8 +15,8 @@
 #include "tp/d_com_inf_game.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "Z2AudioLib/Z2SceneMgr.h"
-#include "tp/d_msg_object.h"
 #include "tp/d_meter2_draw.h"
+#include "functionHooks.h"
 
 namespace mod::game_patch
 {
@@ -33,7 +33,6 @@ namespace mod::game_patch
         uint32_t* enableCrashScreen = reinterpret_cast<uint32_t*>(0x8000B8A4);
         uint32_t* patchMessageCalculation = reinterpret_cast<uint32_t*>(0x802398E0);
 #endif
-
         // Perform the overwrites
 
         /* If the address is loaded into the cache before the overwrite is made,
@@ -87,12 +86,6 @@ namespace mod::game_patch
         uint32_t screenSetAddress = reinterpret_cast<uint32_t>(libtp::tp::d_menu_collect::dMenuCollect_screenSet);
         libtp::patch::writeBranchBL(screenSetAddress + 0xDCC, events::getPauseRupeeMax);
         libtp::patch::writeBranchBL(screenSetAddress + 0xDF0, events::getPauseRupeeMax);
-
-        // Modify isSend button checks to allow for automashing through text
-        uint32_t isSendAddress = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::isSend);
-        libtp::patch::writeBranchBL(isSendAddress + 0xE4, events::autoMashThroughText);
-        libtp::patch::writeBranchBL(isSendAddress + 0x160, events::autoMashThroughText);
-        libtp::patch::writeBranchBL(isSendAddress + 0x1B8, events::autoMashThroughText);
 
         // Modify drawKanteraScreen to change the lantern meter color to match lantern light color from seed.
         uint32_t drawKanteraAddress = reinterpret_cast<uint32_t>(libtp::tp::d_meter2_draw::drawKanteraScreen);

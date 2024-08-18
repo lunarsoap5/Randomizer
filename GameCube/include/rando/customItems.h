@@ -7,10 +7,13 @@
 #ifndef RANDO_CUSTOMITEMS_H
 #define RANDO_CUSTOMITEMS_H
 
+#include "data/items.h"
 #include <cstdint>
 
 // Maximum expected number of spawned ice traps in any given area
 #define MAX_SPAWNED_FOOLISH_ITEMS 6
+
+#define TOTAL_FOOLISH_ITEM_MODELS 20
 
 namespace mod::rando::customItems
 {
@@ -75,8 +78,49 @@ namespace mod::rando::customItems
         Great_Spin = 0xE7,                        // Custom Item added for the Randomizer.
     };
 
-    struct FoolishItems
+    class FoolishItems
     {
+       public:
+        FoolishItems() {}
+        ~FoolishItems() {}
+
+        const uint8_t* getSourceItemModelIdsPtr() const { return &this->sourceItemModelIds[0]; }
+        const uint8_t* getItemIdsPtr() const { return &this->itemIds[0]; }
+
+        uint8_t getSpawnCount() const { return this->spawnCount; }
+        uint8_t getTriggerCount() const { return this->triggerCount; }
+        uint8_t* getItemModelIdsPtr() { return &this->itemModelId[0]; }
+
+        void resetSpawnCount() { this->spawnCount = 0; }
+        void setSpawnCount(uint8_t count) { this->spawnCount = count; }
+
+        void resetTriggerCount() { this->triggerCount = 0; }
+        void setTriggerCount(uint8_t count) { this->triggerCount = count; }
+
+       private:
+        static constexpr const uint8_t sourceItemModelIds[TOTAL_FOOLISH_ITEM_MODELS] = {
+            libtp::data::items::Magic_Armor,
+            libtp::data::items::Master_Sword,
+            libtp::data::items::Ordon_Shield,
+            libtp::data::items::Hylian_Shield,
+            libtp::data::items::Shadow_Crystal,
+            libtp::data::items::Coral_Earring,
+            libtp::data::items::Hawkeye,
+            libtp::data::items::Boomerang,
+            libtp::data::items::Spinner,
+            libtp::data::items::Ball_and_Chain,
+            libtp::data::items::Heros_Bow,
+            libtp::data::items::Clawshot,
+            libtp::data::items::Iron_Boots,
+            libtp::data::items::Dominion_Rod,
+            libtp::data::items::Master_Sword_Light,
+            libtp::data::items::Fishing_Rod,
+            libtp::data::items::Slingshot,
+            libtp::data::items::Dominion_Rod_Uncharged,
+            libtp::data::items::Empty_Bomb_Bag,
+            libtp::data::items::Ancient_Sky_Book_Empty,
+        };
+
         static constexpr const uint8_t itemIds[MAX_SPAWNED_FOOLISH_ITEMS] = {
             Foolish_Item_1,
             Foolish_Item_2,
