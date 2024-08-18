@@ -1955,9 +1955,10 @@ namespace mod
     {
         libtp::tp::d_resource::dRes_info_c* resourcePtr = gReturn_getResInfo(arcName, objectInfo, size);
 
-        if (resourcePtr)
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        if (randoPtr->randomizerIsEnabled() && resourcePtr)
         {
-            rando::gRandomizer->overrideObjectARC(resourcePtr, arcName);
+            randoPtr->overrideObjectARC(resourcePtr, arcName);
         }
 
         return resourcePtr;

@@ -35,8 +35,7 @@ namespace mod::rando
         }
 
         constexpr uint32_t bitsPerWord = sizeof(uint32_t) * 8;
-        const uint32_t arrayIndex = (totalFlags - flag - 1) / bitsPerWord;
-        return (bitfieldPtr[arrayIndex] >> (flag % bitsPerWord)) & 1U;
+        return (bitfieldPtr[flag / bitsPerWord] >> (flag % bitsPerWord)) & 1U;
     }
 
     bool Seed::volatilePatchFlagIsEnabled(uint32_t flag) const
