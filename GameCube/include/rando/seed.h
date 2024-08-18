@@ -30,9 +30,13 @@ namespace mod::rando
         QUICK_TRANSFORM,
         INCREASE_SPINNER_SPEED,
         BONKS_DO_DAMAGE,
-        WALLETS_PATCHED,
+        INCREASE_WALLETS,
         MODIFY_SHOP_MODELS,
     };
+
+    // Function for checking if specific bits in various bitfields are enabled. Currently used for volatilePatchInfo,
+    // oneTimePatchInfo, and flagBitfieldInfo.
+    bool flagIsEnabled(const uint32_t* bitfieldPtr, uint32_t totalFlags, uint32_t flag);
 
     /**
      *  @brief Optional functions that have to be executed once and patch/modify the game code
@@ -71,7 +75,6 @@ namespace mod::rando
         }
 
         const char* getSeedNamePtr() const { return &this->seedName[0]; }
-        bool flagIsEnabled(uint32_t flag) const;
         uint16_t getHeaderSize() const { return this->headerSize; }
         uint16_t getDataSize() const { return this->dataSize; }
         uint32_t getTotalSize() const { return this->totalSize; }
@@ -89,6 +92,7 @@ namespace mod::rando
 
         const EntryInfo* getVolatilePatchInfoPtr() const { return &this->volatilePatchInfo; }
         const EntryInfo* getOneTimePatchInfoPtr() const { return &this->oneTimePatchInfo; }
+        const EntryInfo* getFlagBitfieldPtr() const { return &this->flagBitfieldInfo; }
         const EntryInfo* getEventFlagsInfoPtr() const { return &this->eventFlagsInfo; }
         const EntryInfo* getRegionFlagsInfoPtr() const { return &this->regionFlagsInfo; }
         const EntryInfo* getDzxCheckInfoPtr() const { return &this->dzxCheckInfo; }
@@ -105,62 +109,54 @@ namespace mod::rando
         const EntryInfo* getStartingItemCheckInfoPtr() const { return &this->startingItemInfo; }
         const EntryInfo* getEntranceTableCheckInfoPtr() const { return &this->entranceTableInfo; }
 
-        bool canTransformAnywhere() const { return this->flagIsEnabled(SeedEnabledFlag::TRANSFORM_ANYWHERE); }
-        bool canQuickTransform() const { return this->flagIsEnabled(SeedEnabledFlag::QUICK_TRANSFORM); }
-        bool spinnerSpeedIsIncreased() const { return this->flagIsEnabled(SeedEnabledFlag::INCREASE_SPINNER_SPEED); }
-        bool bonksDoDamage() const { return this->flagIsEnabled(SeedEnabledFlag::BONKS_DO_DAMAGE); }
-        bool walletsArePatched() const { return this->flagIsEnabled(SeedEnabledFlag::WALLETS_PATCHED); }
-        bool shopModelsAreModified() const { return this->flagIsEnabled(SeedEnabledFlag::MODIFY_SHOP_MODELS); }
-
        private:
         /* 0x00 */ char magic[3]; // Not null terminated, should always be TPR
         /* 0x03 */ char seedName[33];
 
-        // Bitfield containing arbitrary flags. Values from the SeedEnabledFlag enum are used to check if that respective flag
-        // is enabled.
-        /* 0x24 */ uint32_t flagsBitfield[4];
-
         // SeedData version major and minor; uint16_t for each. Need to handle as a single variable to get around a compiler
         // warning about comparing an unsigned value to 0
-        /* 0x34 */ uint32_t version;
+        /* 0x24 */ uint32_t version;
 
-        /* 0x38 */ uint16_t headerSize; // Total size of the header in bytes
-        /* 0x3A */ uint16_t dataSize;   // Total number of bytes of seed data
-        /* 0x3C */ uint32_t totalSize;  // Total number of bytes in the GCI
+        /* 0x28 */ uint16_t headerSize; // Total size of the header in bytes
+        /* 0x2A */ uint16_t dataSize;   // Total number of bytes of seed data
+        /* 0x2C */ uint32_t totalSize;  // Total number of bytes in the GCI
 
         // BitArray where each bit represents a patch/modification to be applied for this playthrough; these
         // patchs/modifications must be applied every time a file is loaded
-        /* 0x40 */ EntryInfo volatilePatchInfo;
+        /* 0x30 */ EntryInfo volatilePatchInfo;
 
         // BitArray where each bit represents a patch/modification to be applied for this playthrough; these
         // patchs/modifications must be applied only when a seed is loaded
-        /* 0x44 */ EntryInfo oneTimePatchInfo;
+        /* 0x34 */ EntryInfo oneTimePatchInfo;
 
-        /* 0x48 */ EntryInfo eventFlagsInfo;  // eventFlags that need to be set for this seed
-        /* 0x4C */ EntryInfo regionFlagsInfo; // regionFlags that need to be set, alternating
-        /* 0x50 */ EntryInfo dzxCheckInfo;
-        /* 0x54 */ EntryInfo relCheckInfo;
-        /* 0x58 */ EntryInfo poeCheckInfo;
-        /* 0x5C */ EntryInfo arcCheckInfo;
-        /* 0x60 */ EntryInfo objectArcCheckInfo;
-        /* 0x64 */ EntryInfo bossCheckInfo;
-        /* 0x68 */ EntryInfo hiddenSkillCheckInfo;
-        /* 0x6C */ EntryInfo bugRewardCheckInfo;
-        /* 0x70 */ EntryInfo skyCharacterCheckInfo;
-        /* 0x74 */ EntryInfo shopItemCheckInfo;
-        /* 0x78 */ EntryInfo eventItemCheckInfo;
-        /* 0x7C */ EntryInfo startingItemInfo;
-        /* 0x80 */ EntryInfo entranceTableInfo;
-        /* 0x84 */ uint16_t bgmHeaderOffset;
-        /* 0x86 */ uint16_t clr0Offset;
-        /* 0x88 */ uint16_t customTextHeaderSize;
-        /* 0x8A */ uint16_t customTextHeaderOffset;
-        /* 0x8C */ uint8_t castleRequirements;
-        /* 0x8D */ uint8_t palaceRequirements;
-        /* 0x8E */ uint8_t mapClearBits;
-        /* 0x8F */ uint8_t damageMagnification;
-        /* 0x90 */ uint8_t startingTimeOfDay;
-        /* 0x91 */ uint8_t padding[3];
+        // BitArray where each bit represents an arbitrary flag indicated by the SeedEnabledFlag enum
+        /* 0x38 */ EntryInfo flagBitfieldInfo;
+
+        /* 0x3C */ EntryInfo eventFlagsInfo;  // eventFlags that need to be set for this seed
+        /* 0x40 */ EntryInfo regionFlagsInfo; // regionFlags that need to be set, alternating
+        /* 0x44 */ EntryInfo dzxCheckInfo;
+        /* 0x48 */ EntryInfo relCheckInfo;
+        /* 0x4C */ EntryInfo poeCheckInfo;
+        /* 0x50 */ EntryInfo arcCheckInfo;
+        /* 0x54 */ EntryInfo objectArcCheckInfo;
+        /* 0x58 */ EntryInfo bossCheckInfo;
+        /* 0x5C */ EntryInfo hiddenSkillCheckInfo;
+        /* 0x60 */ EntryInfo bugRewardCheckInfo;
+        /* 0x64 */ EntryInfo skyCharacterCheckInfo;
+        /* 0x68 */ EntryInfo shopItemCheckInfo;
+        /* 0x6C */ EntryInfo eventItemCheckInfo;
+        /* 0x70 */ EntryInfo startingItemInfo;
+        /* 0x74 */ EntryInfo entranceTableInfo;
+        /* 0x78 */ uint16_t bgmHeaderOffset;
+        /* 0x7A */ uint16_t clr0Offset;
+        /* 0x7C */ uint16_t customTextHeaderSize;
+        /* 0x7E */ uint16_t customTextHeaderOffset;
+        /* 0x80 */ uint8_t castleRequirements;
+        /* 0x81 */ uint8_t palaceRequirements;
+        /* 0x82 */ uint8_t mapClearBits;
+        /* 0x83 */ uint8_t damageMagnification;
+        /* 0x84 */ uint8_t startingTimeOfDay;
+        /* 0x85 */ uint8_t padding[3];
     } __attribute__((__packed__));
 
     class Seed
@@ -236,6 +232,21 @@ namespace mod::rando
 
         uint8_t getBgmTableEntries() const { return this->m_BgmTableEntries; }
         uint8_t getFanfareTableEntries() const { return this->m_FanfareTableEntries; }
+
+        bool volatilePatchFlagIsEnabled(uint32_t flag) const;
+        bool oneTimePatchFlagIsEnabled(uint32_t flag) const;
+        bool flagBitfieldFlagIsEnabled(uint32_t flag) const;
+
+        bool canTransformAnywhere() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::TRANSFORM_ANYWHERE); }
+        bool canQuickTransform() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::QUICK_TRANSFORM); }
+        bool bonksDoDamage() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::BONKS_DO_DAMAGE); }
+        bool walletsAreIncreased() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::INCREASE_WALLETS); }
+        bool shopModelsAreModified() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::MODIFY_SHOP_MODELS); }
+
+        bool spinnerSpeedIsIncreased() const
+        {
+            return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::INCREASE_SPINNER_SPEED);
+        }
 
         void loadShopModels();
         void loadShuffledEntrances();

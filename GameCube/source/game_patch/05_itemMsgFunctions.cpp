@@ -757,7 +757,7 @@ namespace mod::game_patch
             case 0x299:                    // Big Wallet Pause Menu Text
             case 0x29A:                    // Giant Wallet Pause Menu Text
             {
-                if (!rando::gRandomizer->getSeedPtr()->getHeaderPtr()->walletsArePatched())
+                if (!rando::gRandomizer->getSeedPtr()->walletsAreIncreased())
                 {
                     return nullptr;
                 }

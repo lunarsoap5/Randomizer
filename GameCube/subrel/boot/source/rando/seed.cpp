@@ -171,42 +171,27 @@ namespace mod::rando
         }
     }
 
+    bool Seed::oneTimePatchFlagIsEnabled(uint32_t flag) const
+    {
+        const EntryInfo* oneTimePatchInfoPtr = this->getHeaderPtr()->getOneTimePatchInfoPtr();
+        const uint32_t num_bytes = oneTimePatchInfoPtr->getNumEntries();
+        const uint32_t gci_offset = oneTimePatchInfoPtr->getDataOffset();
+
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
+        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
+    }
+
     void Seed::applyOneTimePatches()
     {
         using namespace libtp;
 
-        const EntryInfo* oneTimePatchInfoPtr = this->m_Header->getOneTimePatchInfoPtr();
-        const uint32_t num_bytes = oneTimePatchInfoPtr->getNumEntries();
-        const uint32_t gci_offset = oneTimePatchInfoPtr->getDataOffset();
-
-        // Don't bother to patch anything if there's nothing to patch
-        if (num_bytes == 0)
+        constexpr uint32_t totalOneTimePatches = sizeof(user_patch::oneTimePatches) / sizeof(user_patch::oneTimePatches[0]);
+        for (uint32_t i = 0; i < totalOneTimePatches; i++)
         {
-            return;
-        }
-
-        // Set the pointer as offset into our buffer
-        const uint8_t* patch_config = &this->m_GCIData[gci_offset];
-
-        for (uint32_t i = 0; i < num_bytes; i++)
-        {
-            const uint32_t byte = patch_config[i];
-            for (uint32_t b = 0; b < 8; b++)
+            if (this->oneTimePatchFlagIsEnabled(i))
             {
-                if ((byte << b) & 0x80)
-                {
-                    // Run the patch function for this bit index
-                    const uint32_t index = i * 8 + b;
-
-                    constexpr uint32_t totalOneTimePatches =
-                        sizeof(user_patch::oneTimePatches) / sizeof(user_patch::oneTimePatches[0]);
-
-                    if (index < totalOneTimePatches)
-                    {
-                        user_patch::oneTimePatches[index](rando::gRandomizer);
-                        this->m_PatchesApplied++;
-                    }
-                }
+                user_patch::oneTimePatches[i](rando::gRandomizer);
+                this->m_PatchesApplied++;
             }
         }
     }

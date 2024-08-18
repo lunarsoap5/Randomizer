@@ -1592,7 +1592,7 @@ namespace mod::events
     {
         using namespace libtp::tp::d_com_inf_game;
 
-        if (!randomizer->getSeedPtr()->getHeaderPtr()->canQuickTransform())
+        if (!randomizer->getSeedPtr()->canQuickTransform())
         {
             return;
         }
@@ -2010,7 +2010,7 @@ namespace mod::events
         using namespace libtp::data::stage;
         using namespace libtp::tp::d_com_inf_game;
 
-        if (!rando::gRandomizer->getSeedPtr()->getHeaderPtr()->canTransformAnywhere())
+        if (!rando::gRandomizer->getSeedPtr()->canTransformAnywhere())
         {
             return false;
         }

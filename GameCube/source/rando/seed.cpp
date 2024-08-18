@@ -26,18 +26,37 @@
 
 namespace mod::rando
 {
-    KEEP_FUNC bool Header::flagIsEnabled(uint32_t flag) const
+    KEEP_FUNC bool flagIsEnabled(const uint32_t* bitfieldPtr, uint32_t totalFlags, uint32_t flag)
     {
         // Make sure the flag is valid
-        constexpr uint32_t maxFlags = sizeof(this->flagsBitfield) * 8;
-        if (flag >= maxFlags)
+        if (flag >= totalFlags)
         {
             return false;
         }
 
         constexpr uint32_t bitsPerWord = sizeof(uint32_t) * 8;
-        const uint32_t arrayIndex = (maxFlags - flag - 1) / bitsPerWord;
-        return (this->flagsBitfield[arrayIndex] >> (flag % bitsPerWord)) & 1U;
+        const uint32_t arrayIndex = (totalFlags - flag - 1) / bitsPerWord;
+        return (bitfieldPtr[arrayIndex] >> (flag % bitsPerWord)) & 1U;
+    }
+
+    bool Seed::volatilePatchFlagIsEnabled(uint32_t flag) const
+    {
+        const EntryInfo* volatilePatchInfoPtr = this->getHeaderPtr()->getVolatilePatchInfoPtr();
+        const uint32_t num_bytes = volatilePatchInfoPtr->getNumEntries();
+        const uint32_t gci_offset = volatilePatchInfoPtr->getDataOffset();
+
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
+        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
+    }
+
+    KEEP_FUNC bool Seed::flagBitfieldFlagIsEnabled(uint32_t flag) const
+    {
+        const EntryInfo* flagBitfieldPtr = this->getHeaderPtr()->getFlagBitfieldPtr();
+        const uint32_t num_bytes = flagBitfieldPtr->getNumEntries();
+        const uint32_t gci_offset = flagBitfieldPtr->getDataOffset();
+
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
+        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
     }
 
     bool Seed::InitSeed(void)
@@ -664,38 +683,13 @@ namespace mod::rando
     {
         using namespace libtp;
 
-        const EntryInfo* volatilePatchInfoPtr = this->m_Header->getVolatilePatchInfoPtr();
-        const uint32_t num_bytes = volatilePatchInfoPtr->getNumEntries();
-        const uint32_t gci_offset = volatilePatchInfoPtr->getDataOffset();
-
-        // Don't bother to patch anything if there's nothing to patch
-        if (num_bytes == 0)
+        constexpr uint32_t totalVolatilePatches = sizeof(user_patch::volatilePatches) / sizeof(user_patch::volatilePatches[0]);
+        for (uint32_t i = 0; i < totalVolatilePatches; i++)
         {
-            return;
-        }
-
-        // Set the pointer as offset into our buffer
-        const uint8_t* patch_config = &this->m_GCIData[gci_offset];
-
-        for (uint32_t i = 0; i < num_bytes; i++)
-        {
-            const uint32_t byte = patch_config[i];
-            for (uint32_t b = 0; b < 8; b++)
+            if (this->volatilePatchFlagIsEnabled(i))
             {
-                if ((byte << b) & 0x80)
-                {
-                    // Run the patch function for this bit index
-                    const uint32_t index = i * 8 + b;
-
-                    constexpr uint32_t totalVolatilePatches =
-                        sizeof(user_patch::volatilePatches) / sizeof(user_patch::volatilePatches[0]);
-
-                    if (index < totalVolatilePatches)
-                    {
-                        user_patch::volatilePatches[index](rando::gRandomizer);
-                        this->m_PatchesApplied++;
-                    }
-                }
+                user_patch::volatilePatches[i](rando::gRandomizer);
+                this->m_PatchesApplied++;
             }
         }
     }

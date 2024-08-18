@@ -295,8 +295,7 @@ namespace mod
                 // Handle transforming
                 events::handleQuickTransform(randoPtr);
             }
-            else if (linkMapPtr && checkButtonCombo(PadInputs::Button_R, false) &&
-                     seedPtr->getHeaderPtr()->spinnerSpeedIsIncreased())
+            else if (linkMapPtr && checkButtonCombo(PadInputs::Button_R, false) && seedPtr->spinnerSpeedIsIncreased())
             {
                 libtp::tp::f_op_actor::fopAc_ac_c* spinnerActor = libtp::tp::d_a_alink::getSpinnerActor(linkMapPtr);
 
@@ -1916,8 +1915,8 @@ namespace mod
 
     KEEP_FUNC void handleBonkDamage()
     {
-        const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
-        if (!headerPtr->bonksDoDamage())
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+        if (!seedPtr->bonksDoDamage())
         {
             return;
         }
@@ -1925,7 +1924,7 @@ namespace mod
         libtp::tp::d_save::dSv_player_status_a_c* playerStatusPtr =
             &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a;
 
-        const uint8_t currentDamageMultiplier = headerPtr->getDamageMagnification();
+        const uint8_t currentDamageMultiplier = seedPtr->getHeaderPtr()->getDamageMagnification();
         int32_t newHealthValue;
 
         if (playerStatusPtr->currentForm == 1)

@@ -30,7 +30,7 @@
 
 namespace mod::rando
 {
-    KEEP_VAR rando::Randomizer* gRandomizer = nullptr;
+    KEEP_VAR Randomizer* gRandomizer = nullptr;
 
     uint8_t Randomizer::getFoolishItemModelId(uint8_t originalItem)
     {
@@ -83,7 +83,7 @@ namespace mod::rando
             case libtp::data::stage::StageIDs::Death_Mountain:
             case libtp::data::stage::StageIDs::City_in_the_Sky:
             {
-                if (seedPtr->getHeaderPtr()->shopModelsAreModified())
+                if (seedPtr->shopModelsAreModified())
                 {
                     seedPtr->loadShopModels();
                 }
