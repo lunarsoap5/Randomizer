@@ -1950,7 +1950,12 @@ namespace mod
                                                                     int32_t size)
     {
         libtp::tp::d_resource::dRes_info_c* resourcePtr = gReturn_getResInfo(arcName, objectInfo, size);
-        rando::gRandomizer->overrideObjectARC(resourcePtr, arcName);
+
+        if (resourcePtr)
+        {
+            rando::gRandomizer->overrideObjectARC(resourcePtr, arcName);
+        }
+
         return resourcePtr;
     }
 

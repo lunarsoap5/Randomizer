@@ -24,6 +24,9 @@
 
 namespace mod::rando
 {
+    // TODO: Including rando/randomizer.h causes errors, so declare Randomizer for now
+    class Randomizer;
+
     enum SeedEnabledFlag
     {
         TRANSFORM_ANYWHERE = 0,
@@ -166,8 +169,9 @@ namespace mod::rando
          *  @brief Class to dynamically load required data from a given seed
          *
          *  @param seedInfo Pointer to the seedinfo that we intend to load
+         *  @param randoPtr Pointer to the Randomizer class that called this
          */
-        Seed(int32_t chan);
+        Seed(int32_t chan, rando::Randomizer* randoPtr);
 
         ~Seed();
 
@@ -266,7 +270,7 @@ namespace mod::rando
         void LoadHiddenSkill();
         void LoadBugReward();
         void LoadEventChecks(uint8_t stageIDX);
-        void loadCustomText(const uint8_t* data);
+        void loadCustomText(const uint8_t* data, rando::Randomizer* randoPtr);
 
         const Header* m_Header = nullptr;
         const uint8_t* m_GCIData = nullptr;

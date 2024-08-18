@@ -22,15 +22,19 @@ namespace mod::user_patch
         using namespace libtp::data::items;
         using namespace libtp::tp::d_a_alink;
 
-        libtp::tp::d_meter2_draw::dMeter2Draw_c* mpMeterDraw = g_meter2_info.mMeterClass->mpMeterDraw;
-        const rando::RawRGBTable* rawRGBListPtr = randomizer->getSeedPtr()->getRawRGBTablePtr();
+        if (!randomizer->randomizerIsEnabled())
+        {
+            return;
+        }
 
+        libtp::tp::d_meter2_draw::dMeter2Draw_c* mpMeterDraw = g_meter2_info.mMeterClass->mpMeterDraw;
         uint32_t mWindowARaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonA->mWindow);
         uint32_t mWindowBRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonB->mWindow);
         uint32_t mWindowXRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonXY[0]->mWindow);
         uint32_t mWindowYRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonXY[1]->mWindow);
         uint32_t mWindowZRaw = reinterpret_cast<uint32_t>(mpMeterDraw->mpButtonXY[2]->mWindow);
 
+        const rando::RawRGBTable* rawRGBListPtr = randomizer->getSeedPtr()->getRawRGBTablePtr();
         const uint32_t aButtonColor = rawRGBListPtr->getAButtonColor();
         const uint32_t bButtonColor = rawRGBListPtr->getBButtonColor();
         const uint32_t xButtonColor = rawRGBListPtr->getXButtonColor();
