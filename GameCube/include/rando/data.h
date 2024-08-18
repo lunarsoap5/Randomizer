@@ -324,7 +324,7 @@ namespace mod::rando
 
         uint8_t getStageIDX() const { return this->stageIDX; }
         uint8_t getRoomIDX() const { return this->roomIDX; }
-        uint8_t getMsgID() const { return this->msgID; }
+        uint16_t getMsgID() const { return this->msgID; }
 
        private:
         uint8_t stageIDX;
