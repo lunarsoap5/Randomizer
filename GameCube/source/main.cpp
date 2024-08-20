@@ -1955,6 +1955,9 @@ namespace mod
     {
         libtp::tp::d_resource::dRes_info_c* resourcePtr = gReturn_getResInfo(arcName, objectInfo, size);
 
+        // Make sure the randomizer is enabled, as otherwise some arcs seem to get modifed that shouldn't. One example of this
+        // causing problems is when starting a file, and once you have control of Link, reset to go back to the title screen.
+        // Doing so will cause the game to crash if this code runs when the randomizer is disabled.
         rando::Randomizer* randoPtr = rando::gRandomizer;
         if (randoPtr->randomizerIsEnabled() && resourcePtr)
         {

@@ -22,6 +22,8 @@ namespace mod::user_patch
         using namespace libtp::data::items;
         using namespace libtp::tp::d_a_alink;
 
+        // Make sure the randomizer is enabled, as otherwise some of the pointers used in the code will be nullptr, such as
+        // during the demo sequence on the title screen.
         if (!randomizer->randomizerIsEnabled())
         {
             return;

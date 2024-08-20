@@ -105,6 +105,9 @@ namespace mod::events
         using namespace libtp::tp;
         using namespace libtp::data;
 
+        // Make sure the randomizer is enabled, as otherwize it can crash in Randomizer::overrideEventARC, as bmgHeaderLocation
+        // may be nullptr. There may be other issues as well that have not been documented if this code runs when the randomizer
+        // is disabled.
         if (!randomizer->randomizerIsEnabled())
         {
             return;
