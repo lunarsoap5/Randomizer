@@ -11,8 +11,11 @@
 #include "rando/data.h"
 #include "rando/seed.h"
 #include "memory.h"
-#include "tp/d_s_logo.h"
 #include "gc_wii/OSTime.h"
+
+#ifdef TP_EU
+#include "tp/d_s_logo.h"
+#endif
 
 namespace mod::rando
 {
