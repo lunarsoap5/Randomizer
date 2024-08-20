@@ -49,13 +49,15 @@ namespace mod
 
         // Initialize the randomizer
         // Align to 0x20 to be safe, as there are multiple classes in the Randomizer class with varying sizes
+        // gRandomizer will be initialized in the Randomizer constructor
         rando::Randomizer* randoPtr = new (0x20) rando::Randomizer;
         rando::Seed* seedPtr = randoPtr->getSeedPtr();
 
         // Check if the randomizer was successfully initialized
         if (!seedPtr)
         {
-            // Free the memory used by gRandomizer
+            // Free the memory used by the randomizer
+            // gRandomizer will be set to nullptr in the Randomizer deconstructor
             delete randoPtr;
 
             // Hook fapGm_Execute with the function for when a seed fails to be loaded
@@ -72,9 +74,6 @@ namespace mod
             // Exit now, so that the game will play vanilla aside from being able to open/close the console
             return;
         }
-
-        // Everything should be ready to go, so set gRandomizer
-        rando::gRandomizer = randoPtr;
 
         // Handle the main function hooks
         hookFunctions();
@@ -99,7 +98,8 @@ namespace mod
         initArcLookupTable();
 
         // Display some info
-        getConsole() << "Seed: " << seedPtr->getHeaderPtr()->getSeedNamePtr() << " successfully applied.\n"
+        getConsole() << "Successfully applied seed:\n"
+                     << seedPtr->getHeaderPtr()->getSeedNamePtr() << "\n"
                      << "Press R + Z to close the console.\n\n";
 
         // Hide the console

@@ -28,7 +28,7 @@
 
 namespace mod::rando
 {
-    Seed::Seed(int32_t chan, rando::Randomizer* randoPtr): m_CardSlot(chan)
+    Seed::Seed(int32_t chan): m_CardSlot(chan)
     {
         getConsole() << "Loading seed...\n";
 
@@ -92,7 +92,7 @@ namespace mod::rando
         this->m_BmdEntries = reinterpret_cast<const BMDEntry*>(gciDataPtr + clr0Offset + cLR0Ptr->getBmdEntriesOffset());
 
         // Load the custom text data
-        this->loadCustomText(data, randoPtr);
+        this->loadCustomText(data);
 
         // Set the static pointers for the Seed Header and Data. These are used by TPO
         const void** ptrTable = reinterpret_cast<const void**>(0x800042BC);
@@ -246,7 +246,7 @@ namespace mod::rando
         this->m_numShuffledEntrances = num_shuffledEntrances;
     }
 
-    void Seed::loadCustomText(const uint8_t* data, rando::Randomizer* randoPtr)
+    void Seed::loadCustomText(const uint8_t* data)
     {
         const Header* headerPtr = this->m_Header;
         const uint32_t headerOffset = headerPtr->getHeaderSize() + headerPtr->getCustomTextHeaderOffset();
@@ -257,6 +257,7 @@ namespace mod::rando
 
         // Allocate memory for the ids, message offsets, and messages
         const uint32_t totalHintMsgEntries = customMessageHeader->getTotalEntries();
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         randoPtr->setTotalHintMsgEntries(static_cast<uint16_t>(totalHintMsgEntries));
 
         uint32_t msgIdTableSize = totalHintMsgEntries * sizeof(CustomMessageData);

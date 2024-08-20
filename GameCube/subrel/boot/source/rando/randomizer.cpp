@@ -18,10 +18,12 @@ namespace mod::rando
 {
     Randomizer::Randomizer()
     {
+        gRandomizer = this;
+
         // getConsole() << "Rando loading...\n";
 
         // Align to void*, as pointers use the largest variable type in the Seed class
-        Seed* seedPtr = new (sizeof(void*)) Seed(CARD_SLOT_A, this);
+        Seed* seedPtr = new (sizeof(void*)) Seed(CARD_SLOT_A);
 
         if (seedPtr->seedIsLoaded())
         {
@@ -57,6 +59,8 @@ namespace mod::rando
         {
             delete seedPtr;
         }
+
+        gRandomizer = nullptr;
     }
 
     void Randomizer::initRandState()
