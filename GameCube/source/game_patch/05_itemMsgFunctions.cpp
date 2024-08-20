@@ -244,6 +244,7 @@ namespace mod::game_patch
 #endif
     }
 
+#ifndef TP_JP
     // The following function is set up to be used in the function getDungeonItemMessage
     // 'for' text is only used for some languages
     static bool getForText(rando::Randomizer* randoPtr)
@@ -266,15 +267,12 @@ namespace mod::game_patch
                 return false;
             }
         }
-#elif defined TP_US
+#else
         (void)randoPtr;
         return true;
-#elif defined TP_JP
-        // Shouldn't be necessary, but do anyway
-        (void)randoPtr;
-        return false;
 #endif
     }
+#endif
 
     const char* getDungeonItemMessage(int32_t itemId)
     {
@@ -560,8 +558,7 @@ namespace mod::game_patch
 
         return createString(format, msgSize, dungeonItemText, forText, theText, areaText);
 #else
-        // Prevent the compiler from complaining about getForText and addTheText being unused
-        (void)getForText();
+        // Prevent the compiler from complaining about addTheText being unused
         (void)addTheText;
 
         // JP doesn't use `for` nor `the` and the params are in a different order
