@@ -227,13 +227,13 @@ namespace mod::rando
 
     void Seed::clearChecks()
     {
-        this->m_numLoadedDZXChecks = 0;
-        this->m_numLoadedRELChecks = 0;
-        this->m_numLoadedPOEChecks = 0;
-        this->m_numBugRewardChecks = 0;
-        this->m_numSkyBookChecks = 0;
-        this->m_numHiddenSkillChecks = 0;
-        this->m_numLoadedEventChecks = 0;
+        this->m_NumLoadedDZXChecks = 0;
+        this->m_NumLoadedRELChecks = 0;
+        this->m_NumLoadedPOEChecks = 0;
+        this->m_NumBugRewardChecks = 0;
+        this->m_NumSkyBookChecks = 0;
+        this->m_NumHiddenSkillChecks = 0;
+        this->m_NumLoadedEventChecks = 0;
 
         if (this->m_DZXChecks)
         {
@@ -287,7 +287,7 @@ namespace mod::rando
         // Set the pointer as offset into our buffer
         const DZXCheck* allDZX = reinterpret_cast<const DZXCheck*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numLoadedDZXChecks = this->m_numLoadedDZXChecks;
+        uint32_t numLoadedDZXChecks = this->m_NumLoadedDZXChecks;
         for (uint32_t i = 0; i < num_dzxchecks; i++)
         {
             if (allDZX[i].getStageIDX() == stageIDX)
@@ -295,7 +295,7 @@ namespace mod::rando
                 numLoadedDZXChecks++;
             }
         }
-        this->m_numLoadedDZXChecks = static_cast<uint16_t>(numLoadedDZXChecks);
+        this->m_NumLoadedDZXChecks = static_cast<uint16_t>(numLoadedDZXChecks);
 
         // Allocate memory the actual DZXChecks
         // We do NOT have to clear the previous buffer as that's already done in "LoadChecks()"
@@ -330,7 +330,7 @@ namespace mod::rando
         // Set the pointer as offset into our buffer
         const RELCheck* allREL = reinterpret_cast<const RELCheck*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numLoadedRELChecks = this->m_numLoadedRELChecks;
+        uint32_t numLoadedRELChecks = this->m_NumLoadedRELChecks;
         for (uint32_t i = 0; i < num_relchecks; i++)
         {
             const uint32_t currentStageIdx = allREL[i].getStageIDX();
@@ -341,7 +341,7 @@ namespace mod::rando
                 numLoadedRELChecks++;
             }
         }
-        this->m_numLoadedRELChecks = static_cast<uint16_t>(numLoadedRELChecks);
+        this->m_NumLoadedRELChecks = static_cast<uint16_t>(numLoadedRELChecks);
 
         // Allocate memory to the actual RELChecks
         // Do NOT need to clear the previous buffer as that's taken care of by LoadChecks()
@@ -378,7 +378,7 @@ namespace mod::rando
         // Set the pointer as offset into our buffer
         const PoeCheck* allPOE = reinterpret_cast<const PoeCheck*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numLoadedPOEChecks = this->m_numLoadedPOEChecks;
+        uint32_t numLoadedPOEChecks = this->m_NumLoadedPOEChecks;
         for (uint32_t i = 0; i < num_poechecks; i++)
         {
             if (allPOE[i].getStageIDX() == stageIDX)
@@ -386,7 +386,7 @@ namespace mod::rando
                 numLoadedPOEChecks++;
             }
         }
-        this->m_numLoadedPOEChecks = static_cast<uint16_t>(numLoadedPOEChecks);
+        this->m_NumLoadedPOEChecks = static_cast<uint16_t>(numLoadedPOEChecks);
 
         // Allocate memory to the actual POEChecks
         // Do NOT need to clear the previous buffer as that's taken care of by LoadChecks()
@@ -426,7 +426,7 @@ namespace mod::rando
         // Offset into m_HiddenSkillChecks
         uint32_t j = 0;
 
-        uint32_t numHiddenSkillChecks = this->m_numHiddenSkillChecks;
+        uint32_t numHiddenSkillChecks = this->m_NumHiddenSkillChecks;
         for (uint32_t i = 0; i < num_hiddenSkills; i++)
         {
             const HiddenSkillCheck* currentSkillCheck = &allSKILL[i];
@@ -437,7 +437,7 @@ namespace mod::rando
             j++;
             numHiddenSkillChecks++;
         }
-        this->m_numHiddenSkillChecks = static_cast<uint16_t>(numHiddenSkillChecks);
+        this->m_NumHiddenSkillChecks = static_cast<uint16_t>(numHiddenSkillChecks);
     }
 
     void Seed::LoadBugReward()
@@ -451,12 +451,12 @@ namespace mod::rando
         // Set the pointer as offset into our buffer
         const BugReward* allBUG = reinterpret_cast<const BugReward*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numBugRewardChecks = this->m_numBugRewardChecks;
+        uint32_t numBugRewardChecks = this->m_NumBugRewardChecks;
         for (uint32_t i = 0; i < num_bugRewards; i++)
         {
             numBugRewardChecks++;
         }
-        this->m_numBugRewardChecks = static_cast<uint16_t>(numBugRewardChecks);
+        this->m_NumBugRewardChecks = static_cast<uint16_t>(numBugRewardChecks);
 
         // Allocate memory to the actual POEChecks
         // Do NOT need to clear the previous buffer as that's taken care of by LoadChecks()
@@ -494,14 +494,14 @@ namespace mod::rando
             const SkyCharacter* currentCharCheck = &allCHAR[i];
             SkyCharacter* globalCharCheck = &skyBookChecksPtr[j];
 
-            uint32_t numSkyBookChecks = this->m_numSkyBookChecks;
+            uint32_t numSkyBookChecks = this->m_NumSkyBookChecks;
             if ((currentCharCheck->getStageIDX() == stageIDX))
             {
                 memcpy(globalCharCheck, currentCharCheck, sizeof(SkyCharacter));
                 numSkyBookChecks++;
                 j++;
             }
-            this->m_numSkyBookChecks = static_cast<uint16_t>(numSkyBookChecks);
+            this->m_NumSkyBookChecks = static_cast<uint16_t>(numSkyBookChecks);
         }
     }
 
@@ -551,14 +551,14 @@ namespace mod::rando
             const EventItem* currentEventCheck = &allEvent[i];
             EventItem* globalEventCheck = &eventChecksPtr[j];
 
-            uint32_t numEventChecks = this->m_numLoadedEventChecks;
+            uint32_t numEventChecks = this->m_NumLoadedEventChecks;
             if ((currentEventCheck->getStageIDX() == stageIDX))
             {
                 memcpy(globalEventCheck, currentEventCheck, sizeof(EventItem));
                 numEventChecks++;
                 j++;
             }
-            this->m_numLoadedEventChecks = static_cast<uint16_t>(numEventChecks);
+            this->m_NumLoadedEventChecks = static_cast<uint16_t>(numEventChecks);
         }
     }
 
@@ -588,7 +588,7 @@ namespace mod::rando
                 numLoadedArcReplacements++;
             }
         }
-        this->m_numLoadedArcReplacements = static_cast<uint16_t>(numLoadedArcReplacements);
+        this->m_NumLoadedArcReplacements = static_cast<uint16_t>(numLoadedArcReplacements);
 
         // Allocate memory to the actual ARCChecks
         ARCReplacement* arcReplacementsPtr = new ARCReplacement[numLoadedArcReplacements];
@@ -656,7 +656,7 @@ namespace mod::rando
                 numLoadedObjectArcReplacements++;
             }
         }
-        this->m_numLoadedObjectArcReplacements = static_cast<uint16_t>(numLoadedObjectArcReplacements);
+        this->m_NumLoadedObjectArcReplacements = static_cast<uint16_t>(numLoadedObjectArcReplacements);
 
         // Allocate memory to the actual ARCChecks
         ObjectArchiveReplacement* objectArcReplacementsPtr = new ObjectArchiveReplacement[numLoadedObjectArcReplacements];

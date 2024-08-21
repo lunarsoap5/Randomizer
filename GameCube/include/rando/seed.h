@@ -221,16 +221,16 @@ namespace mod::rando
         const RawRGBTable* getRawRGBTablePtr() const { return this->m_RawRGBTable; }
         const BMDEntry* getBmdEntriesPtr() const { return this->m_BmdEntries; }
 
-        uint16_t getNumLoadedDZXChecks() const { return this->m_numLoadedDZXChecks; }
-        uint16_t getNumLoadedRELChecks() const { return this->m_numLoadedRELChecks; }
-        uint16_t getNumLoadedPOEChecks() const { return this->m_numLoadedPOEChecks; }
-        uint16_t getNumLoadedArcReplacements() const { return this->m_numLoadedArcReplacements; }
-        uint16_t getNumHiddenSkillChecks() const { return this->m_numHiddenSkillChecks; }
-        uint16_t getNumBugRewardChecks() const { return this->m_numBugRewardChecks; }
-        uint16_t getNumSkyBookChecks() const { return this->m_numSkyBookChecks; }
-        uint16_t getNumLoadedEventChecks() const { return this->m_numLoadedEventChecks; }
-        uint16_t getNumLoadedObjectArcReplacements() const { return this->m_numLoadedObjectArcReplacements; }
-        uint16_t getNumShuffledEntrances() const { return this->m_numShuffledEntrances; }
+        uint16_t getNumLoadedDZXChecks() const { return this->m_NumLoadedDZXChecks; }
+        uint16_t getNumLoadedRELChecks() const { return this->m_NumLoadedRELChecks; }
+        uint16_t getNumLoadedPOEChecks() const { return this->m_NumLoadedPOEChecks; }
+        uint16_t getNumLoadedArcReplacements() const { return this->m_NumLoadedArcReplacements; }
+        uint16_t getNumHiddenSkillChecks() const { return this->m_NumHiddenSkillChecks; }
+        uint16_t getNumBugRewardChecks() const { return this->m_NumBugRewardChecks; }
+        uint16_t getNumSkyBookChecks() const { return this->m_NumSkyBookChecks; }
+        uint16_t getNumLoadedEventChecks() const { return this->m_NumLoadedEventChecks; }
+        uint16_t getNumLoadedObjectArcReplacements() const { return this->m_NumLoadedObjectArcReplacements; }
+        uint16_t getNumShuffledEntrances() const { return this->m_NumShuffledEntrances; }
 
         uint8_t getStageIDX() const { return this->m_StageIDX; }
 
@@ -293,16 +293,16 @@ namespace mod::rando
         const RawRGBTable* m_RawRGBTable = nullptr;
         const BMDEntry* m_BmdEntries = nullptr;
 
-        uint16_t m_numLoadedDZXChecks = 0;       // Number of currently loaded DZXCheck
-        uint16_t m_numLoadedRELChecks = 0;       // Number of currently loaded RELCheck
-        uint16_t m_numLoadedPOEChecks = 0;       // Number of currently loaded POEChecks
-        uint16_t m_numLoadedArcReplacements = 0; // Number of currently loaded ArcChecks
-        uint16_t m_numHiddenSkillChecks = 0;
-        uint16_t m_numBugRewardChecks = 0;
-        uint16_t m_numSkyBookChecks = 0;
-        uint16_t m_numLoadedEventChecks = 0;
-        uint16_t m_numLoadedObjectArcReplacements = 0;
-        uint16_t m_numShuffledEntrances = 0;
+        uint16_t m_NumLoadedDZXChecks = 0;       // Number of currently loaded DZXCheck
+        uint16_t m_NumLoadedRELChecks = 0;       // Number of currently loaded RELCheck
+        uint16_t m_NumLoadedPOEChecks = 0;       // Number of currently loaded POEChecks
+        uint16_t m_NumLoadedArcReplacements = 0; // Number of currently loaded ArcChecks
+        uint16_t m_NumHiddenSkillChecks = 0;
+        uint16_t m_NumBugRewardChecks = 0;
+        uint16_t m_NumSkyBookChecks = 0;
+        uint16_t m_NumLoadedEventChecks = 0;
+        uint16_t m_NumLoadedObjectArcReplacements = 0;
+        uint16_t m_NumShuffledEntrances = 0;
 
         uint16_t m_PatchesApplied = 0;
         uint16_t m_EventFlagsModified = 0;

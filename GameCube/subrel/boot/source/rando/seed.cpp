@@ -244,7 +244,7 @@ namespace mod::rando
 
         // Set the pointer as offset into our buffer
         this->m_ShuffledEntrances = reinterpret_cast<const ShuffledEntrance*>(&this->m_GCIData[gci_offset]);
-        this->m_numShuffledEntrances = num_shuffledEntrances;
+        this->m_NumShuffledEntrances = num_shuffledEntrances;
     }
 
     void Seed::loadCustomText(const uint8_t* data)
