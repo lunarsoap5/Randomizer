@@ -165,9 +165,13 @@ namespace mod::rando
         /**
          *  @brief Class to dynamically load required data from a given seed
          *
-         *  @param seedInfo Pointer to the seedinfo that we intend to load
+         *  @param chan The memory card slot to load from
          */
+#ifdef DVD
+        Seed();
+#else
         Seed(int32_t chan);
+#endif
 
         ~Seed();
 
@@ -270,7 +274,6 @@ namespace mod::rando
 
         const Header* m_Header = nullptr;
         const uint8_t* m_GCIData = nullptr;
-        int32_t m_CardSlot = 0; // Selected card slot
 
         const DZXCheck* m_DZXChecks = nullptr;             // DZX replacement checks for current stage
         const RELCheck* m_RELChecks = nullptr;             // REL Modifications for current stage

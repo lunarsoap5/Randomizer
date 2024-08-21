@@ -26,7 +26,11 @@ namespace mod::rando
         // getConsole() << "Rando loading...\n";
 
         // Align to void*, as pointers use the largest variable type in the Seed class
+#ifdef DVD
+        Seed* seedPtr = new (sizeof(void*)) Seed;
+#else
         Seed* seedPtr = new (sizeof(void*)) Seed(CARD_SLOT_A);
+#endif
 
         if (seedPtr->seedIsLoaded())
         {

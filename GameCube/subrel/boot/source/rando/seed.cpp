@@ -28,21 +28,22 @@
 
 namespace mod::rando
 {
-    Seed::Seed(int32_t chan): m_CardSlot(chan)
+#ifdef DVD
+    Seed::Seed()
+#else
+    Seed::Seed(int32_t chan)
+#endif
     {
         getConsole() << "Loading seed...\n";
 
+        uint8_t* data;
 #ifdef DVD
-        char filePath[96];
-        snprintf(filePath, sizeof(filePath), "/mod/seed.bin");
-
-        m_CARDResult = libtp::tools::readFile(filePath, totalSize, 0, data);
-        constexpr int32_t resultComparison = DVD_STATE_END;
+        // Allocate the memory to the back of the heap to avoid possible fragmentation
+        const int32_t fileSize = libtp::tools::readFile("/mod/seed.bin", false, &data);
 #else
         // The memory card should already be mounted
         // Allocate the memory to the back of the heap to avoid possible fragmentation
-        uint8_t* data;
-        const int32_t fileSize = libtp::tools::readFileFromGCI(m_CardSlot, SEED_GCI_ID, false, true, &data);
+        const int32_t fileSize = libtp::tools::readFileFromGCI(chan, SEED_GCI_ID, false, true, &data);
 #endif
         // Make sure the file was successfully read
         if (fileSize <= 0)
