@@ -1586,14 +1586,6 @@ namespace mod
         return gReturn_onSwitch_dSv_memBit(memoryBit, flag);
     }
 
-    KEEP_FUNC bool handle_checkTreasureRupeeReturn(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t item)
-    {
-        (void)linkActrPtr;
-        (void)item;
-
-        return false;
-    }
-
     KEEP_FUNC bool handle_isDarkClearLV(void* playerStatusPtr, int32_t twilightNode)
     {
         if ((twilightNode == 0) && libtp::tools::playerIsInRoomStage(

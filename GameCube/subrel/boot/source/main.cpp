@@ -210,9 +210,6 @@ namespace mod
 
         gReturn_onSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_memBit, handle_onSwitch_dSv_memBit);
 
-        gReturn_checkTreasureRupeeReturn =
-            patch::hookFunction(tp::d_a_alink::checkTreasureRupeeReturn, handle_checkTreasureRupeeReturn);
-
         gReturn_isDarkClearLV = patch::hookFunction(tp::d_save::isDarkClearLV, handle_isDarkClearLV);
 
         // Pause Menu Functions

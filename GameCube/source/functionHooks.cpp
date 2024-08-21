@@ -158,7 +158,6 @@ namespace mod
     KEEP_VAR void (*gReturn_onEventBit)(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag) = nullptr;
     KEEP_VAR bool (*gReturn_isSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag) = nullptr;
     KEEP_VAR void (*gReturn_onSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag) = nullptr;
-    KEEP_VAR bool (*gReturn_checkTreasureRupeeReturn)(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t item) = nullptr;
     KEEP_VAR bool (*gReturn_isDarkClearLV)(void* playerStatusPtr, int32_t twilightNode) = nullptr;
 
     // Pause menu functions

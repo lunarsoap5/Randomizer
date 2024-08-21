@@ -44,6 +44,11 @@ namespace mod::game_patch
         // Nop out the instruction that causes a miscalculation in message resources.
         *patchMessageCalculation = ASM_NOP;
 
+        // Force checkTreasureRupeeReturn to return false by overwriting the first two instructions in it
+        uint32_t checkTreasureRupeeReturnAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkTreasureRupeeReturn);
+        *reinterpret_cast<uint32_t*>(checkTreasureRupeeReturnAddress) = ASM_LOAD_IMMEDIATE(3, 0);       // Previous 0x9421fff0
+        *reinterpret_cast<uint32_t*>(checkTreasureRupeeReturnAddress + 0x4) = ASM_BRANCH_LINK_REGISTER; // Previous 0x7c0802a6
+
         // Modify the Wooden Sword function to not set a region flag by default by nopping out the function call to isSwitch
         uint32_t woodenSwordFunctionAddress = reinterpret_cast<uint32_t>(libtp::tp::d_item::item_func_WOOD_STICK);
         *reinterpret_cast<uint32_t*>(woodenSwordFunctionAddress + 0x40) = ASM_NOP; // Previous 0x4bf9cafd

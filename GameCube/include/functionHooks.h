@@ -292,9 +292,6 @@ namespace mod
     void handle_onSwitch_dSv_memBit(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag);
     extern void (*gReturn_onSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag);
 
-    bool handle_checkTreasureRupeeReturn(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t item);
-    extern bool (*gReturn_checkTreasureRupeeReturn)(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t item);
-
     bool handle_isDarkClearLV(void* playerStatusPtr, int32_t twilightNode);
     extern bool (*gReturn_isDarkClearLV)(void* playerStatusPtr, int32_t twilightNode);
 
