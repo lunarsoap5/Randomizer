@@ -76,7 +76,7 @@ namespace mod
         }
 
         // Handle the main function hooks
-        hookFunctions();
+        hookFunctions(seedPtr);
 
         // Set up the codehandler
         // writeCodehandlerToMemory();
@@ -95,7 +95,7 @@ namespace mod
         customMessages::createItemWheelMenuData();
 
         // Initialize the table of archive file entries that are used for texture recoloring.
-        initArcLookupTable();
+        initArcLookupTable(randoPtr);
 
         // Display some info
         getConsole() << "Successfully applied seed:\n"
@@ -108,13 +108,11 @@ namespace mod
 
     void exit() {}
 
-    void hookFunctions()
+    void hookFunctions(rando::Seed* seedPtr)
     {
         using namespace libtp;
         using namespace libtp::tp::d_stage;
         using namespace libtp::tp::d_com_inf_game;
-
-        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
 
         // Hook functions
         patch::writeBranch(snprintf, assembly::asm_handle_snprintf);
@@ -136,8 +134,12 @@ namespace mod
         // gReturn_stageLoader = patch::hookFunction( libtp::tp::d_stage::stageLoader, handle_stageLoader );
         gReturn_dStage_playerInit = patch::hookFunction(libtp::tp::d_stage::dStage_playerInit, handle_dStage_playerInit);
 
-        gReturn_dComIfGp_setNextStage =
-            patch::hookFunction(libtp::tp::d_com_inf_game::dComIfGp_setNextStage, handle_dComIfGp_setNextStage);
+        // Only hook dComIfGp_setNextStage if there is at least one shuffled entrance
+        if (seedPtr->getNumShuffledEntrances() > 0)
+        {
+            gReturn_dComIfGp_setNextStage =
+                patch::hookFunction(libtp::tp::d_com_inf_game::dComIfGp_setNextStage, handle_dComIfGp_setNextStage);
+        }
 
         // Custom States
         gReturn_getLayerNo_common_common = patch::hookFunction(getLayerNo_common_common, game_patch::_01_getLayerNo);
@@ -285,12 +287,10 @@ namespace mod
             patch::hookFunction(libtp::tp::d_file_select::dFile_select_c___create, resetQueueOnFileSelectScreen);
     }
 
-    void initArcLookupTable()
+    void initArcLookupTable(rando::Randomizer* randoPtr)
     {
         using namespace rando;
         using namespace libtp::gc_wii::dvdfs;
-
-        rando::Randomizer* randoPtr = rando::gRandomizer;
 
         // Hero's Clothes
         randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Kmdl.arc"), DvdEntryNumId::ResObjectKmdl);

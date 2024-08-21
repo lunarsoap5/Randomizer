@@ -73,8 +73,8 @@ namespace mod
                                  const float scale[3]);
 
     // Subrel functions
-    void hookFunctions();
-    void initArcLookupTable();
+    void hookFunctions(rando::Seed* seedPtr);
+    void initArcLookupTable(rando::Randomizer* randoPtr);
     void writeCodehandlerToMemory();
 } // namespace mod
 #endif
