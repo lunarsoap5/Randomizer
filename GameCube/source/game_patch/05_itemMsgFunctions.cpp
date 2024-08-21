@@ -760,6 +760,15 @@ namespace mod::game_patch
                 }
                 break;
             }
+
+            case 0x42:
+            {
+                if (rando::gRandomizer->getSeedPtr())
+                {
+                    return rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getSeedNamePtr();
+                }
+                break;
+            }
             case 0xFFFF:
             {
                 // This is a special entry that is added to the very end of the messages, and is only included to make sure that
