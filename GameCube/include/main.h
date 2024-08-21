@@ -29,6 +29,9 @@
 // Number of bytes reserved for giving items to the player at arbitrary times via initGiveItemToPlayer
 #define GIVE_PLAYER_ITEM_RESERVED_BYTES 8
 
+// Number of bytes reserved for giving items to the player at arbitrary times via initGiveItemToPlayer
+#define GIVE_PLAYER_ITEM_RESERVED_BYTES 8
+
 // Converting item ids to msg ids and vice versa
 #define ITEM_TO_ID(item) (item + 0x64)
 #define ID_TO_ITEM(msgId) (msgId - 0x64)

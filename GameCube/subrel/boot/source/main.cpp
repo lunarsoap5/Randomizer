@@ -243,6 +243,8 @@ namespace mod
 
         gReturn_procCoGetItemInit = patch::hookFunction(libtp::tp::d_a_alink::procCoGetItemInit, handle_procCoGetItemInit);
 
+        return_procCoGetItemInit = patch::hookFunction(libtp::tp::d_a_alink::procCoGetItemInit, mod::handle_procCoGetItemInit);
+
         // Audio functions
         // Only hook sceneChange if there is at least one replacement audio
         if (seedPtr->getBgmTablePtr())
