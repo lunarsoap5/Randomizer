@@ -160,209 +160,206 @@ namespace mod::game_patch
         using namespace libtp::data::items;
         using namespace rando::customItems;
 
-        if (randoIsEnabled(randomizer))
+        switch (itemID)
         {
-            switch (itemID)
+            case Wooden_Sword:
+            case Ordon_Sword:
+            case Master_Sword:
+            case Master_Sword_Light:
             {
-                case Wooden_Sword:
-                case Ordon_Sword:
-                case Master_Sword:
-                case Master_Sword_Light:
+                itemID = _04_getProgressiveSword();
+                break;
+            }
+
+            case Heros_Bow:
+            case Big_Quiver:
+            case Giant_Quiver:
+            {
+                itemID = _04_getProgressiveBow();
+                break;
+            }
+
+            case Big_Wallet:
+            case Giant_Wallet:
+            {
+                if (events::haveItem(Big_Wallet))
                 {
-                    itemID = _04_getProgressiveSword();
-                    break;
+                    itemID = Giant_Wallet;
+                }
+                else
+                {
+                    itemID = Big_Wallet;
+                }
+                break;
+            }
+
+            case Ending_Blow:
+            case Shield_Attack:
+            case Back_Slice:
+            case Helm_Splitter:
+            case Mortal_Draw:
+            case Jump_Strike:
+            case Great_Spin:
+            {
+                itemID = _04_getProgressiveSkill();
+                break;
+            }
+
+            case Clawshot:
+            case Double_Clawshots:
+            {
+                if (events::haveItem(Clawshot) || events::haveItem(Double_Clawshots))
+                {
+                    itemID = Double_Clawshots;
+                }
+                else
+                {
+                    itemID = Clawshot;
+                }
+                break;
+            }
+
+            case Ancient_Sky_Book_Empty:
+            case Ancient_Sky_Book_First_Character:
+            case Ancient_Sky_Book_Second_Character:
+            case Ancient_Sky_Book_Third_Character:
+            case Ancient_Sky_Book_Fourth_Character:
+            case Ancient_Sky_Book_Fifth_Character:
+            case Ancient_Sky_Book_Completed:
+            {
+                itemID = _04_getProgressiveSkyBook();
+                break;
+            }
+
+            case Key_Shard_1:
+            case Key_Shard_2:
+            case Big_Key_Goron_Mines:
+            {
+                itemID = _04_getProgressiveKeyShard();
+                break;
+            }
+
+            case Dominion_Rod_Uncharged:
+            case Dominion_Rod:
+            {
+                if (events::haveItem(Dominion_Rod_Uncharged))
+                {
+                    itemID = Dominion_Rod;
+                }
+                else
+                {
+                    itemID = Dominion_Rod_Uncharged;
+                }
+                break;
+            }
+
+            case Fishing_Rod:
+            case Coral_Earring:
+            {
+                if (events::haveItem(Fishing_Rod))
+                {
+                    itemID = Coral_Earring;
+                }
+                else
+                {
+                    itemID = Fishing_Rod;
+                }
+                break;
+            }
+
+            case Mirror_Piece_1:
+            case Mirror_Piece_2:
+            case Mirror_Piece_3:
+            case Mirror_Piece_4:
+            {
+                itemID = _04_getProgressiveMirrorShard();
+                break;
+            }
+
+            case Fused_Shadow_1:
+            case Fused_Shadow_2:
+            case Fused_Shadow_3:
+            {
+                itemID = _04_getProgressiveFusedShadow();
+                break;
+            }
+
+            // Only the first foolish item should need to be checked, but check all to be safe
+            case Foolish_Item_1:
+            case Foolish_Item_2:
+            case Foolish_Item_3:
+            case Foolish_Item_4:
+            case Foolish_Item_5:
+            case Foolish_Item_6:
+            {
+                rando::customItems::FoolishItems* foolishItemsPtr = randomizer->getFoolishItemsPtr();
+                uint32_t count = foolishItemsPtr->getSpawnCount();
+
+                // Make sure the current count is valid before using
+                if (count >= MAX_SPAWNED_FOOLISH_ITEMS)
+                {
+                    count = 0;
                 }
 
-                case Heros_Bow:
-                case Big_Quiver:
-                case Giant_Quiver:
+                itemID = foolishItemsPtr->getItemIdsPtr()[count];
+                count++;
+
+                // Make sure the new count is valid before saving
+                if (count >= MAX_SPAWNED_FOOLISH_ITEMS)
                 {
-                    itemID = _04_getProgressiveBow();
-                    break;
+                    count = 0;
                 }
 
-                case Big_Wallet:
-                case Giant_Wallet:
+                foolishItemsPtr->setSpawnCount(static_cast<uint8_t>(count));
+                break;
+            }
+
+            // For ammo, if we don't have the item that can use the ammo, turn it into a blue rupee so that the check
+            // doesn't completely go to waste.
+            case Arrows_10:
+            case Arrows_20:
+            case Arrows_30:
+            {
+                if (!events::haveItem(Heros_Bow))
                 {
-                    if (events::haveItem(Big_Wallet))
-                    {
-                        itemID = Giant_Wallet;
-                    }
-                    else
-                    {
-                        itemID = Big_Wallet;
-                    }
-                    break;
+                    itemID = Blue_Rupee;
                 }
+                break;
+            }
 
-                case Ending_Blow:
-                case Shield_Attack:
-                case Back_Slice:
-                case Helm_Splitter:
-                case Mortal_Draw:
-                case Jump_Strike:
-                case Great_Spin:
+            case Bombling_1:
+            case Bomblings_10:
+            case Bomblings_3:
+            case Bomblings_5:
+            case Water_Bombs_10:
+            case Water_Bombs_15:
+            case Water_Bombs_3:
+            case Water_Bombs_5:
+            case Bombs_10:
+            case Bombs_20:
+            case Bombs_30:
+            case Bombs_5:
+            {
+                if (!events::haveItem(Goron_Bomb_Bag)) // This is the specific bomb bag that the rando uses when giving
+                                                       // bombs to the player.
                 {
-                    itemID = _04_getProgressiveSkill();
-                    break;
+                    itemID = Blue_Rupee;
                 }
+                break;
+            }
 
-                case Clawshot:
-                case Double_Clawshots:
+            case Seeds_50:
+            {
+                if (!events::haveItem(Slingshot))
                 {
-                    if (events::haveItem(Clawshot) || events::haveItem(Double_Clawshots))
-                    {
-                        itemID = Double_Clawshots;
-                    }
-                    else
-                    {
-                        itemID = Clawshot;
-                    }
-                    break;
+                    itemID = Blue_Rupee;
                 }
+                break;
+            }
 
-                case Ancient_Sky_Book_Empty:
-                case Ancient_Sky_Book_First_Character:
-                case Ancient_Sky_Book_Second_Character:
-                case Ancient_Sky_Book_Third_Character:
-                case Ancient_Sky_Book_Fourth_Character:
-                case Ancient_Sky_Book_Fifth_Character:
-                case Ancient_Sky_Book_Completed:
-                {
-                    itemID = _04_getProgressiveSkyBook();
-                    break;
-                }
-
-                case Key_Shard_1:
-                case Key_Shard_2:
-                case Big_Key_Goron_Mines:
-                {
-                    itemID = _04_getProgressiveKeyShard();
-                    break;
-                }
-
-                case Dominion_Rod_Uncharged:
-                case Dominion_Rod:
-                {
-                    if (events::haveItem(Dominion_Rod_Uncharged))
-                    {
-                        itemID = Dominion_Rod;
-                    }
-                    else
-                    {
-                        itemID = Dominion_Rod_Uncharged;
-                    }
-                    break;
-                }
-
-                case Fishing_Rod:
-                case Coral_Earring:
-                {
-                    if (events::haveItem(Fishing_Rod))
-                    {
-                        itemID = Coral_Earring;
-                    }
-                    else
-                    {
-                        itemID = Fishing_Rod;
-                    }
-                    break;
-                }
-
-                case Mirror_Piece_1:
-                case Mirror_Piece_2:
-                case Mirror_Piece_3:
-                case Mirror_Piece_4:
-                {
-                    itemID = _04_getProgressiveMirrorShard();
-                    break;
-                }
-
-                case Fused_Shadow_1:
-                case Fused_Shadow_2:
-                case Fused_Shadow_3:
-                {
-                    itemID = _04_getProgressiveFusedShadow();
-                    break;
-                }
-
-                // Only the first foolish item should need to be checked, but check all to be safe
-                case Foolish_Item_1:
-                case Foolish_Item_2:
-                case Foolish_Item_3:
-                case Foolish_Item_4:
-                case Foolish_Item_5:
-                case Foolish_Item_6:
-                {
-                    rando::customItems::FoolishItems* foolishItemsPtr = &rando::foolishItems;
-                    uint32_t count = foolishItemsPtr->spawnCount;
-
-                    // Make sure the current count is valid before using
-                    if (count >= MAX_SPAWNED_FOOLISH_ITEMS)
-                    {
-                        count = 0;
-                    }
-
-                    itemID = foolishItemsPtr->itemIds[count];
-                    count++;
-
-                    // Make sure the new count is valid before saving
-                    if (count >= MAX_SPAWNED_FOOLISH_ITEMS)
-                    {
-                        count = 0;
-                    }
-
-                    foolishItemsPtr->spawnCount = static_cast<uint8_t>(count);
-                    break;
-                }
-
-                // For ammo, if we don't have the item that can use the ammo, turn it into a blue rupee so that the check
-                // doesn't completely go to waste.
-                case Arrows_10:
-                case Arrows_20:
-                case Arrows_30:
-                {
-                    if (!events::haveItem(Heros_Bow))
-                    {
-                        itemID = Blue_Rupee;
-                    }
-                    break;
-                }
-
-                case Bombling_1:
-                case Bomblings_10:
-                case Bomblings_3:
-                case Bomblings_5:
-                case Water_Bombs_10:
-                case Water_Bombs_15:
-                case Water_Bombs_3:
-                case Water_Bombs_5:
-                case Bombs_10:
-                case Bombs_20:
-                case Bombs_30:
-                case Bombs_5:
-                {
-                    if (!events::haveItem(Goron_Bomb_Bag)) // This is the specific bomb bag that the rando uses when giving
-                                                           // bombs to the player.
-                    {
-                        itemID = Blue_Rupee;
-                    }
-                    break;
-                }
-
-                case Seeds_50:
-                {
-                    if (!events::haveItem(Slingshot))
-                    {
-                        itemID = Blue_Rupee;
-                    }
-                    break;
-                }
-
-                default:
-                {
-                    break;
-                }
+            default:
+            {
+                break;
             }
         }
         return itemID;

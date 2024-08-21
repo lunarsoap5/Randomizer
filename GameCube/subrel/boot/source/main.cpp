@@ -18,11 +18,9 @@
 #include "tp/d_menu_window.h"
 #include "Z2AudioLib/Z2AudioMgr.h"
 #include "tp/d_s_logo.h"
-#include "user_patch/02_enemybgm.h"
 #include "Z2AudioLib/Z2SeqMgr.h"
 #include "Z2AudioLib/Z2SoundMgr.h"
 #include "tp/dynamic_link.h"
-#include "gc_wii/OSTime.h"
 #include "tp/d_a_itembase.h"
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
@@ -34,6 +32,7 @@
 #include "gc_wii/vi.h"
 #include "asm.h"
 #include "tp/d_file_select.h"
+#include "functionHooks.h"
 
 #include <cstdint>
 #include <cstring>
@@ -46,24 +45,41 @@ namespace mod
     {
         // Set up the console
         // Align to uint8_t, as that's the largest variable type in the Console class
-        mod::console = new (sizeof(uint8_t)) libtp::display::Console(CONSOLE_PROTECTED_LINES);
+        gConsole = new (sizeof(uint8_t)) libtp::display::Console(CONSOLE_PROTECTED_LINES);
 
-#ifdef TP_EU
-        // Set the current language being used
-        currentLanguage = libtp::tp::d_s_logo::getPalLanguage2(nullptr);
-#endif
+        // Initialize the randomizer
+        // Align to 0x20 to be safe, as there are multiple classes in the Randomizer class with varying sizes
+        // gRandomizer will be initialized in the Randomizer constructor
+        rando::Randomizer* randoPtr = new (0x20) rando::Randomizer;
+        rando::Seed* seedPtr = randoPtr->getSeedPtr();
+
+        // Check if the randomizer was successfully initialized
+        if (!seedPtr)
+        {
+            // Free the memory used by the randomizer
+            // gRandomizer will be set to nullptr in the Randomizer deconstructor
+            delete randoPtr;
+
+            // Hook fapGm_Execute with the function for when a seed fails to be loaded
+            gReturn_fapGm_Execute =
+                libtp::patch::hookFunction(libtp::tp::f_ap_game::fapGm_Execute, handle_fapGm_Execute_FailLoadSeed);
+
+            // Print error text to the console
+            getConsole() << "FATAL: The seed could not be loaded!\n"
+                         << "Press R + Z to close the console.\n\n";
+
+            // Force the console to be displayed
+            setConsoleScreen(true);
+
+            // Exit now, so that the game will play vanilla aside from being able to open/close the console
+            return;
+        }
 
         // Handle the main function hooks
-        hookFunctions();
+        hookFunctions(seedPtr);
 
         // Set up the codehandler
         // writeCodehandlerToMemory();
-
-        // Initialize the Golden Wolf item replacement actor id to -1
-        rando::goldenWolfItemReplacement.itemActorId = -1;
-
-        // Initialize randState
-        initRandState();
 
         // Run game patches
         game_patch::_00_poe();
@@ -78,26 +94,21 @@ namespace mod
         // Load item wheel menu strings
         customMessages::createItemWheelMenuData();
 
-        // Display some info
-#ifndef DVD
-        getConsole() << "Note:\n"
-                     << "Please avoid [re]starting rando unnecessarily\n"
-                     << "on ORIGINAL HARDWARE as it wears down your\n"
-                     << "Memory Card!\n";
-#endif
-        getConsole() << "Press R + Z to close the console.\n\n";
-
-        // Generate our seedList
-        // Align to void*, as pointers use the largest variable type in the SeedList class
-        seedList = new (sizeof(void*)) rando::SeedList();
-
         // Initialize the table of archive file entries that are used for texture recoloring.
-        initArcLookupTable();
+        initArcLookupTable(randoPtr);
+
+        // Display some info
+        getConsole() << "Successfully applied seed:\n"
+                     << seedPtr->getHeaderPtr()->getSeedNamePtr() << "\n"
+                     << "Press R + Z to close the console.\n\n";
+
+        // Hide the console
+        setConsoleScreen(false);
     }
 
     void exit() {}
 
-    void hookFunctions()
+    void hookFunctions(rando::Seed* seedPtr)
     {
         using namespace libtp;
         using namespace libtp::tp::d_stage;
@@ -106,199 +117,191 @@ namespace mod
         // Hook functions
         patch::writeBranch(snprintf, assembly::asm_handle_snprintf);
         patch::writeBranch(vsnprintf, assembly::asm_handle_vsnprintf);
-        return_fapGm_Execute = patch::hookFunction(libtp::tp::f_ap_game::fapGm_Execute, mod::handle_fapGm_Execute);
+        gReturn_fapGm_Execute = patch::hookFunction(libtp::tp::f_ap_game::fapGm_Execute, handle_fapGm_Execute);
 
         // DMC
-        return_do_unlink = patch::hookFunction(libtp::tp::dynamic_link::do_unlink, mod::handle_do_unlink);
+        const uint32_t do_link_address = reinterpret_cast<uint32_t>(libtp::tp::dynamic_link::do_link);
+        libtp::patch::writeStandardBranches(do_link_address + 0x250, assembly::asmDoLinkHookStart, assembly::asmDoLinkHookEnd);
+
+        gReturn_do_unlink = patch::hookFunction(libtp::tp::dynamic_link::do_unlink, handle_do_unlink);
 
         // DZX
-        return_actorInit = patch::hookFunction(actorInit, mod::handle_actorInit);
-        return_actorInit_always = patch::hookFunction(actorInit_always, mod::handle_actorInit_always);
-        return_actorCommonLayerInit = patch::hookFunction(actorCommonLayerInit, mod::handle_actorCommonLayerInit);
-        return_tgscInfoInit = patch::hookFunction(tgscInfoInit, mod::handle_tgscInfoInit);
-        return_roomLoader = patch::hookFunction(libtp::tp::d_stage::roomLoader, mod::handle_roomLoader);
-        // return_stageLoader = patch::hookFunction( libtp::tp::d_stage::stageLoader, mod::handle_stageLoader );
-        return_dStage_playerInit = patch::hookFunction(libtp::tp::d_stage::dStage_playerInit, mod::handle_dStage_playerInit);
+        gReturn_actorInit = patch::hookFunction(actorInit, handle_actorInit);
+        gReturn_actorInit_always = patch::hookFunction(actorInit_always, handle_actorInit_always);
+        gReturn_actorCommonLayerInit = patch::hookFunction(actorCommonLayerInit, handle_actorCommonLayerInit);
+        gReturn_tgscInfoInit = patch::hookFunction(tgscInfoInit, handle_tgscInfoInit);
+        gReturn_roomLoader = patch::hookFunction(libtp::tp::d_stage::roomLoader, handle_roomLoader);
+        // gReturn_stageLoader = patch::hookFunction( libtp::tp::d_stage::stageLoader, handle_stageLoader );
+        gReturn_dStage_playerInit = patch::hookFunction(libtp::tp::d_stage::dStage_playerInit, handle_dStage_playerInit);
 
-        return_dComIfGp_setNextStage =
-            patch::hookFunction(libtp::tp::d_com_inf_game::dComIfGp_setNextStage, mod::handle_dComIfGp_setNextStage);
+        // Only hook dComIfGp_setNextStage if there is at least one shuffled entrance
+        if (seedPtr->getNumShuffledEntrances() > 0)
+        {
+            gReturn_dComIfGp_setNextStage =
+                patch::hookFunction(libtp::tp::d_com_inf_game::dComIfGp_setNextStage, handle_dComIfGp_setNextStage);
+        }
 
         // Custom States
-        return_getLayerNo_common_common = patch::hookFunction(getLayerNo_common_common, game_patch::_01_getLayerNo);
+        gReturn_getLayerNo_common_common = patch::hookFunction(getLayerNo_common_common, game_patch::_01_getLayerNo);
 
         // Item Creation Functions
-        return_createItemForBoss =
-            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForBoss, mod::handle_createItemForBoss);
+        gReturn_createItemForBoss = patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForBoss, handle_createItemForBoss);
 
-        return_createItemForMidBoss =
-            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForMidBoss, mod::handle_createItemForMidBoss);
+        gReturn_createItemForMidBoss =
+            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForMidBoss, handle_createItemForMidBoss);
 
-        return_createItemForPresentDemo =
-            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForPresentDemo, mod::handle_createItemForPresentDemo);
+        gReturn_createItemForPresentDemo =
+            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForPresentDemo, handle_createItemForPresentDemo);
 
-        return_createItemForTrBoxDemo =
-            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForTrBoxDemo, mod::handle_createItemForTrBoxDemo);
+        gReturn_createItemForTrBoxDemo =
+            patch::hookFunction(libtp::tp::f_op_actor_mng::createItemForTrBoxDemo, handle_createItemForTrBoxDemo);
 
-        return_CheckFieldItemCreateHeap =
-            patch::hookFunction(libtp::tp::d_a_itembase::CheckFieldItemCreateHeap, mod::handle_CheckFieldItemCreateHeap);
+        gReturn_CheckFieldItemCreateHeap =
+            patch::hookFunction(libtp::tp::d_a_itembase::CheckFieldItemCreateHeap, handle_CheckFieldItemCreateHeap);
 
         // Item Wheel functions
-        return_setLineUpItem = patch::hookFunction(tp::d_save::setLineUpItem, mod::handle_setLineUpItem);
+        gReturn_setLineUpItem = patch::hookFunction(tp::d_save::setLineUpItem, handle_setLineUpItem);
 
-        item_wheel_menu::return_dMenuRing__create =
+        item_wheel_menu::gReturn_dMenuRing__create =
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__create, item_wheel_menu::handle_dMenuRing__create);
 
-        item_wheel_menu::return_dMenuRing__delete =
+        item_wheel_menu::gReturn_dMenuRing__delete =
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__delete, item_wheel_menu::handle_dMenuRing__delete);
 
-        item_wheel_menu::return_dMenuRing__draw =
+        item_wheel_menu::gReturn_dMenuRing__draw =
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__draw, item_wheel_menu::handle_dMenuRing__draw);
 
         // ItemGet functions
-        return_execItemGet = patch::hookFunction(libtp::tp::d_item::execItemGet, mod::handle_execItemGet);
-        return_checkItemGet = patch::hookFunction(libtp::tp::d_item::checkItemGet, mod::handle_checkItemGet);
-        return_item_func_ASHS_SCRIBBLING =
-            patch::hookFunction(libtp::tp::d_item::item_func_ASHS_SCRIBBLING, mod::handle_item_func_ASHS_SCRIBBLING);
+        gReturn_execItemGet = patch::hookFunction(libtp::tp::d_item::execItemGet, handle_execItemGet);
+        gReturn_checkItemGet = patch::hookFunction(libtp::tp::d_item::checkItemGet, handle_checkItemGet);
+        gReturn_item_func_ASHS_SCRIBBLING =
+            patch::hookFunction(libtp::tp::d_item::item_func_ASHS_SCRIBBLING, handle_item_func_ASHS_SCRIBBLING);
 
         // Message Functions
-        return_setMessageCode_inSequence =
-            patch::hookFunction(libtp::tp::control::setMessageCode_inSequence, mod::handle_setMessageCode_inSequence);
+        gReturn_setMessageCode_inSequence =
+            patch::hookFunction(libtp::tp::control::setMessageCode_inSequence, handle_setMessageCode_inSequence);
 
-        return_getFontCCColorTable = patch::hookFunction(tp::d_msg_class::getFontCCColorTable, mod::handle_getFontCCColorTable);
+        gReturn_getFontCCColorTable = patch::hookFunction(tp::d_msg_class::getFontCCColorTable, handle_getFontCCColorTable);
 
-        return_getFontGCColorTable = patch::hookFunction(tp::d_msg_class::getFontGCColorTable, mod::handle_getFontGCColorTable);
-
-        return_jmessage_tSequenceProcessor__do_begin =
-            patch::hookFunction(tp::d_msg_class::jmessage_tSequenceProcessor__do_begin,
-                                mod::handle_jmessage_tSequenceProcessor__do_begin);
-
-        return_jmessage_tSequenceProcessor__do_tag = patch::hookFunction(tp::d_msg_class::jmessage_tSequenceProcessor__do_tag,
-                                                                         mod::handle_jmessage_tSequenceProcessor__do_tag);
+        gReturn_getFontGCColorTable = patch::hookFunction(tp::d_msg_class::getFontGCColorTable, handle_getFontGCColorTable);
 
         // Query/EventFunctions
-        return_query001 = patch::hookFunction(libtp::tp::d_msg_flow::query001, mod::handle_query001);
-        return_query022 = patch::hookFunction(libtp::tp::d_msg_flow::query022, mod::handle_query022);
-        return_query023 = patch::hookFunction(libtp::tp::d_msg_flow::query023, mod::handle_query023);
-        return_query025 = patch::hookFunction(libtp::tp::d_msg_flow::query025, mod::handle_query025);
-        return_checkEmptyBottle = patch::hookFunction(libtp::tp::d_save::checkEmptyBottle, mod::handle_checkEmptyBottle);
-        return_query037 = patch::hookFunction(libtp::tp::d_msg_flow::query037, mod::handle_query037);
-        return_query049 = patch::hookFunction(libtp::tp::d_msg_flow::query049, mod::handle_query049);
-        return_query042 = patch::hookFunction(libtp::tp::d_msg_flow::query042, mod::handle_query042);
-        // return_event000 = patch::hookFunction( libtp::tp::d_msg_flow::event000, mod::handle_event000 );
-        return_event017 = patch::hookFunction(libtp::tp::d_msg_flow::event017, mod::handle_event017);
-        return_doFlow = patch::hookFunction(libtp::tp::d_msg_flow::doFlow, mod::handle_doFlow);
-        return_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, mod::handle_setNormalMsg);
+        gReturn_query001 = patch::hookFunction(libtp::tp::d_msg_flow::query001, handle_query001);
+        gReturn_query022 = patch::hookFunction(libtp::tp::d_msg_flow::query022, handle_query022);
+        gReturn_query023 = patch::hookFunction(libtp::tp::d_msg_flow::query023, handle_query023);
+        gReturn_query025 = patch::hookFunction(libtp::tp::d_msg_flow::query025, handle_query025);
+        gReturn_checkEmptyBottle = patch::hookFunction(libtp::tp::d_save::checkEmptyBottle, handle_checkEmptyBottle);
+        gReturn_query037 = patch::hookFunction(libtp::tp::d_msg_flow::query037, handle_query037);
+        gReturn_query049 = patch::hookFunction(libtp::tp::d_msg_flow::query049, handle_query049);
+        gReturn_query042 = patch::hookFunction(libtp::tp::d_msg_flow::query042, handle_query042);
+        // gReturn_event000 = patch::hookFunction( libtp::tp::d_msg_flow::event000, handle_event000 );
+        gReturn_event017 = patch::hookFunction(libtp::tp::d_msg_flow::event017, handle_event017);
+        gReturn_doFlow = patch::hookFunction(libtp::tp::d_msg_flow::doFlow, handle_doFlow);
+        gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
 
         // Save flag functions
-        return_isDungeonItem = patch::hookFunction(tp::d_save::isDungeonItem, mod::handle_isDungeonItem);
-        return_onDungeonItem = patch::hookFunction(tp::d_save::onDungeonItem, mod::handle_onDungeonItem);
-        return_daNpcT_chkEvtBit = patch::hookFunction(libtp::tp::d_a_npc::daNpcT_chkEvtBit, mod::handle_daNpcT_chkEvtBit);
-        return_isEventBit = patch::hookFunction(libtp::tp::d_save::isEventBit, mod::handle_isEventBit);
-        return_onEventBit = patch::hookFunction(libtp::tp::d_save::onEventBit, mod::handle_onEventBit);
+        gReturn_isDungeonItem = patch::hookFunction(tp::d_save::isDungeonItem, handle_isDungeonItem);
+        gReturn_onDungeonItem = patch::hookFunction(tp::d_save::onDungeonItem, handle_onDungeonItem);
+        gReturn_daNpcT_chkEvtBit = patch::hookFunction(libtp::tp::d_a_npc::daNpcT_chkEvtBit, handle_daNpcT_chkEvtBit);
+        gReturn_isEventBit = patch::hookFunction(libtp::tp::d_save::isEventBit, handle_isEventBit);
+        gReturn_onEventBit = patch::hookFunction(libtp::tp::d_save::onEventBit, handle_onEventBit);
 
-        return_isSwitch_dSv_memBit =
-            patch::hookFunction(libtp::tp::d_save::isSwitch_dSv_memBit, mod::handle_isSwitch_dSv_memBit);
+        gReturn_isSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::isSwitch_dSv_memBit, handle_isSwitch_dSv_memBit);
 
-        return_onSwitch_dSv_memBit =
-            patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_memBit, mod::handle_onSwitch_dSv_memBit);
+        gReturn_onSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_memBit, handle_onSwitch_dSv_memBit);
 
-        return_checkTreasureRupeeReturn =
-            patch::hookFunction(tp::d_a_alink::checkTreasureRupeeReturn, mod::handle_checkTreasureRupeeReturn);
-
-        return_isDarkClearLV = patch::hookFunction(tp::d_save::isDarkClearLV, mod::handle_isDarkClearLV);
+        gReturn_isDarkClearLV = patch::hookFunction(tp::d_save::isDarkClearLV, handle_isDarkClearLV);
 
         // Pause Menu Functions
-        return_collect_save_open_init =
-            patch::hookFunction(tp::d_menu_window::collect_save_open_init, mod::handle_collect_save_open_init);
+        gReturn_collect_save_open_init =
+            patch::hookFunction(tp::d_menu_window::collect_save_open_init, handle_collect_save_open_init);
 
         // Link functions
-        return_checkBootsMoveAnime =
-            patch::hookFunction(libtp::tp::d_a_alink::checkBootsMoveAnime, mod::handle_checkBootsMoveAnime);
+        gReturn_checkBootsMoveAnime =
+            patch::hookFunction(libtp::tp::d_a_alink::checkBootsMoveAnime, handle_checkBootsMoveAnime);
 
-        return_setGetItemFace = patch::hookFunction(libtp::tp::d_a_alink::setGetItemFace, mod::handle_setGetItemFace);
+        gReturn_setGetItemFace = patch::hookFunction(libtp::tp::d_a_alink::setGetItemFace, handle_setGetItemFace);
 
-        return_setWolfLockDomeModel =
-            patch::hookFunction(libtp::tp::d_a_alink::setWolfLockDomeModel, mod::handle_setWolfLockDomeModel);
+        gReturn_setWolfLockDomeModel =
+            patch::hookFunction(libtp::tp::d_a_alink::setWolfLockDomeModel, handle_setWolfLockDomeModel);
 
-        return_procFrontRollCrashInit =
-            patch::hookFunction(libtp::tp::d_a_alink::procFrontRollCrashInit, mod::handle_procFrontRollCrashInit);
+        gReturn_procFrontRollCrashInit =
+            patch::hookFunction(libtp::tp::d_a_alink::procFrontRollCrashInit, handle_procFrontRollCrashInit);
 
-        return_procWolfDashReverseInit =
-            patch::hookFunction(libtp::tp::d_a_alink::procWolfDashReverseInit, mod::handle_procWolfDashReverseInit);
+        gReturn_procWolfDashReverseInit =
+            patch::hookFunction(libtp::tp::d_a_alink::procWolfDashReverseInit, handle_procWolfDashReverseInit);
 
-        return_procWolfAttackReverseInit =
-            patch::hookFunction(libtp::tp::d_a_alink::procWolfAttackReverseInit, mod::handle_procWolfAttackReverseInit);
+        gReturn_procWolfAttackReverseInit =
+            patch::hookFunction(libtp::tp::d_a_alink::procWolfAttackReverseInit, handle_procWolfAttackReverseInit);
 
-        return_searchBouDoor = patch::hookFunction(libtp::tp::d_a_alink::searchBouDoor, mod::handle_searchBouDoor);
-        return_checkCastleTownUseItem =
-            patch::hookFunction(libtp::tp::d_a_alink::checkCastleTownUseItem, mod::handle_checkCastleTownUseItem);
+        gReturn_searchBouDoor = patch::hookFunction(libtp::tp::d_a_alink::searchBouDoor, handle_searchBouDoor);
+        gReturn_checkCastleTownUseItem =
+            patch::hookFunction(libtp::tp::d_a_alink::checkCastleTownUseItem, handle_checkCastleTownUseItem);
 
-        return_damageMagnification =
-            patch::hookFunction(libtp::tp::d_a_alink::damageMagnification, mod::handle_damageMagnification);
+        gReturn_damageMagnification =
+            patch::hookFunction(libtp::tp::d_a_alink::damageMagnification, handle_damageMagnification);
 
-        return_procCoGetItemInit = patch::hookFunction(libtp::tp::d_a_alink::procCoGetItemInit, mod::handle_procCoGetItemInit);
+        gReturn_procCoGetItemInit = patch::hookFunction(libtp::tp::d_a_alink::procCoGetItemInit, handle_procCoGetItemInit);
 
         // Audio functions
-        return_loadSeWave = patch::hookFunction(libtp::z2audiolib::z2scenemgr::loadSeWave, mod::handle_loadSeWave);
-        return_sceneChange = patch::hookFunction(libtp::z2audiolib::z2scenemgr::sceneChange, mod::handle_sceneChange);
-        return_startSound = patch::hookFunction(libtp::z2audiolib::z2soundmgr::startSound, mod::handle_startSound);
-        return_checkBgmIDPlaying =
-            patch::hookFunction(libtp::z2audiolib::z2seqmgr::checkBgmIDPlaying, mod::handle_checkBgmIDPlaying);
+        // Only hook sceneChange if there is at least one replacement audio
+        if (seedPtr->getBgmTablePtr())
+        {
+            gReturn_sceneChange = patch::hookFunction(libtp::z2audiolib::z2scenemgr::sceneChange, handle_sceneChange);
+        }
+
+        // Only hook startSound if there is at least one replacement audio
+        if (seedPtr->getFanfareTablePtr())
+        {
+            gReturn_startSound = patch::hookFunction(libtp::z2audiolib::z2soundmgr::startSound, handle_startSound);
+        }
+
+        gReturn_loadSeWave = patch::hookFunction(libtp::z2audiolib::z2scenemgr::loadSeWave, handle_loadSeWave);
+
+        gReturn_checkBgmIDPlaying =
+            patch::hookFunction(libtp::z2audiolib::z2seqmgr::checkBgmIDPlaying, handle_checkBgmIDPlaying);
 
         // Title Screen functions
-        return_dScnLogo_c_dt = patch::hookFunction(libtp::tp::d_s_logo::dScnLogo_c_dt, mod::handle_dScnLogo_c_dt);
-
-        // Enemy BGM
-        user_patch::bgm::enemybgm::return_startBattleBgm =
-            patch::hookFunction(libtp::z2audiolib::z2seqmgr::startBattleBgm, user_patch::handle_startBattleBgm);
+        gReturn_dScnLogo_c_dt = patch::hookFunction(libtp::tp::d_s_logo::dScnLogo_c_dt, handle_dScnLogo_c_dt);
 
         // Archive/Resource functions
-        return_getResInfo = patch::hookFunction(libtp::tp::d_resource::getResInfo, mod::handle_getResInfo);
+        gReturn_getResInfo = patch::hookFunction(libtp::tp::d_resource::getResInfo, handle_getResInfo);
 
-        return_mountArchive__execute =
-            patch::hookFunction(libtp::tp::m_Do_dvd_thread::mountArchive__execute, mod::handle_mountArchive__execute);
+        gReturn_mountArchive__execute =
+            patch::hookFunction(libtp::tp::m_Do_dvd_thread::mountArchive__execute, handle_mountArchive__execute);
 
         // d_meter functions
-        return_resetMiniGameItem =
-            patch::hookFunction(libtp::tp::d_meter2_info::resetMiniGameItem, mod::handle_resetMiniGameItem);
+        gReturn_resetMiniGameItem = patch::hookFunction(libtp::tp::d_meter2_info::resetMiniGameItem, handle_resetMiniGameItem);
 
         // Game Over functions
-        return_dispWait_init = patch::hookFunction(libtp::tp::d_gameover::dispWait_init, mod::handle_dispWait_init);
+        gReturn_dispWait_init = patch::hookFunction(libtp::tp::d_gameover::dispWait_init, handle_dispWait_init);
 
         // Shop Functions
-        return_seq_decide_yes = patch::hookFunction(libtp::tp::d_shop_system::seq_decide_yes, mod::handle_seq_decide_yes);
+        gReturn_seq_decide_yes = patch::hookFunction(libtp::tp::d_shop_system::seq_decide_yes, handle_seq_decide_yes);
 
         // Title Screen functions
-        return_dFile_select_c___create =
-            patch::hookFunction(libtp::tp::d_file_select::dFile_select_c___create, mod::resetQueueOnFileSelectScreen);
+        gReturn_dFile_select_c___create =
+            patch::hookFunction(libtp::tp::d_file_select::dFile_select_c___create, resetQueueOnFileSelectScreen);
     }
 
-    void initRandState()
+    void initArcLookupTable(rando::Randomizer* randoPtr)
     {
-        uint32_t state;
+        using namespace rando;
+        using namespace libtp::gc_wii::dvdfs;
 
-        // randState is being used with xorshift32, which requires the state to not be 0. OSGetTick may return 0, so keep
-        // calling it until it does not return 0.
-        do
-        {
-            state = libtp::gc_wii::os_time::OSGetTick();
-        } while (state == 0);
+        // Hero's Clothes
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Kmdl.arc"), DvdEntryNumId::ResObjectKmdl);
 
-        randState = state;
-    }
+        // Zora Armor
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Zmdl.arc"), DvdEntryNumId::ResObjectZmdl);
 
-    void initArcLookupTable()
-    {
-        using libtp::gc_wii::dvdfs::DVDConvertPathToEntrynum;
+        // Zora Armor - Get Item
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/O_gD_zora.arc"), DvdEntryNumId::ResObjectOgZORA);
 
-        rando::lookupTable[rando::ResObjectKmdl] = DVDConvertPathToEntrynum("/res/Object/Kmdl.arc"); // Hero's Clothes
-        rando::lookupTable[rando::ResObjectZmdl] = DVDConvertPathToEntrynum("/res/Object/Zmdl.arc"); // Zora Armor
-        rando::lookupTable[rando::ResObjectOgZORA] =
-            DVDConvertPathToEntrynum("/res/Object/O_gD_zora.arc"); // Zora Armor - Get Item
-        // lookupTable[ResObjectWmdl] = DVDConvertPathToEntrynum( "/res/Object/Wmdl.arc" );
-        // lookupTable[ResObjectCWShd] = DVDConvertPathToEntrynum( "/res/Object/CWShd.arc" );
-        // lookupTable[ResObjectSWShd] = DVDConvertPathToEntrynum( "/res/Object/SWShd.arc" );
-        // lookupTable[ResObjectHyShd] = DVDConvertPathToEntrynum( "/res/Object/HyShd.arc" );
+        // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
+        // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/CWShd.arc"), DvdEntryNumId::ResObjectCWShd);
+        // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/SWShd.arc"), DvdEntryNumId::ResObjectSWShd);
+        // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/HyShd.arc"), DvdEntryNumId::ResObjectHyShd);
     }
 
     void writeCodehandlerToMemory()

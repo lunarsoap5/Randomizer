@@ -559,9 +559,6 @@ namespace mod::customMessages
         // seedIsLoaded
         "Seed",
 
-        // seedIsNotLoaded
-        "No seed is currently loaded",
-
         // yes/no
         "Yes",
         "No",

@@ -25,6 +25,8 @@ namespace mod::customMessages
         // Get the MsgEntry to use
         const MsgEntry* entries;
         uint32_t totalCustomMessages;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+
 #ifdef TP_US
         entries = entriesUs;
         totalCustomMessages = totalCustomMessagesUs;
@@ -32,7 +34,7 @@ namespace mod::customMessages
         entries = entriesJp;
         totalCustomMessages = totalCustomMessagesJp;
 #elif defined TP_EU
-        switch (currentLanguage)
+        switch (randoPtr->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
@@ -116,8 +118,8 @@ namespace mod::customMessages
         }
 
         // Assign the buffer and total entries
-        m_MsgTableInfo = buf;
-        m_TotalMsgEntries = static_cast<uint16_t>(totalCustomMessages);
+        randoPtr->setMsgTableInfoPtr(buf);
+        randoPtr->setTotalMsgEntries(static_cast<uint16_t>(totalCustomMessages));
     }
 
     void setDungeonItemAreaColorIndex()
@@ -125,6 +127,7 @@ namespace mod::customMessages
         // Get the MsgEntry to use
         const MsgEntry* entries;
         uint32_t totalCustomMessages;
+
 #ifdef TP_US
         entries = entriesUs;
         totalCustomMessages = totalCustomMessagesUs;
@@ -132,7 +135,7 @@ namespace mod::customMessages
         entries = entriesJp;
         totalCustomMessages = totalCustomMessagesJp;
 #elif defined TP_EU
-        switch (currentLanguage)
+        switch (rando::gRandomizer->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
@@ -211,8 +214,8 @@ namespace mod::customMessages
             if (memcmp(currentText, areaTextAndColor, areaTextAndColorSize - 1) == 0)
             {
                 // Set the index to where the color id is
-                game_patch::dungeonItemAreaColorIndex =
-                    static_cast<uint8_t>((currentText - smallKeyText) + areaTextAndColorSize - 2);
+                rando::gRandomizer->setDungeonItemAreaColorIndex(
+                    static_cast<uint8_t>((currentText - smallKeyText) + areaTextAndColorSize - 2));
 
                 return;
             }
@@ -224,6 +227,7 @@ namespace mod::customMessages
         using namespace item_wheel_menu;
 
         // Get the ItemWheelMenuData and itemWheeleStringsSize to use
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         const ItemWheelMenuStrings* stringsSrc;
         const ItemWheelMenuOffsets* offsetsSrc;
 #ifdef TP_US
@@ -233,7 +237,7 @@ namespace mod::customMessages
         stringsSrc = &itemWheelMenuStringsJp;
         offsetsSrc = &itemWheelMenuOffsetsJp;
 #elif defined TP_EU
-        switch (currentLanguage)
+        switch (randoPtr->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
@@ -285,11 +289,11 @@ namespace mod::customMessages
         char* textData = new (sizeof(char)) char[totalStringsLength + menuStringsEntries];
 
         // Set up itemWheelMenuData variables
-        ItemWheelMenuData* dataDest = &itemWheelMenuData;
+        ItemWheelMenuData* dataDest = randoPtr->getItemWheelMenuPtr()->getDataPtr();
 
         // Set up the strings
         // The menu strings struct should only contain const char* pointers, so can just cast that to an array
-        const char** menuStringsDest = reinterpret_cast<const char**>(&dataDest->strings);
+        const char** menuStringsDest = reinterpret_cast<const char**>(dataDest->getStringsPtr());
 
         uint32_t writtenSize = 0;
         for (uint32_t i = 0; i < menuStringsEntries; i++)
@@ -312,9 +316,9 @@ namespace mod::customMessages
         }
 
         // Set up the offsets
-        memcpy(&dataDest->offsets, offsetsSrc, sizeof(dataDest->offsets));
+        dataDest->createOffsets(offsetsSrc);
 
         // Assign textData
-        dataDest->textData = textData;
+        dataDest->setTextDataPtr(textData);
     }
 } // namespace mod::customMessages

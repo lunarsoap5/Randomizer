@@ -20,16 +20,17 @@ namespace mod::assembly
     {
         if (dmc->mModule)
         {
-            events::onRELLink(randomizer, dmc);
+            events::onRELLink(rando::gRandomizer, dmc);
         }
     }
 
     void handleAdjustPoeItem(void* e_hp_class)
     {
         // Get the item and put it into the queue
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         const uint8_t flag = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(e_hp_class) + 0x77B);
-        const int32_t item = events::onPoe(randomizer, flag);
-        randomizer->addItemToEventQueue(static_cast<uint32_t>(item));
+        const int32_t item = events::onPoe(randoPtr, flag);
+        randoPtr->addItemToEventQueue(static_cast<uint32_t>(item));
 
         // Force wolf Link into the PROC_WOLF_ATN_AC_MOVE proc to skip the backflip and trigger the queue to give the item
         // immediately
@@ -39,17 +40,17 @@ namespace mod::assembly
     int32_t handleAdjustAGPoeItem(void* e_po_class)
     {
         uint8_t flag = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(e_po_class) + 0x5BD);
-        return events::onPoe(randomizer, flag);
+        return events::onPoe(rando::gRandomizer, flag);
     }
 
     void handleAdjustBugReward(uint32_t msgEventAddress, uint8_t bugID)
     {
-        events::onBugReward(randomizer, msgEventAddress, bugID);
+        events::onBugReward(rando::gRandomizer, msgEventAddress, bugID);
     }
 
     uint8_t handleAdjustSkyCharacter()
     {
-        return events::onSkyCharacter(randomizer);
+        return events::onSkyCharacter(rando::gRandomizer);
     }
 
     void handleAdjustFieldItemParams(libtp::tp::f_op_actor::fopAc_ac_c* fopAC, void* daObjLife)
@@ -82,10 +83,9 @@ namespace mod::assembly
 
     uint8_t handleShowReekfishPath(uint8_t scent)
     {
+        // If we are currently at Snowpeak and the flag for having smelled a Reekfish is set
         if ((libtp::tp::d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Snowpeak])) &&
-            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                libtp::data::flags::GOT_REEKFISH_SCENT)) // If we are currently at Snowpeak and the flag for having
-                                                         // smelled a Reekfish is set
+            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::GOT_REEKFISH_SCENT))
         {
             return libtp::data::items::Item::Reekfish_Scent;
         }
@@ -127,7 +127,7 @@ namespace mod::assembly
         if ((appearFlag == -1) || libtp::tp::d_a_npc::daNpcT_chkEvtBit(appearFlag))
         {
             const uint32_t markerFlag = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(daNpcGWolf) + 0xE1E);
-            events::onHiddenSkill(mod::randomizer, daNpcGWolf, delFlag, markerFlag);
+            events::onHiddenSkill(rando::gRandomizer, daNpcGWolf, delFlag, markerFlag);
         }
 
         return flagIsSet;
@@ -138,12 +138,13 @@ namespace mod::assembly
         using namespace libtp::data;
 
         // Give the player the Master Sword replacement
-        uint32_t itemToGive = randomizer->getEventItem(items::Master_Sword);
-        randomizer->addItemToEventQueue(itemToGive);
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        uint32_t itemToGive = randoPtr->getEventItem(items::Master_Sword);
+        randoPtr->addItemToEventQueue(itemToGive);
 
         // Give the player the Shadow Crystal replacement
-        itemToGive = randomizer->getEventItem(items::Shadow_Crystal);
-        randomizer->addItemToEventQueue(itemToGive);
+        itemToGive = randoPtr->getEventItem(items::Shadow_Crystal);
+        randoPtr->addItemToEventQueue(itemToGive);
 
         // Set the local event flag to make the sword de-spawn and set the save file event flag.
         libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;

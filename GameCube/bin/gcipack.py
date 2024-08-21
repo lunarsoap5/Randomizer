@@ -12,14 +12,14 @@ import os
 import struct
 import ctypes
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import ByteString, List, Tuple
 
 __author__ = "PistonMiner, and kipcode66"
 __copyright__ = "Copyright 2018, PistonMiner"
 __credits__ = ["PistonMiner", "kipcode66"]
 __license__ = "GPL3"
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 
 def main():
@@ -154,8 +154,7 @@ def main():
     struct.pack_into(">B",  headerBuffer,  0x07, 2)				# banner flags (RGB5A3)
     struct.pack_into("32s", headerBuffer,  0x08,
                      args.filename.encode())  # filename
-    struct.pack_into(">L",  headerBuffer,  0x28, int(
-        (datetime.utcnow() - datetime(2000, 1, 1)).total_seconds()))  # modified time
+    struct.pack_into(">L",  headerBuffer,  0x28, int((datetime.now(timezone.utc).replace(tzinfo=None) - datetime(2000, 1, 1)).total_seconds())) # modified time
     struct.pack_into(">L",  headerBuffer,  0x2C, 0)				# image offset
     struct.pack_into(">H",  headerBuffer,  0x30, 2)				# icon format
     # animation speed (1 icon for 12 frames)

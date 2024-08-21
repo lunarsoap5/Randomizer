@@ -15,84 +15,20 @@
 
 namespace mod::rando
 {
-    /**
-     *  @brief Optional functions that have to be executed once and patch/modify the game code
-     */
-    struct entryInfo
+    class BGMHeader
     {
-        uint16_t numEntries;
-        uint16_t dataOffset;
-    } __attribute__((__packed__));
+       public:
+        BGMHeader() {}
+        ~BGMHeader() {}
 
-    struct Header
-    {
-        /* 0x00 */ uint32_t version; // SeedData version major and minor; uint16_t for each. Need to handle as a single variable
-                                     // to get around a compiler warning about comparing an unsigned value to 0
+        uint16_t getBgmTableSize() const { return this->bgmTableSize; }
+        uint16_t getFanfareTableSize() const { return this->fanfareTableSize; }
+        uint16_t getBgmTableOffset() const { return this->bgmTableOffset; }
+        uint16_t getFanfareTableOffset() const { return this->fanfareTableOffset; }
+        uint8_t getBgmTableNumEntries() const { return this->bgmTableNumEntries; }
+        uint8_t getFanfareTableNumEntries() const { return this->fanfareTableNumEntries; }
 
-        /* 0x04 */ uint16_t headerSize;       // Total size of the header in bytes
-        /* 0x06 */ uint16_t dataSize;         // Total number of bytes of seed data
-        /* 0x08 */ uint32_t totalSize;        // Total number of bytes in the GCI
-        /* 0x0C */ uint32_t requiredDungeons; // Bitfield containing which dungeons are required to beat the seed. Only 8
-                                              // bits are used, while the rest are reserved for future updates
-
-        // BitArray where each bit represents a patch/modification to be applied for this
-        // playthrough; these patchs/modifications must be applied every time a file is loaded
-        /* 0x10 */ entryInfo volatilePatchInfo;
-
-        // BitArray where each bit represents a patch/modification to be applied for this
-        // playthrough; these patchs/modifications must be applied only when a seed is loaded
-        /* 0x14 */ entryInfo oneTimePatchInfo;
-
-        /* 0x18 */ entryInfo eventFlagsInfo;  // eventFlags that need to be set for this seed
-        /* 0x1C */ entryInfo regionFlagsInfo; // regionFlags that need to be set, alternating
-
-        /* 0x20 */ entryInfo dzxCheckInfo;
-        /* 0x24 */ entryInfo relCheckInfo;
-        /* 0x28 */ entryInfo poeCheckInfo;
-        /* 0x2C */ entryInfo arcCheckInfo;
-        /* 0x30 */ entryInfo objectArcCheckInfo;
-        /* 0x34 */ entryInfo bossCheckInfo;
-        /* 0x38 */ entryInfo hiddenSkillCheckInfo;
-        /* 0x3C */ entryInfo bugRewardCheckInfo;
-        /* 0x40 */ entryInfo skyCharacterCheckInfo;
-        /* 0x44 */ entryInfo shopItemCheckInfo;
-        /* 0x48 */ entryInfo eventItemCheckInfo;
-        /* 0x4C */ entryInfo startingItemInfo;
-        /* 0x50 */ entryInfo EntranceTableInfo;
-        /* 0x54 */ uint16_t bgmHeaderOffset;
-        /* 0x56 */ uint16_t clr0Offset;
-        /* 0x58 */ uint16_t customTextHeaderSize;
-        /* 0x5A */ uint16_t customTextHeaderOffset;
-        /* 0x5C */ uint8_t transformAnywhere;
-        /* 0x5D */ uint8_t quickTransform;
-        /* 0x5E */ uint8_t castleRequirements;
-        /* 0x5F */ uint8_t palaceRequirements;
-        /* 0x60 */ uint8_t mapClearBits;
-        /* 0x61 */ uint8_t damageMagnification;
-        /* 0x62 */ uint8_t bonksDoDamage;
-        /* 0x63 */ uint8_t startingTimeOfDay;
-    } __attribute__((__packed__));
-
-    // Minimum amount of data needed for keeping track of a seed
-    struct MinSeedInfo
-    {
-        uint32_t version; // SeedData version major and minor; uint16_t for each. Need to handle as a single variable
-                          // to get around a compiler warning about comparing an unsigned value to 0
-
-        uint32_t totalSize; // Total number of bytes in the GCI
-        uint8_t fileIndex;  // (0-126)
-        char fileName[CARD_FILENAME_MAX + 1];
-        uint8_t padding[2];
-    } __attribute__((__packed__));
-
-    struct SeedInfo
-    {
-        Header header;
-        MinSeedInfo* minSeedInfo;
-    };
-
-    struct BGMHeader
-    {
+       private:
         uint16_t bgmTableSize;
         uint16_t fanfareTableSize;
         uint16_t bgmTableOffset;
@@ -102,42 +38,105 @@ namespace mod::rando
         uint8_t padding[2];
     } __attribute__((__packed__));
 
-    struct BGMReplacement
+    class BGMReplacement
     {
+       public:
+        BGMReplacement() {}
+        ~BGMReplacement() {}
+
+        uint8_t getOriginalBgmTrack() const { return this->originalBgmTrack; }
+        uint8_t getReplacementBgmTrack() const { return this->replacementBgmTrack; }
+        uint8_t getReplacementBgmWave() const { return this->replacementBgmWave; }
+
+       private:
         uint8_t originalBgmTrack;
         uint8_t replacementBgmTrack;
         uint8_t replacementBgmWave;
         uint8_t padding;
     } __attribute__((__packed__));
 
-    struct RegionFlag
+    class RegionFlag
     {
+       public:
+        RegionFlag() {}
+        ~RegionFlag() {}
+
+        uint8_t getRegionId() const { return this->region_id; }
+        uint8_t getBitId() const { return this->bit_id; }
+
+       private:
         uint8_t region_id;
         uint8_t bit_id;
     } __attribute__((__packed__));
 
-    struct EventFlag
+    class EventFlag
     {
+       public:
+        EventFlag() {}
+        ~EventFlag() {}
+
+        uint8_t getOffset() const { return this->offset; }
+        uint8_t getFlag() const { return this->flag; }
+
+       private:
         uint8_t offset;
         uint8_t flag;
     } __attribute__((__packed__));
 
-    struct DZXCheck
+    class DZXCheck
     {
+       public:
+        DZXCheck() {}
+        ~DZXCheck() {}
+
+        uint16_t getHash() const { return this->hash; }
+        uint8_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getMagicByte() const { return this->magicByte; }
+
+        uint8_t getData(uint32_t index) const
+        {
+            // Make sure the index is valid
+            if (index >= sizeof(this->data))
+            {
+                return 0;
+            }
+            return this->data[index];
+        }
+
+       private:
         uint16_t hash;
         uint8_t stageIDX;
         uint8_t magicByte; // ignore this byte in data[]
         uint8_t data[0x20];
     } __attribute__((__packed__));
 
-    struct ShopCheck
+    class ShopCheck
     {
+       public:
+        ShopCheck() {}
+        ~ShopCheck() {}
+
+        uint16_t getShopItemID() const { return this->shopItemID; }
+        uint16_t getReplacementItemID() const { return this->replacementItemID; }
+
+       private:
         uint16_t shopItemID;        // target item id
         uint16_t replacementItemID; // replacement item id
     } __attribute__((__packed__));
 
-    struct RELCheck
+    class RELCheck
     {
+       public:
+        RELCheck() {}
+        ~RELCheck() {}
+
+        uint16_t getReplacementType() const { return this->replacementType; }
+        uint16_t getStageIDX() const { return this->stageIDX; }
+        uint32_t getModuleID() const { return this->moduleID; }
+        uint32_t getOffset() const { return this->offset; }
+        uint32_t getOverride() const { return this->override; }
+
+       private:
         uint16_t replacementType;
         uint16_t stageIDX;
         uint32_t moduleID;
@@ -145,8 +144,17 @@ namespace mod::rando
         uint32_t override;
     } __attribute__((__packed__));
 
-    struct PoeCheck
+    class PoeCheck
     {
+       public:
+        PoeCheck() {}
+        ~PoeCheck() {}
+
+        uint8_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getFlag() const { return this->flag; }
+        uint16_t getItem() const { return this->item; }
+
+       private:
         uint8_t stageIDX;
         uint8_t flag;  // Flag used for identification
         uint16_t item; // New item id
@@ -170,8 +178,20 @@ namespace mod::rando
         MessageResource = 0x5, // Replaces values in the MESG section of a bmgres archive file.
     };
 
-    struct ARCReplacement
+    class ARCReplacement
     {
+       public:
+        ARCReplacement() {}
+        ~ARCReplacement() {}
+
+        int32_t getOffset() const { return this->offset; }
+        uint32_t getReplacementValue() const { return this->replacementValue; }
+        FileDirectory getDirectory() const { return this->directory; }
+        ReplacementType getReplacementType() const { return this->replacementType; }
+        uint8_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getRoomID() const { return this->roomID; }
+
+       private:
         int32_t offset;                  // The offset where the item is stored from the message flow header.
         uint32_t replacementValue;       // Used to be item, but can be more now.
         FileDirectory directory;         // The type of directory where the check is stored.
@@ -180,75 +200,169 @@ namespace mod::rando
         uint8_t roomID;                  // The room number for chests/room based dzr checks.
     } __attribute__((__packed__));
 
-    struct ObjectArchiveReplacement
+    class ObjectArchiveReplacement
     {
+       public:
+        ObjectArchiveReplacement() {}
+        ~ObjectArchiveReplacement() {}
+
+        int32_t getOffset() const { return this->offset; }
+        uint32_t getReplacementValue() const { return this->replacementValue; }
+        const char* getFileNamePtr() const { return &this->fileName[0]; }
+        uint8_t getStageIDX() const { return this->stageIDX; }
+
+       private:
         int32_t offset;            // The offset where the item is stored from the message flow header.
         uint32_t replacementValue; // Used to be item, but can be more now.
         char fileName[15];
         uint8_t stageIDX; // The name of the file where the check is stored
     } __attribute__((__packed__));
 
-    struct BossCheck
+    class BossCheck
     {
+       public:
+        BossCheck() {}
+        ~BossCheck() {}
+
+        uint16_t getStageIDX() const { return this->stageIDX; }
+        uint16_t getItem() const { return this->item; }
+
+       private:
         uint16_t stageIDX; // The stage where the replacement is taking place.
         uint16_t item;     // New item id
     } __attribute__((__packed__));
 
-    struct HiddenSkillCheck
+    class HiddenSkillCheck
     {
+       public:
+        HiddenSkillCheck() {}
+        ~HiddenSkillCheck() {}
+
+        uint8_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getRoomID() const { return this->roomID; }
+        uint8_t getItemID() const { return this->itemID; }
+
+       private:
         uint8_t stageIDX; // The ID of the stage that Golden Wolf was located in
         uint8_t roomID;   // The room of the stage that the Golden Wolf was located in.
         uint8_t itemID;   // The item to be given when in the above stage and room.
         uint8_t padding;
     } __attribute__((__packed__));
 
-    struct BugReward
+    class BugReward
     {
+       public:
+        BugReward() {}
+        ~BugReward() {}
+
+        uint16_t getBugId() const { return this->bugID; }
+        uint16_t getItemId() const { return this->itemID; }
+
+       private:
         uint16_t bugID;  // The bug that link is showing to Agitha
         uint16_t itemID; // The item that Agitha will give Link.
     } __attribute__((__packed__));
 
-    struct SkyCharacter
+    class SkyCharacter
     {
+       public:
+        SkyCharacter() {}
+        ~SkyCharacter() {}
+
+        uint8_t getItemId() const { return this->itemID; }
+        uint16_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getRoomID() const { return this->roomID; }
+
+       private:
         uint8_t itemID;    // The item to be given.
         uint16_t stageIDX; // The stage that the Owl Statue is located.
         uint8_t roomID;    // The room that the Owl Statue is located in.
     } __attribute__((__packed__));
 
     // These items are given either during cutscenes or at a specific time.
-    struct EventItem
+    class EventItem
     {
+       public:
+        EventItem() {}
+        ~EventItem() {}
+
+        uint8_t getItemID() const { return this->itemID; }
+        uint8_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getRoomID() const { return this->roomID; }
+        uint8_t getFlag() const { return this->flag; }
+
+       private:
         uint8_t itemID;   // The item to be given.
         uint8_t stageIDX; // The stage that the event is in.
         uint8_t roomID;   // The room that the event is in.
         uint8_t flag;     // The unique identifier used to disinguish between checks in the same room.
     } __attribute__((__packed__));
 
-    struct CustomMessageHeaderInfo
+    class CustomMessageHeaderInfo
     {
+       public:
+        CustomMessageHeaderInfo() {}
+        ~CustomMessageHeaderInfo() {}
+
+        uint16_t getHeaderSize() const { return this->headerSize; }
+        uint16_t getTotalEntries() const { return this->totalEntries; }
+        uint32_t getMsgTableSize() const { return this->msgTableSize; }
+        uint32_t getMsgIdTableOffset() const { return this->msgIdTableOffset; }
+
+       private:
         uint16_t headerSize;
         uint16_t totalEntries;
         uint32_t msgTableSize;
         uint32_t msgIdTableOffset;
     } __attribute__((__packed__));
 
-    struct CustomMessageData
+    class CustomMessageData
     {
+       public:
+        CustomMessageData() {}
+        ~CustomMessageData() {}
+
+        uint8_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getRoomIDX() const { return this->roomIDX; }
+        uint16_t getMsgID() const { return this->msgID; }
+
+       private:
         uint8_t stageIDX;
         uint8_t roomIDX;
         uint16_t msgID;
     } __attribute__((__packed__));
 
-    struct CLR0Header
+    class CLR0Header
     {
+       public:
+        CLR0Header() {}
+        ~CLR0Header() {}
+
+        uint32_t getTotalByteLength() const { return this->totalByteLength; }
+        uint32_t getNumBmdEntries() const { return this->numBmdEntries; }
+        uint16_t getBmdEntriesOffset() const { return this->bmdEntriesOffset; }
+        uint16_t getRawRGBOffset() const { return this->rawRGBOffset; }
+
+       private:
         /* 0x00 */ uint32_t totalByteLength;  // Total byte size of the entire CLR0 chunk
         /* 0x04 */ uint32_t numBmdEntries;    // Total number of bmd replacement entries.
         /* 0x08 */ uint16_t bmdEntriesOffset; // Offset to the list of bmd entries
         /* 0x0A */ uint16_t rawRGBOffset;     // Offset to the list of raw RGB entries
     } __attribute__((__packed__));
 
-    struct BMDEntry
+    class BMDEntry
     {
+       public:
+        BMDEntry() {}
+        ~BMDEntry() {}
+
+        uint8_t getRecolorType() const { return this->recolorType; }
+        uint8_t getArchiveIndex() const { return this->archiveIndex; }
+        uint16_t getNumTextures() const { return this->numTextures; }
+        uint16_t getTextureListOffset() const { return this->textureListOffset; }
+        const char* getBmdResPtr() const { return &this->bmdRes[0]; }
+
+       private:
         /* 0x00 */ uint8_t recolorType;        // 0: CMPR, 1: MAT, etc.
         /* 0x01 */ uint8_t archiveIndex;       // The index of the archive used to load the texture replacement.
         /* 0x02 */ uint16_t numTextures;       // number of textures that are being recolored in this bmd file.
@@ -256,8 +370,16 @@ namespace mod::rando
         /* 0x06 */ char bmdRes[0x12];          // names are of varying size, but I haven't seen one over 0x10 yet.
     } __attribute__((__packed__));
 
-    struct CMPRTextureEntry
+    class CMPRTextureEntry
     {
+       public:
+        CMPRTextureEntry() {}
+        ~CMPRTextureEntry() {}
+
+        const uint8_t* getRGBAPtr() const { return reinterpret_cast<const uint8_t*>(&this->rgba); }
+        const char* getTextureNamePtr() const { return &this->textureName[0]; }
+
+       private:
         /* 0x00 */ uint32_t rgba;
         /* 0x04 */ char textureName[0xC];
     } __attribute__((__packed__));
@@ -305,8 +427,29 @@ namespace mod::rando
         Night = 3
     };
 
-    struct RawRGBTable
+    class RawRGBTable
     {
+       public:
+        RawRGBTable() {}
+        ~RawRGBTable() {}
+
+        const uint8_t* getLanternColorPtr() const { return reinterpret_cast<const uint8_t*>(&this->lanternColor); }
+
+        const uint8_t* getWolfDomeAttackColorPtr() const
+        {
+            return reinterpret_cast<const uint8_t*>(&this->wolfDomeAttackColor);
+        }
+
+        uint32_t getLanternColor() const { return this->lanternColor; }
+        uint32_t getHeartColor() const { return this->heartColor; }
+        uint32_t getAButtonColor() const { return this->aButtonColor; }
+        uint32_t getBButtonColor() const { return this->bButtonColor; }
+        uint32_t getXButtonColor() const { return this->xButtonColor; }
+        uint32_t getYButtonColor() const { return this->yButtonColor; }
+        uint32_t getZButtonColor() const { return this->zButtonColor; }
+        uint32_t getWolfDomeAttackColor() const { return this->wolfDomeAttackColor; }
+
+       private:
         uint32_t lanternColor;
         uint32_t heartColor;
         uint32_t aButtonColor;
@@ -319,9 +462,8 @@ namespace mod::rando
 
     enum DvdEntryNumId : uint8_t
     {
-        // DO NOT set any of these enums to a specific value. The exact values
-        // and the order are irrelevant (other than `DvdEntryNumIdSize` which
-        // must go last).
+        // DO NOT set any of these enums to a specific value. The exact values and the order are irrelevant (other than
+        // DvdEntryNumIdSize which must go last).
         ResObjectKmdl,   // Link wearing Hero's Clothes
         ResObjectZmdl,   // Link wearing Zora Armor
         ResObjectOgZORA, // Zora Armor Get Item
@@ -331,20 +473,46 @@ namespace mod::rando
                          // ResObjectHyShd,     // Hylian Shield
 
         DvdEntryNumIdSize,
-        // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above
-        // this one and don't forget to actually add the lookup in the
-        // `dvdentrynum.cpp` file!
+        // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above this one and don't forget to actually add the
+        // lookup in the dvdentrynum.cpp file!
     };
 
-    struct GoldenWolfItemReplacement
+    class GoldenWolfItemReplacement
     {
+       public:
+        GoldenWolfItemReplacement() {}
+        ~GoldenWolfItemReplacement() {}
+
+        int32_t getItemActorId() const { return this->itemActorId; }
+        int16_t getFlag() const { return this->flag; }
+        uint8_t getMarkerFlag() const { return this->markerFlag; }
+
+        void setItemActorId(int32_t id) { this->itemActorId = id; }
+        void setFlag(int16_t value) { this->flag = value; }
+        void setMarkerFlag(uint8_t value) { this->markerFlag = value; }
+
+       private:
         int32_t itemActorId; // Global actor id for the spawned item
         int16_t flag;        // Flag associated with the current golden wolf
         uint8_t markerFlag;  // Flag associated with the current golden wolf's marker on the map
     };
 
-    struct ShuffledEntrance
+    class ShuffledEntrance
     {
+       public:
+        ShuffledEntrance() {}
+        ~ShuffledEntrance() {}
+
+        uint8_t getOrigStageIDX() const { return this->origStageIDX; }
+        uint8_t getOrigRoomIDX() const { return this->origRoomIDX; }
+        uint8_t getOrigSpawn() const { return this->origSpawn; }
+        int8_t getOrigState() const { return this->origState; }
+        uint8_t getNewStageIDX() const { return this->newStageIDX; }
+        uint8_t getNewRoomIDX() const { return this->newRoomIDX; }
+        uint8_t getNewSpawn() const { return this->newSpawn; }
+        int8_t getNewState() const { return this->newState; }
+
+       private:
         uint8_t origStageIDX;
         uint8_t origRoomIDX;
         uint8_t origSpawn;
@@ -354,8 +522,5 @@ namespace mod::rando
         uint8_t newSpawn;
         int8_t newState;
     } __attribute__((__packed__));
-
-    extern int32_t lookupTable[DvdEntryNumIdSize];
-
 } // namespace mod::rando
 #endif

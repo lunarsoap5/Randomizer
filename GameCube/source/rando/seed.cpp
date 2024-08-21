@@ -26,135 +26,163 @@
 
 namespace mod::rando
 {
+    KEEP_FUNC bool flagIsEnabled(const uint32_t* bitfieldPtr, uint32_t totalFlags, uint32_t flag)
+    {
+        // Make sure the flag is valid
+        if (flag >= totalFlags)
+        {
+            return false;
+        }
+
+        constexpr uint32_t bitsPerWord = sizeof(uint32_t) * 8;
+        return (bitfieldPtr[flag / bitsPerWord] >> (flag % bitsPerWord)) & 1U;
+    }
+
+    bool Seed::volatilePatchFlagIsEnabled(uint32_t flag) const
+    {
+        const EntryInfo* volatilePatchInfoPtr = this->getHeaderPtr()->getVolatilePatchInfoPtr();
+        const uint32_t num_bytes = volatilePatchInfoPtr->getNumEntries();
+        const uint32_t gci_offset = volatilePatchInfoPtr->getDataOffset();
+
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
+        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
+    }
+
+    KEEP_FUNC bool Seed::flagBitfieldFlagIsEnabled(uint32_t flag) const
+    {
+        const EntryInfo* flagBitfieldPtr = this->getHeaderPtr()->getFlagBitfieldPtr();
+        const uint32_t num_bytes = flagBitfieldPtr->getNumEntries();
+        const uint32_t gci_offset = flagBitfieldPtr->getDataOffset();
+
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
+        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
+    }
+
     bool Seed::InitSeed(void)
     {
         // (Re)set counters & status
-        m_AreaFlagsModified = 0;
-        m_EventFlagsModified = 0;
-        m_PatchesApplied = 0;
+        this->m_AreaFlagsModified = 0;
+        this->m_EventFlagsModified = 0;
+        this->m_PatchesApplied = 0;
 
-        if (checkIfSeedLoaded())
-        {
-            // getConsole() << "Setting Event Flags... \n";
-            this->applyEventFlags();
+        // getConsole() << "Setting Event Flags... \n";
+        this->applyEventFlags();
 
-            // getConsole() << "Setting Region Flags... \n";
-            this->applyRegionFlags();
+        // getConsole() << "Setting Region Flags... \n";
+        this->applyRegionFlags();
 
-            this->giveStartingItems();
-            getConsole() << "Seed Applied Successfully.\n";
-            return true;
-        }
-        else
-        {
-            getConsole() << "FATAL: Couldn't read Seed #" << m_fileIndex << "\n";
-            getConsole() << "ERROR: " << m_CARDResult << "\n";
-            return false;
-        }
+        this->giveStartingItems();
+        getConsole() << "Seed Applied Successfully.\n";
+        return true;
     }
 
     void Seed::applyEventFlags()
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_eventFlags = headerPtr->eventFlagsInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->eventFlagsInfo.dataOffset;
+        const EntryInfo* eventFlagsInfoPtr = this->m_Header->getEventFlagsInfoPtr();
+        const uint32_t num_eventFlags = eventFlagsInfoPtr->getNumEntries();
+        const uint32_t gci_offset = eventFlagsInfoPtr->getDataOffset();
 
-        if (num_eventFlags > 0)
+        if (num_eventFlags == 0)
         {
-            tp::d_com_inf_game::dComIfG_inf_c* gameInfo = &tp::d_com_inf_game::dComIfG_gameInfo;
-
-            // Set the pointer as offset into our buffer
-            EventFlag* eventFlags = reinterpret_cast<EventFlag*>(&m_GCIData[gci_offset]);
-
-            uint32_t eventFlagsModified = m_EventFlagsModified;
-            for (uint32_t i = 0; i < num_eventFlags; i++)
-            {
-                const uint32_t offset = eventFlags[i].offset;
-                const uint8_t flag = eventFlags[i].flag;
-
-                gameInfo->save.save_file.mEvent.mEvent[offset] |= flag;
-                eventFlagsModified++;
-            }
-
-            m_EventFlagsModified = static_cast<uint16_t>(eventFlagsModified);
+            return;
         }
+
+        // Set the pointer as offset into our buffer
+        const EventFlag* eventFlags = reinterpret_cast<const EventFlag*>(&this->m_GCIData[gci_offset]);
+        uint8_t* mEventPtr = &tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent.mEvent[0];
+        uint32_t eventFlagsModified = this->m_EventFlagsModified;
+
+        for (uint32_t i = 0; i < num_eventFlags; i++)
+        {
+            const uint32_t offset = eventFlags[i].getOffset();
+            const uint8_t flag = eventFlags[i].getFlag();
+
+            mEventPtr[offset] |= flag;
+            eventFlagsModified++;
+        }
+
+        this->m_EventFlagsModified = static_cast<uint16_t>(eventFlagsModified);
     }
 
     void Seed::applyRegionFlags()
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_regionFlags = headerPtr->regionFlagsInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->regionFlagsInfo.dataOffset;
+        const EntryInfo* regionFlagsInfoPtr = this->m_Header->getRegionFlagsInfoPtr();
+        const uint32_t num_regionFlags = regionFlagsInfoPtr->getNumEntries();
+        const uint32_t gci_offset = regionFlagsInfoPtr->getDataOffset();
 
-        if (num_regionFlags > 0)
+        if (num_regionFlags == 0)
         {
-            tp::d_save::dSv_info_c* SaveInfo = &tp::d_com_inf_game::dComIfG_gameInfo.save;
-            // tp::d_com_inf_game::dComIfG_inf_c* gameInfo = &tp::d_com_inf_game::dComIfG_gameInfo;
+            return;
+        }
 
-            // Set the pointer as offset into our buffer
-            RegionFlag* regionFlags = reinterpret_cast<RegionFlag*>(&m_GCIData[gci_offset]);
+        tp::d_save::dSv_info_c* SaveInfo = &tp::d_com_inf_game::dComIfG_gameInfo.save;
+        // tp::d_com_inf_game::dComIfG_inf_c* gameInfo = &tp::d_com_inf_game::dComIfG_gameInfo;
 
-            uint8_t regionID = data::stage::regions[0];
-            uint32_t areaFlagsModified = m_AreaFlagsModified;
-            uint8_t* memoryFlagsPtr = &SaveInfo->memory.temp_flags.memoryFlags[0];
+        // Set the pointer as offset into our buffer
+        const RegionFlag* regionFlags = reinterpret_cast<const RegionFlag*>(&this->m_GCIData[gci_offset]);
 
-            // Loop through all regions
-            for (uint32_t i = 0; i < sizeof(data::stage::regions); i++)
+        const uint8_t* regionIDPtr = &data::stage::regions[0];
+        uint32_t areaFlagsModified = this->m_AreaFlagsModified;
+        uint8_t* memoryFlagsPtr = &SaveInfo->memory.temp_flags.memoryFlags[0];
+
+        // Loop through all regions
+        for (uint32_t i = 0; i < sizeof(data::stage::regions); i++)
+        {
+            const uint8_t regionID = regionIDPtr[i];
+            tp::d_save::getSave(SaveInfo, static_cast<int32_t>(regionID));
+
+            // Loop through region-flags from GCI
+            for (uint32_t j = 0; j < num_regionFlags; j++)
             {
-                regionID = data::stage::regions[i];
-                tp::d_save::getSave(SaveInfo, static_cast<int32_t>(regionID));
-
-                // Loop through region-flags from GCI
-                for (uint32_t j = 0; j < num_regionFlags; j++)
+                const RegionFlag* currentRegion = &regionFlags[j];
+                if (currentRegion->getRegionId() == regionID)
                 {
-                    RegionFlag* currentRegion = &regionFlags[j];
-                    if (currentRegion->region_id == regionID)
+                    // The n'th bit that we want to set TRUE
+                    const int32_t bit = static_cast<int32_t>(currentRegion->getBitId());
+
+                    const int32_t offset = bit / 8;
+                    const int32_t shift = bit % 8;
+
+                    // Failsafe; localAreaNode size is 0x20
+                    if (offset < 0x20)
                     {
-                        // The n'th bit that we want to set TRUE
-                        const int32_t bit = currentRegion->bit_id;
-
-                        const int32_t offset = bit / 8;
-                        const int32_t shift = bit % 8;
-
-                        // Failsafe; localAreaNode size is 0x20
-                        if (offset < 0x20)
-                        {
-                            memoryFlagsPtr[offset] |= (0x80 >> shift);
-                            areaFlagsModified++;
-                        }
+                        memoryFlagsPtr[offset] |= (0x80 >> shift);
+                        areaFlagsModified++;
                     }
                 }
-
-                // Save the modifications
-                tp::d_save::putSave(SaveInfo, regionID);
             }
 
-            m_AreaFlagsModified = static_cast<uint16_t>(areaFlagsModified);
-            tp::d_save::getSave(SaveInfo, data::stage::regions[2]);
+            // Save the modifications
+            tp::d_save::putSave(SaveInfo, regionID);
         }
+
+        this->m_AreaFlagsModified = static_cast<uint16_t>(areaFlagsModified);
+        tp::d_save::getSave(SaveInfo, data::stage::regions[2]);
     }
 
     void Seed::giveStartingItems()
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_startingItems = headerPtr->startingItemInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->startingItemInfo.dataOffset;
+        const EntryInfo* startingItemInfoPtr = this->m_Header->getStartingItemCheckInfoPtr();
+        const uint32_t num_startingItems = startingItemInfoPtr->getNumEntries();
+        const uint32_t gci_offset = startingItemInfoPtr->getDataOffset();
 
-        if (num_startingItems > 0)
+        if (num_startingItems == 0)
         {
-            // Set the pointer as offset into our buffer
-            uint8_t* startingItems = reinterpret_cast<uint8_t*>(&m_GCIData[gci_offset]);
+            return;
+        }
 
-            for (uint32_t i = 0; i < num_startingItems; i++)
-            {
-                libtp::tp::d_item::execItemGet(startingItems[i]);
-            }
+        // Set the pointer as offset into our buffer
+        const uint8_t* startingItems = reinterpret_cast<const uint8_t*>(&this->m_GCIData[gci_offset]);
+
+        for (uint32_t i = 0; i < num_startingItems; i++)
+        {
+            libtp::tp::d_item::execItemGet(startingItems[i]);
         }
     }
 
@@ -199,59 +227,90 @@ namespace mod::rando
 
     void Seed::clearChecks()
     {
-        m_numLoadedDZXChecks = 0;
-        m_numLoadedRELChecks = 0;
-        m_numLoadedPOEChecks = 0;
-        m_numBugRewardChecks = 0;
-        m_numSkyBookChecks = 0;
-        m_numHiddenSkillChecks = 0;
-        m_numLoadedEventChecks = 0;
+        this->m_NumLoadedDZXChecks = 0;
+        this->m_NumLoadedRELChecks = 0;
+        this->m_NumLoadedPOEChecks = 0;
+        this->m_NumBugRewardChecks = 0;
+        this->m_NumSkyBookChecks = 0;
+        this->m_NumHiddenSkillChecks = 0;
+        this->m_NumLoadedEventChecks = 0;
 
-        delete[] m_DZXChecks;
-        delete[] m_RELChecks;
-        delete[] m_PoeChecks;
-        delete[] m_BossChecks;
-        delete[] m_BugRewardChecks;
-        delete[] m_SkyBookChecks;
-        delete[] m_HiddenSkillChecks;
-        delete[] m_EventChecks;
+        if (this->m_DZXChecks)
+        {
+            delete this->m_DZXChecks;
+        }
+
+        if (this->m_RELChecks)
+        {
+            delete this->m_RELChecks;
+        }
+
+        if (this->m_PoeChecks)
+        {
+            delete this->m_PoeChecks;
+        }
+
+        if (this->m_BossChecks)
+        {
+            delete this->m_BossChecks;
+        }
+
+        if (this->m_BugRewardChecks)
+        {
+            delete this->m_BugRewardChecks;
+        }
+
+        if (this->m_SkyBookChecks)
+        {
+            delete this->m_SkyBookChecks;
+        }
+
+        if (this->m_HiddenSkillChecks)
+        {
+            delete this->m_HiddenSkillChecks;
+        }
+
+        if (this->m_EventChecks)
+        {
+            delete this->m_EventChecks;
+        }
     }
 
     void Seed::LoadDZX(uint8_t stageIDX)
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_dzxchecks = headerPtr->dzxCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->dzxCheckInfo.dataOffset;
+        const EntryInfo* dzxCheckInfoPtr = this->m_Header->getDzxCheckInfoPtr();
+        const uint32_t num_dzxchecks = dzxCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = dzxCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        DZXCheck* allDZX = reinterpret_cast<DZXCheck*>(&m_GCIData[gci_offset]);
+        const DZXCheck* allDZX = reinterpret_cast<const DZXCheck*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numLoadedDZXChecks = m_numLoadedDZXChecks;
+        uint32_t numLoadedDZXChecks = this->m_NumLoadedDZXChecks;
         for (uint32_t i = 0; i < num_dzxchecks; i++)
         {
-            if (allDZX[i].stageIDX == stageIDX)
+            if (allDZX[i].getStageIDX() == stageIDX)
             {
                 numLoadedDZXChecks++;
             }
         }
-        m_numLoadedDZXChecks = static_cast<uint16_t>(numLoadedDZXChecks);
+        this->m_NumLoadedDZXChecks = static_cast<uint16_t>(numLoadedDZXChecks);
 
         // Allocate memory the actual DZXChecks
         // We do NOT have to clear the previous buffer as that's already done in "LoadChecks()"
         DZXCheck* dzxChecksPtr = new DZXCheck[numLoadedDZXChecks];
-        m_DZXChecks = dzxChecksPtr;
+        this->m_DZXChecks = dzxChecksPtr;
 
         // offset into m_DZXChecks
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_dzxchecks; i++)
         {
-            DZXCheck* currentCheck = &allDZX[i];
+            const DZXCheck* currentCheck = &allDZX[i];
             DZXCheck* globalCheck = &dzxChecksPtr[j];
 
-            if (currentCheck->stageIDX == stageIDX)
+            if (currentCheck->getStageIDX() == stageIDX)
             {
                 // Store the i'th DZX check into the j'th Loaded DZX check that's relevant to our current stage
                 memcpy(globalCheck, currentCheck, sizeof(DZXCheck));
@@ -264,42 +323,42 @@ namespace mod::rando
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_relchecks = headerPtr->relCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->relCheckInfo.dataOffset;
+        const EntryInfo* relCheckInfoPtr = this->m_Header->getRelCheckInfoPtr();
+        const uint32_t num_relchecks = relCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = relCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        RELCheck* allREL = reinterpret_cast<RELCheck*>(&m_GCIData[gci_offset]);
+        const RELCheck* allREL = reinterpret_cast<const RELCheck*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numLoadedRELChecks = m_numLoadedRELChecks;
+        uint32_t numLoadedRELChecks = this->m_NumLoadedRELChecks;
         for (uint32_t i = 0; i < num_relchecks; i++)
         {
-            uint32_t currentStageIdx = allREL[i].stageIDX;
+            const uint32_t currentStageIdx = allREL[i].getStageIDX();
 
-            if ((currentStageIdx == stageIDX) || (currentStageIdx == 0xFF)) // Check if we are on the current stage, or if the
-                                                                            // rel override needs to be applied to every stage
+            // Check if we are on the current stage, or if the rel override needs to be applied to every stage
+            if ((currentStageIdx == stageIDX) || (currentStageIdx == 0xFF))
             {
                 numLoadedRELChecks++;
             }
         }
-        m_numLoadedRELChecks = static_cast<uint16_t>(numLoadedRELChecks);
+        this->m_NumLoadedRELChecks = static_cast<uint16_t>(numLoadedRELChecks);
 
         // Allocate memory to the actual RELChecks
         // Do NOT need to clear the previous buffer as that's taken care of by LoadChecks()
         RELCheck* relChecksPtr = new RELCheck[numLoadedRELChecks];
-        m_RELChecks = relChecksPtr;
+        this->m_RELChecks = relChecksPtr;
 
         // offset into m_RELChecks
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_relchecks; i++)
         {
-            RELCheck* currentRel = &allREL[i];
+            const RELCheck* currentRel = &allREL[i];
             RELCheck* globalRel = &relChecksPtr[j];
-            uint32_t currentStageIdx = currentRel->stageIDX;
+            const uint32_t currentStageIdx = currentRel->getStageIDX();
 
-            if ((currentStageIdx == stageIDX) || (currentStageIdx == 0xFF)) // Check if we are on the current stage, or if the
-                                                                            // rel override needs to be applied to every stage
+            // Check if we are on the current stage, or if the rel override needs to be applied to every stage
+            if ((currentStageIdx == stageIDX) || (currentStageIdx == 0xFF))
             {
                 // Store the i'th DZX check into the j'th Loaded DZX check that's relevant to our current stage
                 memcpy(globalRel, currentRel, sizeof(RELCheck));
@@ -312,37 +371,37 @@ namespace mod::rando
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_poechecks = headerPtr->poeCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->poeCheckInfo.dataOffset;
+        const EntryInfo* poeCheckInfoPtr = this->m_Header->getPoeCheckInfoPtr();
+        const uint32_t num_poechecks = poeCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = poeCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        PoeCheck* allPOE = reinterpret_cast<PoeCheck*>(&m_GCIData[gci_offset]);
+        const PoeCheck* allPOE = reinterpret_cast<const PoeCheck*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numLoadedPOEChecks = m_numLoadedPOEChecks;
+        uint32_t numLoadedPOEChecks = this->m_NumLoadedPOEChecks;
         for (uint32_t i = 0; i < num_poechecks; i++)
         {
-            if (allPOE[i].stageIDX == stageIDX)
+            if (allPOE[i].getStageIDX() == stageIDX)
             {
                 numLoadedPOEChecks++;
             }
         }
-        m_numLoadedPOEChecks = static_cast<uint16_t>(numLoadedPOEChecks);
+        this->m_NumLoadedPOEChecks = static_cast<uint16_t>(numLoadedPOEChecks);
 
         // Allocate memory to the actual POEChecks
         // Do NOT need to clear the previous buffer as that's taken care of by LoadChecks()
         PoeCheck* poeChecksPtr = new PoeCheck[numLoadedPOEChecks];
-        m_PoeChecks = poeChecksPtr;
+        this->m_PoeChecks = poeChecksPtr;
 
         // offset into m_PoeChecks
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_poechecks; i++)
         {
-            PoeCheck* currentPoeCheck = &allPOE[i];
+            const PoeCheck* currentPoeCheck = &allPOE[i];
             PoeCheck* globalPoeCheck = &poeChecksPtr[j];
 
-            if (currentPoeCheck->stageIDX == stageIDX)
+            if (currentPoeCheck->getStageIDX() == stageIDX)
             {
                 // Store the i'th POE check into the j'th Loaded POEcheck that's relevant to our current stage
                 memcpy(globalPoeCheck, currentPoeCheck, sizeof(PoeCheck));
@@ -355,22 +414,22 @@ namespace mod::rando
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_hiddenSkills = headerPtr->hiddenSkillCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->hiddenSkillCheckInfo.dataOffset;
+        const EntryInfo* hiddenSkillCheckInfoPtr = this->m_Header->getHiddenSkillCheckInfoPtr();
+        const uint32_t num_hiddenSkills = hiddenSkillCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = hiddenSkillCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
         HiddenSkillCheck* hiddenSkillChecksPtr = new HiddenSkillCheck[num_hiddenSkills];
-        m_HiddenSkillChecks = hiddenSkillChecksPtr;
-        HiddenSkillCheck* allSKILL = reinterpret_cast<HiddenSkillCheck*>(&m_GCIData[gci_offset]);
+        this->m_HiddenSkillChecks = hiddenSkillChecksPtr;
+        const HiddenSkillCheck* allSKILL = reinterpret_cast<const HiddenSkillCheck*>(&this->m_GCIData[gci_offset]);
 
         // Offset into m_HiddenSkillChecks
         uint32_t j = 0;
 
-        uint32_t numHiddenSkillChecks = m_numHiddenSkillChecks;
+        uint32_t numHiddenSkillChecks = this->m_NumHiddenSkillChecks;
         for (uint32_t i = 0; i < num_hiddenSkills; i++)
         {
-            HiddenSkillCheck* currentSkillCheck = &allSKILL[i];
+            const HiddenSkillCheck* currentSkillCheck = &allSKILL[i];
             HiddenSkillCheck* globalSkillCheck = &hiddenSkillChecksPtr[j];
 
             // Store the i'th DZX check into the j'th Loaded DZX check that's relevant to our current stage
@@ -378,38 +437,38 @@ namespace mod::rando
             j++;
             numHiddenSkillChecks++;
         }
-        m_numHiddenSkillChecks = static_cast<uint16_t>(numHiddenSkillChecks);
+        this->m_NumHiddenSkillChecks = static_cast<uint16_t>(numHiddenSkillChecks);
     }
 
     void Seed::LoadBugReward()
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_bugRewards = headerPtr->bugRewardCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->bugRewardCheckInfo.dataOffset;
+        const EntryInfo* bugRewardCheckInfoPtr = this->m_Header->getBugRewardCheckInfoPtr();
+        const uint32_t num_bugRewards = bugRewardCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = bugRewardCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        BugReward* allBUG = reinterpret_cast<BugReward*>(&m_GCIData[gci_offset]);
+        const BugReward* allBUG = reinterpret_cast<const BugReward*>(&this->m_GCIData[gci_offset]);
 
-        uint32_t numBugRewardChecks = m_numBugRewardChecks;
+        uint32_t numBugRewardChecks = this->m_NumBugRewardChecks;
         for (uint32_t i = 0; i < num_bugRewards; i++)
         {
             numBugRewardChecks++;
         }
-        m_numBugRewardChecks = static_cast<uint16_t>(numBugRewardChecks);
+        this->m_NumBugRewardChecks = static_cast<uint16_t>(numBugRewardChecks);
 
         // Allocate memory to the actual POEChecks
         // Do NOT need to clear the previous buffer as that's taken care of by LoadChecks()
         BugReward* bugRewardChecksPtr = new BugReward[numBugRewardChecks];
-        m_BugRewardChecks = bugRewardChecksPtr;
+        this->m_BugRewardChecks = bugRewardChecksPtr;
 
         // offset into m_BugRewardChecks
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_bugRewards; i++)
         {
-            BugReward* currentBugCheck = &allBUG[i];
+            const BugReward* currentBugCheck = &allBUG[i];
             BugReward* globalBugCheck = &bugRewardChecksPtr[j];
 
             memcpy(globalBugCheck, currentBugCheck, sizeof(BugReward));
@@ -419,30 +478,30 @@ namespace mod::rando
 
     void Seed::LoadSkyCharacter(uint8_t stageIDX)
     {
-        Header* headerPtr = m_Header;
-        const uint32_t num_skycharacters = headerPtr->skyCharacterCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->skyCharacterCheckInfo.dataOffset;
+        const EntryInfo* skyCharacterCheckInfoPtr = this->m_Header->getSkyCharacterCheckInfoPtr();
+        const uint32_t num_skycharacters = skyCharacterCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = skyCharacterCheckInfoPtr->getDataOffset();
 
         SkyCharacter* skyBookChecksPtr = new SkyCharacter[num_skycharacters];
-        m_SkyBookChecks = skyBookChecksPtr;
-        SkyCharacter* allCHAR = reinterpret_cast<SkyCharacter*>(&m_GCIData[gci_offset]);
+        this->m_SkyBookChecks = skyBookChecksPtr;
+        const SkyCharacter* allCHAR = reinterpret_cast<const SkyCharacter*>(&this->m_GCIData[gci_offset]);
 
         // offset into m_SkyBookChecks
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_skycharacters; i++)
         {
-            SkyCharacter* currentCharCheck = &allCHAR[i];
+            const SkyCharacter* currentCharCheck = &allCHAR[i];
             SkyCharacter* globalCharCheck = &skyBookChecksPtr[j];
 
-            uint32_t numSkyBookChecks = m_numSkyBookChecks;
-            if ((currentCharCheck->stageIDX == stageIDX))
+            uint32_t numSkyBookChecks = this->m_NumSkyBookChecks;
+            if ((currentCharCheck->getStageIDX() == stageIDX))
             {
                 memcpy(globalCharCheck, currentCharCheck, sizeof(SkyCharacter));
                 numSkyBookChecks++;
                 j++;
             }
-            m_numSkyBookChecks = static_cast<uint16_t>(numSkyBookChecks);
+            this->m_NumSkyBookChecks = static_cast<uint16_t>(numSkyBookChecks);
         }
     }
 
@@ -450,21 +509,20 @@ namespace mod::rando
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_bossChecks = headerPtr->bossCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->bossCheckInfo.dataOffset;
+        const EntryInfo* bossCheckInfoPtr = this->m_Header->getBossCheckInfoPtr();
+        const uint32_t num_bossChecks = bossCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = bossCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
         BossCheck* bossChecksPtr = new BossCheck[1];
-        m_BossChecks = bossChecksPtr;
-        BossCheck* allBOSS = reinterpret_cast<BossCheck*>(&m_GCIData[gci_offset]);
+        this->m_BossChecks = bossChecksPtr;
+        const BossCheck* allBOSS = reinterpret_cast<const BossCheck*>(&this->m_GCIData[gci_offset]);
 
         // There is only one BOSS check per stage. Once we have a match, we are done.
         for (uint32_t i = 0; i < num_bossChecks; i++)
         {
-            BossCheck* currentBossCheck = &allBOSS[i];
-
-            if (currentBossCheck->stageIDX == stageIDX)
+            const BossCheck* currentBossCheck = &allBOSS[i];
+            if (currentBossCheck->getStageIDX() == stageIDX)
             {
                 memcpy(bossChecksPtr, currentBossCheck, sizeof(BossCheck));
                 break;
@@ -476,31 +534,31 @@ namespace mod::rando
     {
         using namespace libtp;
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_eventchecks = headerPtr->eventItemCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->eventItemCheckInfo.dataOffset;
+        const EntryInfo* eventItemCheckInfoPtr = this->m_Header->getEventItemCheckInfoPtr();
+        const uint32_t num_eventchecks = eventItemCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = eventItemCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
         EventItem* eventChecksPtr = new EventItem[num_eventchecks];
-        m_EventChecks = eventChecksPtr;
-        EventItem* allEvent = reinterpret_cast<EventItem*>(&m_GCIData[gci_offset]);
+        this->m_EventChecks = eventChecksPtr;
+        const EventItem* allEvent = reinterpret_cast<const EventItem*>(&this->m_GCIData[gci_offset]);
 
         // offset into m_EventChecks
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_eventchecks; i++)
         {
-            EventItem* currentEventCheck = &allEvent[i];
+            const EventItem* currentEventCheck = &allEvent[i];
             EventItem* globalEventCheck = &eventChecksPtr[j];
 
-            uint32_t numEventChecks = m_numLoadedEventChecks;
-            if ((currentEventCheck->stageIDX == stageIDX))
+            uint32_t numEventChecks = this->m_NumLoadedEventChecks;
+            if ((currentEventCheck->getStageIDX() == stageIDX))
             {
                 memcpy(globalEventCheck, currentEventCheck, sizeof(EventItem));
                 numEventChecks++;
                 j++;
             }
-            m_numLoadedEventChecks = static_cast<uint16_t>(numEventChecks);
+            this->m_NumLoadedEventChecks = static_cast<uint16_t>(numEventChecks);
         }
     }
 
@@ -509,45 +567,47 @@ namespace mod::rando
         using namespace libtp;
 
         // Until a better way is found, we are going to clear the buffer here just to be safe
-        delete[] m_ArcReplacements;
+        if (this->m_ArcReplacements)
+        {
+            delete this->m_ArcReplacements;
+        }
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_arcchecks = headerPtr->arcCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->arcCheckInfo.dataOffset;
+        const EntryInfo* arcCheckInfoPtr = this->m_Header->getArcCheckInfoPtr();
+        const uint32_t num_arcchecks = arcCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = arcCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        ARCReplacement* allARC = reinterpret_cast<ARCReplacement*>(&m_GCIData[gci_offset]);
+        const ARCReplacement* allARC = reinterpret_cast<const ARCReplacement*>(&this->m_GCIData[gci_offset]);
 
         uint32_t numLoadedArcReplacements = 0;
         for (uint32_t i = 0; i < num_arcchecks; i++)
         {
-            ARCReplacement* currentArcCheck = &allARC[i];
-
-            if ((currentArcCheck->stageIDX == stageIDX) && (currentArcCheck->directory == fileDirectory))
+            const ARCReplacement* currentArcCheck = &allARC[i];
+            if ((currentArcCheck->getStageIDX() == stageIDX) && (currentArcCheck->getDirectory() == fileDirectory))
             {
                 numLoadedArcReplacements++;
             }
         }
-        m_numLoadedArcReplacements = static_cast<uint16_t>(numLoadedArcReplacements);
+        this->m_NumLoadedArcReplacements = static_cast<uint16_t>(numLoadedArcReplacements);
 
         // Allocate memory to the actual ARCChecks
         ARCReplacement* arcReplacementsPtr = new ARCReplacement[numLoadedArcReplacements];
-        m_ArcReplacements = arcReplacementsPtr;
+        this->m_ArcReplacements = arcReplacementsPtr;
 
         // offset into m_ArcReplacements
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_arcchecks; i++)
         {
-            ARCReplacement* currentArcCheck = &allARC[i];
+            const ARCReplacement* currentArcCheck = &allARC[i];
             ARCReplacement* globalArcCheck = &arcReplacementsPtr[j];
 
             switch (fileDirectory)
             {
                 case rando::FileDirectory::Room:
                 {
-                    if ((currentArcCheck->stageIDX == stageIDX) && (currentArcCheck->directory == fileDirectory) &&
-                        (currentArcCheck->roomID == roomNo))
+                    if ((currentArcCheck->getStageIDX() == stageIDX) && (currentArcCheck->getDirectory() == fileDirectory) &&
+                        (currentArcCheck->getRoomID() == roomNo))
                     {
                         memcpy(globalArcCheck, currentArcCheck, sizeof(ARCReplacement));
                         j++;
@@ -557,7 +617,7 @@ namespace mod::rando
 
                 default:
                 {
-                    if ((currentArcCheck->stageIDX == stageIDX) && (currentArcCheck->directory == fileDirectory))
+                    if ((currentArcCheck->getStageIDX() == stageIDX) && (currentArcCheck->getDirectory() == fileDirectory))
                     {
                         memcpy(globalArcCheck, currentArcCheck, sizeof(ARCReplacement));
                         j++;
@@ -573,39 +633,44 @@ namespace mod::rando
         using namespace libtp;
 
         // Until a better way is found, we are going to clear the buffer here just to be safe
-        delete[] m_ObjectArcReplacements;
+        if (this->m_ObjectArcReplacements)
+        {
+            delete this->m_ObjectArcReplacements;
+        }
 
-        Header* headerPtr = m_Header;
-        const uint32_t num_objarcchecks = headerPtr->objectArcCheckInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->objectArcCheckInfo.dataOffset;
+        const EntryInfo* objectArcCheckInfoPtr = this->m_Header->getObjectArcCheckInfoPtr();
+        const uint32_t num_objarcchecks = objectArcCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = objectArcCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        ObjectArchiveReplacement* allARC = reinterpret_cast<ObjectArchiveReplacement*>(&m_GCIData[gci_offset]);
+        const ObjectArchiveReplacement* allARC =
+            reinterpret_cast<const ObjectArchiveReplacement*>(&this->m_GCIData[gci_offset]);
+
         const uint32_t stageIdx = this->m_StageIDX;
 
         uint32_t numLoadedObjectArcReplacements = 0;
         for (uint32_t i = 0; i < num_objarcchecks; i++)
         {
-            if ((allARC[i].stageIDX == stageIdx))
+            if ((allARC[i].getStageIDX() == stageIdx))
             {
                 numLoadedObjectArcReplacements++;
             }
         }
-        m_numLoadedObjectArcReplacements = static_cast<uint16_t>(numLoadedObjectArcReplacements);
+        this->m_NumLoadedObjectArcReplacements = static_cast<uint16_t>(numLoadedObjectArcReplacements);
 
         // Allocate memory to the actual ARCChecks
         ObjectArchiveReplacement* objectArcReplacementsPtr = new ObjectArchiveReplacement[numLoadedObjectArcReplacements];
-        m_ObjectArcReplacements = objectArcReplacementsPtr;
+        this->m_ObjectArcReplacements = objectArcReplacementsPtr;
 
         // offset into m_ArcReplacements
         uint32_t j = 0;
 
         for (uint32_t i = 0; i < num_objarcchecks; i++)
         {
-            ObjectArchiveReplacement* currentObjectArcReplacement = &allARC[i];
+            const ObjectArchiveReplacement* currentObjectArcReplacement = &allARC[i];
             ObjectArchiveReplacement* globalObjectArcReplacement = &objectArcReplacementsPtr[j];
 
-            if ((currentObjectArcReplacement->stageIDX == m_StageIDX))
+            if ((currentObjectArcReplacement->getStageIDX() == stageIdx))
             {
                 memcpy(globalObjectArcReplacement, currentObjectArcReplacement, sizeof(ObjectArchiveReplacement));
                 j++;
@@ -613,43 +678,17 @@ namespace mod::rando
         }
     }
 
-    void Seed::applyVolatilePatches(bool set)
+    void Seed::applyVolatilePatches()
     {
         using namespace libtp;
 
-        if (!checkIfSeedLoaded())
+        constexpr uint32_t totalVolatilePatches = sizeof(user_patch::volatilePatches) / sizeof(user_patch::volatilePatches[0]);
+        for (uint32_t i = 0; i < totalVolatilePatches; i++)
         {
-            return;
-        }
-
-        Header* headerPtr = m_Header;
-        const uint32_t num_bytes = headerPtr->volatilePatchInfo.numEntries;
-        const uint32_t gci_offset = headerPtr->volatilePatchInfo.dataOffset;
-
-        // Don't bother to patch anything if there's nothing to patch
-        if (num_bytes > 0)
-        {
-            // Set the pointer as offset into our buffer
-            uint8_t* patch_config = &m_GCIData[gci_offset];
-
-            for (uint32_t i = 0; i < num_bytes; i++)
+            if (this->volatilePatchFlagIsEnabled(i))
             {
-                const uint32_t byte = patch_config[i];
-
-                for (uint32_t b = 0; b < 8; b++)
-                {
-                    if ((byte << b) & 0x80)
-                    {
-                        // Run the patch function for this bit index
-                        const uint32_t index = i * 8 + b;
-
-                        if (index < sizeof(user_patch::volatilePatches) / sizeof(user_patch::volatilePatches[0]))
-                        {
-                            user_patch::volatilePatches[index](randomizer, set);
-                            m_PatchesApplied++;
-                        }
-                    }
-                }
+                user_patch::volatilePatches[i](rando::gRandomizer);
+                this->m_PatchesApplied++;
             }
         }
     }
@@ -660,12 +699,12 @@ namespace mod::rando
         using namespace libtp::data;
         using namespace libtp::tp::d_a_shop_item_static;
 
-        entryInfo* shopItemCheckInfo = &m_Header->shopItemCheckInfo;
-        const uint32_t num_shopItems = shopItemCheckInfo->numEntries;
-        const uint32_t gci_offset = shopItemCheckInfo->dataOffset;
+        const EntryInfo* shopItemCheckInfoPtr = this->m_Header->getShopItemCheckInfoPtr();
+        const uint32_t num_shopItems = shopItemCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = shopItemCheckInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        ShopCheck* allSHOP = reinterpret_cast<ShopCheck*>(&m_GCIData[gci_offset]);
+        const ShopCheck* allSHOP = reinterpret_cast<const ShopCheck*>(&this->m_GCIData[gci_offset]);
 
         d_item_data::ItemResource* itemResourcePtr = &d_item_data::item_resource[0];
 
@@ -675,13 +714,12 @@ namespace mod::rando
 
         for (uint32_t i = 0; i < num_shopItems; i++)
         {
-            ShopCheck* currentShopCheck = &allSHOP[i];
+            const ShopCheck* currentShopCheck = &allSHOP[i];
 
             const uint32_t replacementItem =
-                game_patch::_04_verifyProgressiveItem(randomizer, currentShopCheck->replacementItemID);
+                game_patch::_04_verifyProgressiveItem(gRandomizer, currentShopCheck->getReplacementItemID());
 
-            const uint32_t shopItem = currentShopCheck->shopItemID;
-
+            const uint32_t shopItem = currentShopCheck->getShopItemID();
             ShopItemData* currentShopItemDataPtr = &shopItemData[shopItem];
 
             switch (replacementItem)
@@ -787,7 +825,7 @@ namespace mod::rando
             game_patch::_02_modifyShopModelScale(shopItem, replacementItem);
 
             // Clear the cache for the modified values
-            libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(currentShopItemDataPtr),
+            libtp::gc_wii::os_cache::DCFlushRange(currentShopItemDataPtr,
                                                   sizeof(libtp::tp::d_a_shop_item_static::ShopItemData));
         }
     }
