@@ -63,17 +63,6 @@ namespace mod
     KEEP_VAR libtp::display::Console* gConsole = nullptr;
     KEEP_VAR bool gConsoleState = false;
 
-    // Game Over functions
-    KEEP_VAR void (*return_dispWait_init)(libtp::tp::d_gameover::dGameOver* ptr) = nullptr;
-
-    // Shop Functions
-    KEEP_VAR int32_t (*return_seq_decide_yes)(libtp::tp::d_shop_system::dShopSystem* shopPtr,
-                                              libtp::tp::f_op_actor::fopAc_ac_c* actor,
-                                              void* msgFlow) = nullptr;
-
-    // Title Screen functions
-    KEEP_VAR void (*return_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr) = nullptr;
-
     void main()
     {
         // Call the boot REL

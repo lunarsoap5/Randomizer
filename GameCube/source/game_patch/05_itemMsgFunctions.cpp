@@ -745,6 +745,9 @@ namespace mod::game_patch
     {
         using namespace libtp::data::items;
 
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        rando::Seed* seedPtr = randoPtr->getSeedPtr();
+
         // If there are any special message IDs that require additional logic, we handle them here.
         switch (msgId)
         {
@@ -754,20 +757,16 @@ namespace mod::game_patch
             case 0x299:                    // Big Wallet Pause Menu Text
             case 0x29A:                    // Giant Wallet Pause Menu Text
             {
-                if (!rando::gRandomizer->getSeedPtr()->walletsAreIncreased())
+                if (!seedPtr->walletsAreIncreased())
                 {
                     return nullptr;
                 }
                 break;
             }
-
             case 0x42:
             {
-                if (rando::gRandomizer->getSeedPtr())
-                {
-                    return rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getSeedNamePtr();
-                }
-                break;
+                // This is the `Choose a Quest Log` text on the file select screen
+                return seedPtr->getHeaderPtr()->getSeedNamePtr();
             }
             case 0xFFFF:
             {
@@ -782,7 +781,6 @@ namespace mod::game_patch
         }
 
         // Make sure the custom text is loaded
-        const rando::Randomizer* randoPtr = rando::gRandomizer;
         const uint32_t msgTableInfoRaw = reinterpret_cast<uint32_t>(randoPtr->getMsgTableInfoPtr());
         if (!msgTableInfoRaw)
         {
