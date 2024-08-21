@@ -330,25 +330,6 @@ namespace mod::rando
         return flag;
     }
 
-    uint8_t Randomizer::getEventItem(uint8_t flag)
-    {
-        const uint32_t numLoadedEventChecks = m_Seed->m_numLoadedEventChecks;
-        const EventItem* eventChecks = &m_Seed->m_EventChecks[0];
-
-        for (uint32_t i = 0; i < numLoadedEventChecks; i++)
-        {
-            const EventItem* currentEventCheck = &eventChecks[i];
-            if (flag == currentEventCheck->flag)
-            {
-                // Return new item
-                return currentEventCheck->itemID;
-            }
-        }
-
-        // Currently we just use the vanilla item ID as the flag since the scope of these checks are limited at the moment.
-        return flag;
-    }
-
     void Randomizer::overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo)
     {
         Seed* seedPtr = this->m_Seed;

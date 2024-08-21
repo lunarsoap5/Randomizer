@@ -499,89 +499,6 @@ namespace mod
         }
     }
 
-    void initGiveItemToPlayer(libtp::tp::d_a_alink::daAlink* linkMapPtr)
-    {
-        using namespace libtp::tp;
-
-        switch (linkMapPtr->mProcID)
-        {
-            case d_a_alink::PROC_WAIT:
-            case d_a_alink::PROC_TIRED_WAIT:
-            case d_a_alink::PROC_MOVE:
-            case d_a_alink::PROC_WOLF_WAIT:
-            case d_a_alink::PROC_WOLF_TIRED_WAIT:
-            case d_a_alink::PROC_WOLF_MOVE:
-            case d_a_alink::PROC_ATN_MOVE:
-            case d_a_alink::PROC_WOLF_ATN_AC_MOVE:
-            {
-                // Check if link is currently in a cutscene
-                if (d_a_alink::checkEventRun(linkMapPtr))
-                {
-                    break;
-                }
-
-                // Ensure that link is not currently in a message-based event.
-                if (linkMapPtr->mMsgFlow.mEventId != 0)
-                {
-                    break;
-                }
-
-                d_com_inf_game::dComIfG_inf_c* gameInfo = &d_com_inf_game::dComIfG_gameInfo;
-                uint8_t* reserveBytesPtr = &gameInfo->save.save_file.reserve.unk[0];
-                uint32_t itemToGive = 0xFF;
-
-                for (uint32_t i = 0; i < GIVE_PLAYER_ITEM_RESERVED_BYTES; i++)
-                {
-                    const uint32_t storedItem = reserveBytesPtr[i];
-
-                    if (storedItem)
-                    {
-                        // If we have the call to clear the queue, then we want to clear the item and break out.
-                        if (giveItemToPlayer == CLEAR_QUEUE)
-                        {
-                            reserveBytesPtr[i] = 0;
-                            giveItemToPlayer = QUEUE_EMPTY;
-                            break;
-                        }
-
-                        // If the queue is empty and we have an item to give, update the queue state.
-                        else if (giveItemToPlayer == QUEUE_EMPTY)
-                        {
-                            giveItemToPlayer = ITEM_IN_QUEUE;
-                        }
-                        itemToGive = game_patch::_04_verifyProgressiveItem(randomizer, storedItem);
-                        break;
-                    }
-                }
-
-                // if there is no item to give, break out of the case.
-                if (itemToGive == 0xFF)
-                {
-                    break;
-                }
-
-                libtp::tp::d_com_inf_game::dComIfG_play* playPtr = &gameInfo->play;
-                playPtr->mEvent.mGtItm = static_cast<uint8_t>(itemToGive);
-
-                // Set the process value for getting an item to start the "get item" cutscene when next available.
-                linkMapPtr->mProcID = libtp::tp::d_a_alink::PROC_GET_ITEM;
-
-                //  Get the event index for the "Get Item" event.
-                const int16_t eventIdx = d_event_manager::getEventIdx3(&playPtr->mEvtManager,
-                                                                       reinterpret_cast<f_op_actor::fopAc_ac_c*>(linkMapPtr),
-                                                                       "DEFAULT_GETITEM",
-                                                                       0xFF);
-
-                // Finally we want to modify the event stack to prioritize our custom event so that it happens next.
-                libtp::tp::f_op_actor_mng::fopAcM_orderChangeEventId(linkMapPtr, eventIdx, 1, 0xFFFF);
-            }
-            default:
-            {
-                break;
-            }
-        }
-    }
-
     int32_t initCreatePlayerItem(uint32_t itemID,
                                  uint32_t flag,
                                  const float pos[3],
@@ -805,22 +722,6 @@ namespace mod
         if (randoPtr->getGiveItemToPlayerStatus() == rando::EventItemStatus::ITEM_IN_QUEUE)
         {
             randoPtr->setGiveItemToPlayerStatus(rando::EventItemStatus::CLEAR_QUEUE);
-        }
-
-        return libtp::tp::f_op_actor_mng::createItemForPresentDemo(pos, item, unk3, unk4, unk5, rot, scale);
-    }
-
-    KEEP_FUNC int32_t procCoGetItemInitCreateItem(const float pos[3],
-                                                  int32_t item,
-                                                  uint8_t unk3,
-                                                  int32_t unk4,
-                                                  int32_t unk5,
-                                                  const float rot[3],
-                                                  const float scale[3])
-    {
-        if (giveItemToPlayer == ITEM_IN_QUEUE)
-        {
-            giveItemToPlayer = CLEAR_QUEUE;
         }
 
         return libtp::tp::f_op_actor_mng::createItemForPresentDemo(pos, item, unk3, unk4, unk5, rot, scale);
@@ -1260,70 +1161,6 @@ namespace mod
         }
 
         return gReturn_setNormalMsg(msgFlow, flowNode, actrPtr);
-    }
-
-    KEEP_FUNC int32_t handle_doFlow(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                    libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                    libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                    int32_t i_flow)
-    {
-        using namespace libtp::data::stage;
-        if (msgFlow->mFlow == 0xFFFE) // Check if it equals our custom flow value
-        {
-            if (msgFlow->mMsg == 0xFFFFFFFF)
-            {
-                // Clear the invalid msg value since it will be set by the game once our text is loaded.
-                msgFlow->mMsg = 0;
-
-                // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we need
-                // to unset it.
-                msgFlow->field_0x26 = 0;
-
-                if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Hyrule_Field]) ||
-                    libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Outside_Castle_Town]) ||
-                    libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Lake_Hylia]))
-                {
-                    // Hyrule Field and outside Lake Hylia do not have a valid flow node for node 0 so we want it to use its
-                    // native node (8)
-                    msgFlow->field_0x10 = 0x8;
-                }
-                else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Castle_Town]))
-                {
-                    // For Castle Town, both 1 and 2 seem to work at the very
-                    // least. If you use 4, you will also get shiny shoes.
-                    msgFlow->field_0x10 = 0x2;
-                }
-                else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Death_Mountain]))
-                {
-                    // Death Mountain does not have a valid flow node for node 0 so we want it to use its
-                    // native node (4)
-                    msgFlow->field_0x10 = 0x4;
-                }
-                else
-                {
-                    // Sets the flow to use the same flow grouping as the standard flow that getItem text uses.
-                    msgFlow->field_0x10 = 0;
-                }
-            }
-        }
-
-        return return_doFlow(msgFlow, actrPtr, actrValue, i_flow);
-    }
-
-    KEEP_FUNC int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                          void* flowNode,
-                                          libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
-    {
-        if (msgFlow->mFlow == 0xFFFE) // Check if it equals our custom flow value
-        {
-            // Set the msg id in the node to that of our specified message.
-            const uint32_t msg = libtp::tp::f_op_msg_mng::fopMsgM_messageSet(0x1360, 1000);
-
-            msgFlow->mMsg = msg;
-            return 1;
-        }
-
-        return return_setNormalMsg(msgFlow, flowNode, actrPtr);
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)
@@ -1984,54 +1821,6 @@ namespace mod
         }
 
         return gReturn_procCoGetItemInit(linkActrPtr);
-    }
-
-    KEEP_FUNC bool handle_checkBgmIDPlaying(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id)
-    {
-        // Call original function immediately as it sets necessary values.
-        const bool ret = return_checkBgmIDPlaying(seqMgr, sfx_id);
-
-        if (sfx_id == 0x01000013) // Game Over sfx
-        {
-            return false;
-        }
-
-        return ret;
-    }
-
-    KEEP_FUNC void handle_dispWait_init(libtp::tp::d_gameover::dGameOver* ptr)
-    {
-        // Set the timer
-        ptr->mTimer = 0;
-        return return_dispWait_init(ptr);
-    }
-
-    KEEP_FUNC int32_t handle_seq_decide_yes(libtp::tp::d_shop_system::dShopSystem* shopPtr,
-                                            libtp::tp::f_op_actor::fopAc_ac_c* actor,
-                                            void* msgFlow)
-    {
-        using namespace libtp::data::stage;
-
-        const auto stagesPtr = &allStages[0];
-        if (libtp::tools::playerIsInRoomStage(3, stagesPtr[StageIDs::Kakariko_Village_Interiors]))
-        {
-            // We want the shop item to have its flag updated no matter what in kak malo mart
-            libtp::tp::d_shop_system::setSoldOutFlag(shopPtr);
-        }
-
-        return return_seq_decide_yes(shopPtr, actor, msgFlow);
-    }
-
-    KEEP_FUNC int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
-    {
-        // If we are giving a custom item, we want to set mParam0 to 0x100 so that instead of trying to search for an item actor
-        // that doesnt exist we want the game to create one using the item id in mGtItm.
-        if (giveItemToPlayer == ITEM_IN_QUEUE)
-        {
-            libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer->mDemo.mParam0 = 0x100;
-        }
-
-        return return_procCoGetItemInit(linkActrPtr);
     }
 
     KEEP_FUNC void* handle_dScnLogo_c_dt(void* dScnLogo_c, int16_t bFreeThis)
