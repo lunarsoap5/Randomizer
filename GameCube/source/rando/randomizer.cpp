@@ -554,7 +554,7 @@ namespace mod::rando
 
         if (j == 0) // No matches were found or there are no entries in the seed.
         {
-            delete loadedBmdEntries;
+            delete[] loadedBmdEntries;
             return nullptr;
         }
 
@@ -638,7 +638,7 @@ namespace mod::rando
                 }
             }
 
-            delete loadedBmdEntries;
+            delete[] loadedBmdEntries;
         }
     }
 

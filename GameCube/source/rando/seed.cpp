@@ -237,42 +237,42 @@ namespace mod::rando
 
         if (this->m_DZXChecks)
         {
-            delete this->m_DZXChecks;
+            delete[] this->m_DZXChecks;
         }
 
         if (this->m_RELChecks)
         {
-            delete this->m_RELChecks;
+            delete[] this->m_RELChecks;
         }
 
         if (this->m_PoeChecks)
         {
-            delete this->m_PoeChecks;
+            delete[] this->m_PoeChecks;
         }
 
         if (this->m_BossChecks)
         {
-            delete this->m_BossChecks;
+            delete[] this->m_BossChecks;
         }
 
         if (this->m_BugRewardChecks)
         {
-            delete this->m_BugRewardChecks;
+            delete[] this->m_BugRewardChecks;
         }
 
         if (this->m_SkyBookChecks)
         {
-            delete this->m_SkyBookChecks;
+            delete[] this->m_SkyBookChecks;
         }
 
         if (this->m_HiddenSkillChecks)
         {
-            delete this->m_HiddenSkillChecks;
+            delete[] this->m_HiddenSkillChecks;
         }
 
         if (this->m_EventChecks)
         {
-            delete this->m_EventChecks;
+            delete[] this->m_EventChecks;
         }
     }
 
@@ -569,7 +569,7 @@ namespace mod::rando
         // Until a better way is found, we are going to clear the buffer here just to be safe
         if (this->m_ArcReplacements)
         {
-            delete this->m_ArcReplacements;
+            delete[] this->m_ArcReplacements;
         }
 
         const EntryInfo* arcCheckInfoPtr = this->m_Header->getArcCheckInfoPtr();
@@ -635,7 +635,7 @@ namespace mod::rando
         // Until a better way is found, we are going to clear the buffer here just to be safe
         if (this->m_ObjectArcReplacements)
         {
-            delete this->m_ObjectArcReplacements;
+            delete[] this->m_ObjectArcReplacements;
         }
 
         const EntryInfo* objectArcCheckInfoPtr = this->m_Header->getObjectArcCheckInfoPtr();

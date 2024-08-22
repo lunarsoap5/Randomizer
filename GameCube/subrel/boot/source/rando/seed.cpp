@@ -123,51 +123,53 @@ namespace mod::rando
 
         if (this->m_DZXChecks)
         {
-            delete this->m_DZXChecks;
+            delete[] this->m_DZXChecks;
         }
 
         if (this->m_RELChecks)
         {
-            delete this->m_RELChecks;
+            delete[] this->m_RELChecks;
         }
 
         if (this->m_PoeChecks)
         {
-            delete this->m_PoeChecks;
+            delete[] this->m_PoeChecks;
         }
 
         if (this->m_BossChecks)
         {
-            delete this->m_BossChecks;
+            delete[] this->m_BossChecks;
         }
 
         if (this->m_BugRewardChecks)
         {
-            delete this->m_BugRewardChecks;
+            delete[] this->m_BugRewardChecks;
         }
 
         if (this->m_SkyBookChecks)
         {
-            delete this->m_SkyBookChecks;
+            delete[] this->m_SkyBookChecks;
         }
 
         if (this->m_HiddenSkillChecks)
         {
-            delete this->m_HiddenSkillChecks;
+            delete[] this->m_HiddenSkillChecks;
         }
 
         if (this->m_EventChecks)
         {
-            delete this->m_EventChecks;
+            delete[] this->m_EventChecks;
         }
 
         if (this->m_BgmTable)
         {
+            // m_BgmTable should have been allocated via a uint8_t array, so use delete instead of delete[]
             delete this->m_BgmTable;
         }
 
         if (this->m_FanfareTable)
         {
+            // m_FanfareTable should have been allocated via a uint8_t array, so use delete instead of delete[]
             delete this->m_FanfareTable;
         }
     }
