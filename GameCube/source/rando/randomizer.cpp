@@ -61,7 +61,6 @@ namespace mod::rando
         switch (stageIDX)
         {
             case libtp::data::stage::StageIDs::Hyrule_Field:
-            case libtp::data::stage::StageIDs::Kakariko_Village:
             case libtp::data::stage::StageIDs::Kakariko_Graveyard:
             case libtp::data::stage::StageIDs::Fishing_Pond:
             case libtp::data::stage::StageIDs::Zoras_Domain:
@@ -83,6 +82,17 @@ namespace mod::rando
             case libtp::data::stage::StageIDs::Death_Mountain:
             case libtp::data::stage::StageIDs::City_in_the_Sky:
             {
+                if (seedPtr->shopModelsAreModified())
+                {
+                    seedPtr->loadShopModels();
+                }
+                break;
+            }
+
+            // Kak is a special case where it can have shop items and field items.
+            case libtp::data::stage::StageIDs::Kakariko_Village:
+            {
+                game_patch::_02_modifyFoolishFieldModel();
                 if (seedPtr->shopModelsAreModified())
                 {
                     seedPtr->loadShopModels();
@@ -593,6 +603,11 @@ namespace mod::rando
 
                 switch (currentBmdEntry->getArchiveIndex())
                 {
+                    case DvdEntryNumId::ResObjectAlinkMS:
+                    {
+                        snprintf(buf, sizeof(buf), "bmwe/%s", currentBmdEntry->getBmdResPtr());
+                        break;
+                    }
                     case DvdEntryNumId::ResObjectOgZORA:
                     {
                         snprintf(buf, sizeof(buf), "bmdr/%s", currentBmdEntry->getBmdResPtr());

@@ -44,6 +44,8 @@ namespace mod::rando
 #ifdef TP_EU
             this->m_CurrentLanguage = libtp::tp::d_s_logo::getPalLanguage2(nullptr);
 #endif
+            // Generate the BGM/Fanfare table data
+            seedPtr->loadBgmData();
             seedPtr->loadShuffledEntrances();
 
             // getConsole() << "Applying one-time patches:\n";

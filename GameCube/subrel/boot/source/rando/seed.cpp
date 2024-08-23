@@ -82,9 +82,6 @@ namespace mod::rando
 
         memcpy(const_cast<uint8_t*>(gciDataPtr), &data[headerPtr->getHeaderSize()], dataSize);
 
-        // Generate the BGM/Fanfare table data
-        loadBgmData(data);
-
         const uint32_t clr0Offset = headerPtr->getClr0Offset();
         const CLR0Header* cLR0Ptr = reinterpret_cast<const CLR0Header*>(gciDataPtr + clr0Offset);
         this->m_CLR0 = cLR0Ptr;
@@ -199,43 +196,23 @@ namespace mod::rando
         }
     }
 
-    void Seed::loadBgmData(uint8_t* data)
+    void Seed::loadBgmData()
     {
-        const Header* headerPtr = this->m_Header;
-        const uint32_t headerOffset = headerPtr->getHeaderSize() + headerPtr->getBgmHeaderOffset();
+        const EntryInfo* shuffledBgmInfoPtr = this->m_Header->getBgmTableInfoPtr();
+        uint32_t num_shuffledTracks = shuffledBgmInfoPtr->getNumEntries();
+        uint32_t gci_offset = shuffledBgmInfoPtr->getDataOffset();
 
-        // Get the Bgm Header
-        const BGMHeader* customBgmHeader = reinterpret_cast<const BGMHeader*>(&data[headerOffset]);
+        // Set the pointer as offset into our buffer
+        this->m_BgmTable = reinterpret_cast<const BGMReplacement*>(&this->m_GCIData[gci_offset]);
+        this->m_BgmTableEntries = num_shuffledTracks;
 
-        // Handle any bgm entries
-        const uint32_t bgmTableEntries = customBgmHeader->getBgmTableNumEntries();
-        if (bgmTableEntries > 0)
-        {
-            // Align to uint32_t, as the table is an array of structs with a size of 0x4 each
-            const uint32_t bgmTableSize = customBgmHeader->getBgmTableSize();
-            uint8_t* buf = new (sizeof(uint32_t)) uint8_t[bgmTableSize];
-            const uint32_t offset = headerOffset + customBgmHeader->getBgmTableOffset();
-            memcpy(buf, &data[offset], bgmTableSize);
+        const EntryInfo* shuffledFanfareInfoPtr = this->m_Header->getFanfareTableInfoPtr();
+        num_shuffledTracks = shuffledFanfareInfoPtr->getNumEntries();
+        gci_offset = shuffledFanfareInfoPtr->getDataOffset();
 
-            // Assign the entry count and buffer
-            this->m_BgmTableEntries = static_cast<uint8_t>(bgmTableEntries);
-            this->m_BgmTable = reinterpret_cast<BGMReplacement*>(buf);
-        }
-
-        // Handle any fanfare entries
-        const uint32_t fanfareTableEntries = customBgmHeader->getFanfareTableNumEntries();
-        if (fanfareTableEntries > 0)
-        {
-            // Align to uint32_t, as the table is an array of structs with a size of 0x4 each
-            const uint32_t fanfareTableSize = customBgmHeader->getFanfareTableSize();
-            uint8_t* buf = new (sizeof(uint32_t)) uint8_t[fanfareTableSize];
-            const uint32_t offset = headerOffset + customBgmHeader->getFanfareTableOffset();
-            memcpy(buf, &data[offset], fanfareTableSize);
-
-            // Assign the entry count and buffer
-            this->m_FanfareTableEntries = static_cast<uint8_t>(fanfareTableEntries);
-            this->m_FanfareTable = reinterpret_cast<BGMReplacement*>(buf);
-        }
+        // Set the pointer as offset into our buffer
+        this->m_FanfareTable = reinterpret_cast<const BGMReplacement*>(&this->m_GCIData[gci_offset]);
+        this->m_FanfareTableEntries = num_shuffledTracks;
     }
 
     void Seed::loadShuffledEntrances()

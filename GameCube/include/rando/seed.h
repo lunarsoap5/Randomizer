@@ -79,7 +79,6 @@ namespace mod::rando
         uint16_t getDataSize() const { return this->dataSize; }
         uint32_t getTotalSize() const { return this->totalSize; }
 
-        uint16_t getBgmHeaderOffset() const { return this->bgmHeaderOffset; }
         uint16_t getClr0Offset() const { return this->clr0Offset; }
         uint16_t getCustomTextHeaderSize() const { return this->customTextHeaderSize; }
         uint16_t getCustomTextHeaderOffset() const { return this->customTextHeaderOffset; }
@@ -108,6 +107,8 @@ namespace mod::rando
         const EntryInfo* getEventItemCheckInfoPtr() const { return &this->eventItemCheckInfo; }
         const EntryInfo* getStartingItemCheckInfoPtr() const { return &this->startingItemInfo; }
         const EntryInfo* getEntranceTableCheckInfoPtr() const { return &this->entranceTableInfo; }
+        const EntryInfo* getBgmTableInfoPtr() const { return &this->bgmTableInfo; }
+        const EntryInfo* getFanfareTableInfoPtr() const { return &this->fanfareTableInfo; }
 
        private:
         /* 0x00 */ char magic[3]; // Not null terminated, should always be TPR
@@ -147,16 +148,18 @@ namespace mod::rando
         /* 0x6C */ EntryInfo eventItemCheckInfo;
         /* 0x70 */ EntryInfo startingItemInfo;
         /* 0x74 */ EntryInfo entranceTableInfo;
-        /* 0x78 */ uint16_t bgmHeaderOffset;
-        /* 0x7A */ uint16_t clr0Offset;
-        /* 0x7C */ uint16_t customTextHeaderSize;
-        /* 0x7E */ uint16_t customTextHeaderOffset;
-        /* 0x80 */ uint8_t castleRequirements;
-        /* 0x81 */ uint8_t palaceRequirements;
-        /* 0x82 */ uint8_t mapClearBits;
-        /* 0x83 */ uint8_t damageMagnification;
-        /* 0x84 */ uint8_t startingTimeOfDay;
-        /* 0x85 */ uint8_t padding[3];
+        /* 0x78 */ EntryInfo bgmTableInfo;
+        /* 0x7C */ EntryInfo fanfareTableInfo;
+        /* 0x80 */ EntryInfo sfxTableInfo;
+        /* 0x84 */ uint16_t clr0Offset;
+        /* 0x86 */ uint16_t customTextHeaderSize;
+        /* 0x88 */ uint16_t customTextHeaderOffset;
+        /* 0x8A */ uint8_t castleRequirements;
+        /* 0x8B */ uint8_t palaceRequirements;
+        /* 0x8C */ uint8_t mapClearBits;
+        /* 0x8D */ uint8_t damageMagnification;
+        /* 0x8E */ uint8_t startingTimeOfDay;
+        /* 0x8F */ uint8_t padding;
     } __attribute__((__packed__));
 
     class Seed
@@ -231,6 +234,8 @@ namespace mod::rando
         uint16_t getNumLoadedEventChecks() const { return this->m_NumLoadedEventChecks; }
         uint16_t getNumLoadedObjectArcReplacements() const { return this->m_NumLoadedObjectArcReplacements; }
         uint16_t getNumShuffledEntrances() const { return this->m_NumShuffledEntrances; }
+        uint16_t getNumShuffledBgmTracks() const { return this->m_BgmTableEntries; }
+        uint16_t getNumShuffledFanfares() const { return this->m_FanfareTableEntries; }
 
         uint8_t getStageIDX() const { return this->m_StageIDX; }
 
@@ -255,7 +260,7 @@ namespace mod::rando
         void loadShopModels();
         void loadShuffledEntrances();
         void clearChecks(void);
-        void loadBgmData(uint8_t* data);
+        void loadBgmData();
 
        private:
         void applyEventFlags(void);

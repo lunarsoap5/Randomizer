@@ -15,28 +15,6 @@
 
 namespace mod::rando
 {
-    class BGMHeader
-    {
-       public:
-        BGMHeader() {}
-        ~BGMHeader() {}
-
-        uint16_t getBgmTableSize() const { return this->bgmTableSize; }
-        uint16_t getFanfareTableSize() const { return this->fanfareTableSize; }
-        uint16_t getBgmTableOffset() const { return this->bgmTableOffset; }
-        uint16_t getFanfareTableOffset() const { return this->fanfareTableOffset; }
-        uint8_t getBgmTableNumEntries() const { return this->bgmTableNumEntries; }
-        uint8_t getFanfareTableNumEntries() const { return this->fanfareTableNumEntries; }
-
-       private:
-        uint16_t bgmTableSize;
-        uint16_t fanfareTableSize;
-        uint16_t bgmTableOffset;
-        uint16_t fanfareTableOffset;
-        uint8_t bgmTableNumEntries;
-        uint8_t fanfareTableNumEntries;
-        uint8_t padding[2];
-    } __attribute__((__packed__));
 
     class BGMReplacement
     {
@@ -464,13 +442,15 @@ namespace mod::rando
     {
         // DO NOT set any of these enums to a specific value. The exact values and the order are irrelevant (other than
         // DvdEntryNumIdSize which must go last).
-        ResObjectKmdl,   // Link wearing Hero's Clothes
-        ResObjectZmdl,   // Link wearing Zora Armor
-        ResObjectOgZORA, // Zora Armor Get Item
-                         // ResObjectWmdl,      // Wolf Link and Midna on back
-                         // ResObjectCWShd,     // Ordon Shield
-                         // ResObjectSWShd,     // Wooden Shield
-                         // ResObjectHyShd,     // Hylian Shield
+        ResObjectKmdl,    // Link wearing Hero's Clothes
+        ResObjectZmdl,    // Link wearing Zora Armor
+        ResObjectOgZORA,  // Zora Armor Get Item
+        ResObjectAlinkMS, // The Master Sword textures use a different directory
+        ResObjectAlink,   // Link's Equipment
+                          // ResObjectWmdl,      // Wolf Link and Midna on back
+                          // ResObjectCWShd,     // Ordon Shield
+                          // ResObjectSWShd,     // Wooden Shield
+                          // ResObjectHyShd,     // Hylian Shield
 
         DvdEntryNumIdSize,
         // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above this one and don't forget to actually add the

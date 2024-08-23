@@ -245,13 +245,13 @@ namespace mod
 
         // Audio functions
         // Only hook sceneChange if there is at least one replacement audio
-        if (seedPtr->getBgmTablePtr())
+        if (seedPtr->getNumShuffledBgmTracks() > 0)
         {
             gReturn_sceneChange = patch::hookFunction(libtp::z2audiolib::z2scenemgr::sceneChange, handle_sceneChange);
         }
 
         // Only hook startSound if there is at least one replacement audio
-        if (seedPtr->getFanfareTablePtr())
+        if (seedPtr->getNumShuffledFanfares() > 0)
         {
             gReturn_startSound = patch::hookFunction(libtp::z2audiolib::z2soundmgr::startSound, handle_startSound);
         }
@@ -297,6 +297,10 @@ namespace mod
 
         // Zora Armor - Get Item
         randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/O_gD_zora.arc"), DvdEntryNumId::ResObjectOgZORA);
+
+        // Link's Equipment
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Alink.arc"), DvdEntryNumId::ResObjectAlinkMS);
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Alink.arc"), DvdEntryNumId::ResObjectAlink);
 
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/CWShd.arc"), DvdEntryNumId::ResObjectCWShd);
