@@ -40,11 +40,11 @@ namespace mod::rando
             this->m_GoldenWolfItemReplacement.setItemActorId(-1);
             this->m_GameState = GameState::GAME_BOOT;
             this->m_GiveItemToPlayerStatus = EventItemStatus::QUEUE_EMPTY;
-            this->initRandState();
-
 #ifdef TP_EU
             this->m_CurrentLanguage = libtp::tp::d_s_logo::getPalLanguage2(nullptr);
 #endif
+            this->initRandState();
+
             // Generate the BGM/Fanfare table data
             seedPtr->loadBgmData();
             seedPtr->loadShuffledEntrances();

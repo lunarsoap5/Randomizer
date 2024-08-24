@@ -34,6 +34,9 @@ namespace mod::rando
     Seed::Seed(int32_t chan)
 #endif
     {
+        // Initialize variables
+        this->m_StageIDX = 0xFF;
+
         getConsole() << "Loading seed...\n";
 
         uint8_t* data;

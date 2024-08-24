@@ -272,45 +272,45 @@ namespace mod::rando
         void LoadEventChecks(uint8_t stageIDX);
         void loadCustomText(const uint8_t* data);
 
-        const Header* m_Header = nullptr;
-        const uint8_t* m_GCIData = nullptr;
+        const Header* m_Header;
+        const uint8_t* m_GCIData;
 
-        const DZXCheck* m_DZXChecks = nullptr;             // DZX replacement checks for current stage
-        const RELCheck* m_RELChecks = nullptr;             // REL Modifications for current stage
-        const PoeCheck* m_PoeChecks = nullptr;             // Poe Checks for current stage
-        const ARCReplacement* m_ArcReplacements = nullptr; // Checks for the currently loaded .arc file
-        const BossCheck* m_BossChecks = nullptr;
-        const HiddenSkillCheck* m_HiddenSkillChecks = nullptr;
-        const BugReward* m_BugRewardChecks = nullptr;
-        const SkyCharacter* m_SkyBookChecks = nullptr;
-        const ObjectArchiveReplacement* m_ObjectArcReplacements = nullptr;
-        const EventItem* m_EventChecks = nullptr;
+        const DZXCheck* m_DZXChecks;             // DZX replacement checks for current stage
+        const RELCheck* m_RELChecks;             // REL Modifications for current stage
+        const PoeCheck* m_PoeChecks;             // Poe Checks for current stage
+        const ARCReplacement* m_ArcReplacements; // Checks for the currently loaded .arc file
+        const BossCheck* m_BossChecks;
+        const HiddenSkillCheck* m_HiddenSkillChecks;
+        const BugReward* m_BugRewardChecks;
+        const SkyCharacter* m_SkyBookChecks;
+        const ObjectArchiveReplacement* m_ObjectArcReplacements;
+        const EventItem* m_EventChecks;
 
-        const BGMReplacement* m_BgmTable = nullptr;     // Bgm replacement data
-        const BGMReplacement* m_FanfareTable = nullptr; // Fanfare replacement data
-        const ShuffledEntrance* m_ShuffledEntrances = nullptr;
-        const CLR0Header* m_CLR0 = nullptr;
-        const RawRGBTable* m_RawRGBTable = nullptr;
-        const BMDEntry* m_BmdEntries = nullptr;
+        const BGMReplacement* m_BgmTable;     // Bgm replacement data
+        const BGMReplacement* m_FanfareTable; // Fanfare replacement data
+        const ShuffledEntrance* m_ShuffledEntrances;
+        const CLR0Header* m_CLR0;
+        const RawRGBTable* m_RawRGBTable;
+        const BMDEntry* m_BmdEntries;
 
-        uint16_t m_NumLoadedDZXChecks = 0;       // Number of currently loaded DZXCheck
-        uint16_t m_NumLoadedRELChecks = 0;       // Number of currently loaded RELCheck
-        uint16_t m_NumLoadedPOEChecks = 0;       // Number of currently loaded POEChecks
-        uint16_t m_NumLoadedArcReplacements = 0; // Number of currently loaded ArcChecks
-        uint16_t m_NumHiddenSkillChecks = 0;
-        uint16_t m_NumBugRewardChecks = 0;
-        uint16_t m_NumSkyBookChecks = 0;
-        uint16_t m_NumLoadedEventChecks = 0;
-        uint16_t m_NumLoadedObjectArcReplacements = 0;
-        uint16_t m_NumShuffledEntrances = 0;
-        uint16_t m_BgmTableEntries = 0;
-        uint16_t m_FanfareTableEntries = 0;
+        uint16_t m_NumLoadedDZXChecks;       // Number of currently loaded DZXCheck
+        uint16_t m_NumLoadedRELChecks;       // Number of currently loaded RELCheck
+        uint16_t m_NumLoadedPOEChecks;       // Number of currently loaded POEChecks
+        uint16_t m_NumLoadedArcReplacements; // Number of currently loaded ArcChecks
+        uint16_t m_NumHiddenSkillChecks;
+        uint16_t m_NumBugRewardChecks;
+        uint16_t m_NumSkyBookChecks;
+        uint16_t m_NumLoadedEventChecks;
+        uint16_t m_NumLoadedObjectArcReplacements;
+        uint16_t m_NumShuffledEntrances;
+        uint16_t m_BgmTableEntries;
+        uint16_t m_FanfareTableEntries;
 
-        uint16_t m_PatchesApplied = 0;
-        uint16_t m_EventFlagsModified = 0;
-        uint16_t m_AreaFlagsModified = 0;
+        uint16_t m_PatchesApplied;
+        uint16_t m_EventFlagsModified;
+        uint16_t m_AreaFlagsModified;
 
-        uint8_t m_StageIDX = 0xFF; // StageIDX from last Checkload
+        uint8_t m_StageIDX; // StageIDX from last Checkload
     };
 } // namespace mod::rando
 #endif
