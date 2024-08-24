@@ -93,12 +93,13 @@ namespace mod::rando
         ShopCheck() {}
         ~ShopCheck() {}
 
-        uint16_t getShopItemID() const { return this->shopItemID; }
-        uint16_t getReplacementItemID() const { return this->replacementItemID; }
+        uint8_t getShopItemID() const { return this->shopItemID; }
+        uint8_t getReplacementItemID() const { return this->replacementItemID; }
 
        private:
-        uint16_t shopItemID;        // target item id
-        uint16_t replacementItemID; // replacement item id
+        uint8_t shopItemID;        // target item id
+        uint8_t replacementItemID; // replacement item id
+        uint8_t padding[2];
     } __attribute__((__packed__));
 
     class RELCheck
