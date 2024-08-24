@@ -361,13 +361,14 @@ namespace mod::rando
 
         // Loop through all ArcChecks and replace the item at an offset given the fileIndex.
         const uint32_t numReplacements = seedPtr->getNumLoadedArcReplacements();
+        const ARCReplacement* arcReplacements = seedPtr->getArcReplacementsPtr();
+
         for (uint32_t i = 0; i < numReplacements; i++)
         {
-            const ARCReplacement* arcReplacement = seedPtr->getArcReplacementsPtr();
-            uint32_t replacementValue = arcReplacement->getReplacementValue();
-            const uint32_t replacementOffset = arcReplacement->getOffset();
+            uint32_t replacementValue = arcReplacements[i].getReplacementValue();
+            const uint32_t replacementOffset = arcReplacements[i].getOffset();
 
-            switch (arcReplacement[i].getReplacementType())
+            switch (arcReplacements[i].getReplacementType())
             {
                 case rando::ReplacementType::Item:
                 {
