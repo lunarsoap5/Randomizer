@@ -142,8 +142,8 @@ namespace mod::rando
             this->m_SeedInit = false;
         }
 
-        void onStageLoad(void);
-        void initSave(void);
+        void onStageLoad();
+        void initSave();
         void initRandState();
         void overrideREL();
         void overrideDZX(libtp::tp::dzx::ChunkTypeInfo* chunkTypeInfo);

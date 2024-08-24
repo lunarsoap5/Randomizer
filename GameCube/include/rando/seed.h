@@ -181,7 +181,7 @@ namespace mod::rando
         /**
          *  @brief Applies patches, event & region flags according from this seed to the current savefile
          */
-        bool InitSeed(void);
+        bool InitSeed();
 
         /**
          *  @brief Load check data for a given stage & stores them in a temp. (smaller) buffer
@@ -254,13 +254,13 @@ namespace mod::rando
 
         void loadShopModels();
         void loadShuffledEntrances();
-        void clearChecks(void);
+        void clearChecks();
         void loadBgmData();
 
        private:
-        void applyEventFlags(void);
-        void applyRegionFlags(void);
-        void giveStartingItems(void);
+        void applyEventFlags();
+        void applyRegionFlags();
+        void giveStartingItems();
 
         void LoadDZX(uint8_t stageIDX);
         void LoadREL(uint8_t stageIDX);

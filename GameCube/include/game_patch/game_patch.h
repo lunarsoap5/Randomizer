@@ -43,7 +43,7 @@ namespace mod::game_patch
     /**
      * @brief Patches the unused itemFunc corresponding to the poe itemID
      */
-    void _00_poe(void);
+    void _00_poe();
     void _00_handle_poeItem();
 
     // 01 - Function definitions used for setting up the custom state function(s)

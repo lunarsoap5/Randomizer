@@ -48,7 +48,7 @@ namespace mod::rando
         return originalItem;
     }
 
-    void Randomizer::onStageLoad(void)
+    void Randomizer::onStageLoad()
     {
         const char* stage = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage.mStage;
         Seed* seedPtr = this->m_Seed;
@@ -106,7 +106,7 @@ namespace mod::rando
         }
     }
 
-    void Randomizer::initSave(void)
+    void Randomizer::initSave()
     {
         this->m_SeedInit = this->m_Seed->InitSeed();
     }

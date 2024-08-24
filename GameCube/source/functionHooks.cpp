@@ -20,7 +20,7 @@
 namespace mod
 {
     // Function hook return trampolines
-    KEEP_VAR void (*gReturn_fapGm_Execute)(void) = nullptr;
+    KEEP_VAR void (*gReturn_fapGm_Execute)() = nullptr;
 
     // DMC (REL) Hook
     KEEP_VAR bool (*gReturn_do_unlink)(libtp::tp::dynamic_link::DynamicModuleControl* dmc) = nullptr;

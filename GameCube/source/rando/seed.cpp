@@ -48,7 +48,7 @@ namespace mod::rando
         return flagIsEnabled(bitfieldPtr, num_bytes, flag);
     }
 
-    bool Seed::InitSeed(void)
+    bool Seed::InitSeed()
     {
         // (Re)set counters & status
         this->m_AreaFlagsModified = 0;

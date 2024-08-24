@@ -23,9 +23,9 @@
 namespace mod
 {
     // Function hook handlers & trampolines
-    void handle_fapGm_Execute_FailLoadSeed(void);
-    void handle_fapGm_Execute(void);
-    extern void (*gReturn_fapGm_Execute)(void);
+    void handle_fapGm_Execute_FailLoadSeed();
+    void handle_fapGm_Execute();
+    extern void (*gReturn_fapGm_Execute)();
 
     // DMC (REL) Hook
     bool handle_do_unlink(libtp::tp::dynamic_link::DynamicModuleControl* dmc);
