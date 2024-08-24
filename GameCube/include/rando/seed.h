@@ -239,11 +239,6 @@ namespace mod::rando
 
         uint8_t getStageIDX() const { return this->m_StageIDX; }
 
-        uint8_t getBgmTableEntries() const { return this->m_BgmTableEntries; }
-        uint8_t getFanfareTableEntries() const { return this->m_FanfareTableEntries; }
-
-        bool volatilePatchFlagIsEnabled(uint32_t flag) const;
-        bool oneTimePatchFlagIsEnabled(uint32_t flag) const;
         bool flagBitfieldFlagIsEnabled(uint32_t flag) const;
 
         bool canTransformAnywhere() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::TRANSFORM_ANYWHERE); }
@@ -308,15 +303,14 @@ namespace mod::rando
         uint16_t m_NumLoadedEventChecks = 0;
         uint16_t m_NumLoadedObjectArcReplacements = 0;
         uint16_t m_NumShuffledEntrances = 0;
+        uint16_t m_BgmTableEntries = 0;
+        uint16_t m_FanfareTableEntries = 0;
 
         uint16_t m_PatchesApplied = 0;
         uint16_t m_EventFlagsModified = 0;
         uint16_t m_AreaFlagsModified = 0;
 
         uint8_t m_StageIDX = 0xFF; // StageIDX from last Checkload
-
-        uint8_t m_BgmTableEntries = 0;
-        uint8_t m_FanfareTableEntries = 0;
     };
 } // namespace mod::rando
 #endif

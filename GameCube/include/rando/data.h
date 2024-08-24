@@ -15,7 +15,6 @@
 
 namespace mod::rando
 {
-
     class BGMReplacement
     {
        public:
@@ -134,8 +133,9 @@ namespace mod::rando
 
        private:
         uint8_t stageIDX;
-        uint8_t flag;  // Flag used for identification
-        uint16_t item; // New item id
+        uint8_t flag; // Flag used for identification
+        uint8_t item; // New item id
+        uint8_t padding;
     } __attribute__((__packed__));
 
     enum class FileDirectory : uint8_t
@@ -207,7 +207,8 @@ namespace mod::rando
 
        private:
         uint16_t stageIDX; // The stage where the replacement is taking place.
-        uint16_t item;     // New item id
+        uint8_t item;      // New item id
+        uint8_t padding;
     } __attribute__((__packed__));
 
     class HiddenSkillCheck
@@ -237,8 +238,9 @@ namespace mod::rando
         uint16_t getItemId() const { return this->itemID; }
 
        private:
-        uint16_t bugID;  // The bug that link is showing to Agitha
-        uint16_t itemID; // The item that Agitha will give Link.
+        uint16_t bugID; // The bug that link is showing to Agitha
+        uint8_t itemID; // The item that Agitha will give Link.
+        uint8_t padding;
     } __attribute__((__packed__));
 
     class SkyCharacter
@@ -247,13 +249,13 @@ namespace mod::rando
         SkyCharacter() {}
         ~SkyCharacter() {}
 
-        uint8_t getItemId() const { return this->itemID; }
         uint16_t getStageIDX() const { return this->stageIDX; }
+        uint8_t getItemId() const { return this->itemID; }
         uint8_t getRoomID() const { return this->roomID; }
 
        private:
-        uint8_t itemID;    // The item to be given.
         uint16_t stageIDX; // The stage that the Owl Statue is located.
+        uint8_t itemID;    // The item to be given.
         uint8_t roomID;    // The room that the Owl Statue is located in.
     } __attribute__((__packed__));
 

@@ -157,62 +157,52 @@ namespace mod::rando
         {
             delete[] this->m_EventChecks;
         }
-
-        if (this->m_BgmTable)
-        {
-            // m_BgmTable should have been allocated via a uint8_t array, so use delete instead of delete[]
-            delete this->m_BgmTable;
-        }
-
-        if (this->m_FanfareTable)
-        {
-            // m_FanfareTable should have been allocated via a uint8_t array, so use delete instead of delete[]
-            delete this->m_FanfareTable;
-        }
-    }
-
-    bool Seed::oneTimePatchFlagIsEnabled(uint32_t flag) const
-    {
-        const EntryInfo* oneTimePatchInfoPtr = this->getHeaderPtr()->getOneTimePatchInfoPtr();
-        const uint32_t num_bytes = oneTimePatchInfoPtr->getNumEntries();
-        const uint32_t gci_offset = oneTimePatchInfoPtr->getDataOffset();
-
-        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
-        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
     }
 
     void Seed::applyOneTimePatches()
     {
-        using namespace libtp;
+        const EntryInfo* oneTimePatchInfoPtr = this->getHeaderPtr()->getOneTimePatchInfoPtr();
+        const uint32_t num_bytes = oneTimePatchInfoPtr->getNumEntries();
+        const uint32_t gci_offset = oneTimePatchInfoPtr->getDataOffset();
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
 
         constexpr uint32_t totalOneTimePatches = sizeof(user_patch::oneTimePatches) / sizeof(user_patch::oneTimePatches[0]);
+        uint32_t patchesApplied = this->m_PatchesApplied;
+
         for (uint32_t i = 0; i < totalOneTimePatches; i++)
         {
-            if (this->oneTimePatchFlagIsEnabled(i))
+            if (flagIsEnabled(bitfieldPtr, num_bytes, i))
             {
                 user_patch::oneTimePatches[i](rando::gRandomizer);
-                this->m_PatchesApplied++;
+                patchesApplied++;
             }
         }
+
+        this->m_PatchesApplied = static_cast<uint16_t>(patchesApplied);
     }
 
     void Seed::loadBgmData()
     {
-        const EntryInfo* shuffledBgmInfoPtr = this->m_Header->getBgmTableInfoPtr();
+        const Header* headerPtr = this->m_Header;
+
+        // BGM replacement data
+        const EntryInfo* shuffledBgmInfoPtr = headerPtr->getBgmTableInfoPtr();
         uint32_t num_shuffledTracks = shuffledBgmInfoPtr->getNumEntries();
         uint32_t gci_offset = shuffledBgmInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        this->m_BgmTable = reinterpret_cast<const BGMReplacement*>(&this->m_GCIData[gci_offset]);
-        this->m_BgmTableEntries = num_shuffledTracks;
+        const uint8_t* gciDataPtr = &this->m_GCIData[0];
+        this->m_BgmTable = reinterpret_cast<const BGMReplacement*>(&gciDataPtr[gci_offset]);
+        this->m_BgmTableEntries = static_cast<uint16_t>(num_shuffledTracks);
 
-        const EntryInfo* shuffledFanfareInfoPtr = this->m_Header->getFanfareTableInfoPtr();
-        num_shuffledTracks = shuffledFanfareInfoPtr->getNumEntries();
-        gci_offset = shuffledFanfareInfoPtr->getDataOffset();
+        // Fanfare replacement data
+        shuffledBgmInfoPtr = headerPtr->getFanfareTableInfoPtr();
+        num_shuffledTracks = shuffledBgmInfoPtr->getNumEntries();
+        gci_offset = shuffledBgmInfoPtr->getDataOffset();
 
         // Set the pointer as offset into our buffer
-        this->m_FanfareTable = reinterpret_cast<const BGMReplacement*>(&this->m_GCIData[gci_offset]);
-        this->m_FanfareTableEntries = num_shuffledTracks;
+        this->m_FanfareTable = reinterpret_cast<const BGMReplacement*>(&gciDataPtr[gci_offset]);
+        this->m_FanfareTableEntries = static_cast<uint16_t>(num_shuffledTracks);
     }
 
     void Seed::loadShuffledEntrances()
@@ -223,7 +213,7 @@ namespace mod::rando
 
         // Set the pointer as offset into our buffer
         this->m_ShuffledEntrances = reinterpret_cast<const ShuffledEntrance*>(&this->m_GCIData[gci_offset]);
-        this->m_NumShuffledEntrances = num_shuffledEntrances;
+        this->m_NumShuffledEntrances = static_cast<uint16_t>(num_shuffledEntrances);
     }
 
     void Seed::loadCustomText(const uint8_t* data)

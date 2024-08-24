@@ -38,16 +38,6 @@ namespace mod::rando
         return (bitfieldPtr[flag / bitsPerWord] >> (flag % bitsPerWord)) & 1U;
     }
 
-    bool Seed::volatilePatchFlagIsEnabled(uint32_t flag) const
-    {
-        const EntryInfo* volatilePatchInfoPtr = this->getHeaderPtr()->getVolatilePatchInfoPtr();
-        const uint32_t num_bytes = volatilePatchInfoPtr->getNumEntries();
-        const uint32_t gci_offset = volatilePatchInfoPtr->getDataOffset();
-
-        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
-        return flagIsEnabled(bitfieldPtr, num_bytes, flag);
-    }
-
     KEEP_FUNC bool Seed::flagBitfieldFlagIsEnabled(uint32_t flag) const
     {
         const EntryInfo* flagBitfieldPtr = this->getHeaderPtr()->getFlagBitfieldPtr();
@@ -178,7 +168,7 @@ namespace mod::rando
         }
 
         // Set the pointer as offset into our buffer
-        const uint8_t* startingItems = reinterpret_cast<const uint8_t*>(&this->m_GCIData[gci_offset]);
+        const uint8_t* startingItems = &this->m_GCIData[gci_offset];
 
         for (uint32_t i = 0; i < num_startingItems; i++)
         {
@@ -680,17 +670,24 @@ namespace mod::rando
 
     void Seed::applyVolatilePatches()
     {
-        using namespace libtp;
+        const EntryInfo* volatilePatchInfoPtr = this->getHeaderPtr()->getVolatilePatchInfoPtr();
+        const uint32_t num_bytes = volatilePatchInfoPtr->getNumEntries();
+        const uint32_t gci_offset = volatilePatchInfoPtr->getDataOffset();
+        const uint32_t* bitfieldPtr = reinterpret_cast<const uint32_t*>(&this->m_GCIData[gci_offset]);
 
         constexpr uint32_t totalVolatilePatches = sizeof(user_patch::volatilePatches) / sizeof(user_patch::volatilePatches[0]);
+        uint32_t patchesApplied = this->m_PatchesApplied;
+
         for (uint32_t i = 0; i < totalVolatilePatches; i++)
         {
-            if (this->volatilePatchFlagIsEnabled(i))
+            if (flagIsEnabled(bitfieldPtr, num_bytes, i))
             {
                 user_patch::volatilePatches[i](rando::gRandomizer);
-                this->m_PatchesApplied++;
+                patchesApplied++;
             }
         }
+
+        this->m_PatchesApplied = static_cast<uint16_t>(patchesApplied);
     }
 
     void Seed::loadShopModels()

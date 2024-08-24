@@ -21,6 +21,7 @@ namespace mod::rando
 {
     Randomizer::Randomizer()
     {
+        // Initialize gRandomizer
         gRandomizer = this;
 
         // getConsole() << "Rando loading...\n";
@@ -69,6 +70,22 @@ namespace mod::rando
             delete seedPtr;
         }
 
+        // Free the memory used by dynamic stuff
+        if (this->m_MsgTableInfo)
+        {
+            // m_MsgTableInfo should have been allocated via a uint8_t array, which does not store an array count at the start
+            // of the array, so use delete instead of delete[]
+            delete this->m_MsgTableInfo;
+        }
+
+        if (this->m_HintMsgTableInfo)
+        {
+            // m_HintMsgTableInfo should have been allocated via a uint8_t array, which does not store an array count at the
+            // start of the array, so use delete instead of delete[]
+            delete this->m_HintMsgTableInfo;
+        }
+
+        // Done, so clear gRandomizer
         gRandomizer = nullptr;
     }
 

@@ -26,7 +26,7 @@ namespace mod
 
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::BGMReplacement* bgmTablePtr = seedPtr->getBgmTablePtr();
-        const uint32_t entries = seedPtr->getBgmTableEntries();
+        const uint32_t entries = seedPtr->getNumShuffledBgmTracks();
         const uint32_t bgmIdCheck = bgmId - 0x1000000;
 
         for (uint32_t i = 0; i < entries; i++)
@@ -68,7 +68,7 @@ namespace mod
         // Sound playing is part of the bgm table
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::BGMReplacement* fanfareTablePtr = seedPtr->getFanfareTablePtr();
-        const uint32_t entries = seedPtr->getFanfareTableEntries();
+        const uint32_t entries = seedPtr->getNumShuffledFanfares();
         const uint32_t idCheck = id - 0x1000000;
 
         for (uint32_t i = 0; i < entries; i++)
