@@ -130,7 +130,7 @@ namespace mod::rando
 
         uint8_t getStageIDX() const { return this->stageIDX; }
         uint8_t getFlag() const { return this->flag; }
-        uint16_t getItem() const { return this->item; }
+        uint8_t getItem() const { return this->item; }
 
        private:
         uint8_t stageIDX;
@@ -204,7 +204,7 @@ namespace mod::rando
         ~BossCheck() {}
 
         uint16_t getStageIDX() const { return this->stageIDX; }
-        uint16_t getItem() const { return this->item; }
+        uint8_t getItem() const { return this->item; }
 
        private:
         uint16_t stageIDX; // The stage where the replacement is taking place.
@@ -236,7 +236,7 @@ namespace mod::rando
         ~BugReward() {}
 
         uint16_t getBugId() const { return this->bugID; }
-        uint16_t getItemId() const { return this->itemID; }
+        uint8_t getItemId() const { return this->itemID; }
 
        private:
         uint16_t bugID; // The bug that link is showing to Agitha
