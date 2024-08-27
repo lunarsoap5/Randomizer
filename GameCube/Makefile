@@ -268,7 +268,7 @@ ifneq ("$(wildcard $(SEED_PATH))","")
 	@echo packing ... $(notdir $@)
 	@$(GCIPACK) $< "Custom REL File" "Twilight Princess" "($(PRINTVER)) $(PROJECT_NAME)" $(BANNERFILE) $(ICONFILE) $(GAMECODE) $(addprefix --rel ,$(SUBRELS))
 	@echo injecting seed ...
-	@$(RELSMGR) add $@ 0x53454544 $(SEED_PATH) -f
+	@$(RELSMGR) add $@ 0x53454544 $(SEED_PATH) -o $(basename $@).seeded.gci
 else
 %.gci: %.rel
 	@echo packing ... $(notdir $@)
