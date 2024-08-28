@@ -123,68 +123,144 @@ namespace mod
         libtp::display::setConsole(state, 0);
     }
 
-    bool checkButtonsPressedThisFrame(uint32_t buttons)
+    void handleAnalogButtonInputs(uint32_t combo,
+                                  libtp::tp::m_do_controller_pad::CPadInfo* padInfoPtr,
+                                  uint32_t* buttonsPressedThisFramePtr,
+                                  uint32_t* buttonsHeldPtr)
     {
         using namespace libtp::tp::m_do_controller_pad;
-        CPadInfo* padInfo = &cpadInfo[PAD_1];
 
-        return padInfo->mPressedButtonFlags & buttons;
-    }
-
-    bool checkButtonCombo(uint32_t combo, bool checkAnalog)
-    {
-        using namespace libtp::tp::m_do_controller_pad;
-        CPadInfo* padInfo = &cpadInfo[PAD_1];
-
-        // Get the buttons that are currently held and were pressed this frame
-        uint32_t buttonsHeld = padInfo->mButtonFlags;
-        uint32_t buttonsPressedThisFrame = padInfo->mPressedButtonFlags;
-
-        // Check if analog L and R should be checked
-        if (checkAnalog)
+        // Make sure at least one of the button pointers is valid
+        if (!buttonsPressedThisFramePtr && !buttonsHeldPtr)
         {
-            // Get the threshold for the analog buttons
-            constexpr float analogThreshold = 0.7f; // 70%
+            return;
+        }
 
-            rando::Randomizer* randoPtr = rando::gRandomizer;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
 
-            // Check if L is included in the button combo
-            // Analog L is currently not being used, so commented out
-            /*
-            if (combo & PadInputs::Button_L)
+        // Get the threshold for the analog buttons
+        constexpr float analogThreshold = 0.7f; // 70%
+
+        // Check if L is included in the button combo
+        // Analog L is currently not being used, so commented out
+        /*
+        if (combo & PadInputs::Button_L)
+        {
+            // Check if analog L is at 70% or more
+            if (padInfoPtr->mTriggerLeft >= analogThreshold)
             {
-                // Check if analog L is at 70% or more
-                if (padInfo->mTriggerLeft >= analogThreshold)
+                if (buttonsHeldPtr)
                 {
-                    // Manually set the bit for L being pressed
-                    buttonsHeld |= PadInputs::Button_L;
+                    *buttonsHeldPtr |= PadInputs::Button_L;
+                }
 
+                if (buttonsPressedThisFramePtr)
+                {
                     // If prevFrameAnalogL is less than 70%, then 70% was reached this frame
                     if (randoPtr->getPrevFrameAnalogL() < analogThreshold)
                     {
-                        buttonsPressedThisFrame |= PadInputs::Button_L;
-                    }
-                }
-            }
-            */
-
-            // Check if R is included in the button combo
-            if (combo & PadInputs::Button_R)
-            {
-                // Check if analog R is at 70% or more
-                if (padInfo->mTriggerRight >= analogThreshold)
-                {
-                    // Manually set the bit for R being pressed
-                    buttonsHeld |= PadInputs::Button_R;
-
-                    // If prevFrameAnalogR is less than 70%, then 70% was reached this frame
-                    if (randoPtr->getPrevFrameAnalogR() < analogThreshold)
-                    {
-                        buttonsPressedThisFrame |= PadInputs::Button_R;
+                        *buttonsPressedThisFramePtr |= PadInputs::Button_L;
                     }
                 }
             }
         }
+        */
+
+        // Check if R is included in the button combo
+        if (combo & PadInputs::Button_R)
+        {
+            // Check if analog R is at 70% or more
+            if (padInfoPtr->mTriggerRight >= analogThreshold)
+            {
+                if (buttonsHeldPtr)
+                {
+                    *buttonsHeldPtr |= PadInputs::Button_R;
+                }
+
+                if (buttonsPressedThisFramePtr)
+                {
+                    // If prevFrameAnalogR is less than 70%, then 70% was reached this frame
+                    if (randoPtr->getPrevFrameAnalogR() < analogThreshold)
+                    {
+                        *buttonsPressedThisFramePtr |= PadInputs::Button_R;
+                    }
+                }
+            }
+        }
+    }
+
+    bool checkButtonsPressedThisFrame(uint32_t buttons)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+
+        // Check if at least one button in the combo was pressed this frame
+        return cpadInfo[PAD_1].mPressedButtonFlags & buttons;
+    }
+
+    bool checkButtonsPressedThisFrameAnalog(uint32_t buttons)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Get the buttons pressed this frame
+        uint32_t buttonsPressedThisFrame = padInfoPtr->mPressedButtonFlags;
+
+        // Check if either of the analog buttons were pressed this frame past a certain threshold
+        handleAnalogButtonInputs(buttons, padInfoPtr, &buttonsPressedThisFrame, nullptr);
+
+        // Check if at least one button in the combo was pressed this frame
+        return buttonsPressedThisFrame & buttons;
+    }
+
+    bool checkButtonsHeld(uint32_t buttons)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+
+        // Check if the button combo is held
+        return (cpadInfo[PAD_1].mButtonFlags & buttons) == buttons;
+    }
+
+    bool checkButtonsHeldAnalog(uint32_t buttons)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Get the buttons held
+        uint32_t buttonsHeld = padInfoPtr->mButtonFlags;
+
+        // Check if either of the analog buttons are held past a certain threshold
+        handleAnalogButtonInputs(buttons, padInfoPtr, nullptr, &buttonsHeld);
+
+        // Check if the button combo is held
+        return (buttonsHeld & buttons) == buttons;
+    }
+
+    bool checkButtonCombo(uint32_t combo)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Check if the button combo is held
+        if ((padInfoPtr->mButtonFlags & combo) != combo)
+        {
+            return false;
+        }
+
+        // Check if at least one button in the combo was pressed this frame
+        return padInfoPtr->mPressedButtonFlags & combo;
+    }
+
+    bool checkButtonComboAnalog(uint32_t combo)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Get the buttons pressed this frame and held
+        uint32_t buttonsPressedThisFrame = padInfoPtr->mPressedButtonFlags;
+        uint32_t buttonsHeld = padInfoPtr->mButtonFlags;
+
+        // Check if either of the analog buttons are held past a certain threshold
+        handleAnalogButtonInputs(combo, padInfoPtr, &buttonsPressedThisFrame, &buttonsHeld);
 
         // Check if the button combo is held
         if ((buttonsHeld & combo) != combo)
@@ -201,7 +277,7 @@ namespace mod
         using namespace libtp::tp::m_do_controller_pad;
 
         // Check if the console should be toggled on/off
-        if (checkButtonCombo(PadInputs::Button_R | PadInputs::Button_Z, false))
+        if (checkButtonCombo(PadInputs::Button_R | PadInputs::Button_Z))
         {
             // Disable the input that was just pressed, as sometimes it could cause talking to Midna when in-game
             cpadInfo[PAD_1].mPressedButtonFlags = 0;
@@ -294,12 +370,12 @@ namespace mod
         if (!handledSpecialInputs)
         {
             // Handle generic button checks
-            if (checkButtonCombo(PadInputs::Button_R | PadInputs::Button_Y, true))
+            if (checkButtonComboAnalog(PadInputs::Button_R | PadInputs::Button_Y))
             {
                 // Handle transforming
                 events::handleQuickTransform(randoPtr);
             }
-            else if (linkMapPtr && checkButtonCombo(PadInputs::Button_R, false) && seedPtr->spinnerSpeedIsIncreased())
+            else if (linkMapPtr && checkButtonsHeld(PadInputs::Button_R) && seedPtr->spinnerSpeedIsIncreased())
             {
                 libtp::tp::f_op_actor::fopAc_ac_c* spinnerActor = libtp::tp::d_a_alink::getSpinnerActor(linkMapPtr);
 

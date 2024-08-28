@@ -52,8 +52,15 @@ namespace mod
     extern bool gConsoleState;
 
     void setConsoleScreen(bool state); // Sets visibility of console
+
+    // Functions for checking buttons pressed this frame/held
     bool checkButtonsPressedThisFrame(uint32_t buttons);
-    bool checkButtonCombo(uint32_t combo, bool checkAnalog);
+    bool checkButtonsPressedThisFrameAnalog(uint32_t buttons);
+    bool checkButtonsHeld(uint32_t buttons);
+    bool checkButtonsHeldAnalog(uint32_t buttons);
+    bool checkButtonCombo(uint32_t combo);
+    bool checkButtonComboAnalog(uint32_t combo);
+
     float intToFloat(int32_t value);
     void initGiveItemToPlayer(libtp::tp::d_a_alink::daAlink* linkMapPtr, rando::Randomizer* randoPtr);
     void handleFoolishItem(rando::Randomizer* randoPtr);
