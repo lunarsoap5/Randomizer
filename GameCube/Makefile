@@ -230,7 +230,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean_target: $(SUBREL_CLEAN)
 	@echo clean ... $(OUTPUT_FILENAME) $(VERSION)
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).rel $(OUTPUT).gci
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).rel $(OUTPUT).gci $(OUTPUT).seeded.gci
 
 $(SUBREL_CLEAN):
 	@$(MAKE) -C $(abspath subrel/$(patsubst %/,%,$(dir $@))) clean_target
