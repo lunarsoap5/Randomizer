@@ -33,6 +33,8 @@ export ROOT_DIR ?= $(CURDIR)
 
 export GCIPACK := python3 $(realpath ../bin/gcipack.py)
 
+export RELSMGR := python3 $(realpath ../bin/rels_mgr.py)
+
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
@@ -43,6 +45,8 @@ endif
 
 JSON_READ := python3 $(realpath ../bin/json_read.py)
 MAPPER := python3 $(realpath ../bin/relmapper.py)
+
+SEED_PATH := $(realpath ../bin/seed.bin)
 
 DVD ?= ""
 ifneq ($(DVD),"")
@@ -226,7 +230,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean_target: $(SUBREL_CLEAN)
 	@echo clean ... $(OUTPUT_FILENAME) $(VERSION)
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).rel $(OUTPUT).gci
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).rel $(OUTPUT).gci $(OUTPUT).seeded.gci
 
 $(SUBREL_CLEAN):
 	@$(MAKE) -C $(abspath subrel/$(patsubst %/,%,$(dir $@))) clean_target
@@ -262,6 +266,10 @@ $(SUBREL): $(MAPFILE)
 %.gci: %.rel
 	@echo packing ... $(notdir $@)
 	@$(GCIPACK) $< "Custom REL File" "Twilight Princess" "($(PRINTVER)) $(PROJECT_NAME)" $(BANNERFILE) $(ICONFILE) $(GAMECODE) $(addprefix --rel ,$(SUBRELS))
+ifneq ("$(wildcard $(SEED_PATH))","")
+	@echo injecting seed ...
+	@$(RELSMGR) add $@ 0x53454544 $(SEED_PATH) -o $(basename $@).seeded.gci
+endif
 
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .jpg extension

@@ -12,3 +12,5 @@ Generator/src/obj
 Generator/bin
 *.tga
 *.DS_Store
+
+GameCube/bin/seed.bin
