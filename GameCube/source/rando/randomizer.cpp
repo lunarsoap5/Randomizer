@@ -365,10 +365,11 @@ namespace mod::rando
 
         for (uint32_t i = 0; i < numReplacements; i++)
         {
-            uint32_t replacementValue = arcReplacements[i].getReplacementValue();
-            const uint32_t replacementOffset = arcReplacements[i].getOffset();
+            const ARCReplacement* currentArcReplacement = &arcReplacements[i];
+            uint32_t replacementValue = currentArcReplacement->getReplacementValue();
+            const uint32_t replacementOffset = currentArcReplacement->getOffset();
 
-            switch (arcReplacements[i].getReplacementType())
+            switch (currentArcReplacement->getReplacementType())
             {
                 case rando::ReplacementType::Item:
                 {
