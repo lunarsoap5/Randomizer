@@ -39,7 +39,7 @@ export GCIPACK := python3 $(realpath ../bin/gcipack.py)
 
 export RELSMGR := python3 $(realpath ../bin/rels_mgr.py)
 
-ELF2REL := elf2rel
+export ELF2REL := elf2rel
 
 JSON_READ := python3 $(realpath ../bin/json_read.py)
 MAPPER := python3 $(realpath ../bin/relmapper.py)

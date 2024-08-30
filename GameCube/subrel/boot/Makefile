@@ -19,8 +19,6 @@ OUTPUT_FILENAME := boot
 # DON'T TOUCH UNLESS YOU KNOW WHAT YOU'RE DOING
 LIBTP_REL := $(ROOT_DIR)/externals/libtp_rel
 
-ELF2REL := elf2rel
-
 JSON_READ := python3 $(abspath $(ROOT_DIR)/bin/json_read.py)
 
 ifeq ($(VERSION),)
