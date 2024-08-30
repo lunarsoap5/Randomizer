@@ -23,7 +23,7 @@
 		}
 	},
 
-	"onCreateCommand": "pip install -r bin/requirements.txt"
+	"onCreateCommand": "pip install -r GameCube/bin/requirements.txt"
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

@@ -7,6 +7,10 @@ ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>/devkitPPC")
 endif
 
+ifeq ($(shell which elf2rel),)
+$(error "Please install pyelf2rel. pip install pyelf2rel")
+endif
+
 include $(DEVKITPPC)/gamecube_rules
 
 # Format: YYYYMMDDHHmm + 2 char Game Region
@@ -35,13 +39,7 @@ export GCIPACK := python3 $(realpath ../bin/gcipack.py)
 
 export RELSMGR := python3 $(realpath ../bin/rels_mgr.py)
 
-UNAME := $(shell uname)
-
-ifeq ($(UNAME), Linux)
-	export ELF2REL := $(realpath ../bin/elf2rel)
-else
-	export ELF2REL := $(realpath ../bin/elf2rel.exe)
-endif
+ELF2REL := elf2rel
 
 JSON_READ := python3 $(realpath ../bin/json_read.py)
 MAPPER := python3 $(realpath ../bin/relmapper.py)
@@ -261,7 +259,7 @@ $(SUBREL): $(MAPFILE)
 # REL linking
 %.rel: %.elf
 	@echo output ... $(notdir $@)
-	@$(ELF2REL) $< -s $(MAPFILE) --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
+	@$(ELF2REL) $< $(abspath $(MAPFILE)) $@ --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
 
 %.gci: %.rel
 	@echo packing ... $(notdir $@)

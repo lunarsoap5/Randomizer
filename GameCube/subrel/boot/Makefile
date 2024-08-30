@@ -7,6 +7,10 @@ ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>/devkitPPC")
 endif
 
+ifeq ($(shell which elf2rel),)
+$(error "Please install pyelf2rel. pip install pyelf2rel")
+endif
+
 include $(DEVKITPPC)/gamecube_rules
 
 # This will be the resulting .rel file - No spaces
@@ -15,13 +19,7 @@ OUTPUT_FILENAME := boot
 # DON'T TOUCH UNLESS YOU KNOW WHAT YOU'RE DOING
 LIBTP_REL := $(ROOT_DIR)/externals/libtp_rel
 
-UNAME := $(shell uname)
-
-ifeq ($(UNAME), Linux)
-	ELF2REL := $(abspath $(ROOT_DIR)/bin/elf2rel)
-else
-	ELF2REL := $(abspath $(ROOT_DIR)/bin/elf2rel.exe)
-endif
+ELF2REL := elf2rel
 
 JSON_READ := python3 $(abspath $(ROOT_DIR)/bin/json_read.py)
 
@@ -179,7 +177,7 @@ $(OFILES_SOURCES) : $(HFILES)
 # REL linking
 %.rel: %.elf
 	@echo output ... $(notdir $@)
-	@$(ELF2REL) $< -s $(abspath $(MAPFILE)) --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
+	@$(ELF2REL) $< $(abspath $(MAPFILE)) $@ --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
 
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .jpg extension
