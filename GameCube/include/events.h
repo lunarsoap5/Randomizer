@@ -23,6 +23,8 @@
 #include "tp/f_op_actor_iter.h"
 #include "tp/d_meter2_draw.h"
 
+#include <cstdint>
+
 namespace mod::events
 {
     typedef void (*daObjLv5Key_Wait_Def)(libtp::tp::rel::d_a_obj_Lv5Key::daObjLv5Key_c*);
@@ -31,19 +33,17 @@ namespace mod::events
     typedef bool (*daObjLifeContainer_initActionOrderGetDemo_Def)(void*);
     typedef bool (*daMidna_checkMetamorphoseEnableBase_Def)(void*);
 
-    extern libtp::tp::dzx::ACTR GanonBarrierActor;
-    extern libtp::tp::dzx::ACTR AuruActr;
-    extern libtp::tp::dzx::ACTR ItemActr;
-    extern libtp::tp::dzx::ACTR EponaActr;
-    extern libtp::tp::dzx::SCOB HorseJumpScob;
-    extern libtp::tp::dzx::ACTR ForestGWolfActr;
-    extern libtp::tp::dzx::ACTR ImpPoeActr;
-    extern libtp::tp::dzx::ACTR CampBoarActr;
-    extern libtp::tp::dzx::ACTR KakShopSlot2Actr;
-    extern libtp::tp::dzx::ACTR SignActr;
-    extern libtp::tp::dzx::ACTR MstrSrdActr;
-
-    extern uint8_t timeChange;
+    extern const libtp::tp::dzx::ACTR gGanonBarrierActor;
+    extern const libtp::tp::dzx::ACTR gAuruActr;
+    extern const libtp::tp::dzx::ACTR gItemActr;
+    extern const libtp::tp::dzx::ACTR gEponaActr;
+    extern const libtp::tp::dzx::SCOB gHorseJumpScob;
+    extern const libtp::tp::dzx::ACTR gForestGWolfActr;
+    extern const libtp::tp::dzx::ACTR gImpPoeActr;
+    extern const libtp::tp::dzx::ACTR gCampBoarActr;
+    extern const libtp::tp::dzx::ACTR gKakShopSlot2Actr;
+    extern const libtp::tp::dzx::ACTR SignActr;
+    extern const libtp::tp::dzx::ACTR gMstrSrdActr;
 
     /**
      * @brief Runs when loading just started
@@ -156,7 +156,7 @@ namespace mod::events
     void loadCustomActors(void* mStatus_roomControl);
     void loadCustomRoomActors(rando::Randomizer* randomizer);
     void loadCustomRoomSCOBs();
-    void handleQuickTransform();
+    void handleQuickTransform(rando::Randomizer* randomizer);
     void handleTimeOfDayChange();
     bool checkFoolItemFreeze();
 

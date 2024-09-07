@@ -7,6 +7,10 @@ ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>/devkitPPC")
 endif
 
+ifeq ($(shell which elf2rel),)
+$(error "Please install pyelf2rel. pip install pyelf2rel")
+endif
+
 include $(DEVKITPPC)/gamecube_rules
 
 # Format: YYYYMMDDHHmm + 2 char Game Region
@@ -14,7 +18,7 @@ export BUILDID:='"$(shell date +'%Y%m%d%H%M')"'
 
 # Version
 export _VERSION_MAJOR:=1
-export _VERSION_MINOR:=2
+export _VERSION_MINOR:=3
 export _VERSION_PATCH:=0
 export _VERSION:='"$(_VERSION_MAJOR).$(_VERSION_MINOR).$(_VERSION_PATCH)"'
 # Variant: i.e. Public, NoLogic, Race, etc.
@@ -33,16 +37,14 @@ export ROOT_DIR ?= $(CURDIR)
 
 export GCIPACK := python3 $(realpath ../bin/gcipack.py)
 
-UNAME := $(shell uname)
+export RELSMGR := python3 $(realpath ../bin/rels_mgr.py)
 
-ifeq ($(UNAME), Linux)
-	export ELF2REL := $(realpath ../bin/elf2rel)
-else
-	export ELF2REL := $(realpath ../bin/elf2rel.exe)
-endif
+export ELF2REL := elf2rel
 
 JSON_READ := python3 $(realpath ../bin/json_read.py)
 MAPPER := python3 $(realpath ../bin/relmapper.py)
+
+SEED_PATH := $(realpath ../bin/seed.bin)
 
 DVD ?= ""
 ifneq ($(DVD),"")
@@ -113,7 +115,7 @@ INCLUDES	:=	$(CURDIR)/include $(CURDIR)/$(LIBTP_REL)/include
 
 MACHDEP		= -mno-sdata -mgcn -DGEKKO -mcpu=750 -meabi -mhard-float
 
-CFLAGS		= -nostdlib -ffunction-sections -fdata-sections -g -Oz -fvisibility=hidden -Wall -Werror -Wextra -Wshadow -Wno-address-of-packed-member -Wno-stringop-truncation $(MACHDEP) $(INCLUDE) $(DVD_DEF) -D_PROJECT_NAME='"$(PROJECT_NAME)"' -D_VERSION_MAJOR='$(_VERSION_MAJOR)' -D_VERSION_MINOR='$(_VERSION_MINOR)' -D_VERSION_PATCH='$(_VERSION_PATCH)'  -D_VERSION='"$(_VERSION)"' -D_VARIANT='"$(_VARIANT)"'
+CFLAGS		= -nostdlib -ffunction-sections -fdata-sections -g -Oz -fvisibility=hidden -Wall -Werror -Wextra -Wshadow -Wno-address-of-packed-member -Wno-stringop-truncation -Wno-class-memaccess $(MACHDEP) $(INCLUDE) $(DVD_DEF) -D_PROJECT_NAME='"$(PROJECT_NAME)"' -D_VERSION_MAJOR='$(_VERSION_MAJOR)' -D_VERSION_MINOR='$(_VERSION_MINOR)' -D_VERSION_PATCH='$(_VERSION_PATCH)'  -D_VERSION='"$(_VERSION)"' -D_VARIANT='"$(_VARIANT)"'
 CXXFLAGS	= -fno-exceptions -fno-rtti -std=gnu++20 $(CFLAGS)
 
 LDFLAGS		= -r -e _prolog -u _prolog -u _epilog -u _unresolved -Wl,--gc-sections,--gc-keep-exported -nostdlib -g $(MACHDEP) -Wl,-Map,$(notdir $@).map
@@ -226,7 +228,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean_target: $(SUBREL_CLEAN)
 	@echo clean ... $(OUTPUT_FILENAME) $(VERSION)
-	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).rel $(OUTPUT).gci
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol $(OUTPUT).rel $(OUTPUT).gci $(OUTPUT).seeded.gci
 
 $(SUBREL_CLEAN):
 	@$(MAKE) -C $(abspath subrel/$(patsubst %/,%,$(dir $@))) clean_target
@@ -257,11 +259,15 @@ $(SUBREL): $(MAPFILE)
 # REL linking
 %.rel: %.elf
 	@echo output ... $(notdir $@)
-	@$(ELF2REL) $< -s $(MAPFILE) --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
+	@$(ELF2REL) $< $(abspath $(MAPFILE)) $@ --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
 
 %.gci: %.rel
 	@echo packing ... $(notdir $@)
 	@$(GCIPACK) $< "Custom REL File" "Twilight Princess" "($(PRINTVER)) $(PROJECT_NAME)" $(BANNERFILE) $(ICONFILE) $(GAMECODE) $(addprefix --rel ,$(SUBRELS))
+ifneq ("$(wildcard $(SEED_PATH))","")
+	@echo injecting seed ...
+	@$(RELSMGR) add $@ 0x53454544 $(SEED_PATH) -o $(basename $@).seeded.gci
+endif
 
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .jpg extension

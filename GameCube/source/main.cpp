@@ -18,7 +18,6 @@
 #include "memory.h"
 #include "rando/data.h"
 #include "rando/randomizer.h"
-#include "rando/seedlist.h"
 #include "tools.h"
 #include "tp/J2DPicture.h"
 #include "tp/JKRArchive.h"
@@ -54,277 +53,26 @@
 #include "tp/f_pc_executor.h"
 #include "tp/d_msg_flow.h"
 #include "tp/d_file_select.h"
-
-#ifdef TP_EU
-#include "tp/d_s_logo.h"
-#endif
+#include "tp/dynamic_link.h"
+#include "events.h"
+#include "functionHooks.h"
 
 namespace mod
 {
-    // Bind extern global variables
-    KEEP_VAR libtp::display::Console* console = nullptr;
-    KEEP_VAR rando::Randomizer* randomizer = nullptr;
-    KEEP_VAR rando::SeedList* seedList = nullptr;
-
     // Variables
-    void* z2ScenePtr = nullptr;
-    uint32_t randState = 0;
-
-    // Analog L is currently not being used, so commented out
-    // float prevFrameAnalogL = 0.f;
-    float prevFrameAnalogR = 0.f;
-
-    KEEP_VAR uint8_t* m_MsgTableInfo = nullptr;
-    KEEP_VAR uint8_t* m_HintMsgTableInfo = nullptr;
-    libtp::tp::J2DPicture::J2DPicture* bgWindow = nullptr;
-    uint16_t lastButtonInput = 0;
-    KEEP_VAR uint16_t m_TotalMsgEntries = 0;
-    KEEP_VAR uint16_t m_TotalHintMsgEntries = 0;
-    bool roomReloadingState = false;
-    bool consoleState = true;
-    uint8_t gameState = GAME_BOOT;
-    KEEP_VAR bool walletsPatched = false;
-    KEEP_VAR uint8_t seedRelAction = SEED_ACTION_NONE;
-    bool modifyShopModels = false;
-    bool instantTextEnabled = false;
-    bool increaseSpinnerSpeed = false;
-    bool transformAnywhereEnabled = false;
-    uint8_t damageMultiplier = 1;
-    bool bonksDoDamage = false;
-    EventItemStatus giveItemToPlayer = QUEUE_EMPTY;
-
-#ifdef TP_EU
-    KEEP_VAR libtp::tp::d_s_logo::Languages currentLanguage = libtp::tp::d_s_logo::Languages::uk;
-#endif
-
-    // Function hook return trampolines
-    KEEP_VAR void (*return_fapGm_Execute)(void) = nullptr;
-
-    // DMC (REL) Hook
-    KEEP_VAR bool (*return_do_unlink)(libtp::tp::dynamic_link::DynamicModuleControl* dmc) = nullptr;
-
-    // DZX trampolines
-    KEEP_VAR bool (*return_actorInit)(void* mStatus_roomControl,
-                                      libtp::tp::dzx::ChunkTypeInfo* chunkTypeInfo,
-                                      int32_t unk3,
-                                      void* unk4) = nullptr;
-
-    KEEP_VAR bool (*return_actorInit_always)(void* mStatus_roomControl,
-                                             libtp::tp::dzx::ChunkTypeInfo* chunkTypeInfo,
-                                             int32_t unk3,
-                                             void* unk4) = nullptr;
-
-    KEEP_VAR bool (*return_actorCommonLayerInit)(void* mStatus_roomControl,
-                                                 libtp::tp::dzx::ChunkTypeInfo* chunkTypeInfo,
-                                                 int32_t unk3,
-                                                 void* unk4) = nullptr;
-
-    KEEP_VAR int32_t (*return_tgscInfoInit)(void* stageDt, void* i_data, int32_t entryNum, void* param_3) = nullptr;
-
-    KEEP_VAR void (*return_roomLoader)(void* data, void* stageDt, int32_t roomNo) = nullptr;
-
-    // KEEP_VAR void ( *return_stageLoader )( void* data, void* stageDt ) = nullptr;
-
-    KEEP_VAR int32_t (*return_dStage_playerInit)(void* stageDt,
-                                                 libtp::tp::d_stage::stage_dzr_header_entry* i_data,
-                                                 int32_t num,
-                                                 void* raw_data) = nullptr;
-
-    KEEP_VAR void (*return_dComIfGp_setNextStage)(const char* stage,
-                                                  int16_t point,
-                                                  int8_t roomNo,
-                                                  int8_t layer,
-                                                  float lastSpeed,
-                                                  uint32_t lastMode,
-                                                  int32_t setPoint,
-                                                  int8_t wipe,
-                                                  int16_t lastAngle,
-                                                  int32_t param_9,
-                                                  int32_t wipSpeedT) = nullptr;
-
-    // GetLayerNo trampoline
-    KEEP_VAR int32_t (*return_getLayerNo_common_common)(const char* stageName, int32_t roomId, int32_t layerOverride) = nullptr;
-
-    // Item creation functions.
-    KEEP_VAR int32_t (*return_createItemForBoss)(const float pos[3],
-                                                 int32_t item,
-                                                 int32_t roomNo,
-                                                 const int16_t rot[3],
-                                                 const float scale[3],
-                                                 float unk6,
-                                                 float unk7,
-                                                 int32_t parameters) = nullptr;
-
-    KEEP_VAR int32_t (*return_createItemForPresentDemo)(const float pos[3],
-                                                        int32_t item,
-                                                        uint8_t unk3,
-                                                        int32_t unk4,
-                                                        int32_t unk5,
-                                                        const float unk6[3],
-                                                        const float unk7[3]) = nullptr;
-
-    KEEP_VAR int32_t (*return_createItemForTrBoxDemo)(const float pos[3],
-                                                      int32_t item,
-                                                      int32_t itemPickupFlag,
-                                                      int32_t roomNo,
-                                                      const int16_t rot[3],
-                                                      const float scale[3]) = nullptr;
-
-    KEEP_VAR int32_t (*return_createItemForMidBoss)(const float pos[3],
-                                                    int32_t item,
-                                                    int32_t roomNo,
-                                                    const int16_t rot[3],
-                                                    const float scale[3],
-                                                    int32_t unk6,
-                                                    int32_t itemPickupFlag) = nullptr;
-
-    KEEP_VAR void (*return_CheckFieldItemCreateHeap)(libtp::tp::f_op_actor::fopAc_ac_c* actor) = nullptr;
-
-    // Item Wheel trampoline
-    KEEP_VAR void (*return_setLineUpItem)(libtp::tp::d_save::dSv_player_item_c*) = nullptr;
-
-    // ItemGet functions.
-    KEEP_VAR void (*return_execItemGet)(uint8_t item) = nullptr;
-    KEEP_VAR int32_t (*return_checkItemGet)(uint8_t item, int32_t defaultValue) = nullptr;
-    KEEP_VAR void (*return_item_func_ASHS_SCRIBBLING)() = nullptr;
-
-    // Message functions
-    KEEP_VAR bool (*return_setMessageCode_inSequence)(libtp::tp::control::TControl* control,
-                                                      const void* TProcessor,
-                                                      uint16_t unk3,
-                                                      uint16_t msgId) = nullptr;
-
-    KEEP_VAR uint32_t (*return_getFontCCColorTable)(uint8_t colorId, uint8_t unk) = nullptr;
-    KEEP_VAR uint32_t (*return_getFontGCColorTable)(uint8_t colorId, uint8_t unk) = nullptr;
-
-    KEEP_VAR void (*return_jmessage_tSequenceProcessor__do_begin)(void* seqProcessor,
-                                                                  const void* unk2,
-                                                                  const char* text) = nullptr;
-
-    KEEP_VAR bool (*return_jmessage_tSequenceProcessor__do_tag)(void* seqProcessor,
-                                                                uint32_t unk2,
-                                                                const void* currentText,
-                                                                uint32_t unk4) = nullptr;
-
-    // Query/Event functions.
-    KEEP_VAR int32_t (*return_query001)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*return_query022)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*return_query023)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*return_query025)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR uint8_t (*return_checkEmptyBottle)(libtp::tp::d_save::dSv_player_item_c* playerItem) = nullptr;
-    KEEP_VAR int32_t (*return_query042)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*return_query004)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*return_query037)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*return_query049)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    // KEEP_VAR int32_t ( *return_event000 )( void* messageFlow, void* nodeEvent, void* actrPtr ) = nullptr;
-    KEEP_VAR int32_t (*return_event017)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;
-    KEEP_VAR int32_t (*return_event003)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;
-
-    KEEP_VAR int32_t (*return_doFlow)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                      libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                      libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                      int32_t i_flow) = nullptr;
-
-    KEEP_VAR int32_t (*return_setNormalMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                            void* flowNode,
-                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
-
-    // Save flag functions
-    KEEP_VAR bool (*return_isDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;
-    KEEP_VAR void (*return_onDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;
-    KEEP_VAR bool (*return_daNpcT_chkEvtBit)(int16_t flag) = nullptr;
-    KEEP_VAR bool (*return_isEventBit)(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag) = nullptr;
-    KEEP_VAR void (*return_onEventBit)(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag) = nullptr;
-    KEEP_VAR bool (*return_isSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag) = nullptr;
-    KEEP_VAR void (*return_onSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag) = nullptr;
-    KEEP_VAR bool (*return_checkTreasureRupeeReturn)(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t item) = nullptr;
-    KEEP_VAR bool (*return_isDarkClearLV)(void* playerStatusPtr, int32_t twilightNode) = nullptr;
-
-    // Pause menu functions
-    KEEP_VAR void (*return_collect_save_open_init)(uint8_t param_1) = nullptr;
-
-    // Link functions
-    KEEP_VAR bool (*return_checkBootsMoveAnime)(libtp::tp::d_a_alink::daAlink* d_a_alink, int32_t param_1) = nullptr;
-    KEEP_VAR bool (*return_checkDamageAction)(libtp::tp::d_a_alink::daAlink* linkMapPtr) = nullptr;
-    KEEP_VAR void (*return_setGetItemFace)(libtp::tp::d_a_alink::daAlink* daALink, uint16_t itemID) = nullptr;
-    KEEP_VAR void (*return_setWolfLockDomeModel)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
-    KEEP_VAR bool (*return_procFrontRollCrashInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
-    KEEP_VAR bool (*return_procWolfAttackReverseInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
-    KEEP_VAR bool (*return_procWolfDashReverseInit)(libtp::tp::d_a_alink::daAlink* daALink, bool param_1) = nullptr;
-    KEEP_VAR libtp::tp::f_op_actor::fopAc_ac_c* (*return_searchBouDoor)(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
-
-    KEEP_VAR float (*return_damageMagnification)(libtp::tp::d_a_alink::daAlink* daALink,
-                                                 int32_t param_1,
-                                                 int32_t param_2) = nullptr;
-
-    KEEP_VAR bool (*return_checkCastleTownUseItem)(uint16_t item_id) = nullptr;
-    KEEP_VAR int32_t (*return_procCoGetItemInit)(libtp::tp::d_a_alink::daAlink* linkActrPtr) = nullptr;
-
-    // Audio functions
-    KEEP_VAR void (*return_loadSeWave)(void* Z2SceneMgr, uint32_t waveID) = nullptr;
-
-    KEEP_VAR void (*return_sceneChange)(libtp::z2audiolib::z2scenemgr::Z2SceneMgr* sceneMgr,
-                                        libtp::z2audiolib::z2scenemgr::JAISoundID BGMid,
-                                        uint8_t SeWave1,
-                                        uint8_t SeWave2,
-                                        uint8_t BgmWave1,
-                                        uint8_t BgmWave2,
-                                        uint8_t DemoWave,
-                                        bool param_7) = nullptr;
-
-    KEEP_VAR void (*return_startSound)(void* soungMgr,
-                                       libtp::z2audiolib::z2scenemgr::JAISoundID soundId,
-                                       void* soundHandle,
-                                       void* pos) = nullptr;
-
-    KEEP_VAR bool (*return_checkBgmIDPlaying)(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id) = nullptr;
-
-    // Title Screen functions
-    KEEP_VAR void* (*return_dScnLogo_c_dt)(void* dScnLogo_c, int16_t bFreeThis) = nullptr;
-
-    // Archive/resource functions
-    KEEP_VAR libtp::tp::d_resource::dRes_info_c* (*return_getResInfo)(const char* arcName,
-                                                                      libtp::tp::d_resource::dRes_info_c* objectInfo,
-                                                                      int32_t size) = nullptr;
-
-    KEEP_VAR bool (*return_mountArchive__execute)(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive) = nullptr;
-
-    // d_meter functions
-    KEEP_VAR void (*return_resetMiniGameItem)(libtp::tp::d_meter2_info::G_Meter2_Info* gMeter2InfoPtr,
-                                              bool minigameFlag) = nullptr;
-
-    // Game Over functions
-    KEEP_VAR void (*return_dispWait_init)(libtp::tp::d_gameover::dGameOver* ptr) = nullptr;
-
-    // Shop Functions
-    KEEP_VAR int32_t (*return_seq_decide_yes)(libtp::tp::d_shop_system::dShopSystem* shopPtr,
-                                              libtp::tp::f_op_actor::fopAc_ac_c* actor,
-                                              void* msgFlow) = nullptr;
-
-    // Title Screen functions
-    KEEP_VAR void (*return_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr) = nullptr;
+    KEEP_VAR libtp::display::Console* gConsole = nullptr;
+    KEEP_VAR bool gConsoleState = false;
 
     void main()
     {
-        // do_link needs to be hooked immediately, as otherwise we may not be able to modify f_pc_profile_lst.rel, which gets
-        // linked via a callback function that gets called at boot, and this may occur before the boot REL's prolog function
-        // gets called
-        uint32_t do_link_address = reinterpret_cast<uint32_t>(libtp::tp::dynamic_link::do_link);
-
-        libtp::patch::writeStandardBranches(do_link_address + 0x250, assembly::asmDoLinkHookStart, assembly::asmDoLinkHookEnd);
-
         // Call the boot REL
-        // Interrupts are required to be enabled for CARD/DVD functions to work properly
-        const bool enable = libtp::gc_wii::os_interrupt::OSEnableInterrupts();
 #ifdef DVD
-        // The seedlist will be generated in the boot REL
+        // The seed will be loaded in the boot REL
         libtp::tools::callRelProlog("/mod/boot.rel");
 #else
-        // The seedlist will be generated in the boot REL, so avoid mounting/unmounting the memory card multiple times
+        // The seed will be loaded in the boot REL, so avoid mounting/unmounting the memory card multiple times
         libtp::tools::callRelProlog(CARD_SLOT_A, SUBREL_BOOT_ID);
 #endif
-        // Restore interrupts
-        libtp::gc_wii::os_interrupt::OSRestoreInterrupts(enable);
     }
 
     void exit() {}
@@ -369,82 +117,150 @@ namespace mod
         events::drawText(buf, 161, 430, 0xFFFFFFFF, true, 14.f);
     }
 
-    KEEP_FUNC rando::Seed* getCurrentSeed(rando::Randomizer* rando)
+    KEEP_FUNC void setConsoleScreen(bool state)
     {
-        if (!randoIsEnabled(rando))
-        {
-            return nullptr;
-        }
-
-        return rando->m_Seed;
+        gConsoleState = state;
+        libtp::display::setConsole(state, 0);
     }
 
-    void setScreen(bool state)
+    void handleAnalogButtonInputs(uint32_t combo,
+                                  libtp::tp::m_do_controller_pad::CPadInfo* padInfoPtr,
+                                  uint32_t* buttonsPressedThisFramePtr,
+                                  uint32_t* buttonsHeldPtr)
     {
-        consoleState = state;
-        libtp::display::setConsole(state, 0);
+        using namespace libtp::tp::m_do_controller_pad;
+
+        // Make sure at least one of the button pointers is valid
+        if (!buttonsPressedThisFramePtr && !buttonsHeldPtr)
+        {
+            return;
+        }
+
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+
+        // Get the threshold for the analog buttons
+        constexpr float analogThreshold = 0.7f; // 70%
+
+        // Check if L is included in the button combo
+        // Analog L is currently not being used, so commented out
+        /*
+        if (combo & PadInputs::Button_L)
+        {
+            // Check if analog L is at 70% or more
+            if (padInfoPtr->mTriggerLeft >= analogThreshold)
+            {
+                if (buttonsHeldPtr)
+                {
+                    *buttonsHeldPtr |= PadInputs::Button_L;
+                }
+
+                if (buttonsPressedThisFramePtr)
+                {
+                    // If prevFrameAnalogL is less than 70%, then 70% was reached this frame
+                    if (randoPtr->getPrevFrameAnalogL() < analogThreshold)
+                    {
+                        *buttonsPressedThisFramePtr |= PadInputs::Button_L;
+                    }
+                }
+            }
+        }
+        */
+
+        // Check if R is included in the button combo
+        if (combo & PadInputs::Button_R)
+        {
+            // Check if analog R is at 70% or more
+            if (padInfoPtr->mTriggerRight >= analogThreshold)
+            {
+                if (buttonsHeldPtr)
+                {
+                    *buttonsHeldPtr |= PadInputs::Button_R;
+                }
+
+                if (buttonsPressedThisFramePtr)
+                {
+                    // If prevFrameAnalogR is less than 70%, then 70% was reached this frame
+                    if (randoPtr->getPrevFrameAnalogR() < analogThreshold)
+                    {
+                        *buttonsPressedThisFramePtr |= PadInputs::Button_R;
+                    }
+                }
+            }
+        }
     }
 
     bool checkButtonsPressedThisFrame(uint32_t buttons)
     {
         using namespace libtp::tp::m_do_controller_pad;
-        CPadInfo* padInfo = &cpadInfo[PAD_1];
 
-        return padInfo->mPressedButtonFlags & buttons;
+        // Check if at least one button in the combo was pressed this frame
+        return cpadInfo[PAD_1].mPressedButtonFlags & buttons;
     }
 
-    bool checkButtonCombo(uint32_t combo, bool checkAnalog)
+    bool checkButtonsPressedThisFrameAnalog(uint32_t buttons)
     {
         using namespace libtp::tp::m_do_controller_pad;
-        CPadInfo* padInfo = &cpadInfo[PAD_1];
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
 
-        // Get the buttons that are currently held and were pressed this frame
-        uint32_t buttonsHeld = padInfo->mButtonFlags;
-        uint32_t buttonsPressedThisFrame = padInfo->mPressedButtonFlags;
+        // Get the buttons pressed this frame
+        uint32_t buttonsPressedThisFrame = padInfoPtr->mPressedButtonFlags;
 
-        // Check if analog L and R should be checked
-        if (checkAnalog)
+        // Check if either of the analog buttons were pressed this frame past a certain threshold
+        handleAnalogButtonInputs(buttons, padInfoPtr, &buttonsPressedThisFrame, nullptr);
+
+        // Check if at least one button in the combo was pressed this frame
+        return buttonsPressedThisFrame & buttons;
+    }
+
+    bool checkButtonsHeld(uint32_t buttons)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+
+        // Check if the button combo is held
+        return (cpadInfo[PAD_1].mButtonFlags & buttons) == buttons;
+    }
+
+    bool checkButtonsHeldAnalog(uint32_t buttons)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Get the buttons held
+        uint32_t buttonsHeld = padInfoPtr->mButtonFlags;
+
+        // Check if either of the analog buttons are held past a certain threshold
+        handleAnalogButtonInputs(buttons, padInfoPtr, nullptr, &buttonsHeld);
+
+        // Check if the button combo is held
+        return (buttonsHeld & buttons) == buttons;
+    }
+
+    bool checkButtonCombo(uint32_t combo)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Check if the button combo is held
+        if ((padInfoPtr->mButtonFlags & combo) != combo)
         {
-            // Get the threshold for the analog buttons
-            constexpr float analogThreshold = 0.7f; // 70%
-
-            // Check if L is included in the button combo
-            // Analog L is currently not being used, so commented out
-            /*
-            if ( combo & PadInputs::Button_L )
-            {
-                // Check if analog L is at 70% or more
-                if ( padInfo->mTriggerLeft >= analogThreshold )
-                {
-                    // Manually set the bit for L being pressed
-                    buttonsHeld |= PadInputs::Button_L;
-
-                    // If prevFrameAnalogL is less than 70%, then 70% was reached this frame
-                    if ( prevFrameAnalogL < analogThreshold )
-                    {
-                        buttonsPressedThisFrame |= PadInputs::Button_L;
-                    }
-                }
-            }
-            */
-
-            // Check if R is included in the button combo
-            if (combo & PadInputs::Button_R)
-            {
-                // Check if analog R is at 70% or more
-                if (padInfo->mTriggerRight >= analogThreshold)
-                {
-                    // Manually set the bit for R being pressed
-                    buttonsHeld |= PadInputs::Button_R;
-
-                    // If prevFrameAnalogR is less than 70%, then 70% was reached this frame
-                    if (prevFrameAnalogR < analogThreshold)
-                    {
-                        buttonsPressedThisFrame |= PadInputs::Button_R;
-                    }
-                }
-            }
+            return false;
         }
+
+        // Check if at least one button in the combo was pressed this frame
+        return padInfoPtr->mPressedButtonFlags & combo;
+    }
+
+    bool checkButtonComboAnalog(uint32_t combo)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        CPadInfo* padInfoPtr = &cpadInfo[PAD_1];
+
+        // Get the buttons pressed this frame and held
+        uint32_t buttonsPressedThisFrame = padInfoPtr->mPressedButtonFlags;
+        uint32_t buttonsHeld = padInfoPtr->mButtonFlags;
+
+        // Check if either of the analog buttons are held past a certain threshold
+        handleAnalogButtonInputs(combo, padInfoPtr, &buttonsPressedThisFrame, &buttonsHeld);
 
         // Check if the button combo is held
         if ((buttonsHeld & combo) != combo)
@@ -456,50 +272,33 @@ namespace mod
         return buttonsPressedThisFrame & combo;
     }
 
-    void doInput(uint32_t input)
+    bool handleTogglingConsole()
     {
         using namespace libtp::tp::m_do_controller_pad;
-        auto checkBtn = [&input](uint32_t combo) { return static_cast<bool>((input & combo) == combo); };
 
-        if (input && gameState == GAME_TITLE)
+        // Check if the console should be toggled on/off
+        if (checkButtonCombo(PadInputs::Button_R | PadInputs::Button_Z))
         {
-            // Handle seed selection if necessary
-            const uint32_t numSeeds = seedList->m_numSeeds;
-            if (numSeeds > 1)
-            {
-                uint32_t selectedSeed = seedList->m_selectedSeed;
+            // Disable the input that was just pressed, as sometimes it could cause talking to Midna when in-game
+            cpadInfo[PAD_1].mPressedButtonFlags = 0;
 
-                if (checkBtn(Button_X))
-                {
-                    selectedSeed++;
-                    seedList->m_selectedSeed = static_cast<uint8_t>(selectedSeed);
-
-                    if (selectedSeed >= numSeeds)
-                    {
-                        selectedSeed = 0;
-                        seedList->m_selectedSeed = static_cast<uint8_t>(selectedSeed);
-                    }
-                }
-                else if (checkBtn(Button_Y))
-                {
-                    if (selectedSeed == 0)
-                    {
-                        selectedSeed = numSeeds;
-                        seedList->m_selectedSeed = static_cast<uint8_t>(selectedSeed);
-                    }
-
-                    selectedSeed--;
-                    seedList->m_selectedSeed = static_cast<uint8_t>(selectedSeed);
-                }
-
-                getConsole().setLine(CONSOLE_PROTECTED_LINES - 1);
-                getConsole() << "\r" << "Press X/Y to select a seed\n"
-                             << "Press R + Z to close the console\n"
-                             << "[" << static_cast<int32_t>(selectedSeed) + 1 << "/" << static_cast<int32_t>(numSeeds)
-                             << "] Seed: " << seedList->m_minSeedInfo[selectedSeed].fileName << "\n";
-            }
+            // Toggle the console on/off
+            setConsoleScreen(!gConsoleState);
+            return true;
         }
-        // End of handling title screen inputs
+        else
+        {
+            return false;
+        }
+    }
+
+    KEEP_FUNC void handle_fapGm_Execute_FailLoadSeed()
+    {
+        // Handle toggling the console on/off
+        handleTogglingConsole();
+
+        // Call the original function
+        return gReturn_fapGm_Execute();
     }
 
     KEEP_FUNC void handle_fapGm_Execute()
@@ -509,14 +308,16 @@ namespace mod
         using namespace tp::f_pc_node_req;
         using namespace tp::d_com_inf_game;
 
-// Uncomment out the next line to display debug heap info
-// #define DRAW_DEBUG_HEAP_INFO
+        // Uncomment out the next line to display debug heap info
+        // #define DRAW_DEBUG_HEAP_INFO
 #ifdef DRAW_DEBUG_HEAP_INFO
         drawHeapDebugInfo();
 #undef DRAW_DEBUG_HEAP_INFO
 #endif
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+
         // New frame, so the ring will be redrawn
-        item_wheel_menu::ringDrawnThisFrame = false;
+        randoPtr->getItemWheelMenuPtr()->resetRingDrawnThisFrame();
 
         dComIfG_inf_c* gameInfo = &dComIfG_gameInfo;
         CPadInfo* padInfo = &cpadInfo[PAD_1];
@@ -525,105 +326,56 @@ namespace mod
         if (l_fpcNdRq_Queue)
         {
             // Previous state
-            const uint32_t prevState = gameState;
+            const uint32_t prevState = randoPtr->getGameState();
             const uint32_t state = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(l_fpcNdRq_Queue) + 0x59);
 
             // Normal/Loading into game
-            if (prevState != GAME_ACTIVE && state == 11)
+            if ((prevState != GameState::GAME_ACTIVE) && (state == 11))
             {
-                // check whether we're in title screen CS
+                // Check whether we're in title screen CS
                 if (0 != strcmp("S_MV000", gameInfo->play.mNextStage.mStage))
                 {
-                    gameState = GAME_ACTIVE;
+                    randoPtr->setGameState(GameState::GAME_ACTIVE);
                 }
             }
-            else if (prevState != GAME_TITLE && (state == 12 || state == 13))
+            else if ((prevState != GameState::GAME_TITLE) && ((state == 12) || (state == 13)))
             {
-                gameState = GAME_TITLE;
-
-                // Handle console differently when the user first loads it
-                if (prevState == GAME_BOOT)
-                {
-                    switch (seedList->m_numSeeds)
-                    {
-                        case 0:
-                            // Err, no seeds
-                            getConsole() << "No seeds available! Please check your memory\ncard and region!\n";
-                            setScreen(true);
-                            break;
-
-                        case 1:
-                            // Only one seed present, auto-select it and disable console for convenience
-                            getConsole() << "Seed: " << seedList->m_minSeedInfo[0].fileName << " found.\n";
-                            setScreen(false);
-                            break;
-
-                        default:
-                            // User has to select one of the seeds
-
-                            // trigger a dummy input to print the current selection
-                            doInput(Button_Start);
-
-                            setScreen(true);
-                            break;
-                    }
-                }
+                randoPtr->setGameState(GameState::GAME_TITLE);
             }
         }
         // End of handling gameStates
 
         // Handle button inputs only if buttons are being held that weren't held last time
-        auto checkBtn = [](uint32_t input, uint32_t combo) { return static_cast<bool>((input & combo) == combo); };
-        uint32_t currentButtons = padInfo->mButtonFlags;
+        const uint32_t currentButtons = padInfo->mButtonFlags;
 
         // Generic button checks need to occur outside the following conditional, so use a bool to determine if they should be
         // checked or not
         bool handledSpecialInputs = false;
 
-        if (currentButtons != lastButtonInput)
+        if (currentButtons != randoPtr->getLastButtonInput())
         {
             // Store before processing since we (potentially) un-set the padInfo values later
-            lastButtonInput = static_cast<uint16_t>(currentButtons);
+            randoPtr->setLastButtonInput(static_cast<uint16_t>(currentButtons));
 
             // Special combo to (de)activate the console should be handled first
-            if (checkBtn(currentButtons, PadInputs::Button_R | PadInputs::Button_Z))
+            if (handleTogglingConsole())
             {
-                // Disable the input that was just pressed, as sometimes it could cause talking to Midna when in-game
-                padInfo->mPressedButtonFlags = 0;
-
-                // Disallow during boot as we print info etc.
-                // Will automatically disappear if there is no seeds to select from
-                setScreen(!consoleState);
-                handledSpecialInputs = true;
-            }
-            // Handle Inputs if console is already active
-            else if (consoleState)
-            {
-                doInput(currentButtons);
-
-                if (gameState != GAME_BOOT)
-                {
-                    // Disable input so game doesn't notice
-                    currentButtons = 0;
-                    padInfo->mButtonFlags = 0;
-                    padInfo->mPressedButtonFlags = 0;
-                }
-
                 handledSpecialInputs = true;
             }
         }
 
         tp::d_a_alink::daAlink* linkMapPtr = gameInfo->play.mPlayer;
+        rando::Seed* seedPtr = randoPtr->getSeedPtr();
+
         if (!handledSpecialInputs)
         {
             // Handle generic button checks
-            if (checkButtonCombo(PadInputs::Button_R | PadInputs::Button_Y, true))
+            if (checkButtonComboAnalog(PadInputs::Button_R | PadInputs::Button_Y))
             {
                 // Handle transforming
-                events::handleQuickTransform();
+                events::handleQuickTransform(randoPtr);
             }
-
-            else if (checkBtn(currentButtons, PadInputs::Button_R) && increaseSpinnerSpeed && linkMapPtr)
+            else if (linkMapPtr && checkButtonsHeld(PadInputs::Button_R) && seedPtr->spinnerSpeedIsIncreased())
             {
                 libtp::tp::f_op_actor::fopAc_ac_c* spinnerActor = libtp::tp::d_a_alink::getSpinnerActor(linkMapPtr);
 
@@ -640,89 +392,24 @@ namespace mod
         }
 
         // Handle rando state
-        rando::Randomizer* rando = randomizer;
-        if (gameState == GAME_ACTIVE)
+        if (randoPtr->getGameState() == GameState::GAME_ACTIVE)
         {
-            if (!getCurrentSeed(rando) && (seedList->m_numSeeds > 0) && (seedRelAction == SEED_ACTION_NONE))
+            if (!randoPtr->randomizerIsEnabled())
             {
-                // Interrupts are required to be enabled for CARD/DVD functions to work properly
-                const bool enable = libtp::gc_wii::os_interrupt::OSEnableInterrupts();
-#ifndef DVD
-                constexpr int32_t chan = CARD_SLOT_A;
-#endif
-                if (!rando || !rando->m_Seed)
-                {
-                    seedRelAction = SEED_ACTION_LOAD_SEED;
+                randoPtr->enableRandomizer();
 
-                    // m_Enabled will be set to true in the seed REL
-                    // The seed REL will set seedRelAction to SEED_ACTION_NONE if it ran successfully
-#ifdef DVD
-                    if (!tools::callRelProlog("/mod/seed.rel"))
-#else
-                    // Only mount/unmount the memory card once
-                    if (!tools::callRelProlog(chan, SUBREL_SEED_ID))
-#endif
-                    {
-                        seedRelAction = SEED_ACTION_FATAL;
-                    }
+                // Load checks for first load
+                randoPtr->onStageLoad();
 
-                    // The randomizer pointer may have updated by the seed rel, so update the local pointer
-                    rando = randomizer;
-                }
-                else
-                {
-                    // Enable the randomizer
-                    rando->m_Enabled = true;
-
-                    // Check if loading a different seed
-                    if (rando->m_CurrentSeed != seedList->m_selectedSeed)
-                    {
-                        getConsole() << "Changing seed:\n";
-                        seedRelAction = SEED_ACTION_CHANGE_SEED;
-
-                        // The seed REL will set seedRelAction to SEED_ACTION_NONE if it ran successfully
-#ifdef DVD
-                        if (!tools::callRelProlog("/mod/seed.rel"))
-#else
-                        // Only mount/unmount the memory card once
-                        if (!tools::callRelProlog(chan, SUBREL_SEED_ID))
-#endif
-                        {
-                            seedRelAction = SEED_ACTION_FATAL;
-                        }
-
-                        // The randomizer pointer may have updated by the seed rel, so update the local pointer
-                        rando = randomizer;
-                    }
-                    else
-                    {
-                        // Not loading a different seed, so load checks for first load
-                        rando->onStageLoad();
-                    }
-                }
-
-                // Restore interrupts
-                libtp::gc_wii::os_interrupt::OSRestoreInterrupts(enable);
-
-                // Make sure no errors occurred
-                rando::Seed* seed = getCurrentSeed(rando);
-                if (seed && (seedRelAction == SEED_ACTION_NONE))
-                {
-                    // Volatile patches need to be applied whenever a file is loaded
-                    // getConsole() << "Applying volatile patches:\n";
-                    seed->applyVolatilePatches(true);
-                }
+                // Volatile patches need to be applied whenever a file is loaded
+                // getConsole() << "Applying volatile patches:\n";
+                randoPtr->getSeedPtr()->applyVolatilePatches();
             }
         }
-        else
+        else if (randoPtr->randomizerIsEnabled())
         {
-            seedRelAction = SEED_ACTION_NONE;
-            if (randoIsEnabled(rando))
-            {
-                // Temporarily disable the randomizer
-                rando->m_Enabled = false;
-                rando->m_SeedInit = false;
-            }
+            // Temporarily disable the randomizer
+            randoPtr->disableRandomizer();
         }
 
         // Custom events
@@ -740,7 +427,7 @@ namespace mod
             currentReloadingState = true;
         }
 
-        const bool prevReloadingState = roomReloadingState;
+        const bool prevReloadingState = randoPtr->getRoomReloadingState();
 
         // Custom events
         if (currentReloadingState)
@@ -748,7 +435,7 @@ namespace mod
             if (!prevReloadingState)
             {
                 // OnLoad
-                events::onLoad(rando);
+                events::onLoad(randoPtr);
             }
         }
         else
@@ -756,19 +443,19 @@ namespace mod
             if (prevReloadingState)
             {
                 // OffLoad
-                events::offLoad(rando);
+                events::offLoad(randoPtr);
 
                 // SetHUDCosmetics
-                user_patch::setHUDCosmetics(rando);
+                user_patch::setHUDCosmetics(randoPtr);
             }
         }
 
-        roomReloadingState = currentReloadingState;
+        randoPtr->setRoomReloadingState(currentReloadingState);
 
-        handleFoolishItem();
-        tools::xorshift32(&randState);
+        handleFoolishItem(randoPtr);
+        tools::xorshift32(randoPtr->getRandStatePtr());
 
-        if (events::timeChange != 0)
+        if (randoPtr->getTimeChange() != rando::TimeChange::NO_CHANGE)
         {
             events::handleTimeSpeed();
         }
@@ -776,23 +463,24 @@ namespace mod
         // Giving items at any point
         if (linkMapPtr)
         {
-            initGiveItemToPlayer(linkMapPtr);
+            initGiveItemToPlayer(linkMapPtr, randoPtr);
         }
 
         // End of custom events
 
         // Call the original function
-        return_fapGm_Execute();
+        gReturn_fapGm_Execute();
 
         // Main code has ran, so update previous frame variables
         // Analog L is currently not being used, so commented out
-        // prevFrameAnalogL = padInfo->mTriggerLeft;
-        prevFrameAnalogR = padInfo->mTriggerRight;
+        // randoPtr->setPrevFrameAnalogL(padInfo->mTriggerLeft);
+        randoPtr->setPrevFrameAnalogR(padInfo->mTriggerRight);
     }
 
-    void initGiveItemToPlayer(libtp::tp::d_a_alink::daAlink* linkMapPtr)
+    void initGiveItemToPlayer(libtp::tp::d_a_alink::daAlink* linkMapPtr, rando::Randomizer* randoPtr)
     {
         using namespace libtp::tp;
+        using namespace mod::rando;
 
         switch (linkMapPtr->mProcID)
         {
@@ -827,20 +515,23 @@ namespace mod
 
                     if (storedItem)
                     {
+                        const EventItemStatus giveItemToPlayerStatus = randoPtr->getGiveItemToPlayerStatus();
+
                         // If we have the call to clear the queue, then we want to clear the item and break out.
-                        if (giveItemToPlayer == CLEAR_QUEUE)
+                        if (giveItemToPlayerStatus == EventItemStatus::CLEAR_QUEUE)
                         {
                             reserveBytesPtr[i] = 0;
-                            giveItemToPlayer = QUEUE_EMPTY;
+                            randoPtr->setGiveItemToPlayerStatus(EventItemStatus::QUEUE_EMPTY);
                             break;
                         }
 
                         // If the queue is empty and we have an item to give, update the queue state.
-                        else if (giveItemToPlayer == QUEUE_EMPTY)
+                        else if (giveItemToPlayerStatus == EventItemStatus::QUEUE_EMPTY)
                         {
-                            giveItemToPlayer = ITEM_IN_QUEUE;
+                            randoPtr->setGiveItemToPlayerStatus(EventItemStatus::ITEM_IN_QUEUE);
                         }
-                        itemToGive = game_patch::_04_verifyProgressiveItem(randomizer, storedItem);
+
+                        itemToGive = game_patch::_04_verifyProgressiveItem(randoPtr, storedItem);
                         break;
                     }
                 }
@@ -889,12 +580,12 @@ namespace mod
         using namespace libtp::tp::d_com_inf_game;
 
         // Call the original function immediately to avoid storing thisPtr on the stack
-        return_dFile_select_c___create(thisPtr);
+        gReturn_dFile_select_c___create(thisPtr);
 
-        // giveItemToPlayer needs to be reset to QUEUE_EMPTY upon going to the file select screen, as the player could have
-        // potentially saved/died after initializing getting an item (which would set giveItemToPlayer to ITEM_IN_QUEUE), and
-        // then chosen to return to the title screen.
-        giveItemToPlayer = QUEUE_EMPTY;
+        // giveItemToPlayerStatus needs to be reset to QUEUE_EMPTY upon going to the file select screen, as the player could
+        // have potentially saved/died after initializing getting an item (which would set giveItemToPlayerStatus to
+        // EventItemStatus::ITEM_IN_QUEUE), and then chosen to return to the title screen.
+        rando::gRandomizer->setGiveItemToPlayerStatus(rando::EventItemStatus::QUEUE_EMPTY);
 
         // The reserved bytes that the queue uses to store the items to give are not cleared upon starting a new file, which
         // means that the player could soft reset during the process of being given item(s), and then start a new file to be
@@ -906,8 +597,8 @@ namespace mod
 
     KEEP_FUNC bool handle_do_unlink(libtp::tp::dynamic_link::DynamicModuleControl* dmc)
     {
-        events::onRELUnlink(randomizer, dmc);
-        return return_do_unlink(dmc);
+        events::onRELUnlink(rando::gRandomizer, dmc);
+        return gReturn_do_unlink(dmc);
     }
 
     KEEP_FUNC bool handle_actorInit(void* mStatus_roomControl,
@@ -916,9 +607,9 @@ namespace mod
                                     void* unk4)
     {
         // Load DZX based randomizer checks that are stored in the local DZX
-        events::onDZX(randomizer, chunkTypeInfo);
+        events::onDZX(rando::gRandomizer, chunkTypeInfo);
         events::loadCustomActors(mStatus_roomControl);
-        return return_actorInit(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
+        return gReturn_actorInit(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
     }
 
     KEEP_FUNC bool handle_actorInit_always(void* mStatus_roomControl,
@@ -927,8 +618,8 @@ namespace mod
                                            void* unk4)
     {
         // Load DZX based randomizer checks that are stored in the global DZX
-        events::onDZX(randomizer, chunkTypeInfo);
-        return return_actorInit_always(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
+        events::onDZX(rando::gRandomizer, chunkTypeInfo);
+        return gReturn_actorInit_always(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
     }
 
     KEEP_FUNC bool handle_actorCommonLayerInit(void* mStatus_roomControl,
@@ -937,17 +628,17 @@ namespace mod
                                                void* unk4)
     {
         // Load DZX based checks that are stored in the current layer DZX
-        rando::Randomizer* randoPtr = randomizer;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         events::onDZX(randoPtr, chunkTypeInfo);
         events::loadCustomRoomActors(randoPtr);
 
-        return return_actorCommonLayerInit(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
+        return gReturn_actorCommonLayerInit(mStatus_roomControl, chunkTypeInfo, unk3, unk4);
     }
 
     KEEP_FUNC int32_t handle_tgscInfoInit(void* stageDt, void* i_data, int32_t entryNum, void* param_3)
     {
         events::loadCustomRoomSCOBs();
-        return return_tgscInfoInit(stageDt, i_data, entryNum, param_3);
+        return gReturn_tgscInfoInit(stageDt, i_data, entryNum, param_3);
     }
 
     KEEP_FUNC void handle_dComIfGp_setNextStage(const char* stage,
@@ -962,73 +653,66 @@ namespace mod
                                                 int32_t param_9,
                                                 int32_t wipSpeedT)
     {
-        rando::Seed* seedPtr;
-        if (seedPtr = getCurrentSeed(randomizer), seedPtr)
+        const int32_t stageIDX = libtp::tools::getStageIndex(stage);
+
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+        const uint32_t numShuffledEntrances = seedPtr->getNumShuffledEntrances();
+        const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
+
+        // getConsole() << stageIDX << "," << roomNo << "," << point << "," << layer << "\n";
+
+        if (stageIDX != libtp::data::stage::StageIDs::Title_Screen) // We won't want to shuffle if we are loading a save since
+                                                                    // some stages use their default spawn for their entrances.
         {
-            const int32_t stageIDX = libtp::tools::getStageIndex(stage);
-            const uint32_t numShuffledEntrances = seedPtr->m_numShuffledEntrances;
-            const rando::ShuffledEntrance* shuffledEntrances = &seedPtr->m_ShuffledEntrances[0];
-
-            // getConsole() << stageIDX << "," << roomNo << "," << point << "," << layer << "\n";
-
-            if (stageIDX !=
-                libtp::data::stage::StageIDs::Title_Screen) // We won't want to shuffle if we are loading a save since some
-                                                            // stages use their default spawn for their entrances.
+            for (uint32_t i = 0; i < numShuffledEntrances; i++)
             {
-                for (uint32_t i = 0; i < numShuffledEntrances; i++)
+                const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[i];
+
+                if ((stageIDX == currentEntrance->getOrigStageIDX()) && (roomNo == currentEntrance->getOrigRoomIDX()) &&
+                    (point == currentEntrance->getOrigSpawn()) && (layer == currentEntrance->getOrigState()))
                 {
-                    const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[i];
+                    // getConsole() << "Shuffling Entrance\n";
 
-                    if ((stageIDX == currentEntrance->origStageIDX) && (roomNo == currentEntrance->origRoomIDX) &&
-                        (point == currentEntrance->origSpawn) && (layer == currentEntrance->origState))
-                    {
-                        // getConsole() << "Shuffling Entrance\n";
-
-                        return return_dComIfGp_setNextStage(libtp::data::stage::allStages[currentEntrance->newStageIDX],
-                                                            currentEntrance->newSpawn,
-                                                            currentEntrance->newRoomIDX,
-                                                            currentEntrance->newState,
-                                                            lastSpeed,
-                                                            lastMode,
-                                                            setPoint,
-                                                            wipe,
-                                                            lastAngle,
-                                                            param_9,
-                                                            wipSpeedT);
-                    }
+                    return gReturn_dComIfGp_setNextStage(libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
+                                                         currentEntrance->getNewSpawn(),
+                                                         currentEntrance->getNewRoomIDX(),
+                                                         currentEntrance->getNewState(),
+                                                         lastSpeed,
+                                                         lastMode,
+                                                         setPoint,
+                                                         wipe,
+                                                         lastAngle,
+                                                         param_9,
+                                                         wipSpeedT);
                 }
             }
         }
 
         // getConsole() << "No match found.\n";
 
-        return return_dComIfGp_setNextStage(stage,
-                                            point,
-                                            roomNo,
-                                            layer,
-                                            lastSpeed,
-                                            lastMode,
-                                            setPoint,
-                                            wipe,
-                                            lastAngle,
-                                            param_9,
-                                            wipSpeedT);
+        return gReturn_dComIfGp_setNextStage(stage,
+                                             point,
+                                             roomNo,
+                                             layer,
+                                             lastSpeed,
+                                             lastMode,
+                                             setPoint,
+                                             wipe,
+                                             lastAngle,
+                                             param_9,
+                                             wipSpeedT);
     }
 
     KEEP_FUNC void handle_roomLoader(void* data, void* stageDt, int32_t roomNo)
     {
-        rando::Randomizer* rando = randomizer;
-        if (randoIsEnabled(rando))
-        {
-            events::onARC(rando, data, roomNo, rando::FileDirectory::Room); // Replace room based checks.
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        events::onARC(randoPtr, data, roomNo, rando::FileDirectory::Room); // Replace room based checks.
 
-            void* filePtr =
-                libtp::tp::d_com_inf_game::dComIfG_getStageRes("stage.dzs"); // Could hook stageLoader instead since it takes
-                                                                             // the first param as a pointer to the stage.dzs
+        // Could hook stageLoader instead since it takes the first param as a pointer to the stage.dzs
+        void* filePtr = libtp::tp::d_com_inf_game::dComIfG_getStageRes("stage.dzs");
 
-            events::onARC(rando, filePtr, roomNo, rando::FileDirectory::Stage); // Replace stage based checks.
-        }
-        return return_roomLoader(data, stageDt, roomNo);
+        events::onARC(randoPtr, filePtr, roomNo, rando::FileDirectory::Stage); // Replace stage based checks.
+        return gReturn_roomLoader(data, stageDt, roomNo);
     }
 
     /*
@@ -1036,7 +720,7 @@ namespace mod
     {
         // This function is a placeholder for now. May work with Taka on getting some ARC checks converted over to use this
         // function instead of roomLoader
-        return return_stageLoader( data, stageDt );
+        return gReturn_stageLoader( data, stageDt );
     }
     */
 
@@ -1088,7 +772,7 @@ namespace mod
                     break;
             }
         }
-        return return_dStage_playerInit(stageDt, i_data, num, raw_data);
+        return gReturn_dStage_playerInit(stageDt, i_data, num, raw_data);
     }
 
     KEEP_FUNC int32_t procCoGetItemInitCreateItem(const float pos[3],
@@ -1099,9 +783,10 @@ namespace mod
                                                   const float rot[3],
                                                   const float scale[3])
     {
-        if (giveItemToPlayer == ITEM_IN_QUEUE)
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        if (randoPtr->getGiveItemToPlayerStatus() == rando::EventItemStatus::ITEM_IN_QUEUE)
         {
-            giveItemToPlayer = CLEAR_QUEUE;
+            randoPtr->setGiveItemToPlayerStatus(rando::EventItemStatus::CLEAR_QUEUE);
         }
 
         return libtp::tp::f_op_actor_mng::createItemForPresentDemo(pos, item, unk3, unk4, unk5, rot, scale);
@@ -1120,10 +805,10 @@ namespace mod
         (void)unk7;
 
         // Spawn the appropriate item with model
-        rando::Randomizer* rando = randomizer;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
 
-        uint32_t itemID = rando->getBossItem(item);
-        itemID = game_patch::_04_verifyProgressiveItem(rando, itemID);
+        uint32_t itemID = randoPtr->getBossItem();
+        itemID = game_patch::_04_verifyProgressiveItem(randoPtr, itemID);
 
         if (item == libtp::data::items::Heart_Container) // used for Dungeon Heart Containers
         {
@@ -1151,15 +836,15 @@ namespace mod
         if (item == libtp::data::items::Boomerang)
         {
             // Spawn the appropriate item
-            rando::Randomizer* rando = randomizer;
+            rando::Randomizer* randoPtr = rando::gRandomizer;
 
-            uint32_t itemID = rando->getBossItem(item);
-            itemID = game_patch::_04_verifyProgressiveItem(rando, itemID);
+            uint32_t itemID = randoPtr->getBossItem();
+            itemID = game_patch::_04_verifyProgressiveItem(randoPtr, itemID);
 
             return initCreatePlayerItem(itemID, 0xFF, pos, roomNo, rot, scale);
         }
 
-        return return_createItemForMidBoss(pos, item, roomNo, rot, scale, unk6, itemPickupFlag);
+        return gReturn_createItemForMidBoss(pos, item, roomNo, rot, scale, unk6, itemPickupFlag);
     }
 
     KEEP_FUNC int32_t handle_createItemForPresentDemo(const float pos[3],
@@ -1170,8 +855,8 @@ namespace mod
                                                       const float rot[3],
                                                       const float scale[3])
     {
-        item = game_patch::_04_verifyProgressiveItem(randomizer, item);
-        return return_createItemForPresentDemo(pos, item, unk3, unk4, unk5, rot, scale);
+        item = game_patch::_04_verifyProgressiveItem(rando::gRandomizer, item);
+        return gReturn_createItemForPresentDemo(pos, item, unk3, unk4, unk5, rot, scale);
     }
 
     KEEP_FUNC int32_t handle_createItemForTrBoxDemo(const float pos[3],
@@ -1181,8 +866,8 @@ namespace mod
                                                     const int16_t rot[3],
                                                     const float scale[3])
     {
-        item = game_patch::_04_verifyProgressiveItem(randomizer, item);
-        return return_createItemForTrBoxDemo(pos, item, itemPickupFlag, roomNo, rot, scale);
+        item = game_patch::_04_verifyProgressiveItem(rando::gRandomizer, item);
+        return gReturn_createItemForTrBoxDemo(pos, item, itemPickupFlag, roomNo, rot, scale);
     }
 
     KEEP_FUNC void handle_CheckFieldItemCreateHeap(libtp::tp::f_op_actor::fopAc_ac_c* actor)
@@ -1204,7 +889,7 @@ namespace mod
             }
             default:
             {
-                return return_CheckFieldItemCreateHeap(actor);
+                return gReturn_CheckFieldItemCreateHeap(actor);
             }
         }
     }
@@ -1241,8 +926,8 @@ namespace mod
 
     KEEP_FUNC void handle_execItemGet(uint8_t item)
     {
-        item = game_patch::_04_verifyProgressiveItem(randomizer, item);
-        return return_execItemGet(item);
+        item = game_patch::_04_verifyProgressiveItem(rando::gRandomizer, item);
+        return gReturn_execItemGet(item);
     }
 
     KEEP_FUNC int32_t handle_checkItemGet(uint8_t item, int32_t defaultValue)
@@ -1320,14 +1005,14 @@ namespace mod
             }
         }
 
-        return return_checkItemGet(item, defaultValue);
+        return gReturn_checkItemGet(item, defaultValue);
     }
     KEEP_FUNC void handle_item_func_ASHS_SCRIBBLING()
     {
         using namespace libtp::data::flags;
         if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GOT_CORAL_EARRING_FROM_RALIS))
         {
-            return_item_func_ASHS_SCRIBBLING();
+            gReturn_item_func_ASHS_SCRIBBLING();
         }
     }
 
@@ -1337,7 +1022,7 @@ namespace mod
                                                     uint16_t msgId)
     {
         // Call the original function immediately, as a lot of stuff needs to be set before our code runs
-        const bool ret = return_setMessageCode_inSequence(control, TProcessor, unk3, msgId);
+        const bool ret = gReturn_setMessageCode_inSequence(control, TProcessor, unk3, msgId);
 
         // Make sure the function ran successfully
         if (ret)
@@ -1355,7 +1040,7 @@ namespace mod
         }
         else
         {
-            return return_getFontCCColorTable(colorId, unk);
+            return gReturn_getFontCCColorTable(colorId, unk);
         }
     }
 
@@ -1367,7 +1052,7 @@ namespace mod
         }
         else
         {
-            return return_getFontCCColorTable(colorId, unk);
+            return gReturn_getFontCCColorTable(colorId, unk);
         }
     }
 
@@ -1394,7 +1079,7 @@ namespace mod
                 break;
             }
         }
-        return return_query001(unk1, unk2, unk3);
+        return gReturn_query001(unk1, unk2, unk3);
     }
 
     KEEP_FUNC int32_t handle_query022(void* unk1, void* unk2, int32_t unk3)
@@ -1420,13 +1105,13 @@ namespace mod
             // the player has an empty bottle.
             return 1;
         }
-        return return_checkEmptyBottle(playerItem);
+        return gReturn_checkEmptyBottle(playerItem);
     }
 
     KEEP_FUNC int32_t handle_query037(void* unk1, void* unk2, int32_t unk3)
     {
         // Call the original function immediately as we need its output
-        const int32_t menuType = return_query037(unk1, unk2, unk3);
+        const int32_t menuType = gReturn_query037(unk1, unk2, unk3);
 
         if ((menuType == 0x2) && (reinterpret_cast<int32_t>(libtp::tp::d_a_player::m_midnaActor) ==
                                   libtp::tp::f_op_actor_mng::fopAcM_getTalkEventPartner(nullptr)))
@@ -1439,7 +1124,7 @@ namespace mod
 
     KEEP_FUNC int32_t handle_query049(void* unk1, void* unk2, int32_t unk3)
     {
-        const int32_t poeFlag = return_query049(unk1, unk2, unk3);
+        const int32_t poeFlag = gReturn_query049(unk1, unk2, unk3);
 
         if ((poeFlag == 4) && !libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::GOT_BOTTLE_FROM_JOVANI))
         {
@@ -1462,7 +1147,7 @@ namespace mod
         {
             *reinterpret_cast<uint16_t*>( reinterpret_cast<uint32_t>( nodeEvent ) + 4 ) = 0x0000;
         }
-        return return_event000( messageFlow, nodeEvent, actrPtr );
+        return gReturn_event000( messageFlow, nodeEvent, actrPtr );
     }
     */
 
@@ -1476,7 +1161,7 @@ namespace mod
             *reinterpret_cast<uint16_t*>(reinterpret_cast<uint32_t>(nodeEvent) + 4) = 0x0000;
         }
 
-        return return_event017(messageFlow, nodeEvent, actrPtr);
+        return gReturn_event017(messageFlow, nodeEvent, actrPtr);
     }
 
     KEEP_FUNC int32_t handle_doFlow(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1524,7 +1209,7 @@ namespace mod
             }
         }
 
-        return return_doFlow(msgFlow, actrPtr, actrValue, i_flow);
+        return gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
     }
 
     KEEP_FUNC int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1540,18 +1225,15 @@ namespace mod
             return 1;
         }
 
-        return return_setNormalMsg(msgFlow, flowNode, actrPtr);
+        return gReturn_setNormalMsg(msgFlow, flowNode, actrPtr);
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)
     {
         // Call the original function immediately as it sets necessary values needed later on.
-        return_jmessage_tSequenceProcessor__do_begin(seqProcessor, unk2, text);
+        gReturn_jmessage_tSequenceProcessor__do_begin(seqProcessor, unk2, text);
 
-        if (instantTextEnabled)
-        {
-            *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(seqProcessor) + 0xB2) = 0x1;
-        }
+        *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(seqProcessor) + 0xB2) = 0x1;
     }
 
     KEEP_FUNC bool handle_jmessage_tSequenceProcessor__do_tag(void* seqProcessor,
@@ -1560,19 +1242,17 @@ namespace mod
                                                               uint32_t unk4)
     {
         // Call the original function immediately as it sets necessary values needed later on.
-        const bool result = return_jmessage_tSequenceProcessor__do_tag(seqProcessor, unk2, currentText, unk4);
+        const bool result = gReturn_jmessage_tSequenceProcessor__do_tag(seqProcessor, unk2, currentText, unk4);
 
-        if (instantTextEnabled)
-        {
-            *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(seqProcessor) + 0xB2) = 0x1;
+        *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(seqProcessor) + 0xB2) = 0x1;
 #ifdef TP_JP
-            constexpr uint32_t offset = 0x5A6;
+        constexpr uint32_t offset = 0x5A6;
 #else
-            constexpr uint32_t offset = 0x5D6;
+        constexpr uint32_t offset = 0x5D6;
 #endif
-            uint32_t tReferencePtr = *reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(seqProcessor) + 0x4);
-            *reinterpret_cast<int16_t*>(tReferencePtr + offset) = 0;
-        }
+        uint32_t tReferencePtr = *reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(seqProcessor) + 0x4);
+        *reinterpret_cast<int16_t*>(tReferencePtr + offset) = 0;
+
         return result;
     }
 
@@ -1613,7 +1293,7 @@ namespace mod
                 break;
             }
         }
-        return return_daNpcT_chkEvtBit(flag);
+        return gReturn_daNpcT_chkEvtBit(flag);
     }
 
     KEEP_FUNC bool handle_isEventBit(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag)
@@ -1737,13 +1417,9 @@ namespace mod
                 {
                     if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT))
                     {
-                        rando::Seed* seed;
-                        if (seed = getCurrentSeed(randomizer), seed)
+                        if (rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getPalaceRequirements() != 3)
                         {
-                            if (seed->m_Header->palaceRequirements != 3)
-                            {
-                                return false;
-                            }
+                            return false;
                         }
                     }
                 }
@@ -1780,7 +1456,7 @@ namespace mod
                 break;
             }
         }
-        return return_isEventBit(eventPtr, flag);
+        return gReturn_isEventBit(eventPtr, flag);
     }
 
     KEEP_FUNC void handle_onEventBit(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag)
@@ -1882,14 +1558,11 @@ namespace mod
 
                 case PALACE_OF_TWILIGHT_CLEARED:
                 {
-                    rando::Seed* seed;
-                    if (seed = getCurrentSeed(randomizer), seed)
+                    if (rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getCastleRequirements() ==
+                        rando::CastleEntryRequirements::HC_Vanilla) // Vanilla
                     {
-                        if (seed->m_Header->castleRequirements == rando::CastleEntryRequirements::HC_Vanilla) // Vanilla
-                        {
-                            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
-                            return return_onEventBit(eventPtr, flag); // set PoT story flag
-                        }
+                        events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
+                        return gReturn_onEventBit(eventPtr, flag); // set PoT story flag
                     }
                     break;
                 }
@@ -1901,7 +1574,7 @@ namespace mod
             }
         }
 
-        return return_onEventBit(eventPtr, flag);
+        return gReturn_onEventBit(eventPtr, flag);
     }
 
     KEEP_FUNC bool handle_isSwitch_dSv_memBit(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag)
@@ -1936,7 +1609,7 @@ namespace mod
                 return false;
             }
         }
-        return return_isSwitch_dSv_memBit(memoryBit, flag);
+        return gReturn_isSwitch_dSv_memBit(memoryBit, flag);
     }
 
     KEEP_FUNC void handle_onSwitch_dSv_memBit(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag)
@@ -1986,15 +1659,7 @@ namespace mod
             }
         }
 
-        return return_onSwitch_dSv_memBit(memoryBit, flag);
-    }
-
-    KEEP_FUNC bool handle_checkTreasureRupeeReturn(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t item)
-    {
-        (void)linkActrPtr;
-        (void)item;
-
-        return false;
+        return gReturn_onSwitch_dSv_memBit(memoryBit, flag);
     }
 
     KEEP_FUNC bool handle_isDarkClearLV(void* playerStatusPtr, int32_t twilightNode)
@@ -2007,13 +1672,13 @@ namespace mod
             return false; // Return false so Sera will give us the bottle if we have rescued the cat.
         }
 
-        return return_isDarkClearLV(playerStatusPtr, twilightNode);
+        return gReturn_isDarkClearLV(playerStatusPtr, twilightNode);
     }
 
     KEEP_FUNC void handle_collect_save_open_init(uint8_t param_1)
     {
         game_patch::_07_checkPlayerStageReturn();
-        return return_collect_save_open_init(param_1);
+        return gReturn_collect_save_open_init(param_1);
     }
 
     KEEP_FUNC void handle_resetMiniGameItem(libtp::tp::d_meter2_info::G_Meter2_Info* gMeter2InfoPtr, bool minigameFlag)
@@ -2036,7 +1701,7 @@ namespace mod
         }
 
         // Run the original function as we want to clear the other minigame flags
-        return_resetMiniGameItem(gMeter2InfoPtr, minigameFlag);
+        gReturn_resetMiniGameItem(gMeter2InfoPtr, minigameFlag);
     }
 
     KEEP_FUNC bool handle_checkBootsMoveAnime(libtp::tp::d_a_alink::daAlink* d_a_alink, int32_t param_1)
@@ -2045,7 +1710,7 @@ namespace mod
         {
             return false;
         }
-        return return_checkBootsMoveAnime(d_a_alink, param_1);
+        return gReturn_checkBootsMoveAnime(d_a_alink, param_1);
     }
 
     KEEP_FUNC void handle_setGetItemFace(libtp::tp::d_a_alink::daAlink* linkMapPtr, uint16_t itemID)
@@ -2083,63 +1748,52 @@ namespace mod
                 break;
             }
         }
-        return return_setGetItemFace(linkMapPtr, itemID);
+        return gReturn_setGetItemFace(linkMapPtr, itemID);
     }
 
     KEEP_FUNC void handle_setWolfLockDomeModel(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
         // Call the original function immediately, as certain values need to be set in the Link Actor struct.
-        return_setWolfLockDomeModel(linkActrPtr);
+        gReturn_setWolfLockDomeModel(linkActrPtr);
 
-        rando::Randomizer* rando = randomizer;
-        if (getCurrentSeed(rando))
-        {
-            rando->replaceWolfLockDomeColor(linkActrPtr);
-        }
+        rando::gRandomizer->replaceWolfLockDomeColor(linkActrPtr);
         return;
     }
 
     KEEP_FUNC bool handle_procFrontRollCrashInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
         handleBonkDamage();
-        return return_procFrontRollCrashInit(linkActrPtr);
+        return gReturn_procFrontRollCrashInit(linkActrPtr);
     }
 
     KEEP_FUNC bool handle_procWolfDashReverseInit(libtp::tp::d_a_alink::daAlink* linkActrPtr, bool param_1)
     {
         handleBonkDamage();
-        return return_procWolfDashReverseInit(linkActrPtr, param_1);
+        return gReturn_procWolfDashReverseInit(linkActrPtr, param_1);
     }
 
     KEEP_FUNC bool handle_procWolfAttackReverseInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
         handleBonkDamage();
-        return return_procWolfAttackReverseInit(linkActrPtr);
+        return gReturn_procWolfAttackReverseInit(linkActrPtr);
     }
 
     KEEP_FUNC libtp::tp::f_op_actor::fopAc_ac_c* handle_searchBouDoor(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
     {
-        rando::Seed* seed;
-        if (seed = getCurrentSeed(randomizer), seed)
+        if (rando::gRandomizer->getSeedPtr()->getStageIDX() == libtp::data::stage::StageIDs::Ordon_Village)
         {
-            if (seed->m_StageIDX == libtp::data::stage::StageIDs::Ordon_Village)
-            {
-                return nullptr;
-            }
+            return nullptr;
         }
-        return return_searchBouDoor(actrPtr);
+
+        return gReturn_searchBouDoor(actrPtr);
     }
 
     KEEP_FUNC float handle_damageMagnification(libtp::tp::d_a_alink::daAlink* linkActrPtr, int32_t param_1, int32_t param_2)
     {
         // Call the original function immediately, as we only need the current damage magnification value.
-        float ret = return_damageMagnification(linkActrPtr, param_1, param_2);
+        float ret = gReturn_damageMagnification(linkActrPtr, param_1, param_2);
 
-        rando::Seed* seed;
-        if (seed = getCurrentSeed(randomizer), seed)
-        {
-            ret *= intToFloat(static_cast<int32_t>(damageMultiplier));
-        }
+        ret *= intToFloat(static_cast<int32_t>(rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getDamageMagnification()));
         return ret;
     }
 
@@ -2177,19 +1831,19 @@ namespace mod
             }
         }
 
-        return return_checkCastleTownUseItem(item_id);
+        return gReturn_checkCastleTownUseItem(item_id);
     }
 
     KEEP_FUNC void handle_loadSeWave(void* z2SceneMgr, uint32_t waveID)
     {
-        z2ScenePtr = z2SceneMgr;
-        return return_loadSeWave(z2SceneMgr, waveID);
+        rando::gRandomizer->setZ2ScenePtr(z2SceneMgr);
+        return gReturn_loadSeWave(z2SceneMgr, waveID);
     }
 
     KEEP_FUNC bool handle_checkBgmIDPlaying(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id)
     {
         // Call original function immediately as it sets necessary values.
-        const bool ret = return_checkBgmIDPlaying(seqMgr, sfx_id);
+        const bool ret = gReturn_checkBgmIDPlaying(seqMgr, sfx_id);
 
         if (sfx_id == 0x01000013) // Game Over sfx
         {
@@ -2203,7 +1857,7 @@ namespace mod
     {
         // Set the timer
         ptr->mTimer = 0;
-        return return_dispWait_init(ptr);
+        return gReturn_dispWait_init(ptr);
     }
 
     KEEP_FUNC int32_t handle_seq_decide_yes(libtp::tp::d_shop_system::dShopSystem* shopPtr,
@@ -2219,28 +1873,29 @@ namespace mod
             libtp::tp::d_shop_system::setSoldOutFlag(shopPtr);
         }
 
-        return return_seq_decide_yes(shopPtr, actor, msgFlow);
+        return gReturn_seq_decide_yes(shopPtr, actor, msgFlow);
     }
 
     KEEP_FUNC int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
         // If we are giving a custom item, we want to set mParam0 to 0x100 so that instead of trying to search for an item actor
         // that doesnt exist we want the game to create one using the item id in mGtItm.
-        if (giveItemToPlayer == ITEM_IN_QUEUE)
+        if (rando::gRandomizer->getGiveItemToPlayerStatus() == rando::EventItemStatus::ITEM_IN_QUEUE)
         {
             libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer->mDemo.mParam0 = 0x100;
         }
 
-        return return_procCoGetItemInit(linkActrPtr);
+        return gReturn_procCoGetItemInit(linkActrPtr);
     }
 
     KEEP_FUNC void* handle_dScnLogo_c_dt(void* dScnLogo_c, int16_t bFreeThis)
     {
         // Call the original function immediately, as certain values need to be set first
-        void* ret = return_dScnLogo_c_dt(dScnLogo_c, bFreeThis);
+        void* ret = gReturn_dScnLogo_c_dt(dScnLogo_c, bFreeThis);
 
-        // Initialize bgWindow since mMain2DArchive should now be set
-        if (!bgWindow)
+        // Initialize m_BgWindow since mMain2DArchive should now be set
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        if (!randoPtr->getBgWindowPtr())
         {
             void* main2DArchive = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mMain2DArchive;
             if (main2DArchive)
@@ -2252,7 +1907,7 @@ namespace mod
 
                 if (bg)
                 {
-                    bgWindow = new libtp::tp::J2DPicture::J2DPicture(bg);
+                    randoPtr->setBgWindowPtr(new libtp::tp::J2DPicture::J2DPicture(bg));
                 }
             }
         }
@@ -2260,22 +1915,17 @@ namespace mod
         return ret;
     }
 
-    KEEP_FUNC void handleFoolishItem()
+    KEEP_FUNC void handleFoolishItem(rando::Randomizer* randoPtr)
     {
         using namespace libtp::z2audiolib;
         using namespace libtp::z2audiolib::z2scenemgr;
         using namespace libtp::tp;
 
-        const uint8_t currentDamageMultiplier = damageMultiplier;
-
-        if (!randoIsEnabled(randomizer))
-        {
-            return;
-        }
+        rando::customItems::FoolishItems* foolishItemsPtr = randoPtr->getFoolishItemsPtr();
+        const uint8_t currentDamageMultiplier = randoPtr->getSeedPtr()->getHeaderPtr()->getDamageMagnification();
 
         // Get the trigger count
-        uint8_t* triggerCount = &rando::foolishItems.triggerCount;
-        uint32_t count = *triggerCount;
+        uint32_t count = foolishItemsPtr->getTriggerCount();
         if (count == 0)
         {
             return;
@@ -2291,8 +1941,9 @@ namespace mod
         {
             count = 100;
         }
-        // reset trigger counter to 0
-        *triggerCount = 0;
+
+        // Reset trigger counter to 0
+        foolishItemsPtr->resetTriggerCount();
 
         /* Store the currently loaded sound wave to local variables as we will need to load them back later.
          * We use this method because if we just loaded the sound waves every time the item was gotten, we'd
@@ -2301,7 +1952,7 @@ namespace mod
         const uint32_t seWave1 = sceneMgrPtr->SeWaveToErase_1;
         const uint32_t seWave2 = sceneMgrPtr->SeWaveToErase_2;
 
-        void* scenePtr = z2ScenePtr;
+        void* scenePtr = randoPtr->getZ2ScenePtr();
         eraseSeWave(scenePtr, seWave1);
         eraseSeWave(scenePtr, seWave2);
         loadSeWave(scenePtr, 0x46);
@@ -2336,69 +1987,66 @@ namespace mod
 
     KEEP_FUNC void handleBonkDamage()
     {
-        if (bonksDoDamage)
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+        if (!seedPtr->bonksDoDamage())
         {
-            using namespace libtp::tp;
-            d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
-            libtp::tp::d_save::dSv_player_status_a_c* playerStatusPtr = &gameInfoPtr->save.save_file.player.player_status_a;
-            int32_t newHealthValue;
-            const uint8_t currentDamageMultiplier = damageMultiplier;
-
-            if (playerStatusPtr->currentForm == 1)
-            {
-                newHealthValue = playerStatusPtr->currentHealth - (2 * currentDamageMultiplier);
-            }
-            else
-            {
-                newHealthValue = playerStatusPtr->currentHealth - currentDamageMultiplier; // Damage multiplier is 1 by default
-            }
-
-            // Make sure an underflow doesn't occur
-            if (newHealthValue < 0)
-            {
-                newHealthValue = 0;
-            }
-
-            playerStatusPtr->currentHealth = static_cast<uint16_t>(newHealthValue);
+            return;
         }
+
+        libtp::tp::d_save::dSv_player_status_a_c* playerStatusPtr =
+            &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a;
+
+        const uint8_t currentDamageMultiplier = seedPtr->getHeaderPtr()->getDamageMagnification();
+        int32_t newHealthValue;
+
+        if (playerStatusPtr->currentForm == 1)
+        {
+            newHealthValue = playerStatusPtr->currentHealth - (2 * currentDamageMultiplier);
+        }
+        else
+        {
+            newHealthValue = playerStatusPtr->currentHealth - currentDamageMultiplier; // Damage multiplier is 1 by default
+        }
+
+        // Make sure an underflow doesn't occur
+        if (newHealthValue < 0)
+        {
+            newHealthValue = 0;
+        }
+
+        playerStatusPtr->currentHealth = static_cast<uint16_t>(newHealthValue);
     }
 
     KEEP_FUNC libtp::tp::d_resource::dRes_info_c* handle_getResInfo(const char* arcName,
                                                                     libtp::tp::d_resource::dRes_info_c* objectInfo,
                                                                     int32_t size)
     {
-        libtp::tp::d_resource::dRes_info_c* resourcePtr = return_getResInfo(arcName, objectInfo, size);
+        libtp::tp::d_resource::dRes_info_c* resourcePtr = gReturn_getResInfo(arcName, objectInfo, size);
 
-        rando::Randomizer* rando = randomizer;
-        if (getCurrentSeed(rando) && resourcePtr)
+        // Make sure the randomizer is enabled, as otherwise some arcs seem to get modifed that shouldn't. One example of this
+        // causing problems is when starting a file, and once you have control of Link, reset to go back to the title screen.
+        // Doing so will cause the game to crash if this code runs when the randomizer is disabled.
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        if (randoPtr->randomizerIsEnabled() && resourcePtr)
         {
-            rando->overrideObjectARC(resourcePtr, arcName);
+            randoPtr->overrideObjectARC(resourcePtr, arcName);
         }
 
         return resourcePtr;
     }
 
-    // This is called in the NON-MAIN thread which is loading the archive where
-    // `mountArchive->mIsDone = true;` would be called normally (this is the
-    // last thing that gets called before the archive is considered loaded). The
-    // archive is no longer automatically marked as loaded, so we need to do
-    // this ourselves when we are done. (This indicates that the archive is
-    // loaded, and whatever was waiting on it will see this byte change the next
-    // time it polls the completion status (polling happens once per frame?))
+    // This is called in the NON-MAIN thread which is loading the archive where `mountArchive->mIsDone = true;` would be called
+    // normally (this is the last thing that gets called before the archive is considered loaded). The archive is no longer
+    // automatically marked as loaded, so we need to do this ourselves when we are done. (This indicates that the archive is
+    // loaded, and whatever was waiting on it will see this byte change the next time it polls the completion status (polling
+    // happens once per frame?))
     KEEP_FUNC bool handle_mountArchive__execute(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive)
     {
-        const bool ret = return_mountArchive__execute(mountArchive);
+        const bool ret = gReturn_mountArchive__execute(mountArchive);
 
         if (ret)
         {
-            // Make sure the randomizer is loaded/enabled and a seed is loaded
-            rando::Seed* seed;
-            rando::Randomizer* rando = randomizer;
-
-            if (seed = getCurrentSeed(rando), seed)
-            {
-                rando->recolorArchiveTextures(mountArchive);
-            }
+            rando::gRandomizer->recolorArchiveTextures(mountArchive);
         }
 
         // Need to mark the archive as loaded once we are done modifying its

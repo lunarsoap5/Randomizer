@@ -1,7 +1,13 @@
 #ifndef ITEM_WHEEL_MENU_H
 #define ITEM_WHEEL_MENU_H
 
+#include "tp/resource.h"
+#include "data/stages.h"
+
 #include <cstdint>
+#include <cstring>
+
+using namespace libtp::data::stage;
 
 namespace mod::item_wheel_menu
 {
@@ -30,9 +36,6 @@ namespace mod::item_wheel_menu
 
         // Seed:
         const char* seedIsLoaded;
-
-        // Seed is not currently loaded
-        const char* seedIsNotLoaded;
 
         // Yes/No
         const char* yes;
@@ -99,9 +102,49 @@ namespace mod::item_wheel_menu
         uint8_t valuesCompassesNoOffset;  // Compasses text to the start of the values
     };
 
-    // Set up a struct for holding the strings and offsets
-    struct ItemWheelMenuData
+    // Set up a class for holding the strings and offsets
+    class ItemWheelMenuData
     {
+       public:
+        ItemWheelMenuData() {}
+        ~ItemWheelMenuData() {}
+
+        const uint8_t* getAreaColorIdsPtr() const { return &this->areaColorIds[0]; }
+        const AreaNodesID* getSmallKeyAreaNodesPtr() const { return &this->smallKeyAreaNodes[0]; }
+
+        const char* getTextDataPtr() const { return this->textData; }
+        ItemWheelMenuStrings* getStringsPtr() { return &this->strings; }
+        ItemWheelMenuOffsets* getOffsetsPtr() { return &this->offsets; }
+
+        void setTextDataPtr(const char* data) { this->textData = data; }
+        void createOffsets(const ItemWheelMenuOffsets* src) { memcpy(&this->offsets, src, sizeof(this->offsets)); }
+
+       private:
+        // Set up an array to hold each area's color id
+        static constexpr const uint8_t areaColorIds[] = {MSG_COLOR_GREEN_HEX,
+                                                         MSG_COLOR_RED_HEX,
+                                                         CUSTOM_MSG_COLOR_BLUE_HEX,
+                                                         MSG_COLOR_ORANGE_HEX,
+                                                         MSG_COLOR_LIGHT_BLUE_HEX,
+                                                         CUSTOM_MSG_COLOR_DARK_GREEN_HEX,
+                                                         MSG_COLOR_YELLOW_HEX,
+                                                         MSG_COLOR_PURPLE_HEX,
+                                                         CUSTOM_MSG_COLOR_SILVER_HEX,
+                                                         MSG_COLOR_GREEN_HEX,
+                                                         MSG_COLOR_ORANGE_HEX};
+
+        // Set up an array with all of the area node ids that small keys are tracked
+        static constexpr const AreaNodesID smallKeyAreaNodes[] = {AreaNodesID::Forest_Temple,
+                                                                  AreaNodesID::Goron_Mines,
+                                                                  AreaNodesID::Lakebed_Temple,
+                                                                  AreaNodesID::Arbiters_Grounds,
+                                                                  AreaNodesID::Snowpeak_Ruins,
+                                                                  AreaNodesID::Temple_of_Time,
+                                                                  AreaNodesID::City_in_the_Sky,
+                                                                  AreaNodesID::Palace_of_Twilight,
+                                                                  AreaNodesID::Hyrule_Castle,
+                                                                  AreaNodesID::Faron,
+                                                                  AreaNodesID::Gerudo_Desert};
         // Pointer to all of the dynamic text
         // This is allocated memory
         const char* textData;
@@ -113,22 +156,31 @@ namespace mod::item_wheel_menu
         ItemWheelMenuOffsets offsets;
     };
 
-    extern ItemWheelMenuData itemWheelMenuData;
+    // Set up a class for holding all of the item wheel menu stuff
+    class ItemWheelMenu
+    {
+       public:
+        ItemWheelMenu() {}
+        ~ItemWheelMenu() {}
 
-    // The ring is drawn more than once per frame, so this is set to true on the first draw
-    extern bool ringDrawnThisFrame;
+        ItemWheelMenuData* getDataPtr() { return &this->data; }
+        bool shouldDrawRingThisFrame() const { return this->ringDrawnThisFrame; }
+        bool shouldDisplayMenu() const { return this->displayMenu; }
 
-    // Handles whether the menu should be displayed or not
-    extern bool displayMenu;
+        void drawRingThisFrame() { this->ringDrawnThisFrame = true; }
+        void resetRingDrawnThisFrame() { this->ringDrawnThisFrame = false; }
+        void setDisplayMenu(bool value) { this->displayMenu = value; }
+        void dontDisplayMenu() { this->displayMenu = false; }
 
-    // Function hook handlers & trampolines
-    extern void (*return_dMenuRing__create)(void* dMenuRing);
-    extern void (*return_dMenuRing__delete)(void* dMenuRing);
-    extern void (*return_dMenuRing__draw)(void* dMenuRing);
+       private:
+        ItemWheelMenuData data;
 
-    void handle_dMenuRing__create(void* dMenuRing);
-    void handle_dMenuRing__delete(void* dMenuRing);
-    void handle_dMenuRing__draw(void* dMenuRing);
+        // The ring is drawn more than once per frame, so this is set to true on the first draw
+        bool ringDrawnThisFrame;
+
+        // Handles whether the menu should be displayed or not
+        bool displayMenu;
+    };
 } // namespace mod::item_wheel_menu
 
 #endif

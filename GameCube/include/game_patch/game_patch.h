@@ -18,11 +18,6 @@
 
 namespace mod::game_patch
 {
-#define TOTAL_FOOLISH_ITEM_MODELS 20
-    extern const uint8_t foolishModelItemList[TOTAL_FOOLISH_ITEM_MODELS];
-
-    extern uint8_t dungeonItemAreaColorIndex;
-
     // Special message ids that use values that are normally never used
     enum SpecialMessageIds
     {
@@ -48,7 +43,7 @@ namespace mod::game_patch
     /**
      * @brief Patches the unused itemFunc corresponding to the poe itemID
      */
-    void _00_poe(void);
+    void _00_poe();
     void _00_handle_poeItem();
 
     // 01 - Function definitions used for setting up the custom state function(s)

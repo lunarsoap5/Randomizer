@@ -16,16 +16,14 @@ namespace mod::user_patch
     /**
      * @brief A list of potential functions to run upon seed initialization.
      */
-    void clearFaronTwilight(rando::Randomizer* randomizer, bool set);
-    void clearEldinTwilight(rando::Randomizer* randomizer, bool set);
-    void clearLanayruTwilight(rando::Randomizer* randomizer, bool set);
-    void loadShopModels(rando::Randomizer* randomizer, bool set);
-    void setMinorCutsceneValues(rando::Randomizer* randomizer, bool set);
-    void clearMDH(rando::Randomizer* randomizer, bool set);
-    void setInstantText(rando::Randomizer* randomizer, bool set);
-    void setMapRegionBits(rando::Randomizer* randomizer, bool set);
-    void increaseSpinnerVelocity(rando::Randomizer* randomizer, bool set);
-    void skipMajorCutscenes(rando::Randomizer* randomizer, bool set);
+    void clearFaronTwilight(rando::Randomizer* randomizer);
+    void clearEldinTwilight(rando::Randomizer* randomizer);
+    void clearLanayruTwilight(rando::Randomizer* randomizer);
+    void setMinorCutsceneValues(rando::Randomizer* randomizer);
+    void clearMDH(rando::Randomizer* randomizer);
+    void setInstantText(rando::Randomizer* randomizer);
+    void setMapRegionBits(rando::Randomizer* randomizer);
+    void skipMajorCutscenes(rando::Randomizer* randomizer);
 } // namespace mod::user_patch
 
 #endif

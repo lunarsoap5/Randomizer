@@ -20,29 +20,6 @@
 
 namespace mod::game_patch
 {
-    const uint8_t foolishModelItemList[TOTAL_FOOLISH_ITEM_MODELS] = {
-        libtp::data::items::Magic_Armor,
-        libtp::data::items::Master_Sword,
-        libtp::data::items::Ordon_Shield,
-        libtp::data::items::Hylian_Shield,
-        libtp::data::items::Shadow_Crystal,
-        libtp::data::items::Coral_Earring,
-        libtp::data::items::Hawkeye,
-        libtp::data::items::Boomerang,
-        libtp::data::items::Spinner,
-        libtp::data::items::Ball_and_Chain,
-        libtp::data::items::Heros_Bow,
-        libtp::data::items::Clawshot,
-        libtp::data::items::Iron_Boots,
-        libtp::data::items::Dominion_Rod,
-        libtp::data::items::Master_Sword_Light,
-        libtp::data::items::Fishing_Rod,
-        libtp::data::items::Slingshot,
-        libtp::data::items::Dominion_Rod_Uncharged,
-        libtp::data::items::Empty_Bomb_Bag,
-        libtp::data::items::Ancient_Sky_Book_Empty,
-    };
-
     void giveNodeDungeonItems(const libtp::data::stage::AreaNodesID nodeId, const libtp::data::items::NodeDungeonItemType type)
     {
         using namespace libtp::data::items;
@@ -98,10 +75,10 @@ namespace mod::game_patch
         }
     }
 
-    uint32_t getFoolishModelRandomIndex(uint8_t* foolishModelIndexes, uint32_t loopCurrentCount)
+    uint32_t getFoolishModelRandomIndex(rando::Randomizer* randomizer, uint8_t* foolishModelIndexes, uint32_t loopCurrentCount)
     {
-        constexpr uint32_t modelListSize = sizeof(foolishModelItemList) / sizeof(foolishModelItemList[0]);
-        uint32_t randomIndex = libtp::tools::ulRand(&randState, modelListSize);
+        uint32_t* randStatePtr = randomizer->getRandStatePtr();
+        uint32_t randomIndex = libtp::tools::ulRand(randStatePtr, TOTAL_FOOLISH_ITEM_MODELS);
 
         uint32_t i = 0;
         while (i < loopCurrentCount)
@@ -110,7 +87,7 @@ namespace mod::game_patch
             if (randomIndex == foolishModelIndexes[i])
             {
                 // Get a new index and restart the loop
-                randomIndex = libtp::tools::ulRand(&randState, modelListSize);
+                randomIndex = libtp::tools::ulRand(randStatePtr, TOTAL_FOOLISH_ITEM_MODELS);
                 i = 0;
                 continue;
             }
@@ -125,18 +102,22 @@ namespace mod::game_patch
     {
         // Set the field model of the Foolish Item ID to the model of a random important item.
         libtp::tp::d_item_data::FieldItemRes* fieldItemResPtr = &libtp::tp::d_item_data::field_item_res[0];
-        rando::customItems::FoolishItems* foolishItemsPtr = &rando::foolishItems;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        rando::customItems::FoolishItems* foolishItemsPtr = randoPtr->getFoolishItemsPtr();
 
-        const uint8_t* foolishItemIds = foolishItemsPtr->itemIds;
-        uint8_t* itemModelIds = foolishItemsPtr->itemModelId;
+        const uint8_t* foolishItemIds = foolishItemsPtr->getItemIdsPtr();
+        uint8_t* itemModelIds = foolishItemsPtr->getItemModelIdsPtr();
 
         constexpr uint32_t loopCount = MAX_SPAWNED_FOOLISH_ITEMS;
         uint8_t foolishModelIndexes[loopCount];
 
         for (uint32_t i = 0; i < loopCount; i++)
         {
-            const uint32_t randomIndex = getFoolishModelRandomIndex(foolishModelIndexes, i);
-            const uint32_t fieldModelItemID = _04_verifyProgressiveItem(randomizer, foolishModelItemList[randomIndex]);
+            const uint32_t randomIndex = getFoolishModelRandomIndex(randoPtr, foolishModelIndexes, i);
+
+            const uint32_t fieldModelItemID =
+                _04_verifyProgressiveItem(randoPtr, foolishItemsPtr->getSourceItemModelIdsPtr()[randomIndex]);
+
             itemModelIds[i] = static_cast<uint8_t>(fieldModelItemID);
 
             libtp::tp::d_item_data::FieldItemRes* currentFieldItemPtr = &fieldItemResPtr[foolishItemIds[i]];
@@ -154,8 +135,11 @@ namespace mod::game_patch
         using namespace libtp::tp::d_a_shop_item_static;
 
         // Set the shop model of the Foolish Item ID to the model of a random important item.
-        const uint32_t randomIndex = getFoolishModelRandomIndex(foolishModelIndexes, loopCurrentCount);
-        const uint32_t shopModelItemID = _04_verifyProgressiveItem(randomizer, foolishModelItemList[randomIndex]);
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        const uint32_t randomIndex = getFoolishModelRandomIndex(randoPtr, foolishModelIndexes, loopCurrentCount);
+
+        const uint32_t shopModelItemID =
+            _04_verifyProgressiveItem(randoPtr, randoPtr->getFoolishItemsPtr()->getSourceItemModelIdsPtr()[randomIndex]);
 
         libtp::tp::d_item_data::ItemResource* fieldItemResPtr = &libtp::tp::d_item_data::item_resource[shopModelItemID];
         ShopItemData* shopItemDataPtr = &shopItemData[shopID];
@@ -178,7 +162,7 @@ namespace mod::game_patch
         using namespace libtp::tp::d_a_shop_item_static;
 
         ShopItemData* shopItemDataPtr = &shopItemData[shopID];
-        const uint32_t shopModelItemID = _04_verifyProgressiveItem(randomizer, itemID);
+        const uint32_t shopModelItemID = _04_verifyProgressiveItem(rando::gRandomizer, itemID);
 
         switch (shopModelItemID)
         {
@@ -594,23 +578,16 @@ namespace mod::game_patch
         libtp::tp::d_save::onCollectCrystal(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                             '\x02');
 
-        // Make sure the randomizer is loaded/enabled and a seed is loaded
-        rando::Seed* seedPtr;
-        if (seedPtr = getCurrentSeed(randomizer), !seedPtr)
-        {
-            return;
-        }
-
-        rando::Header* headerPtr = seedPtr->m_Header;
+        const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
 
         // If the player has the castle requirement set to Fused Shadows.
-        if (headerPtr->castleRequirements == rando::CastleEntryRequirements::HC_Fused_Shadows)
+        if (headerPtr->getCastleRequirements() == rando::CastleEntryRequirements::HC_Fused_Shadows)
         {
             events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
         }
 
         // If the player has the palace requirement set to Fused Shadows.
-        if (headerPtr->palaceRequirements == rando::PalaceEntryRequirements::PoT_Fused_Shadows)
+        if (headerPtr->getPalaceRequirements() == rando::PalaceEntryRequirements::PoT_Fused_Shadows)
         {
             events::setSaveFileEventFlag(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT);
         }
@@ -642,22 +619,15 @@ namespace mod::game_patch
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\x03');
 
-        // Make sure the randomizer is loaded/enabled and a seed is loaded
-        rando::Seed* seedPtr;
-        if (seedPtr = getCurrentSeed(randomizer), !seedPtr)
-        {
-            return;
-        }
-
-        rando::Header* headerPtr = seedPtr->m_Header;
+        const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
 
         // If the player has the castle requirement set to Mirror Shards.
-        if (headerPtr->castleRequirements == rando::CastleEntryRequirements::HC_Mirror_Shards)
+        if (headerPtr->getCastleRequirements() == rando::CastleEntryRequirements::HC_Mirror_Shards)
         {
             events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
         }
         // If the player has the palace requirement set to Mirror Shards.
-        if (headerPtr->palaceRequirements == rando::PalaceEntryRequirements::PoT_Mirror_Shards)
+        if (headerPtr->getPalaceRequirements() == rando::PalaceEntryRequirements::PoT_Mirror_Shards)
         {
             events::setSaveFileEventFlag(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT);
         }
@@ -717,11 +687,11 @@ namespace mod::game_patch
     KEEP_FUNC void _02_foolishItemFunc()
     {
         // Failsafe: Make sure the count does not somehow exceed 100
-        uint8_t* triggerCount = &rando::foolishItems.triggerCount;
-        const uint32_t count = *triggerCount;
-        if (count < 100)
+        rando::customItems::FoolishItems* foolishItemsPtr = rando::gRandomizer->getFoolishItemsPtr();
+        const uint32_t triggerCount = foolishItemsPtr->getTriggerCount();
+        if (triggerCount < 100)
         {
-            *triggerCount = count + 1;
+            foolishItemsPtr->setTriggerCount(static_cast<uint8_t>(triggerCount + 1));
         }
     }
 

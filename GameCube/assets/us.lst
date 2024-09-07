@@ -171,6 +171,7 @@
 801b074c:dMenuCollect_screenSet
 
 // JKRHeap.o
+802CE624:resize1_JKRHeap
 802CEC98:__nw_JKRHeap
 802CED3C:__dl_JKRHeap
 

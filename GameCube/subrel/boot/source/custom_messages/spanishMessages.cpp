@@ -688,11 +688,6 @@ namespace mod::customMessages
         // seedIsLoaded
         "Seed",
 
-        // seedIsNotLoaded
-        // Ninguna seed está cargada actualmente
-        "\x4E\x69\x6E\x67\x75\x6E\x61\x20\x73\x65\x65\x64\x20\x65\x73\x74\xE1\x20\x63\x61\x72\x67\x61\x64\x61\x20\x61\x63\x74"
-        "\x75\x61\x6C\x6D\x65\x6E\x74\x65",
-
         // yes/no
         // Sí
         "\x53\xED",

@@ -17,6 +17,6 @@ namespace mod::user_patch
      *  Patched: 1000, 5000, 9999
      *  Unpatched: 300, 600, 1000
      */
-    void patchWallet(rando::Randomizer* randomizer, bool set);
+    void patchWallet(rando::Randomizer* randomizer);
 } // namespace mod::user_patch
 #endif
