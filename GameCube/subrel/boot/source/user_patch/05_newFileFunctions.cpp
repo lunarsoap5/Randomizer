@@ -10,6 +10,7 @@
 #include "tp/d_msg_class.h"
 #include "tp/d_msg_object.h"
 #include "events.h"
+#include "tp/d_camera.h"
 
 namespace mod::user_patch
 {
@@ -44,5 +45,14 @@ namespace mod::user_patch
         // Modifies the 'skipper' function to automatically attempt to skip all major cutscenes
         *skipperFunctionAddress = ASM_COMPARE_LOGICAL_WORD_IMMEDIATE(30, 0);
         libtp::memory::clear_DC_IC_Cache(skipperFunctionAddress, sizeof(uint32_t));
+    }
+
+    void invertCameraAxis(rando::Randomizer* randomizer)
+    {
+        (void)randomizer;
+        uint32_t* updatePadAddress =
+            reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(libtp::tp::d_camera::updatePad) + 0xF8);
+        *updatePadAddress = 0xfc200850; // Previous ec01002b.
+        libtp::memory::clear_DC_IC_Cache(updatePadAddress, sizeof(uint32_t));
     }
 } // namespace mod::user_patch

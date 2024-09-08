@@ -611,6 +611,7 @@ namespace mod::rando
                         break;
                     }
                     case DvdEntryNumId::ResObjectOgZORA:
+                    case DvdEntryNumId::ResObjectAlink:
                     {
                         snprintf(buf, sizeof(buf), "bmdr/%s", currentBmdEntry->getBmdResPtr());
                         break;

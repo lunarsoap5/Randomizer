@@ -407,6 +407,7 @@
 
 //d_camera.o
 80182ad8:checkRide
+801617b0:updatePad
 
 //d_resource.o
 8003c1e4:getResInfo

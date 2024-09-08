@@ -24,6 +24,7 @@ namespace mod::user_patch
     void setInstantText(rando::Randomizer* randomizer);
     void setMapRegionBits(rando::Randomizer* randomizer);
     void skipMajorCutscenes(rando::Randomizer* randomizer);
+    void invertCameraAxis(rando::Randomizer* randomizer);
 } // namespace mod::user_patch
 
 #endif
