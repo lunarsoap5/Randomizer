@@ -331,6 +331,13 @@ namespace mod::rando
         /* 0x0A */ uint16_t rawRGBOffset;     // Offset to the list of raw RGB entries
     } __attribute__((__packed__));
 
+    enum BMDDirectory : uint8_t
+    {
+        BMWE = 0,
+        BMDR = 1,
+        BMWR = 2,
+    };
+
     class BMDEntry
     {
        public:
@@ -342,11 +349,13 @@ namespace mod::rando
         uint16_t getNumTextures() const { return this->numTextures; }
         uint16_t getTextureListOffset() const { return this->textureListOffset; }
         const char* getBmdResPtr() const { return &this->bmdRes[0]; }
+        BMDDirectory getDirectory() const { return this->directory; }
 
        private:
         /* 0x00 */ uint8_t recolorType;        // 0: CMPR, 1: MAT, etc.
         /* 0x01 */ uint8_t archiveIndex;       // The index of the archive used to load the texture replacement.
-        /* 0x02 */ uint16_t numTextures;       // number of textures that are being recolored in this bmd file.
+        /* 0x02 */ BMDDirectory directory;     // The directory type to use, BMDR/BMWR/etc.
+        /* 0x03 */ uint8_t numTextures;        // number of textures that are being recolored in this bmd file.
         /* 0x04 */ uint16_t textureListOffset; // offset to the list of textures being recolored.
         /* 0x06 */ char bmdRes[0x12];          // names are of varying size, but I haven't seen one over 0x10 yet.
     } __attribute__((__packed__));
@@ -445,15 +454,14 @@ namespace mod::rando
     {
         // DO NOT set any of these enums to a specific value. The exact values and the order are irrelevant (other than
         // DvdEntryNumIdSize which must go last).
-        ResObjectKmdl,    // Link wearing Hero's Clothes
-        ResObjectZmdl,    // Link wearing Zora Armor
-        ResObjectOgZORA,  // Zora Armor Get Item
-        ResObjectAlinkMS, // The Master Sword textures use a different directory
-        ResObjectAlink,   // Link's Equipment
-                          // ResObjectWmdl,      // Wolf Link and Midna on back
-                          // ResObjectCWShd,     // Ordon Shield
-                          // ResObjectSWShd,     // Wooden Shield
-                          // ResObjectHyShd,     // Hylian Shield
+        ResObjectKmdl,   // Link wearing Hero's Clothes
+        ResObjectZmdl,   // Link wearing Zora Armor
+        ResObjectOgZORA, // Zora Armor Get Item
+        ResObjectAlink,  // Link's Equipment
+                         // ResObjectWmdl,      // Wolf Link and Midna on back
+                         // ResObjectCWShd,     // Ordon Shield
+                         // ResObjectSWShd,     // Wooden Shield
+                         // ResObjectHyShd,     // Hylian Shield
 
         DvdEntryNumIdSize,
         // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above this one and don't forget to actually add the

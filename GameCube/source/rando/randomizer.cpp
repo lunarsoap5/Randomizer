@@ -603,17 +603,21 @@ namespace mod::rando
                 BMDEntry* currentBmdEntry = &loadedBmdEntries[i];
                 char buf[64]; // A little extra to be safe
 
-                switch (currentBmdEntry->getArchiveIndex())
+                switch (currentBmdEntry->getDirectory())
                 {
-                    case DvdEntryNumId::ResObjectAlinkMS:
+                    case BMDDirectory::BMWE:
                     {
                         snprintf(buf, sizeof(buf), "bmwe/%s", currentBmdEntry->getBmdResPtr());
                         break;
                     }
-                    case DvdEntryNumId::ResObjectOgZORA:
-                    case DvdEntryNumId::ResObjectAlink:
+                    case BMDDirectory::BMDR:
                     {
                         snprintf(buf, sizeof(buf), "bmdr/%s", currentBmdEntry->getBmdResPtr());
+                        break;
+                    }
+                    case BMDDirectory::BMWR:
+                    {
+                        snprintf(buf, sizeof(buf), "bmwr/%s", currentBmdEntry->getBmdResPtr());
                         break;
                     }
                     default:

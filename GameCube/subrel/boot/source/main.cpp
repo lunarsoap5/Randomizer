@@ -299,9 +299,7 @@ namespace mod
         randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/O_gD_zora.arc"), DvdEntryNumId::ResObjectOgZORA);
 
         // Link's Equipment
-        const int32_t AlinkArcEntryNum = DVDConvertPathToEntrynum("/res/Object/Alink.arc");
-        randoPtr->setDvdEntryNum(AlinkArcEntryNum, DvdEntryNumId::ResObjectAlinkMS);
-        randoPtr->setDvdEntryNum(AlinkArcEntryNum, DvdEntryNumId::ResObjectAlink);
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Alink.arc"), DvdEntryNumId::ResObjectAlink);
 
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/CWShd.arc"), DvdEntryNumId::ResObjectCWShd);
