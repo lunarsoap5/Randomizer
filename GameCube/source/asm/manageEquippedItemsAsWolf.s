@@ -1,30 +1,26 @@
 .global asmManageEquippedItemsAsWolf
+# asmManageEquippedItemsAsWolf needs to be used in at least one subrel, so it cannot be set to hidden
 
 asmManageEquippedItemsAsWolf:
 # Push stack
-stwu %sp,-0x20(%sp)
-mr %r5, %r0
-mflr %r0
-stw %r0,0x24(%sp)
+stwu %sp,-0x10(%sp)
+mflr %r3
+stw %r3,0x14(%sp)
 
 # Backup important register values
-stw %r3,0xC(%sp)
 stw %r4,0x8(%sp)
 
-mr %r3, %r5
+mr %r3,%r0
 bl handleManageEquippedItemsAsWolf
-mr %r0, %r3
+
+# Store the returned value, which also restores the original instruction
+stw %r3,0x128(%r31)
 
 # Restore important register values
-lwz %r3,0xC(%sp)
 lwz %r4,0x8(%sp)
 
-# Restore the original instruction
-stw %r0, 0x128(%r31)
-
 # Pop stack
-lwz %r0,0x24(%sp)
+lwz %r0,0x14(%sp)
 mtlr %r0
-addi %sp,%sp,0x20
-
+addi %sp,%sp,0x10
 blr
