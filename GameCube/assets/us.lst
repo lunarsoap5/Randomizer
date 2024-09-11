@@ -346,6 +346,9 @@
 80349040:DVDReadDir
 803490e4:DVDCloseDir
 
+//d_meter2.o
+8021f7b0:checkStatus
+
 //d_meter2_info.o
 80430188:g_meter2_info
 8021e0c4:resetMiniGameItem
@@ -428,6 +431,7 @@
 801eab7c:dMenuRing__create
 801eabe8:dMenuRing__delete
 801eacc8:dMenuRing__draw
+801e9118:dMenuRing_ct
 
 // JKRArchive.o
 802D5C64:JKRArchive_getResource2

@@ -158,6 +158,9 @@
 8038fff4:ironBootsVars
 8038ff60:huLightVars
 
+//d_meter2.o
+8021fa74:checkStatus
+
 //d_meter2_info.o
 80432148:g_meter2_info
 8021e388:resetMiniGameItem
@@ -427,6 +430,7 @@
 801eae40:dMenuRing__create
 801eaeac:dMenuRing__delete
 801eaf8c:dMenuRing__draw
+801e93dc:dMenuRing_ct
 
 // JKRArchive.o
 802d6a64:JKRArchive_getResource2

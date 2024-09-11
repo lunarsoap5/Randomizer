@@ -152,6 +152,16 @@ namespace mod::assembly
         libtp::tp::d_save::onEventBit(&savePtr->save_file.mEvent, 0x2120);
     }
 
+    int32_t handleManageEquippedItemsAsWolf(int32_t status)
+    {
+        // If the item ring is open, we want to be able to manage our items at any time, even as wolf
+        if (rando::gRandomizer->checkMenuRingOpen())
+        {
+            return 0;
+        }
+        return status;
+    }
+
 #ifdef TP_JP
     void unpatchMapGlitch(libtp::tp::d_a_alink::daAlink* d_a_alink)
     {

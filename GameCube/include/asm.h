@@ -104,6 +104,10 @@ namespace mod::assembly
         // vi.o
         void asmCallCodehandler();
 
+        // d_meter.o
+        void asmManageEquippedItemsAsWolf();
+        int32_t handleManageEquippedItemsAsWolf(int32_t status);
+
         // d_a_alink.o
 #ifdef TP_JP
         void asmUnpatchMapGlitchStart();

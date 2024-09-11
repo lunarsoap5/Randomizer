@@ -38,6 +38,7 @@ namespace mod::events
     extern const libtp::tp::dzx::ACTR gItemActr;
     extern const libtp::tp::dzx::ACTR gEponaActr;
     extern const libtp::tp::dzx::SCOB gHorseJumpScob;
+    extern const libtp::tp::dzx::SCOB gScnChgScob;
     extern const libtp::tp::dzx::ACTR gForestGWolfActr;
     extern const libtp::tp::dzx::ACTR gImpPoeActr;
     extern const libtp::tp::dzx::ACTR gCampBoarActr;

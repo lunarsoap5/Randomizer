@@ -351,6 +351,7 @@
 801eb424:dMenuRing__draw
 801eb2d8:dMenuRing__create
 801eb344:dMenuRing__delete
+801e9854:dMenuRing_ct
 
 // control.o
 802a9e60:setMessageCode_inSequence
@@ -404,6 +405,9 @@
 // d_shop_system.o
 80199de8:seq_decide_yes
 8019a314:setSoldOutFlag
+
+//d_meter2.o
+8021ff08:checkStatus
 
 // d_meter2_info.o
 8042a2c8:g_meter2_info

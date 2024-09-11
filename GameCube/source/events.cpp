@@ -63,6 +63,10 @@ namespace mod::events
     const libtp::tp::dzx::SCOB gHorseJumpScob =
         {"Hjump", 0x044FFF02, 5600.f, -5680.f, 52055.f, 0, static_cast<int16_t>(0x4000), 0, 0xFFFF, 0x20, 0x2D, 0x2D, 0xFF};
 
+    // Scene Change SCOB template
+    const libtp::tp::dzx::SCOB gScnChgScob =
+        {"scnChg", 0xFFFFFF01, -2936.f, -200.f, 5425.f, 0xFFF, 0, 0xFFF, 0xFFFF, 0x14, 0x0A, 0x14, 0xFF};
+
     // Golden Wolf actor placed in Faron Woods.
     const libtp::tp::dzx::ACTR gForestGWolfActr =
         {"GWolf", 0x05FF01FF, -36714.9023f, 424.03894f, -23698.0273f, 0, 0, 0xFF, 0xFFFF};
@@ -1588,6 +1592,11 @@ namespace mod::events
             libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::MIDNAS_DESPERATE_HOUR_COMPLETED))
         {
             tools::spawnSCOB(3, gHorseJumpScob);
+        }
+        if (tp::d_a_alink::checkStageName(data::stage::allStages[data::stage::StageIDs::City_in_the_Sky]))
+        {
+            // Spawn in a loading zone for the player to jump down into to leave City
+            tools::spawnSCOB(0, gScnChgScob);
         }
     }
 
