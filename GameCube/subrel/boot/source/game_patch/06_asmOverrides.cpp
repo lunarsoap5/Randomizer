@@ -100,9 +100,9 @@ namespace mod::game_patch
         uint32_t procCoGetItemInitAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::procCoGetItemInit);
         libtp::patch::writeBranchBL(procCoGetItemInitAddress + 0x17C, procCoGetItemInitCreateItem);
 
-        // Modify the item wheel init function to allow equipping of items, even as wolf
-        uint32_t menuRingInitAddress = reinterpret_cast<uint32_t>(libtp::tp::d_menu_ring::dMenuRing_ct);
-        *reinterpret_cast<uint32_t*>(menuRingInitAddress + 0x15C) = ASM_LOAD_IMMEDIATE(0, 0);
+        // Modify the item wheel constructor to allow equipping of items, even as wolf
+        uint32_t itemWheelConstructorAddress = reinterpret_cast<uint32_t>(libtp::tp::d_menu_ring::dMenuRing_ct);
+        *reinterpret_cast<uint32_t*>(itemWheelConstructorAddress + 0x15C) = ASM_LOAD_IMMEDIATE(0, 0);
 
         // Modify the checkStatus Function to show us the current equips, even as wolf
         const uint32_t checkStatus_address = reinterpret_cast<uint32_t>(libtp::tp::d_meter2::checkStatus);
