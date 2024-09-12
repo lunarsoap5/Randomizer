@@ -38,12 +38,12 @@ namespace mod::item_wheel_menu
 
     KEEP_FUNC void handle_dMenuRing__create(void* dMenuRing)
     {
-        // Handle whether the controller buttons should be displayed or not
-        ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
-        setHUDButtonsAlpha(itemWheelMenuPtr->shouldDisplayMenu());
-
         // Set the value that checks the ring status
+        ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
         itemWheelMenuPtr->setRingOpen(true);
+
+        // Handle whether the controller buttons should be displayed or not
+        setHUDButtonsAlpha(itemWheelMenuPtr->shouldDisplayMenu());
 
         // Call the original function
         gReturn_dMenuRing__create(dMenuRing);
