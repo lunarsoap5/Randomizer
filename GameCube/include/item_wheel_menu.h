@@ -166,11 +166,13 @@ namespace mod::item_wheel_menu
         ItemWheelMenuData* getDataPtr() { return &this->data; }
         bool shouldDrawRingThisFrame() const { return this->ringDrawnThisFrame; }
         bool shouldDisplayMenu() const { return this->displayMenu; }
+        bool ringIsOpen() const { return this->ringOpen; }
 
         void drawRingThisFrame() { this->ringDrawnThisFrame = true; }
         void resetRingDrawnThisFrame() { this->ringDrawnThisFrame = false; }
         void setDisplayMenu(bool value) { this->displayMenu = value; }
         void dontDisplayMenu() { this->displayMenu = false; }
+        void setRingOpen(bool state) { this->ringOpen = state; }
 
        private:
         ItemWheelMenuData data;
@@ -180,6 +182,9 @@ namespace mod::item_wheel_menu
 
         // Handles whether the menu should be displayed or not
         bool displayMenu;
+
+        // Used to determine whether or not the item wheel ring is open
+        bool ringOpen;
     };
 } // namespace mod::item_wheel_menu
 

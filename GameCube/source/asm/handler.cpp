@@ -155,7 +155,7 @@ namespace mod::assembly
     int32_t handleManageEquippedItemsAsWolf(int32_t status)
     {
         // If the item ring is open, we want to be able to manage our items at any time, even as wolf
-        if (rando::gRandomizer->checkMenuRingOpen())
+        if (rando::gRandomizer->getItemWheelMenuPtr()->ringIsOpen())
         {
             return 0;
         }

@@ -104,7 +104,6 @@ namespace mod::rando
         EventItemStatus getGiveItemToPlayerStatus() const { return this->m_GiveItemToPlayerStatus; }
         uint8_t getDungeonItemAreaColorIndex() const { return this->m_DungeonItemAreaColorIndex; }
         TimeChange getTimeChange() const { return this->m_TimeChange; }
-        bool checkMenuRingOpen() const { return this->m_MenuRingOpen; }
 
 #ifdef TP_EU
         libtp::tp::d_s_logo::Languages getCurrentLanguage() const { return this->m_CurrentLanguage; }
@@ -130,7 +129,6 @@ namespace mod::rando
         void setGiveItemToPlayerStatus(EventItemStatus status) { this->m_GiveItemToPlayerStatus = status; }
         void setDungeonItemAreaColorIndex(uint8_t index) { this->m_DungeonItemAreaColorIndex = index; }
         void setTimeChange(TimeChange time) { this->m_TimeChange = time; }
-        void setMenuRingOpen(bool state) { this->m_MenuRingOpen = state; }
 
 #ifdef TP_EU
         void setCurrentLanguage(libtp::tp::d_s_logo::Languages language) { this->m_CurrentLanguage = language; }
@@ -187,7 +185,6 @@ namespace mod::rando
         uint16_t m_TotalHintMsgEntries;
         uint16_t m_LastButtonInput;
         bool m_RoomReloadingState;
-        bool m_MenuRingOpen;
         uint8_t m_GameState;
         uint8_t m_DungeonItemAreaColorIndex;
         EventItemStatus m_GiveItemToPlayerStatus;

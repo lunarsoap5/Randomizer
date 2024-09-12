@@ -39,11 +39,11 @@ namespace mod::item_wheel_menu
     KEEP_FUNC void handle_dMenuRing__create(void* dMenuRing)
     {
         // Handle whether the controller buttons should be displayed or not
-        rando::Randomizer* randoPtr = rando::gRandomizer;
-        setHUDButtonsAlpha(randoPtr->getItemWheelMenuPtr()->shouldDisplayMenu());
+        ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
+        setHUDButtonsAlpha(itemWheelMenuPtr->shouldDisplayMenu());
 
-        // Set the value that checks the ring status.
-        randoPtr->setMenuRingOpen(true);
+        // Set the value that checks the ring status
+        itemWheelMenuPtr->setRingOpen(true);
 
         // Call the original function
         gReturn_dMenuRing__create(dMenuRing);
@@ -57,13 +57,13 @@ namespace mod::item_wheel_menu
         // Hardcode false since the ring isn't being drawn anymore
         setHUDButtonsAlpha(false);
 
-        // Set the value that checks the ring status.
-        rando::Randomizer* randoPtr = rando::gRandomizer;
-        randoPtr->setMenuRingOpen(false);
+        // Set the value that checks the ring status
+        ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
+        itemWheelMenuPtr->setRingOpen(false);
 
         // If the item wheel is being closed, we also want to close the menu. This way, if the player forgets to close it or
         // cannot remember how, closing the item wheel will also close the menu.
-        randoPtr->getItemWheelMenuPtr()->dontDisplayMenu();
+        itemWheelMenuPtr->dontDisplayMenu();
 
         // dMenuRing__delete is an empty function, so don't need to call the original function
     }
