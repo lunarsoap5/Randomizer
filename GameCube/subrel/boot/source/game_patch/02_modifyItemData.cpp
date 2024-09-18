@@ -219,9 +219,13 @@ namespace mod::game_patch
             switch (item)
             {
                 case items::Ordon_Shield:
-                case items::Boomerang:
                 {
                     itemInfoPtr[item].mShadowSize = 0xFF;
+                    break;
+                }
+                case items::Boomerang:
+                {
+                    itemInfoPtr[item].mFlags = yellowRupeeInfoPtr->mFlags;
                     break;
                 }
                 default:

@@ -158,6 +158,7 @@ namespace mod
     KEEP_VAR void (*gReturn_onEventBit)(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag) = nullptr;
     KEEP_VAR bool (*gReturn_isSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag) = nullptr;
     KEEP_VAR void (*gReturn_onSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag) = nullptr;
+    KEEP_VAR void (*gReturn_onSwitch_dSv_info)(libtp::tp::d_save::dSv_info_c* memoryBit, int32_t flag, int32_t room) = nullptr;
     KEEP_VAR bool (*gReturn_isDarkClearLV)(void* playerStatusPtr, int32_t twilightNode) = nullptr;
 
     // Pause menu functions
@@ -224,6 +225,9 @@ namespace mod
 
     // Title Screen functions
     KEEP_VAR void (*gReturn_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr) = nullptr;
+
+    // Pause Menu functions
+    KEEP_VAR void (*gReturn_dMenuOption__tv_open1_move)(void* thisPtr) = nullptr;
 
     // Item Wheel menu
     namespace item_wheel_menu

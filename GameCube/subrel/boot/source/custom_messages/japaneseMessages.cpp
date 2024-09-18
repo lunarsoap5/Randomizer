@@ -359,18 +359,9 @@ namespace mod::customMessages
         // 個集まりました。
         "\x8C\xC2\x8F\x57\x82\xDC\x82\xE8\x82\xDC\x82\xB5\x82\xBD\x81\x42"
     MSG_END();
-    MSG_BEGIN_ARRAY(charloDonationJp)
-        // ハイラルのへいわ平和のため・・・ほどこ施しをいただけませんかな・・・？
-        "\x83\x6E\x83\x43\x83\x89\x83\x8B\x82\xCC\x1A\x0C\xFF\x00\x02\x02\x82\xD6\x82\xA2\x82\xED\x95\xBD\x98\x61\x82\xCC\x82\xBD\x82\xDF\x81\x45\x81\x45\x81\x45\x0A\x1A\x0C\xFF\x00\x02\x01\x82\xD9\x82\xC7\x82\xB1\x8E\x7B\x82\xB5\x82\xF0\x82\xA2\x82\xBD\x82\xBE\x82\xAF\x82\xDC\x82\xB9\x82\xF1\x82\xA9\x82\xC8\x81\x45\x81\x45\x81\x45\x81\x48" 
-        MSG_OPTION_LIST(MSG_OPTION_1) 
-        // １００ルピー
-        "\x82\x50\x82\x4f\x82\x4F\x83\x8B\x83\x73\x81\x5B\x0A" 
-        MSG_OPTION_LIST(MSG_OPTION_2) 
-        // ５０ルピー
-        "\x82\x54\x82\x4F\x83\x8B\x83\x73\x81\x5B\x0A" 
-        MSG_OPTION_LIST(MSG_OPTION_3) 
-        // 断る
-        "\x1A\x0C\xFF\x00\x02\x01\x82\xB1\x82\xC6\x82\xED\x92\x66\x82\xE9";
+    MSG_BEGIN_ARRAY(spawnTextJp)
+        "Return to Spawn "
+        MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY(recognitionJp)
         MSG_SPEED(MSG_SPEED_FAST)
@@ -534,6 +525,11 @@ namespace mod::customMessages
         sizeof(skyBookDescriptionJp),
         0x34d,
 
+        // Spawn text
+        spawnTextJp,
+        sizeof(spawnTextJp),
+        0x555,
+
         // Recognition text
         recognitionJp,
         sizeof(recognitionJp),
@@ -613,7 +609,6 @@ namespace mod::customMessages
     };
 
     const uint32_t totalCustomMessagesJp = sizeof(entriesJp) / sizeof(MsgEntry);
-    const MsgEntry charloDonationEntryJp = {charloDonationJp, sizeof(charloDonationJp), 0x0355};
 
     const ItemWheelMenuStrings itemWheelMenuStringsJp = {
         // areasBeingTracked

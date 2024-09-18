@@ -572,24 +572,14 @@ namespace mod::game_patch
                                 condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo saved
                                 if (condition)
                                 {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        FINISHED_SEWERS); // First trip to Sewers done
-
-                                    if (condition)
+                                    darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
+                                    if (darkIsClear != false)
                                     {
-                                        darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                        if (darkIsClear != false)
-                                        {
-                                            chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
-                                        }
-                                        else
-                                        {
-                                            chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
-                                        }
+                                        chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
                                     }
                                     else
                                     {
-                                        chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Talo_Rescued;
+                                        chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
                                     }
                                 }
                                 else

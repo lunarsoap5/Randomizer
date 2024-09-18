@@ -275,14 +275,9 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         " character(s) so far."
     MSG_END();
-    MSG_BEGIN_ARRAY(charloDonationEn)
-        "For the sake of peace in Hyrule...\nWould you please make a donation?" 
-        MSG_OPTION_LIST(MSG_OPTION_1) 
-        "100 Rupees\n" 
-        MSG_OPTION_LIST(MSG_OPTION_2) 
-        "50 Rupees\n" 
-        MSG_OPTION_LIST(MSG_OPTION_3) 
-        "Sorry..."
+    MSG_BEGIN_ARRAY(spawnTextEn)
+        "Return to Spawn "
+        MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY(recognitionMsg)
         MSG_SPEED(MSG_SPEED_FAST)
@@ -449,6 +444,11 @@ namespace mod::customMessages
         sizeof(recognitionMsg),
         0x0b44,
 
+        // Spawn text
+        spawnTextEn,
+        sizeof(spawnTextEn),
+        0x555,
+
         // Special invalid-id texts
         // for
         forTextUs,
@@ -538,7 +538,6 @@ namespace mod::customMessages
     };
 
     const uint32_t totalCustomMessagesUs = sizeof(entriesUs) / sizeof(MsgEntry);
-    const MsgEntry charloDonationEntryUs = {charloDonationEn, sizeof(charloDonationEn), 0x0355};
 
     const ItemWheelMenuStrings itemWheelMenuStringsUs = {
         // areasBeingTracked

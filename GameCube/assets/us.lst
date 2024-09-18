@@ -65,8 +65,10 @@
 800349bc:isEventBit
 800352b0:offSwitch_dSv_info
 80034810:onSwitch_dSv_memBit
+80035200:onSwitch_dSv_info
 80034838:offSwitch_dSv_memBit
 80034860:isSwitch_dSv_memBit
+80034dac:onOneSwitch
 800332f8:setLineUpItem
 80034368:onLightDropGetFlag
 800337ec:checkEmptyBottle
@@ -158,6 +160,7 @@
 8012d8c0:procWolfDashReverseInit
 8013c8c8:procWolfAttackReverseInit
 8012dba8:procWolfAtnActorMoveInit
+800b5284:decideDoStatus
 
 // data
 8038EB8C:climbVars
@@ -495,3 +498,6 @@
 
 // d_file_select.o
 801843cc:dFile_select_c___create
+
+// d_menu_option.o
+801e51cc:dMenuOption__tv_open1_move

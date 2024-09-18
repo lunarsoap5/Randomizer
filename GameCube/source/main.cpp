@@ -1662,6 +1662,22 @@ namespace mod
         return gReturn_onSwitch_dSv_memBit(memoryBit, flag);
     }
 
+    KEEP_FUNC void handle_onSwitch_dSv_info(libtp::tp::d_save::dSv_info_c* saveInfo, int32_t flag, int32_t roomNo)
+    {
+        const auto stagesPtr = &libtp::data::stage::allStages[0];
+
+        if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Sacred_Grove]))
+        {
+            if (flag == 0xEE) // Struck Master Sword in pedestal
+            {
+                // Custom Flag to remove statue in front of door
+                return gReturn_onSwitch_dSv_info(saveInfo, 0x63, roomNo);
+            }
+        }
+
+        return gReturn_onSwitch_dSv_info(saveInfo, flag, roomNo);
+    }
+
     KEEP_FUNC bool handle_isDarkClearLV(void* playerStatusPtr, int32_t twilightNode)
     {
         if ((twilightNode == 0) && libtp::tools::playerIsInRoomStage(
@@ -2033,6 +2049,24 @@ namespace mod
         }
 
         return resourcePtr;
+    }
+
+    KEEP_FUNC void handle_dMenuOption__tv_open1_move(void* thisPtr)
+    {
+        libtp::tp::d_com_inf_game::dComIfG_play* playPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play;
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+        const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
+        // The very first entry of the shuffledEntrances table is always the spawn entrance.
+        const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
+
+        strncpy(playPtr->mNextStage.mStage,
+                libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
+                sizeof(playPtr->mNextStage.mStage) - 1);
+        playPtr->mNextStage.mRoomNo = currentEntrance->getNewRoomIDX();
+        playPtr->mNextStage.mPoint = currentEntrance->getNewSpawn();
+        playPtr->mNextStage.enabled |= 0x1;
+
+        return gReturn_dMenuOption__tv_open1_move(thisPtr);
     }
 
     // This is called in the NON-MAIN thread which is loading the archive where `mountArchive->mIsDone = true;` would be called

@@ -380,18 +380,9 @@ namespace mod::customMessages
         // hasta ahora.
         "\x20\x68\x61\x73\x74\x61\x20\x61\x68\x6f\x72\x61\x2e"
     MSG_END();
-    MSG_BEGIN_ARRAY( charloDonationSp )
-        // ¿Darme una limosna por la paz de Hyrule?
-        "\xBF\x44\x61\x72\x6D\x65\x20\x75\x6E\x61\x20\x6C\x69\x6D\x6F\x73\x6E\x61\x20\x70\x6F\x72\x20\x6C\x61\x20\x70\x61\x7A\x0A\x64\x65\x20\x48\x79\x72\x75\x6C\x65\x3F" 
-        MSG_OPTION_LIST( MSG_OPTION_1 ) 
-        // 100 rupias
-        "\x31\x30\x30\x20\x72\x75\x70\x69\x61\x73\x0A" 
-        MSG_OPTION_LIST( MSG_OPTION_2 ) 
-        // 50 rupias
-        "\x35\x30\x20\x72\x75\x70\x69\x61\x73\x0A" 
-        MSG_OPTION_LIST( MSG_OPTION_3 ) 
-        // No
-        "\x4E\x6F";
+    MSG_BEGIN_ARRAY(spawnTextSp)
+        "Return to Spawn "
+        MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY( recognitionSp )
         MSG_SPEED(MSG_SPEED_FAST)
@@ -551,6 +542,11 @@ namespace mod::customMessages
         sizeof(skyBookDescriptionSp),
         0x34d,
 
+        // Spawn text
+        spawnTextSp,
+        sizeof(spawnTextSp),
+        0x555,
+
         // Recognition text
         recognitionSp,
         sizeof(recognitionSp),
@@ -635,7 +631,6 @@ namespace mod::customMessages
     };
 
     const uint32_t totalCustomMessagesSp = sizeof(entriesSp) / sizeof(MsgEntry);
-    const MsgEntry charloDonationEntrySp = {charloDonationSp, sizeof(charloDonationSp), 0x0355};
 
     const ItemWheelMenuStrings itemWheelMenuStringsSp = {
         // areasBeingTracked

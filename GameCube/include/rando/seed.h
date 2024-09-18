@@ -88,6 +88,7 @@ namespace mod::rando
         uint8_t getMapClearBits() const { return this->mapClearBits; }
         uint8_t getDamageMagnification() const { return this->damageMagnification; }
         uint8_t getStartingTimeOfDay() const { return this->startingTimeOfDay; }
+        uint8_t getToTSwordRequirement() const { return this->totSwordRequirement; }
 
         const EntryInfo* getVolatilePatchInfoPtr() const { return &this->volatilePatchInfo; }
         const EntryInfo* getOneTimePatchInfoPtr() const { return &this->oneTimePatchInfo; }
@@ -159,7 +160,7 @@ namespace mod::rando
         /* 0x8C */ uint8_t mapClearBits;
         /* 0x8D */ uint8_t damageMagnification;
         /* 0x8E */ uint8_t startingTimeOfDay;
-        /* 0x8F */ uint8_t padding;
+        /* 0x8F */ uint8_t totSwordRequirement;
     } __attribute__((__packed__));
 
     class Seed

@@ -32,6 +32,7 @@
 #include "gc_wii/vi.h"
 #include "asm.h"
 #include "tp/d_file_select.h"
+#include "tp/d_menu_option.h"
 #include "functionHooks.h"
 
 #include <cstdint>
@@ -209,6 +210,7 @@ namespace mod
         gReturn_isSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::isSwitch_dSv_memBit, handle_isSwitch_dSv_memBit);
 
         gReturn_onSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_memBit, handle_onSwitch_dSv_memBit);
+        gReturn_onSwitch_dSv_info = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_info, handle_onSwitch_dSv_info);
 
         gReturn_isDarkClearLV = patch::hookFunction(tp::d_save::isDarkClearLV, handle_isDarkClearLV);
 
@@ -282,6 +284,10 @@ namespace mod
         // Title Screen functions
         gReturn_dFile_select_c___create =
             patch::hookFunction(libtp::tp::d_file_select::dFile_select_c___create, resetQueueOnFileSelectScreen);
+
+        // Pause Menu functions
+        gReturn_dMenuOption__tv_open1_move =
+            patch::hookFunction(libtp::tp::d_menu_option::dMenuOption__tv_open1_move, handle_dMenuOption__tv_open1_move);
     }
 
     void initArcLookupTable(rando::Randomizer* randoPtr)

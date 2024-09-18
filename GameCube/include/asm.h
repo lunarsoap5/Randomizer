@@ -114,6 +114,8 @@ namespace mod::assembly
         void asmUnpatchMapGlitchEnd();
         void unpatchMapGlitch(libtp::tp::d_a_alink::daAlink* d_a_alink);
 #endif
+        void asmAdjustToTSwordReq();
+        bool handleAdjustToTSwordReq();
     }
 } // namespace mod::assembly
 

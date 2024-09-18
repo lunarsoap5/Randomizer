@@ -292,6 +292,9 @@ namespace mod
     void handle_onSwitch_dSv_memBit(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag);
     extern void (*gReturn_onSwitch_dSv_memBit)(libtp::tp::d_save::dSv_memBit_c* memoryBit, int32_t flag);
 
+    void handle_onSwitch_dSv_info(libtp::tp::d_save::dSv_info_c* memoryBit, int32_t flag, int32_t room);
+    extern void (*gReturn_onSwitch_dSv_info)(libtp::tp::d_save::dSv_info_c* memoryBit, int32_t flag, int32_t room);
+
     bool handle_isDarkClearLV(void* playerStatusPtr, int32_t twilightNode);
     extern bool (*gReturn_isDarkClearLV)(void* playerStatusPtr, int32_t twilightNode);
 
@@ -396,6 +399,10 @@ namespace mod
     // Title Screen functions
     void resetQueueOnFileSelectScreen(libtp::tp::d_file_select::dFile_select_c* thisPtr);
     extern void (*gReturn_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr);
+
+    // Pause Menu functions
+    void handle_dMenuOption__tv_open1_move(void* thisPtr);
+    extern void (*gReturn_dMenuOption__tv_open1_move)(void* thisPtr);
 
     // Item Wheel menu
     namespace item_wheel_menu

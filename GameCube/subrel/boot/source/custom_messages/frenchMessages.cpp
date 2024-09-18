@@ -368,18 +368,9 @@ namespace mod::customMessages
         // pour l'instant.
         "\x20\x70\x6F\x75\x72\x20\x6C\x27\x69\x6E\x73\x74\x61\x6E\x74\x2E"
     MSG_END();
-    MSG_BEGIN_ARRAY(charloDonationFr)
-        // Pour que la paix règne en Hyrule... puis-je vous demander l'aumône...?
-        "\x50\x6F\x75\x72\x20\x71\x75\x65\x20\x6C\x61\x20\x70\x61\x69\x78\x20\x72\xE8\x67\x6E\x65\x20\x65\x6E\x20\x48\x79\x72\x75\x6C\x65\x2E\x2E\x2E\x0A\x70\x75\x69\x73\x2D\x6A\x65\x20\x76\x6F\x75\x73\x20\x64\x65\x6D\x61\x6E\x64\x65\x72\x20\x6C\x27\x61\x75\x6D\xF4\x6E\x65\x2E\x2E\x2E\x3F" 
-        MSG_OPTION_LIST(MSG_OPTION_1) 
-        // Voici 100 rubis.
-        "\x56\x6F\x69\x63\x69\x20\x31\x30\x30\x20\x72\x75\x62\x69\x73\x2E\x0A" 
-        MSG_OPTION_LIST(MSG_OPTION_2) 
-        // Voici 50 rubis
-        "\x56\x6F\x69\x63\x69\x20\x35\x30\x20\x72\x75\x62\x69\x73\x2E\x0A" 
-        MSG_OPTION_LIST(MSG_OPTION_3) 
-        // Je refuse.
-        "\x4A\x65\x20\x72\x65\x66\x75\x73\x65\x2E";
+    MSG_BEGIN_ARRAY(spawnTextFr)
+        "Return to Spawn "
+        MSG_ICON(MSG_ICON_Z)
     MSG_END();
 
     MSG_BEGIN_ARRAY(recognitionFr)
@@ -540,6 +531,11 @@ namespace mod::customMessages
         sizeof(skyBookDescriptionFr),
         0x34d,
 
+        // Spawn text
+        spawnTextFr,
+        sizeof(spawnTextFr),
+        0x555,
+
         // Recognition text
         recognitionFr,
         sizeof(recognitionFr),
@@ -624,7 +620,6 @@ namespace mod::customMessages
     };
 
     const uint32_t totalCustomMessagesFr = sizeof(entriesFr) / sizeof(MsgEntry);
-    const MsgEntry charloDonationEntryFr = {charloDonationFr, sizeof(charloDonationFr), 0x0355};
 
     const ItemWheelMenuStrings itemWheelMenuStringsFr = {
         // areasBeingTracked

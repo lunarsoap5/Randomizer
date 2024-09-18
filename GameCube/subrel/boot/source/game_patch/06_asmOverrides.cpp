@@ -107,6 +107,10 @@ namespace mod::game_patch
         // Modify the checkStatus Function to show us the current equips, even as wolf
         const uint32_t checkStatus_address = reinterpret_cast<uint32_t>(libtp::tp::d_meter2::checkStatus);
         libtp::patch::writeBranchBL(checkStatus_address + 0x3C, assembly::asmManageEquippedItemsAsWolf);
+
+        const uint32_t decideDoStatus_address = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::decideDoStatus);
+        libtp::patch::writeBranchBL(decideDoStatus_address + 0x4D4, assembly::asmAdjustToTSwordReq);
+
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
 

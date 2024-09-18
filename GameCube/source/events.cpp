@@ -179,6 +179,16 @@ namespace mod::events
                                          0xF); // Main Room 1F explored
         }
 
+        if ((strcmp(currentStage, stage::allStages[stage::StageIDs::Sacred_Grove]) == 0) && (currentRoom == 0x1))
+        {
+            // If the portal to sacred grove is not active, then we want the beasts to spawn.
+            if (!d_save::isSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0x64))
+            {
+                d_save::onOneSwitch(&savePtr->mZone[0].mBit,
+                                    0xE); // Spawn Shadow Beasts
+            }
+        }
+
         // Clear the danBit that starts a conversation when entering the ranch so the player can do goats as needed.
         if ((strcmp(currentStage, stage::allStages[stage::StageIDs::Ordon_Ranch]) == 0) && (currentPoint == 0x1))
         {
