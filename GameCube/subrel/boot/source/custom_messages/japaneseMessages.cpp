@@ -360,7 +360,7 @@ namespace mod::customMessages
         "\x8C\xC2\x8F\x57\x82\xDC\x82\xE8\x82\xDC\x82\xB5\x82\xBD\x81\x42"
     MSG_END();
     MSG_BEGIN_ARRAY(spawnTextJp)
-        "Return to Spawn "
+        "Return to Spawn"
         MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY(recognitionJp)

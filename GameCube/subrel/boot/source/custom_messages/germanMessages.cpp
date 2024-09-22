@@ -363,7 +363,7 @@ namespace mod::customMessages
         "\x20\x67\x65\x73\x61\x6d\x6d\x65\x6c\x74\x2e"
     MSG_END();
     MSG_BEGIN_ARRAY(spawnTextDe)
-        "Return to Spawn "
+        "Return to Spawn"
         MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY(recognitionDe)

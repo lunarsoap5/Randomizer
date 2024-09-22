@@ -65,6 +65,7 @@ namespace mod
     void initGiveItemToPlayer(libtp::tp::d_a_alink::daAlink* linkMapPtr, rando::Randomizer* randoPtr);
     void handleFoolishItem(rando::Randomizer* randoPtr);
     void handleBonkDamage();
+    bool handleAdjustToTSwordReq();
 
     // Inline getConsole, as it's just a shortcut to get a reference to the console variable
     inline libtp::display::Console& getConsole()

@@ -162,45 +162,6 @@ namespace mod::assembly
         return status;
     }
 
-    bool handleAdjustToTSwordReq()
-    {
-        using namespace libtp::data;
-        using namespace libtp::tp;
-        libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
-        const int32_t roomID = libtp::tools::getCurrentRoomNo();
-        const uint8_t equippedSword = savePtr->save_file.player.player_status_a.equipment[1];
-        const uint8_t neededSword = rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getToTSwordRequirement();
-
-        // If we've already struck the pedestal in grove, we don't want to strike again since that would cause a
-        // softlock. We don't need to check the stage because the code that this handle is injected into only runs in Sacred
-        // Grove.
-        if ((roomID == 0x1) && d_save::isSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0x63))
-        {
-            return false;
-        }
-
-        // Make sure we at least have a sword in our hand
-        if (equippedSword != 0xFF)
-        {
-            // If wooden sword isn't enough, then we can do a simple >= check for the rest of the swords
-            if (neededSword != items::Wooden_Sword)
-            {
-                // If the sword we have equipped is better or equal to the sword we need, allow it to be used.
-                if ((equippedSword >= neededSword) && (equippedSword != items::Wooden_Sword))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                // If we only need wooden sword, then any sword is good enough to satify the condition
-                return true;
-            }
-        }
-
-        return false;
-    }
-
 #ifdef TP_JP
     void unpatchMapGlitch(libtp::tp::d_a_alink::daAlink* d_a_alink)
     {

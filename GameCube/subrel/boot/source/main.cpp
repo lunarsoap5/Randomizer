@@ -166,8 +166,9 @@ namespace mod
         item_wheel_menu::gReturn_dMenuRing__create =
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__create, item_wheel_menu::handle_dMenuRing__create);
 
-        item_wheel_menu::gReturn_dMenuRing__delete =
-            patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__delete, item_wheel_menu::handle_dMenuRing__delete);
+        // dMenuRing__delete is an empty function, so the original function does not need to be called, so a return function is
+        // not needed
+        patch::writeBranch(libtp::tp::d_menu_ring::dMenuRing__delete, item_wheel_menu::handle_dMenuRing__delete);
 
         item_wheel_menu::gReturn_dMenuRing__draw =
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__draw, item_wheel_menu::handle_dMenuRing__draw);
@@ -206,12 +207,9 @@ namespace mod
         gReturn_daNpcT_chkEvtBit = patch::hookFunction(libtp::tp::d_a_npc::daNpcT_chkEvtBit, handle_daNpcT_chkEvtBit);
         gReturn_isEventBit = patch::hookFunction(libtp::tp::d_save::isEventBit, handle_isEventBit);
         gReturn_onEventBit = patch::hookFunction(libtp::tp::d_save::onEventBit, handle_onEventBit);
-
         gReturn_isSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::isSwitch_dSv_memBit, handle_isSwitch_dSv_memBit);
-
         gReturn_onSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_memBit, handle_onSwitch_dSv_memBit);
         gReturn_onSwitch_dSv_info = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_info, handle_onSwitch_dSv_info);
-
         gReturn_isDarkClearLV = patch::hookFunction(tp::d_save::isDarkClearLV, handle_isDarkClearLV);
 
         // Pause Menu Functions
@@ -240,8 +238,12 @@ namespace mod
         gReturn_checkCastleTownUseItem =
             patch::hookFunction(libtp::tp::d_a_alink::checkCastleTownUseItem, handle_checkCastleTownUseItem);
 
-        gReturn_damageMagnification =
-            patch::hookFunction(libtp::tp::d_a_alink::damageMagnification, handle_damageMagnification);
+        // Only hook damageMagnification if the current damage magnification value is not vanilla
+        if (seedPtr->getHeaderPtr()->getDamageMagnification() != 1)
+        {
+            gReturn_damageMagnification =
+                patch::hookFunction(libtp::tp::d_a_alink::damageMagnification, handle_damageMagnification);
+        }
 
         gReturn_procCoGetItemInit = patch::hookFunction(libtp::tp::d_a_alink::procCoGetItemInit, handle_procCoGetItemInit);
 

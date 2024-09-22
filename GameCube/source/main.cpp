@@ -1821,8 +1821,8 @@ namespace mod
 
         const int32_t roomID = libtp::tools::getCurrentRoomNo();
 
-        if (checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Sacred_Grove]) &&
-            roomID == 0x2) // check if the player is in past area
+        // Check if the player is in past area
+        if (checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Sacred_Grove]) && roomID == 0x2)
         {
             if (item_id == Ooccoo_Jr)
             {
@@ -1837,8 +1837,9 @@ namespace mod
                 case Ooccoo_FT:
                 case Ooccoo_Dungeon:
                 {
+                    // Check if the player hasn't taken ooccoo at tot entrance
                     if (!libtp::tp::d_save::isDungeonItem(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
-                                                          0x6)) // check if the player hasn't taken ooccoo at tot entrance
+                                                          0x6))
                     {
                         return false;
                     }
@@ -1861,7 +1862,8 @@ namespace mod
         // Call original function immediately as it sets necessary values.
         const bool ret = gReturn_checkBgmIDPlaying(seqMgr, sfx_id);
 
-        if (sfx_id == 0x01000013) // Game Over sfx
+        // Game Over sfx
+        if (sfx_id == 0x01000013)
         {
             return false;
         }
@@ -2021,7 +2023,8 @@ namespace mod
         }
         else
         {
-            newHealthValue = playerStatusPtr->currentHealth - currentDamageMultiplier; // Damage multiplier is 1 by default
+            // Damage multiplier is 1 by default
+            newHealthValue = playerStatusPtr->currentHealth - currentDamageMultiplier;
         }
 
         // Make sure an underflow doesn't occur
@@ -2053,20 +2056,62 @@ namespace mod
 
     KEEP_FUNC void handle_dMenuOption__tv_open1_move(void* thisPtr)
     {
-        libtp::tp::d_com_inf_game::dComIfG_play* playPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play;
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
+
         // The very first entry of the shuffledEntrances table is always the spawn entrance.
         const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
 
-        strncpy(playPtr->mNextStage.mStage,
+        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage;
+
+        strncpy(nextStagePtr->mStage,
                 libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
-                sizeof(playPtr->mNextStage.mStage) - 1);
-        playPtr->mNextStage.mRoomNo = currentEntrance->getNewRoomIDX();
-        playPtr->mNextStage.mPoint = currentEntrance->getNewSpawn();
-        playPtr->mNextStage.enabled |= 0x1;
+                sizeof(nextStagePtr->mStage) - 1);
+
+        nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
+        nextStagePtr->mPoint = currentEntrance->getNewSpawn();
+        nextStagePtr->enabled |= 0x1;
 
         return gReturn_dMenuOption__tv_open1_move(thisPtr);
+    }
+
+    KEEP_FUNC bool handleAdjustToTSwordReq()
+    {
+        using namespace libtp::data;
+        using namespace libtp::tp;
+
+        const int32_t roomID = libtp::tools::getCurrentRoomNo();
+        libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
+
+        // If we've already struck the pedestal in grove, we don't want to strike again since that would cause a softlock. We
+        // don't need to check the stage because the code that this handle is injected into only runs in Sacred Grove.
+        if ((roomID == 0x1) && d_save::isSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0x63))
+        {
+            return false;
+        }
+
+        // Make sure we at least have a sword in our hand
+        const uint8_t equippedSword = savePtr->save_file.player.player_status_a.equipment[1];
+        if (equippedSword != 0xFF)
+        {
+            // If wooden sword isn't enough, then we can do a simple >= check for the rest of the swords
+            const uint8_t neededSword = rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getToTSwordRequirement();
+            if (neededSword != items::Wooden_Sword)
+            {
+                // If the sword we have equipped is better or equal to the sword we need, allow it to be used.
+                if ((equippedSword >= neededSword) && (equippedSword != items::Wooden_Sword))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                // If we only need wooden sword, then any sword is good enough to satify the condition
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // This is called in the NON-MAIN thread which is loading the archive where `mountArchive->mIsDone = true;` would be called

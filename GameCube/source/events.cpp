@@ -133,8 +133,8 @@ namespace mod::events
             randomizer->initSave();
         }
 
-        if ((strcmp(playPtr->mNextStage.mStage, "F_SP103") == 0) && (currentRoom == 1) &&
-            (currentPoint == 0x1)) // If we are spawning in Ordon for the first time.
+        // If we are spawning in Ordon for the first time.
+        if ((strcmp(playPtr->mNextStage.mStage, "F_SP103") == 0) && (currentRoom == 1) && (currentPoint == 0x1))
         {
             float* skyAnglePtr = &savePtr->save_file.player.player_status_b.skyAngle;
 
@@ -163,8 +163,8 @@ namespace mod::events
 
             if (d_com_inf_game::dComIfGs_isEventBit(flags::ORDON_DAY_2_OVER))
             {
-                savePtr->save_file.player.horse_place.mPos.y = -1000.f; // Place Epona out of bounds in Faron if Talo has been
-                                                                        // rescued since the game will spawn her in the air.
+                // Place Epona out of bounds in Faron if Talo has been rescued since the game will spawn her in the air.
+                savePtr->save_file.player.horse_place.mPos.y = -1000.f;
             }
         }
 
@@ -172,11 +172,11 @@ namespace mod::events
         if ((strcmp(currentStage, stage::allStages[stage::StageIDs::City_in_the_Sky]) == 0) && (currentRoom == 0x0) &&
             (currentPoint == 0x3))
         {
-            d_save::offSwitch_dSv_memBit(&savePtr->memory.temp_flags,
-                                         0xA); // Fan in main room active
+            // Fan in main room active
+            d_save::offSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0xA);
 
-            d_save::offSwitch_dSv_memBit(&savePtr->memory.temp_flags,
-                                         0xF); // Main Room 1F explored
+            // Main Room 1F explored
+            d_save::offSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0xF);
         }
 
         if ((strcmp(currentStage, stage::allStages[stage::StageIDs::Sacred_Grove]) == 0) && (currentRoom == 0x1))
@@ -184,15 +184,15 @@ namespace mod::events
             // If the portal to sacred grove is not active, then we want the beasts to spawn.
             if (!d_save::isSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0x64))
             {
-                d_save::onOneSwitch(&savePtr->mZone[0].mBit,
-                                    0xE); // Spawn Shadow Beasts
+                // Spawn Shadow Beasts
+                d_save::onOneSwitch(&savePtr->mZone[0].mBit, 0xE);
             }
         }
 
         // Clear the danBit that starts a conversation when entering the ranch so the player can do goats as needed.
         if ((strcmp(currentStage, stage::allStages[stage::StageIDs::Ordon_Ranch]) == 0) && (currentPoint == 0x1))
         {
-            d_com_inf_game::dComIfG_gameInfo.save.mDan.mSwitch[0] = 0x0;
+            savePtr->mDan.mSwitch[0] = 0x0;
         }
 
         randomizer->overrideEventARC();

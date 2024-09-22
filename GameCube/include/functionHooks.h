@@ -410,8 +410,9 @@ namespace mod
         void handle_dMenuRing__create(void* dMenuRing);
         extern void (*gReturn_dMenuRing__create)(void* dMenuRing);
 
+        // dMenuRing__delete is an empty function, so the original function does not need to be called, so a return function is
+        // not needed
         void handle_dMenuRing__delete(void* dMenuRing);
-        extern void (*gReturn_dMenuRing__delete)(void* dMenuRing);
 
         void handle_dMenuRing__draw(void* dMenuRing);
         extern void (*gReturn_dMenuRing__draw)(void* dMenuRing);

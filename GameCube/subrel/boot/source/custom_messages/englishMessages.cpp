@@ -276,7 +276,7 @@ namespace mod::customMessages
         " character(s) so far."
     MSG_END();
     MSG_BEGIN_ARRAY(spawnTextEn)
-        "Return to Spawn "
+        "Return to Spawn"
         MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY(recognitionMsg)

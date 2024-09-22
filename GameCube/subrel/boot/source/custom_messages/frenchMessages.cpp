@@ -369,7 +369,7 @@ namespace mod::customMessages
         "\x20\x70\x6F\x75\x72\x20\x6C\x27\x69\x6E\x73\x74\x61\x6E\x74\x2E"
     MSG_END();
     MSG_BEGIN_ARRAY(spawnTextFr)
-        "Return to Spawn "
+        "Return to Spawn"
         MSG_ICON(MSG_ICON_Z)
     MSG_END();
 

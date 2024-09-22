@@ -381,7 +381,7 @@ namespace mod::customMessages
         "\x20\x68\x61\x73\x74\x61\x20\x61\x68\x6f\x72\x61\x2e"
     MSG_END();
     MSG_BEGIN_ARRAY(spawnTextSp)
-        "Return to Spawn "
+        "Return to Spawn"
         MSG_ICON(MSG_ICON_Z)
     MSG_END();
     MSG_BEGIN_ARRAY( recognitionSp )
