@@ -60,8 +60,10 @@
 800349bc:isEventBit
 80034860:isSwitch_dSv_memBit
 80034810:onSwitch_dSv_memBit
+80035200:onSwitch_dSv_info
 800352b0:offSwitch_dSv_info
 80034838:offSwitch_dSv_memBit
+80034dac:onOneSwitch
 803a13e8:saveBitLabels
 80032bb0:isDarkClearLV
 80032fb8:setItem
@@ -150,6 +152,7 @@
 8012d90c:procWolfDashReverseInit
 8013c914:procWolfAttackReverseInit
 8012dbf4:procWolfAtnActorMoveInit
+800b52bc:decideDoStatus
 
 // data
 80388C0C:climbVars
@@ -479,3 +482,6 @@
 
 // d_file_select.o
 80184418:dFile_select_c___create
+
+// d_menu_option.o
+801e57c8:dMenuOption__tv_open1_move

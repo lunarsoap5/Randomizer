@@ -47,11 +47,14 @@ MAPPER := python3 $(realpath ../bin/relmapper.py)
 SEED_PATH := $(realpath ../bin/seed.bin)
 
 DVD ?= ""
-ifneq ($(DVD),"")
-	export DVD_DEF := "-DDVD"
-endif
 
 ifeq ($(VERSION),)
+
+ifneq ($(DVD),"")
+export DVD_DEF := "-DDVD"
+$(info Building for DVD injection)
+endif
+
 all: us jp eu
 us:
 	@$(MAKE) --no-print-directory VERSION=us
@@ -262,11 +265,15 @@ $(SUBREL): $(MAPFILE)
 	@$(ELF2REL) $< $(abspath $(MAPFILE)) $@ --rel-id $(shell $(JSON_READ) $(MODIDS) "$(OUTPUT_FILENAME)")
 
 %.gci: %.rel
+ifeq ($(DVD),"")
 	@echo packing ... $(notdir $@)
 	@$(GCIPACK) $< "Custom REL File" "Twilight Princess" "($(PRINTVER)) $(PROJECT_NAME)" $(BANNERFILE) $(ICONFILE) $(GAMECODE) $(addprefix --rel ,$(SUBRELS))
 ifneq ("$(wildcard $(SEED_PATH))","")
 	@echo injecting seed ...
 	@$(RELSMGR) add $@ 0x53454544 $(SEED_PATH) -o $(basename $@).seeded.gci
+endif
+else
+	@echo "Skipping packing (building for DVD)"
 endif
 
 #---------------------------------------------------------------------------------

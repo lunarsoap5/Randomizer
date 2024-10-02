@@ -65,8 +65,10 @@
 80034318:onCollectMirror
 800342d4:onCollectCrystal
 80034940:onSwitch_dSv_memBit
+80035330:onSwitch_dSv_info
 800353e0:offSwitch_dSv_info
 80034968:offSwitch_dSv_memBit
+80034edc:onOneSwitch
 80033060:setItem
 80034410:onLightDropGetFlag
 80033894:checkEmptyBottle
@@ -150,6 +152,7 @@
 8012dacc:procWolfDashReverseInit
 8013cad4:procWolfAttackReverseInit
 8012ddb4:procWolfAtnActorMoveInit
+800b5490:decideDoStatus
 
 // data
 8039038C:climbVars
@@ -484,3 +487,6 @@
 
 // d_file_select.o
 801845d8:dFile_select_c___create
+
+// d_menu_option.o
+801e5490:dMenuOption__tv_open1_move
