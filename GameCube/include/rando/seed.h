@@ -171,7 +171,7 @@ namespace mod::rando
          *
          *  @param chan The memory card slot to load from
          */
-#ifdef DVD
+#if defined DVD || defined PLATFORM_WII
         Seed();
 #else
         Seed(int32_t chan);

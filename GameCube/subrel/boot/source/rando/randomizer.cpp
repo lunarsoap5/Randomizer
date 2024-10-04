@@ -27,7 +27,7 @@ namespace mod::rando
         // getConsole() << "Rando loading...\n";
 
         // Align to void*, as pointers use the largest variable type in the Seed class
-#ifdef DVD
+#if defined DVD || defined PLATFORM_WII
         Seed* seedPtr = new (sizeof(void*)) Seed;
 #else
         Seed* seedPtr = new (sizeof(void*)) Seed(CARD_SLOT_A);
@@ -40,7 +40,7 @@ namespace mod::rando
             this->m_GoldenWolfItemReplacement.setItemActorId(-1);
             this->m_GameState = GameState::GAME_BOOT;
             this->m_GiveItemToPlayerStatus = EventItemStatus::QUEUE_EMPTY;
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
             this->m_CurrentLanguage = libtp::tp::d_s_logo::getPalLanguage2(nullptr);
 #endif
             this->initRandState();

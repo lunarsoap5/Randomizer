@@ -69,6 +69,9 @@ namespace mod
 #ifdef DVD
         // The seed will be loaded in the boot REL
         libtp::tools::callRelProlog("/mod/boot.rel");
+#elif defined PLATFORM_WII
+        // The seed will be loaded in the boot REL
+        libtp::tools::callRelProlog("rel/boot.rel");
 #else
         // The seed will be loaded in the boot REL, so avoid mounting/unmounting the memory card multiple times
         libtp::tools::callRelProlog(CARD_SLOT_A, SUBREL_BOOT_ID);

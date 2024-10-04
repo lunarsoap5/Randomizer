@@ -12,6 +12,8 @@
 
 #ifdef DVD
 #include "gc_wii/dvd.h"
+#elif defined PLATFORM_WII
+#include "gc_wii/nand.h"
 #else
 #include "gc_wii/card.h"
 #endif
@@ -28,7 +30,7 @@
 
 namespace mod::rando
 {
-#ifdef DVD
+#if defined DVD || defined PLATFORM_WII
     Seed::Seed()
 #else
     Seed::Seed(int32_t chan)
@@ -43,6 +45,12 @@ namespace mod::rando
 #ifdef DVD
         // Allocate the memory to the back of the heap to avoid possible fragmentation
         const int32_t fileSize = libtp::tools::readFile("/mod/seed.bin", false, &data);
+#elif defined PLATFORM_WII
+        char seedPathBuf[96];
+        snprintf(seedPathBuf, sizeof(seedPathBuf), "%s/seed.bin", libtp::gc_wii::nand::nandGetHomeDir());
+        // TODO Make a new function readFileFromNAND(path, allocateFromHead, *data) in libtp::tools
+        libtp::tools::readNAND(seedPathBuf, 1, 0, &data);
+        const int32_t fileSize = 1;
 #else
         // The memory card should already be mounted
         // Allocate the memory to the back of the heap to avoid possible fragmentation
