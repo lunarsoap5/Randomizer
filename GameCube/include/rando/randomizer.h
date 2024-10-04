@@ -190,7 +190,7 @@ namespace mod::rando
         EventItemStatus m_GiveItemToPlayerStatus;
         TimeChange m_TimeChange;
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages m_CurrentLanguage;
 #endif
         bool m_Enabled;  // True if the randomizer is currently enabled
