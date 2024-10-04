@@ -1570,6 +1570,14 @@ namespace mod
                     break;
                 }
 
+                case REMOVE_SWORD_SHIELD_FROM_WOLF_BACK:
+                {
+                    if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(CLEARED_FARON_TWILIGHT))
+                    {
+                        playerStatusBPtr->transform_level_flag |= 0x1; // Set the last transformed twilight to include Faron
+                    }
+                }
+
                 default:
                 {
                     break;
