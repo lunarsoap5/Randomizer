@@ -27,7 +27,7 @@ namespace mod::rando
 #include "item_wheel_menu.h"
 #include "main.h"
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
 #endif
 
@@ -105,7 +105,7 @@ namespace mod::rando
         uint8_t getDungeonItemAreaColorIndex() const { return this->m_DungeonItemAreaColorIndex; }
         TimeChange getTimeChange() const { return this->m_TimeChange; }
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages getCurrentLanguage() const { return this->m_CurrentLanguage; }
 #endif
         bool randomizerIsEnabled() const { return this->m_Enabled; }
@@ -130,7 +130,7 @@ namespace mod::rando
         void setDungeonItemAreaColorIndex(uint8_t index) { this->m_DungeonItemAreaColorIndex = index; }
         void setTimeChange(TimeChange time) { this->m_TimeChange = time; }
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         void setCurrentLanguage(libtp::tp::d_s_logo::Languages language) { this->m_CurrentLanguage = language; }
 #endif
         void enableRandomizer() { this->m_Enabled = true; }

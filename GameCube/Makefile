@@ -57,7 +57,7 @@ DVD ?= ""
 ifeq ($(VERSION),)
 all: gcn wii
 gcn: us jp eu
-wii: wus0 #wus2 wjp weu
+wii: wus0 wus2 wjp weu
 us:
 	@$(MAKE) --no-print-directory VERSION=us PLATFORM=gcn
 jp:

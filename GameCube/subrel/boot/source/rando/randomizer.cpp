@@ -13,7 +13,7 @@
 #include "memory.h"
 #include "gc_wii/OSTime.h"
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
 #endif
 

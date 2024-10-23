@@ -14,7 +14,7 @@
 #include "rando/customItems.h"
 #include "events.h"
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
 #endif
 
@@ -216,7 +216,7 @@ namespace mod::game_patch
     // 'the' text is only used for some languages
     static bool getTheText(rando::Randomizer* randoPtr)
     {
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         using namespace libtp::tp::d_s_logo;
 
         switch (randoPtr->getCurrentLanguage())
@@ -249,7 +249,7 @@ namespace mod::game_patch
     // 'for' text is only used for some languages
     static bool getForText(rando::Randomizer* randoPtr)
     {
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         using namespace libtp::tp::d_s_logo;
 
         switch (randoPtr->getCurrentLanguage())
@@ -278,7 +278,7 @@ namespace mod::game_patch
     {
         using namespace libtp::data::items;
         using namespace rando::customItems;
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         using namespace libtp::tp::d_s_logo;
 #endif
         // Get the text and size of the format text
