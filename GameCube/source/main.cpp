@@ -1748,12 +1748,7 @@ namespace mod
         switch (itemID)
         {
             // Only the first foolish item should need to be checked, but check all to be safe
-            case Foolish_Item_1:
-            case Foolish_Item_2:
-            case Foolish_Item_3:
-            case Foolish_Item_4:
-            case Foolish_Item_5:
-            case Foolish_Item_6:
+            case Foolish_Item:
             {
                 itemID = Ordon_Pumpkin;
                 break;
@@ -2081,6 +2076,7 @@ namespace mod
 
         nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
         nextStagePtr->mPoint = currentEntrance->getNewSpawn();
+        nextStagePtr->mLayer = currentEntrance->getNewState();
         nextStagePtr->enabled |= 0x1;
 
         return gReturn_dMenuOption__tv_open1_move(thisPtr);

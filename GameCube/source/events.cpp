@@ -131,35 +131,6 @@ namespace mod::events
             (currentPoint == 0x15))
         {
             randomizer->initSave();
-        }
-
-        // If we are spawning in Ordon for the first time.
-        if ((strcmp(playPtr->mNextStage.mStage, "F_SP103") == 0) && (currentRoom == 1) && (currentPoint == 0x1))
-        {
-            float* skyAnglePtr = &savePtr->save_file.player.player_status_b.skyAngle;
-
-            switch (randomizer->getSeedPtr()->getHeaderPtr()->getStartingTimeOfDay())
-            {
-                case rando::StartingTimeOfDay::Morning:
-                {
-                    *skyAnglePtr = 105.f;
-                    break;
-                }
-                case rando::StartingTimeOfDay::Noon:
-                {
-                    *skyAnglePtr = 180.f;
-                    break;
-                }
-                case rando::StartingTimeOfDay::Night:
-                {
-                    *skyAnglePtr = 0.f;
-                    break;
-                }
-                default: // Evening
-                {
-                    break;
-                }
-            }
 
             if (d_com_inf_game::dComIfGs_isEventBit(flags::ORDON_DAY_2_OVER))
             {
@@ -1695,6 +1666,12 @@ namespace mod::events
 
         // The game will crash if trying to quick transform while holding the Ball and Chain
         if (linkMapPtr->mEquipItem == libtp::data::items::Ball_and_Chain)
+        {
+            return;
+        }
+
+        // Prevent transforming if the player has magnetic boots equipped as that can cause a hardlock
+        if (linkMapPtr->mNoResetFlg0 & 0x1000)
         {
             return;
         }

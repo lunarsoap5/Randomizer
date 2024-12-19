@@ -722,12 +722,7 @@ namespace mod::rando
             switch (replacementItem)
             {
                 // Only the first foolish item should need to be checked, but check all to be safe
-                case rando::customItems::Foolish_Item_1:
-                case rando::customItems::Foolish_Item_2:
-                case rando::customItems::Foolish_Item_3:
-                case rando::customItems::Foolish_Item_4:
-                case rando::customItems::Foolish_Item_5:
-                case rando::customItems::Foolish_Item_6:
+                case rando::customItems::Foolish_Item:
                 {
                     game_patch::_02_modifyFoolishShopModel(foolishModelIndexes, foolishModelCounter, shopItem);
                     foolishModelCounter++;

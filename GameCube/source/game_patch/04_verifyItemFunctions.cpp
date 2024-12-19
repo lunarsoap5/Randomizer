@@ -285,12 +285,7 @@ namespace mod::game_patch
             }
 
             // Only the first foolish item should need to be checked, but check all to be safe
-            case Foolish_Item_1:
-            case Foolish_Item_2:
-            case Foolish_Item_3:
-            case Foolish_Item_4:
-            case Foolish_Item_5:
-            case Foolish_Item_6:
+            case Foolish_Item:
             {
                 rando::customItems::FoolishItems* foolishItemsPtr = randomizer->getFoolishItemsPtr();
                 uint32_t count = foolishItemsPtr->getSpawnCount();

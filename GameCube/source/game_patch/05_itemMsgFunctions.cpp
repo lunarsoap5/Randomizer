@@ -670,24 +670,6 @@ namespace mod::game_patch
         // Most text replacements are for zel_00.bmg, so check that first
         if (currentInf1 == getZel00BmgInf())
         {
-            // If msgId is for a foolish item, then only use the value from the first one to avoid duplicate entries
-            switch (ID_TO_ITEM(msgId))
-            {
-                case Foolish_Item_2:
-                case Foolish_Item_3:
-                case Foolish_Item_4:
-                case Foolish_Item_5:
-                case Foolish_Item_6:
-                {
-                    msgId = ITEM_TO_ID(Foolish_Item_1);
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
-
             const char* newMessage;
             if (msgId == 0x1369) // The custom message ID used for hints on custom signs
             {

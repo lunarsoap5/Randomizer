@@ -77,12 +77,7 @@ namespace mod::game_patch
                                                     rando::customItems::Palace_of_Twilight_Small_Key,
                                                     rando::customItems::Hyrule_Castle_Small_Key,
                                                     rando::customItems::Bulblin_Camp_Key,
-                                                    rando::customItems::Foolish_Item_1,
-                                                    rando::customItems::Foolish_Item_2,
-                                                    rando::customItems::Foolish_Item_3,
-                                                    rando::customItems::Foolish_Item_4,
-                                                    rando::customItems::Foolish_Item_5,
-                                                    rando::customItems::Foolish_Item_6,
+                                                    rando::customItems::Foolish_Item,
                                                     libtp::data::items::Aurus_Memo,
                                                     libtp::data::items::Asheis_Sketch,
                                                     rando::customItems::Forest_Temple_Big_Key,
@@ -536,12 +531,21 @@ namespace mod::game_patch
         itemFuncPtr[customItems::Jump_Strike] = _02_jumpStrikeItemFunc;
         itemFuncPtr[customItems::Great_Spin] = _02_greatSpinItemFunc;
         itemFuncPtr[items::Vessel_Of_Light_Lanayru] = _02_lanayruVesselItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_1] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_2] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_3] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_4] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_5] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_6] = _02_foolishItemFunc;
+        itemFuncPtr[customItems::Foolish_Item] = _02_foolishItemFunc;
+        itemFuncPtr[customItems::South_Faron_Portal] = _02_SFaronPortalItemFunc;
+        itemFuncPtr[customItems::North_Faron_Portal] = _02_NFaronPortalItemFunc;
+        itemFuncPtr[customItems::Kakariko_Gorge_Portal] = _02_GorgePortalItemFunc;
+        itemFuncPtr[customItems::Kakariko_Village_Portal] = _02_KakVillagePortalItemFunc;
+        itemFuncPtr[customItems::Death_Mountain_Portal] = _02_DeathMountainPortalItemFunc;
+        itemFuncPtr[customItems::Castle_Town_Portal] = _02_CastleTownPortalItemFunc;
+        itemFuncPtr[customItems::Zoras_Domain_Portal] = _02_ZorasDomainPortalItemFunc;
+        itemFuncPtr[customItems::Lake_Hylia_Portal] = _02_LakeHyliaPortalItemFunc;
+        itemFuncPtr[customItems::Gerudo_Desert_Portal] = _02_GerudoDesertPortalItemFunc;
+        itemFuncPtr[customItems::Mirror_Chamber_Portal] = _02_MirrorChamberPortalItemFunc;
+        itemFuncPtr[customItems::Snowpeak_Portal] = _02_SnowpeakPortalItemFunc;
+        itemFuncPtr[customItems::Sacred_Grove_Portal] = _02_SacredGrovePortalItemFunc;
+        itemFuncPtr[customItems::Bridge_of_Eldin_Portal] = _02_EldinBridgePortalItemFunc;
+        itemFuncPtr[customItems::Upper_Zoras_River_Portal] = _02_UpperZoraRiverPortalItemFunc;
 
         // Some items need a valid getCheckFunc definition.
         itemGetCheckFuncPtr[customItems::Ancient_Sky_Book_First_Character] = _02_firstSkybookItemGetCheck;

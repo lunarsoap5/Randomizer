@@ -442,46 +442,24 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_ordonPumpkinItemFunc()
     {
-        events::setSaveFileEventFlag(libtp::data::flags::TOLD_YETA_ABOUT_PUMPKIN); // Told Yeta about Pumpkin
-        events::setSaveFileEventFlag(libtp::data::flags::PUMPKIN_PUT_IN_SOUP);     // Yeto put Pumpkin in soup
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
 
+        events::setSaveFileEventFlag(libtp::data::flags::TOLD_YETA_ABOUT_PUMPKIN);               // Told Yeta about Pumpkin
+        events::setSaveFileEventFlag(libtp::data::flags::PUMPKIN_PUT_IN_SOUP);                   // Yeto put Pumpkin in soup
         events::setSaveFileEventFlag(libtp::data::flags::TALKED_WITH_YETA_AFTER_GIVING_PUMPKIN); // SPR Lobby Door Unlocked
-
-        const auto stagesPtr = &libtp::data::stage::allStages[0];
-        libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
-
-        if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Snowpeak_Ruins]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Darkhammer]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Blizzeta]))
-        {
-            savePtr->memory.temp_flags.memoryFlags[0x9] |= 0x4;
-        }
-        else
-        {
-            savePtr->save_file.mSave[0x14].temp_flags.memoryFlags[0x9] |= 0x4;
-        }
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Snowpeak_Ruins), 0x12); // Unlock north door
     }
 
     KEEP_FUNC void _02_ordonGoatCheeseItemFunc()
     {
-        events::setSaveFileEventFlag(libtp::data::flags::TOLD_YETA_ABOUT_CHEESE); // Told Yeta about Cheese
-        events::setSaveFileEventFlag(libtp::data::flags::CHEESE_PUT_IN_SOUP);     // Yeto put cheese in soup
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
 
+        events::setSaveFileEventFlag(libtp::data::flags::TOLD_YETA_ABOUT_CHEESE);               // Told Yeta about Cheese
+        events::setSaveFileEventFlag(libtp::data::flags::CHEESE_PUT_IN_SOUP);                   // Yeto put cheese in soup
         events::setSaveFileEventFlag(libtp::data::flags::TALKED_WITH_YETA_AFTER_GIVING_CHEESE); // SPR Lobby West Door Unlocked
-
-        const auto stagesPtr = &libtp::data::stage::allStages[0];
-        libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
-
-        if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Snowpeak_Ruins]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Darkhammer]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Blizzeta]))
-        {
-            savePtr->memory.temp_flags.memoryFlags[0x9] |= 0x8;
-        }
-        else
-        {
-            savePtr->save_file.mSave[0x14].temp_flags.memoryFlags[0x9] |= 0x8;
-        }
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Snowpeak_Ruins), 0x13); // Unlock West Door
     }
 
     KEEP_FUNC void _02_filledSkybookItemFunc()
@@ -533,29 +511,14 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_gateKeysItemFunc()
     {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Eldin), 0x69); // Started Escort
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Eldin),
+                                               0x65);                           // Followed Rutella to Graveyard
         events::setSaveFileEventFlag(libtp::data::flags::WAGON_ESCORT_STARTED); // Started Zora Escort
         events::setSaveFileEventFlag(libtp::data::flags::ZORA_ESCORT_CLEARED);  // Completed Zora Escort
-
-        const auto stagesPtr = &libtp::data::stage::allStages[0];
-        if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Kakariko_Village]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Kakariko_Graveyard]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Death_Mountain]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Hidden_Village]) ||
-            libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Kakariko_Village_Interiors]))
-        {
-            libtp::tp::d_save::dSv_memBit_c* tempFlagsPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags;
-
-            libtp::tp::d_save::onSwitch_dSv_memBit(tempFlagsPtr, 0x69);
-            libtp::tp::d_save::onSwitch_dSv_memBit(tempFlagsPtr, 0x65);
-        }
-        else
-        {
-            libtp::tp::d_save::dSv_memBit_c* tempFlagsPtr =
-                &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mSave[0x3].temp_flags;
-
-            libtp::tp::d_save::onSwitch_dSv_memBit(tempFlagsPtr, 0x69);
-            libtp::tp::d_save::onSwitch_dSv_memBit(tempFlagsPtr, 0x65);
-        }
     }
 
     KEEP_FUNC void _02_firstFusedShadowItemFunc()
@@ -693,6 +656,125 @@ namespace mod::game_patch
         {
             foolishItemsPtr->setTriggerCount(static_cast<uint8_t>(triggerCount + 1));
         }
+    }
+
+    KEEP_FUNC void _02_SFaronPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Faron), 0x47); // Unlock S Faron Portal
+    }
+
+    KEEP_FUNC void _02_NFaronPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Faron), 0x2); // Unlock N Faron Portal
+    }
+
+    KEEP_FUNC void _02_GorgePortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Hyrule_Field), 0x15); // Unlock Gorge Portal
+    }
+
+    KEEP_FUNC void _02_KakVillagePortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Eldin), 0x1F); // Unlock Kak Portal
+    }
+
+    KEEP_FUNC void _02_DeathMountainPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Eldin), 0x15); // Unlock DM Portal
+    }
+
+    KEEP_FUNC void _02_CastleTownPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Hyrule_Field), 0x3); // Unlock CT Portal
+    }
+
+    KEEP_FUNC void _02_ZorasDomainPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Lanayru), 0x2); // Unlock ZD Portal
+    }
+
+    KEEP_FUNC void _02_LakeHyliaPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Lanayru), 0xA); // Unlock LH Portal
+    }
+
+    KEEP_FUNC void _02_GerudoDesertPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Gerudo_Desert), 0x15); // Unlock Desert Portal
+    }
+
+    KEEP_FUNC void _02_MirrorChamberPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Gerudo_Desert), 0x28); // Unlock MC Portal
+    }
+
+    KEEP_FUNC void _02_SnowpeakPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Snowpeak), 0x15); // Unlock Snowpeak Portal
+    }
+
+    KEEP_FUNC void _02_SacredGrovePortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Sacred_Grove), 0x64); // Unlock Grove Portal
+    }
+
+    KEEP_FUNC void _02_EldinBridgePortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Hyrule_Field),
+                                               0x63); // Unlock Eldin Bridge Portal
+    }
+
+    KEEP_FUNC void _02_UpperZoraRiverPortalItemFunc()
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Lanayru),
+                                               0x17); // Talked to Iza before Portal
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Lanayru), 0x37); // Talked to Iza after Portal
+        d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Lanayru), 0x15); // Unlock UZR Portal
+        events::setSaveFileEventFlag(libtp::data::flags::DECLINED_TO_HELP_IZA);
+        events::setSaveFileEventFlag(libtp::data::flags::TALKED_TO_IZA_BEFORE_UZR_PORTAL);
+        events::setSaveFileEventFlag(libtp::data::flags::IZA_1_MINIGAME_UNLOCKED);
     }
 
     KEEP_FUNC int32_t _02_firstSkybookItemGetCheck()

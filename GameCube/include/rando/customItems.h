@@ -11,7 +11,7 @@
 #include <cstdint>
 
 // Maximum expected number of spawned ice traps in any given area
-#define MAX_SPAWNED_FOOLISH_ITEMS 6
+#define MAX_SPAWNED_FOOLISH_ITEMS 1
 
 #define TOTAL_FOOLISH_ITEM_MODELS 20
 
@@ -19,13 +19,8 @@ namespace mod::rando::customItems
 {
     enum CustomItemIDs : uint8_t
     {
-        Foolish_Item_1 = 0x13,                    // Custom Item added for the Randomizer.
-        Foolish_Item_2 = 0x14,                    // Custom Item added for the Randomizer.
-        Foolish_Item_3 = 0x15,                    // Custom Item added for the Randomizer.
-        Foolish_Item_4 = 0x4D,                    // Custom Item added for the Randomizer.
-        Foolish_Item_5 = 0x4E,                    // Custom Item added for the Randomizer.
+        Foolish_Item = 0x13,                      // Custom Item added for the Randomizer.
         Mirror_Piece_1 = 0x53,                    // Custom Item added for the Randomizer
-        Foolish_Item_6 = 0x57,                    // Custom Item added for the Randomizer.
         Forest_Temple_Small_Key = 0x85,           // Custom Item added for the Randomizer.
         Goron_Mines_Small_Key = 0x86,             // Custom Item added for the Randomizer.
         Lakebed_Temple_Small_Key = 0x87,          // Custom Item added for the Randomizer.
@@ -76,6 +71,21 @@ namespace mod::rando::customItems
         Mortal_Draw = 0xE5,                       // Custom Item added for the Randomizer.
         Jump_Strike = 0xE6,                       // Custom Item added for the Randomizer.
         Great_Spin = 0xE7,                        // Custom Item added for the Randomizer.
+        Ordon_Portal = 0x14,
+        South_Faron_Portal = 0x15,
+        North_Faron_Portal = 0x3C,
+        Kakariko_Gorge_Portal = 0x4D,
+        Kakariko_Village_Portal = 0x4E,
+        Death_Mountain_Portal = 0x52,
+        Castle_Town_Portal = 0x53,
+        Zoras_Domain_Portal = 0x57,
+        Lake_Hylia_Portal = 0x8F,
+        Gerudo_Desert_Portal = 0x3B,
+        Mirror_Chamber_Portal = 0xAE,
+        Snowpeak_Portal = 0xAF,
+        Sacred_Grove_Portal = 0xBF,
+        Bridge_of_Eldin_Portal = 0xE8,
+        Upper_Zoras_River_Portal = 0xF7,
     };
 
     class FoolishItems
@@ -122,12 +132,7 @@ namespace mod::rando::customItems
         };
 
         static constexpr const uint8_t itemIds[MAX_SPAWNED_FOOLISH_ITEMS] = {
-            Foolish_Item_1,
-            Foolish_Item_2,
-            Foolish_Item_3,
-            Foolish_Item_4,
-            Foolish_Item_5,
-            Foolish_Item_6}; // Array holding the IDs of all the ice traps
+            Foolish_Item}; // Array holding the IDs of all the ice traps
 
         uint8_t itemModelId[MAX_SPAWNED_FOOLISH_ITEMS]; // Array holding the IDs of the item that the ice trap is copying
 
