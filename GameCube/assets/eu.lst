@@ -491,3 +491,9 @@
 
 // d_menu_option.o
 801e5490:dMenuOption__tv_open1_move
+
+// d_a_obj_item.o
+8015d2b4:itemGet
+8015d0f8:itemGetNextExecute
+8015cedc:mode_wait
+8015b5e4:CreateInit

@@ -18,6 +18,7 @@
 #include "tp/d_meter2_draw.h"
 #include "functionHooks.h"
 #include "tp/d_menu_ring.h"
+#include "tp/d_a_obj_item.h"
 
 namespace mod::game_patch
 {
@@ -110,6 +111,22 @@ namespace mod::game_patch
 
         const uint32_t decideDoStatus_address = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::decideDoStatus);
         libtp::patch::writeBranchBL(decideDoStatus_address + 0x4D4, handleAdjustToTSwordReq);
+
+        // give all items that have an item ID of 0x13 or higher
+        const uint32_t itemGetAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::itemGet);
+        *reinterpret_cast<uint32_t*>(itemGetAddr + 0x54) = ASM_NOP;
+
+        // All non rupee/ammo items use procInitSimpleDemo and itemGet
+        const uint32_t itemGetNextExecuteAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::itemGetNextExecute);
+        *reinterpret_cast<uint32_t*>(itemGetNextExecuteAddr + 0x74) = ASM_BRANCH(0x70);
+
+        // prevent boomerang from being given on room load
+        const uint32_t createInitAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::CreateInit);
+        *reinterpret_cast<uint32_t*>(createInitAddr + 0x264) = ASM_BRANCH(0x10);
+
+        // Allow boomerang to rotate
+        const uint32_t modeWaitAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::mode_wait);
+        *reinterpret_cast<uint32_t*>(modeWaitAddr + 0x78) = ASM_NOP;
 
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
