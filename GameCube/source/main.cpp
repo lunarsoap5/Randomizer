@@ -2078,6 +2078,8 @@ namespace mod
         nextStagePtr->mPoint = currentEntrance->getNewSpawn();
         nextStagePtr->mLayer = currentEntrance->getNewState();
         nextStagePtr->enabled |= 0x1;
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.mRestart.mLastMode = 0;
 
         return gReturn_dMenuOption__tv_open1_move(thisPtr);
     }
