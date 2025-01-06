@@ -309,6 +309,12 @@ namespace mod
         // Link's Equipment
         randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Alink.arc"), DvdEntryNumId::ResObjectAlink);
 
+        // Magic Armor
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Mmdl.arc"), DvdEntryNumId::ResObjectMmdl);
+
+        // Link's Animated Equipment
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/AlAnm.arc"), DvdEntryNumId::ResObjectAlAnm);
+
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/CWShd.arc"), DvdEntryNumId::ResObjectCWShd);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/SWShd.arc"), DvdEntryNumId::ResObjectSWShd);

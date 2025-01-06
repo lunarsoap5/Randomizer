@@ -336,6 +336,7 @@ namespace mod::rando
         BMWE = 0,
         BMDR = 1,
         BMWR = 2,
+        BMDE = 3,
     };
 
     class BMDEntry
@@ -458,6 +459,8 @@ namespace mod::rando
         ResObjectZmdl,   // Link wearing Zora Armor
         ResObjectOgZORA, // Zora Armor Get Item
         ResObjectAlink,  // Link's Equipment
+        ResObjectMmdl,   // Magic Armor
+        ResObjectAlAnm,  // Link's Animated Equipment
                          // ResObjectWmdl,      // Wolf Link and Midna on back
                          // ResObjectCWShd,     // Ordon Shield
                          // ResObjectSWShd,     // Wooden Shield

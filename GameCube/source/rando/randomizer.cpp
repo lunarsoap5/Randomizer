@@ -620,6 +620,11 @@ namespace mod::rando
                         snprintf(buf, sizeof(buf), "bmwr/%s", currentBmdEntry->getBmdResPtr());
                         break;
                     }
+                    case BMDDirectory::BMDE:
+                    {
+                        snprintf(buf, sizeof(buf), "bmde/%s", currentBmdEntry->getBmdResPtr());
+                        break;
+                    }
                     default:
                     {
                         snprintf(buf, sizeof(buf), "bmwr/%s", currentBmdEntry->getBmdResPtr());
