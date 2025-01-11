@@ -153,6 +153,7 @@
 8013c914:procWolfAttackReverseInit
 8012dbf4:procWolfAtnActorMoveInit
 800b52bc:decideDoStatus
+800b9f88:checkGroundSpecialMode
 
 // data
 80388C0C:climbVars

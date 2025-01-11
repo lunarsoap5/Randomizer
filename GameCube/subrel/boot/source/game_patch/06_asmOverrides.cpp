@@ -128,6 +128,10 @@ namespace mod::game_patch
         const uint32_t modeWaitAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::mode_wait);
         *reinterpret_cast<uint32_t*>(modeWaitAddr + 0x78) = ASM_NOP;
 
+        // Modify checkGroundSpecialMode to patch twilight fog transforms
+        const uint32_t checkGroundAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkGroundSpecialMode);
+        libtp::patch::writeBranchBL(checkGroundAddress + 0x4C, events::checkValidGroundTransform);
+
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
 

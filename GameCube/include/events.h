@@ -165,6 +165,7 @@ namespace mod::events
     uint32_t autoMashThroughText(libtp::tp::m_do_controller_pad::CPadInfo* padInfo);
     void* handleTransformAnywhere(libtp::tp::f_op_actor_iter::fopAcIt_JudgeFunc unk1, void* unk2);
     bool checkValidTransformAnywhere();
+    bool checkValidGroundTransform(libtp::tp::d_a_alink::daAlink* linkMapPtr);
 
     void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value);
 

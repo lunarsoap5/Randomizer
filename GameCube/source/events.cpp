@@ -2062,6 +2062,21 @@ namespace mod::events
         libtp::tp::d_pane_class::setBlackWhite(panePtr, color1, color2);
     }
 
+    KEEP_FUNC bool checkValidGroundTransform(libtp::tp::d_a_alink::daAlink* linkMapPtr)
+    {
+        // We don't want to force link to transform in the fog unless he has the shadow crystal
+        if (libtp::tp::d_a_alink::checkStageName(
+                libtp::data::stage::allStages[libtp::data::stage::StageIDs::Palace_of_Twilight]) &&
+            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
+        {
+            return libtp::tp::d_a_alink::procCoMetamorphoseInit(linkMapPtr);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     KEEP_FUNC void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value)
     {
         *reinterpret_cast<uint32_t*>(memoryOffset) = value;

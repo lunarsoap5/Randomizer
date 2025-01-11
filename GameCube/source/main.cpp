@@ -1454,6 +1454,15 @@ namespace mod
                 break;
             }
 
+            case FIXED_THE_MIRROR_OF_TWILIGHT:
+            {
+                if (checkStageName(stagesPtr[StageIDs::Palace_of_Twilight]))
+                {
+                    return true; // If the flag is not set, the player cannot leave PoT from the inside.
+                }
+                break;
+            }
+
             default:
             {
                 break;

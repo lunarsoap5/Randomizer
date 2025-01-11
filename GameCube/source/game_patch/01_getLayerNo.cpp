@@ -573,26 +573,8 @@ namespace mod::game_patch
 
                                 if (condition)
                                 {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        FINISHED_SEWERS); // First trip to Sewers done
-
-                                    if (condition)
-                                    {
-                                        darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                        if (darkIsClear == true)
-                                        {
-                                            chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Faron_Twilight_Cleared;
-                                            libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
-                                        }
-                                        else
-                                        {
-                                            chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Finished_Sewers;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Faron_Twilight_Cleared;
-                                    }
+                                    chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Faron_Twilight_Cleared;
+                                    libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
                                 }
                                 else
                                 {
