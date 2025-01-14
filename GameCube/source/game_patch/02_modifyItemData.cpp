@@ -462,6 +462,11 @@ namespace mod::game_patch
         d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Snowpeak_Ruins), 0x13); // Unlock West Door
     }
 
+    KEEP_FUNC void _02_partlyFilledSkybookItemFunc()
+    {
+        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item_record.unk5_ammo[0]++;
+    }
+
     KEEP_FUNC void _02_filledSkybookItemFunc()
     {
         events::setSaveFileEventFlag(libtp::data::flags::SKY_CANNON_REPAIRED); // Repaired Cannon at Lake
@@ -775,41 +780,6 @@ namespace mod::game_patch
         events::setSaveFileEventFlag(libtp::data::flags::DECLINED_TO_HELP_IZA);
         events::setSaveFileEventFlag(libtp::data::flags::TALKED_TO_IZA_BEFORE_UZR_PORTAL);
         events::setSaveFileEventFlag(libtp::data::flags::IZA_1_MINIGAME_UNLOCKED);
-    }
-
-    KEEP_FUNC int32_t _02_firstSkybookItemGetCheck()
-    {
-        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(rando::customItems::Ancient_Sky_Book_First_Character);
-
-        return static_cast<int32_t>(result);
-    }
-
-    KEEP_FUNC int32_t _02_secondSkybookItemGetCheck()
-    {
-        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(rando::customItems::Ancient_Sky_Book_Second_Character);
-
-        return static_cast<int32_t>(result);
-    }
-
-    KEEP_FUNC int32_t _02_thirdSkybookItemGetCheck()
-    {
-        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(rando::customItems::Ancient_Sky_Book_Third_Character);
-
-        return static_cast<int32_t>(result);
-    }
-
-    KEEP_FUNC int32_t _02_fourthSkybookItemGetCheck()
-    {
-        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(rando::customItems::Ancient_Sky_Book_Fourth_Character);
-
-        return static_cast<int32_t>(result);
-    }
-
-    KEEP_FUNC int32_t _02_fifthSkybookItemGetCheck()
-    {
-        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(rando::customItems::Ancient_Sky_Book_Fifth_Character);
-
-        return static_cast<int32_t>(result);
     }
 
     KEEP_FUNC int32_t _02_bigWalletItemGetCheck()

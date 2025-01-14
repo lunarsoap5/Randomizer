@@ -106,6 +106,7 @@ namespace mod::game_patch
     void _02_auruMemoItemFunc();
     void _02_ordonPumpkinItemFunc();
     void _02_ordonGoatCheeseItemFunc();
+    void _02_partlyFilledSkybookItemFunc();
     void _02_filledSkybookItemFunc();
     void _02_bigWalletItemFunc();
     void _02_giantWalletItemFunc();
@@ -140,11 +141,6 @@ namespace mod::game_patch
     void _02_SacredGrovePortalItemFunc();
     void _02_EldinBridgePortalItemFunc();
     void _02_UpperZoraRiverPortalItemFunc();
-    int32_t _02_firstSkybookItemGetCheck();
-    int32_t _02_secondSkybookItemGetCheck();
-    int32_t _02_thirdSkybookItemGetCheck();
-    int32_t _02_fourthSkybookItemGetCheck();
-    int32_t _02_fifthSkybookItemGetCheck();
     int32_t _02_bigWalletItemGetCheck();
     int32_t _02_giantWalletItemGetCheck();
     int32_t _02_firstFusedShadowItemGetCheck();

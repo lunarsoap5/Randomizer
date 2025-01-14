@@ -4,6 +4,7 @@
 #include "events.h"
 #include "tp/d_item.h"
 #include "rando/customItems.h"
+#include "tp/d_com_inf_game.h"
 
 namespace mod::game_patch
 {
@@ -72,21 +73,16 @@ namespace mod::game_patch
         using namespace libtp::data::items;
         if (!events::haveItem(Ancient_Sky_Book_Completed))
         {
-            static const uint8_t progressiveSkyBooksList[] = {Ancient_Sky_Book_Empty,
-                                                              Ancient_Sky_Book_First_Character,
-                                                              Ancient_Sky_Book_Second_Character,
-                                                              Ancient_Sky_Book_Third_Character,
-                                                              Ancient_Sky_Book_Fourth_Character,
-                                                              Ancient_Sky_Book_Fifth_Character};
-
-            constexpr uint32_t listLength = sizeof(progressiveSkyBooksList) / sizeof(progressiveSkyBooksList[0]);
-            for (uint32_t i = 0; i < listLength; i++)
+            if (events::haveItem(Ancient_Sky_Book_Empty))
             {
-                const uint32_t item = progressiveSkyBooksList[i];
-                if (!events::haveItem(item))
+                if (libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item_record.unk5_ammo[0] != 5)
                 {
-                    return item;
+                    return Ancient_Sky_Book_Partly_Filled;
                 }
+            }
+            else
+            {
+                return Ancient_Sky_Book_Empty;
             }
         }
 
@@ -220,11 +216,7 @@ namespace mod::game_patch
             }
 
             case Ancient_Sky_Book_Empty:
-            case Ancient_Sky_Book_First_Character:
-            case Ancient_Sky_Book_Second_Character:
-            case Ancient_Sky_Book_Third_Character:
-            case Ancient_Sky_Book_Fourth_Character:
-            case Ancient_Sky_Book_Fifth_Character:
+            case Ancient_Sky_Book_Partly_Filled:
             case Ancient_Sky_Book_Completed:
             {
                 itemID = _04_getProgressiveSkyBook();

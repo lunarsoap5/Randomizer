@@ -460,7 +460,7 @@ namespace mod::customMessages
         // First Ancient Sky Book character
         skyBookCharacterSp,
         sizeof(skyBookCharacterSp),
-        0x013F,
+        0x014E,
 
         // First Fused Shadow
         firstFusedShadowSp,
