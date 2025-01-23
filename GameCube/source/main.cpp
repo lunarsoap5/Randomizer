@@ -455,7 +455,10 @@ namespace mod
 
         randoPtr->setRoomReloadingState(currentReloadingState);
 
-        handleFoolishItem(randoPtr);
+        if (!libtp::tp::d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Title_Screen]))
+        {
+            handleFoolishItem(randoPtr);
+        }
         tools::xorshift32(randoPtr->getRandStatePtr());
 
         if (randoPtr->getTimeChange() != rando::TimeChange::NO_CHANGE)

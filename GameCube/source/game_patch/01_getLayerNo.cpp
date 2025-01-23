@@ -527,36 +527,34 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Ordon_Spring:
                     {
-                        if (roomId == 1)
-                        {
-                            condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo saved
+                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo saved
 
-                            if (condition)
+                        if (condition)
+                        {
+                            darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
+                            if (darkIsClear != false)
                             {
-                                darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                if (darkIsClear != false)
-                                {
-                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
-                                }
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
                             }
                             else
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                    TALO_CHASES_MONKEY); // Sword training done on Ordon Day 2
-                                if (condition)
-                                {
-                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Sword_Tutorial_Completed;
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_New_Game;
-                                }
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
                             }
                         }
+                        else
+                        {
+                            condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
+                                TALO_CHASES_MONKEY); // Sword training done on Ordon Day 2
+                            if (condition)
+                            {
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Sword_Tutorial_Completed;
+                            }
+                            else
+                            {
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_New_Game;
+                            }
+                        }
+
                         break;
                     }
 
