@@ -21,7 +21,7 @@ export _VERSION:='"$(_VERSION_MAJOR).$(_VERSION_MINOR).$(_VERSION_PATCH)"'
 #export _VARIANT:= public
 
 # This shows up in the memory card (manager) and can contain spaces
-export PROJECT_NAME := Randomizer
+export PROJECT_NAME := Archipelago Randomizer
 # This will be the resulting .gci file - No spaces
 OUTPUT_FILENAME := Randomizer
 

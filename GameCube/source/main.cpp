@@ -250,6 +250,7 @@ namespace mod
     KEEP_VAR void (*return_setWolfLockDomeModel)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*return_procFrontRollCrashInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*return_procWolfAttackReverseInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
+    KEEP_VAR bool (*return_procGanonFinishInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*return_procWolfDashReverseInit)(libtp::tp::d_a_alink::daAlink* daALink, bool param_1) = nullptr;
     KEEP_VAR libtp::tp::f_op_actor::fopAc_ac_c* (*return_searchBouDoor)(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
 
@@ -2115,6 +2116,12 @@ namespace mod
     {
         handleBonkDamage();
         return return_procWolfAttackReverseInit(linkActrPtr);
+    }
+
+    KEEP_FUNC bool handle_procGanonFinishInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
+    {
+        events::setSaveFileEventFlag(0x6780); // Flag set for the "victory condition in AP"
+        return return_procGanonFinishInit(linkActrPtr);
     }
 
     KEEP_FUNC libtp::tp::f_op_actor::fopAc_ac_c* handle_searchBouDoor(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)

@@ -449,6 +449,9 @@ namespace mod
     bool handle_procWolfAttackReverseInit(libtp::tp::d_a_alink::daAlink* daALink);
     extern bool (*return_procWolfAttackReverseInit)(libtp::tp::d_a_alink::daAlink* daALink);
 
+    bool handle_procGanonFinishInit(libtp::tp::d_a_alink::daAlink* daALink);
+    extern bool (*return_procGanonFinishInit)(libtp::tp::d_a_alink::daAlink* daALink);
+
     libtp::tp::f_op_actor::fopAc_ac_c* handle_searchBouDoor(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
     extern libtp::tp::f_op_actor::fopAc_ac_c* (*return_searchBouDoor)(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
 
