@@ -2073,7 +2073,7 @@ namespace mod::events
         }
         else
         {
-            return 0;
+            return false;
         }
     }
 

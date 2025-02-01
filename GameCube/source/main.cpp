@@ -459,6 +459,7 @@ namespace mod
         {
             handleFoolishItem(randoPtr);
         }
+
         tools::xorshift32(randoPtr->getRandStatePtr());
 
         if (randoPtr->getTimeChange() != rando::TimeChange::NO_CHANGE)
@@ -2080,7 +2081,11 @@ namespace mod
         // The very first entry of the shuffledEntrances table is always the spawn entrance.
         const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
 
-        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage;
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        libtp::tp::d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo;
+        gameInfoPtr->save.mRestart.mLastMode = 0;
+
+        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
 
         strncpy(nextStagePtr->mStage,
                 libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
@@ -2090,8 +2095,6 @@ namespace mod
         nextStagePtr->mPoint = currentEntrance->getNewSpawn();
         nextStagePtr->mLayer = currentEntrance->getNewState();
         nextStagePtr->enabled |= 0x1;
-        // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.mRestart.mLastMode = 0;
 
         return gReturn_dMenuOption__tv_open1_move(thisPtr);
     }
