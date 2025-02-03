@@ -12,45 +12,22 @@ namespace mod::game_patch
     void _07_checkPlayerStageReturn()
     {
         using namespace libtp::tp::d_com_inf_game;
+        using namespace libtp::tp::d_a_alink;
         using namespace libtp::data;
 
-        // If we are in the desert and cannot transform/warp, we set link's save point to Lake Hylia.
-        const auto stagesPtr = &stage::allStages[0];
-
-        libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
-        libtp::tp::d_save::dSv_player_return_place_c* playerReturnPlacePtr = &playerPtr->player_return_place;
-
-        // If for some reason we find ourselves outside Sacred Grove and cannot transform/warp, we want the player to be able to
-        // save warp to Faron. This is mostly usefull for Glitched Logic.
-        if (libtp::tools::playerIsInRoomStage(6, stagesPtr[stage::StageIDs::Faron_Woods]))
+        // If we are not in a dungeon, we want to set our save warp to be the last entrance we entered.
+        if (!checkDungeon() && !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
         {
-            if (!events::haveItem(items::Shadow_Crystal))
-            {
-                strncpy(playerReturnPlacePtr->link_current_stage,
-                        stagesPtr[stage::StageIDs::Faron_Woods],
-                        sizeof(playerReturnPlacePtr->link_current_stage) - 1);
+            libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
+            libtp::tp::d_save::dSv_player_return_place_c* playerReturnPlacePtr = &playerPtr->player_return_place;
+            libtp::tp::d_stage::dStage_startStage* startStgPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
 
-                playerReturnPlacePtr->link_spawn_point_id = 0xFE;
-                playerReturnPlacePtr->link_room_id = 0x6;
-            }
-        }
-        else if (libtp::tp::d_a_alink::checkStageName(stagesPtr[stage::StageIDs::Fyrus]))
-        {
             strncpy(playerReturnPlacePtr->link_current_stage,
-                    stagesPtr[stage::StageIDs::Goron_Mines],
+                    startStgPtr->mStage,
                     sizeof(playerReturnPlacePtr->link_current_stage) - 1);
 
-            playerReturnPlacePtr->link_spawn_point_id = 0x0;
-            playerReturnPlacePtr->link_room_id = 0x1;
-        }
-        else if (libtp::tp::d_a_alink::checkStageName(stagesPtr[stage::StageIDs::Argorok]))
-        {
-            strncpy(playerReturnPlacePtr->link_current_stage,
-                    stagesPtr[stage::StageIDs::City_in_the_Sky],
-                    sizeof(playerReturnPlacePtr->link_current_stage) - 1);
-
-            playerReturnPlacePtr->link_spawn_point_id = 0x0;
-            playerReturnPlacePtr->link_room_id = 0x0;
+            playerReturnPlacePtr->link_spawn_point_id = startStgPtr->mPoint;
+            playerReturnPlacePtr->link_room_id = startStgPtr->mRoomNo;
         }
     }
 } // namespace mod::game_patch

@@ -154,6 +154,7 @@
 8012dbf4:procWolfAtnActorMoveInit
 800b52bc:decideDoStatus
 800b9f88:checkGroundSpecialMode
+800c0348:checkDungeon
 
 // data
 80388C0C:climbVars

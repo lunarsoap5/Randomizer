@@ -415,8 +415,13 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_faronSmallKeyItemFunc()
     {
-        const libtp::data::stage::AreaNodesID nodeId = libtp::data::stage::AreaNodesID::Faron;
-        giveNodeDungeonItems(nodeId, libtp::data::items::NodeDungeonItemType::Small_Key);
+        libtp::tp::d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Faron),
+                                                          0x14); // Unlock North Faron Gate
+    }
+
+    KEEP_FUNC void _02_faronCoroKeyItemFunc()
+    {
+        libtp::tp::d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Faron), 0xC); // Unlock Coro Gate
     }
 
     KEEP_FUNC void _02_shadowCrystalItemFunc()

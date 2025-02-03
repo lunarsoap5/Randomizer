@@ -487,6 +487,7 @@ namespace mod::game_patch
         // Other Items
         itemFuncPtr[customItems::Bulblin_Camp_Key] = _02_campSmallKeyItemFunc;
         itemFuncPtr[items::Small_Key_N_Faron_Gate] = _02_faronSmallKeyItemFunc;
+        itemFuncPtr[items::Coro_Key] = _02_faronCoroKeyItemFunc;
         itemFuncPtr[items::Shadow_Crystal] = _02_shadowCrystalItemFunc;
         itemFuncPtr[items::Dominion_Rod] = _02_poweredDominionRodItemFunc;
         itemFuncPtr[items::Aurus_Memo] = _02_auruMemoItemFunc;

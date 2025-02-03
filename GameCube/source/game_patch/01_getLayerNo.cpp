@@ -362,13 +362,7 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Zoras_Domain:
                     {
-                        condition =
-                            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(SNOWPEAK_RUINS_CLEARED); // Snowpeak Ruins Completed
-
-                        if (condition != false)
-                        {
-                            chosenLayer = stage::ZorasDomainStateIDs::Domain_Snowpeak_Ruins_Completed;
-                        }
+                        chosenLayer = 0;
                         break;
                     }
 

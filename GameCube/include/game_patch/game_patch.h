@@ -101,6 +101,7 @@ namespace mod::game_patch
     void _02_hyruleBigKeyItemFunc();
     void _02_campSmallKeyItemFunc();
     void _02_faronSmallKeyItemFunc();
+    void _02_faronCoroKeyItemFunc();
     void _02_shadowCrystalItemFunc();
     void _02_poweredDominionRodItemFunc();
     void _02_auruMemoItemFunc();

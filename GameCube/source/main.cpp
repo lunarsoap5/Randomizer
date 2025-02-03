@@ -2075,6 +2075,8 @@ namespace mod
 
     KEEP_FUNC void handle_dMenuOption__tv_open1_move(void* thisPtr)
     {
+        using namespace libtp::data;
+        using namespace libtp::tp;
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
 
@@ -2082,8 +2084,25 @@ namespace mod
         const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
 
         // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        libtp::tp::d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo;
+        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
         gameInfoPtr->save.mRestart.mLastMode = 0;
+
+        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they arean't forced to be wolf
+        // un-necessarily.
+        for (int32_t i = 0; i < 4; i++)
+        {
+            if (!d_save::isDarkClearLV(static_cast<void*>(&gameInfoPtr->save.save_file.player.player_status_b), i))
+            {
+                gameInfoPtr->save.save_file.player.player_status_b.transform_level_flag &= ~(1 << i);
+
+                if (i == 0x3) // MDH
+                {
+                    // Unset the flag that starts MDH
+                    gameInfoPtr->save.save_file.mSave[4].temp_flags.memoryFlags[0xA] &= ~0x40;
+                    d_save::offEventBit(&gameInfoPtr->save.save_file.mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
+                }
+            }
+        }
 
         libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
 
