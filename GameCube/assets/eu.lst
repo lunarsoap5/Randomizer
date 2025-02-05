@@ -155,6 +155,7 @@
 800b5490:decideDoStatus
 800ba15c:checkGroundSpecialMode
 800c051c:checkDungeon
+800c04d4:checkBossRoom
 
 // data
 8039038C:climbVars

@@ -13,14 +13,16 @@ namespace mod::game_patch
     {
         using namespace libtp::tp::d_com_inf_game;
         using namespace libtp::tp::d_a_alink;
+        using namespace libtp::tp;
         using namespace libtp::data;
 
         // If we are not in a dungeon, we want to set our save warp to be the last entrance we entered.
-        if (!checkDungeon() && !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
+        // As we randomize Boss/midboss rooms, this will have to be adjusted accordingly.
+        if (!checkDungeon() && !checkBossRoom() && !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
         {
-            libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
-            libtp::tp::d_save::dSv_player_return_place_c* playerReturnPlacePtr = &playerPtr->player_return_place;
-            libtp::tp::d_stage::dStage_startStage* startStgPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
+            d_save::dSv_player_c* playerPtr = &d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
+            d_save::dSv_player_return_place_c* playerReturnPlacePtr = &playerPtr->player_return_place;
+            d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
 
             strncpy(playerReturnPlacePtr->link_current_stage,
                     startStgPtr->mStage,
