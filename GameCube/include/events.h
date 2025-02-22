@@ -45,6 +45,7 @@ namespace mod::events
     extern const libtp::tp::dzx::ACTR gKakShopSlot2Actr;
     extern const libtp::tp::dzx::ACTR SignActr;
     extern const libtp::tp::dzx::ACTR gMstrSrdActr;
+    extern const libtp::tp::dzx::ACTR gCoroActr;
 
     /**
      * @brief Runs when loading just started

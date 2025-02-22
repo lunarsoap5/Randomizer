@@ -78,6 +78,9 @@ namespace mod::events
     const libtp::tp::dzx::ACTR gCampBoarActr =
         {"E_wb", 0xFFFFFFFF, 1650.f, 0.f, 1250.f, 0, static_cast<int16_t>(0xA000), 0x0, 0xFFFF};
 
+    const libtp::tp::dzx::ACTR gCoroActr =
+        {"Kkri", 0x812AFF01, -13505.f, 250.f, -14405.f, 0x65, static_cast<int16_t>(0xC889), 0x0, 0xFFFF};
+
     // Custom shop sold out actors for shop checks. using actor template: 0x48 bytes in memory due to instructions
     // Creating new actors uses less memory than modifying a template due to the amount of memory used by instructions.
     // (0x28 vs 0x48 bytes)
@@ -1285,6 +1288,14 @@ namespace mod::events
                     localSignActor.pos.z = -11518.958f;
                     localSignActor.rot[1] = static_cast<int16_t>(0x9228);
                     tools::spawnActor(4, localSignActor);
+
+                    if (!tp::d_save::isEventBit(&tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent,
+                                                data::flags::CLEARED_FARON_TWILIGHT) &&
+                        tp::d_save::isEventBit(&tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent,
+                                               data::flags::ORDON_DAY_2_OVER))
+                    {
+                        tools::spawnActor(4, gCoroActr);
+                    }
                 }
                 break;
             }
