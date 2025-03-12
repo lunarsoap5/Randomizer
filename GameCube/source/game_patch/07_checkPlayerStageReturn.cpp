@@ -18,7 +18,8 @@ namespace mod::game_patch
 
         // If we are not in a dungeon, we want to set our save warp to be the last entrance we entered.
         // As we randomize Boss/midboss rooms, this will have to be adjusted accordingly.
-        if (!checkDungeon() && !checkBossRoom() && !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
+        if ((rando::gRandomizer->getSeedPtr()->getStageIDX() > 29) &&
+            !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
         {
             d_save::dSv_player_c* playerPtr = &d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
             d_save::dSv_player_return_place_c* playerReturnPlacePtr = &playerPtr->player_return_place;
