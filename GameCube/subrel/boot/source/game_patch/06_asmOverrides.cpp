@@ -132,6 +132,12 @@ namespace mod::game_patch
         const uint32_t checkGroundAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkGroundSpecialMode);
         libtp::patch::writeBranchBL(checkGroundAddress + 0x4C, events::checkValidGroundTransform);
 
+        // TODO: make optional based on if Midna has hints
+        // Modify eventNodeProc to use the normal 0xbb8 FLI value regardless of
+        // the current room when talking to Midna with no special overrides.
+        const uint32_t eventNodeProcAddress = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc);
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddress + 0x14C) = ASM_LOAD_IMMEDIATE(4, 0xbb8);
+
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
 

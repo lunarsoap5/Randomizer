@@ -398,7 +398,9 @@
 8024c2a0:query049
 8024a2d8:doFlow
 8024a528:getEventId
+8024a7cc:setNodeIndex
 8024aa50:setNormalMsg
+8024adec:eventNodeProc
 
 //d_menu_window.o
 801fa590:collect_save_open_init

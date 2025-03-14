@@ -262,6 +262,14 @@ namespace mod
                                      libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
                                      int32_t i_flow);
 
+    void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                             uint16_t flwIndex,
+                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
+    extern void (*gReturn_setNodeIndex)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                        uint16_t flwIndex,
+                                        libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
     int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                 void* flowNode,
                                 libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);

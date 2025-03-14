@@ -146,6 +146,10 @@ namespace mod
                                        libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
                                        int32_t i_flow) = nullptr;
 
+    KEEP_VAR void (*gReturn_setNodeIndex)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                          uint16_t flwIndex,
+                                          libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
+
     KEEP_VAR int32_t (*gReturn_setNormalMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                              void* flowNode,
                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;

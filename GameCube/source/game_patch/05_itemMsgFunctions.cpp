@@ -659,8 +659,15 @@ namespace mod::game_patch
         if (currentInf1 == getZel00BmgInf())
         {
             const char* newMessage;
-            if (msgId == 0x1369) // The custom message ID used for hints on custom signs
+            // if (msgId == 0x1369) // The custom message ID used for hints on custom signs
+            // if (msgId == 0x136d) // The custom message ID used for hints on custom signs
+            if (msgId >= 0x1369) // The custom message ID used for hints on custom signs
             {
+                // TODO: ^ can set a range on these. Maybe don't really need
+                // this split between _05_getSpecialMsgById and
+                // getCustomMessage, but it might be better to leave it alone
+                // for now until we know the new implementation is not causing
+                // issues, and then see about refactoring if it makes sense.
                 newMessage = _05_getSpecialMsgById(msgId);
             }
             else

@@ -340,10 +340,12 @@ namespace mod::rando
         return flag;
     }
 
-    void Randomizer::overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo)
+    void Randomizer::overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo, uint8_t specialStageIdx)
     {
         Seed* seedPtr = this->m_Seed;
-        const uint8_t stageIdx = seedPtr->getStageIDX();
+
+        const uint8_t stageIdx = specialStageIdx > 0 ? specialStageIdx : seedPtr->getStageIDX();
+        // const uint8_t stageIdx = seedPtr->getStageIDX();
         seedPtr->LoadARCChecks(stageIdx, fileDirectory, roomNo);
 
         if ((stageIdx == libtp::data::stage::StageIDs::Ordon_Village) && (fileDirectory == FileDirectory::Room))
@@ -474,12 +476,15 @@ namespace mod::rando
 
     void Randomizer::overrideEventARC()
     {
+        const uint32_t zel00bmgHeaderLocation =
+            reinterpret_cast<uint32_t>(libtp::tp::d_meter2_info::g_meter2_info.stringDataTable);
+        this->overrideARC(zel00bmgHeaderLocation, rando::FileDirectory::Message, 0xFF, 0xFE);
+
         const uint32_t bmgHeaderLocation =
             reinterpret_cast<uint32_t>(libtp::tp::d_meter2_info::g_meter2_info.mStageMsgResource);
-
         const uint32_t messageFlowOffset = bmgHeaderLocation + *reinterpret_cast<uint32_t*>(bmgHeaderLocation + 0x8);
 
-        this->overrideARC(messageFlowOffset, rando::FileDirectory::Message, 0xFF);
+        this->overrideARC(messageFlowOffset, rando::FileDirectory::Message, 0xFF, 0);
     }
 
     uint8_t Randomizer::overrideBugReward(uint8_t bugID)
@@ -706,4 +711,53 @@ namespace mod::rando
             }
         }
     }
+
+    // uint16_t Randomizer::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex)
+    // {
+    //     if (msgFlow == NULL)
+    //         return -1;
+
+    //     // Only allow remapping 0xFFFF if the msgFlow itself is being
+    //     // initialized. Otherwise you can get stuck in a loop of messages when
+    //     // it tries to exit normally using 0xFFFF.
+    //     if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
+    //         return -1;
+
+    //     const uint16_t targetFLIValue = msgFlow->mFlow;
+
+    //     Seed* seedPtr = this->m_Seed;
+    //     const FlwIdxRemap* entries = seedPtr->getMsgRemapTablePtr();
+    //     const uint16_t num_entries = seedPtr->getNumMsgRemaps();
+
+    //     for (uint32_t i = 0; i < num_entries; i++)
+    //     {
+    //         if (entries[i].getFLIValue() == targetFLIValue && entries[i].getOldInitFLWIndex() == flwIndex)
+    //         {
+    //             return entries[i].getNewInitFLWIndex();
+    //         }
+    //     }
+    //     return -1;
+    // }
+
+    // uint16_t Randomizer::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    // {
+    //     if (msgFlow == NULL)
+    //         return -1;
+
+    //     // Seed* seedPtr = this->m_Seed;
+    //     // const MsgRemap* entries = seedPtr->getMsgRemapTablePtr();
+    //     // const uint16_t num_entries = seedPtr->getNumMsgRemaps();
+
+    //     // const uint16_t targetFLIValue = msgFlow->mFlow;
+    //     // const uint16_t targetFLWIndex = msgFlow->field_0x10;
+
+    //     // for (uint32_t i = 0; i < num_entries; i++)
+    //     // {
+    //     //     if (entries[i].getFLIValue() == targetFLIValue && entries[i].getFLWEntryIndex() == targetFLWIndex)
+    //     //     {
+    //     //         return entries[i].getReplacementINFIndex();
+    //     //     }
+    //     // }
+    //     return -1;
+    // }
 } // namespace mod::rando

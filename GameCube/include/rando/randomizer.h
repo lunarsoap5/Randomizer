@@ -22,6 +22,7 @@ namespace mod::rando
 #include "tp/d_resource.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "tp/d_a_alink.h"
+#include "tp/d_msg_flow.h"
 #include "rando/customItems.h"
 #include "tp/J2DPicture.h"
 #include "item_wheel_menu.h"
@@ -151,7 +152,7 @@ namespace mod::rando
         uint8_t getSkyCharacter();
         uint8_t getBossItem();
         uint8_t getEventItem(uint8_t flag);
-        void overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo);
+        void overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo, uint8_t specialStageIdx);
         void overrideObjectARC(libtp::tp::d_resource::dRes_info_c* resourcePtr, const char* fileName);
         void overrideEventARC();
         uint8_t overrideBugReward(uint8_t bugID);
@@ -160,6 +161,8 @@ namespace mod::rando
         void addItemToEventQueue(uint32_t itemToAdd);
         void recolorArchiveTextures(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive);
         uint8_t getFoolishItemModelId(uint8_t originalItem);
+        // uint16_t getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex);
+        // uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
         // NOTE: This function returns dynamic memory
         BMDEntry* generateBmdEntries(DvdEntryNumId arcIndex, uint32_t numEntries);

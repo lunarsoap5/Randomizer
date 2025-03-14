@@ -17,6 +17,7 @@
 #endif
 
 #include "rando/data.h"
+#include "rando/bmg0.h"
 #include "tools.h"
 #include "data.h"
 
@@ -80,6 +81,7 @@ namespace mod::rando
         uint32_t getTotalSize() const { return this->totalSize; }
 
         uint16_t getClr0Offset() const { return this->clr0Offset; }
+        uint16_t getBmg0Offset() const { return this->bmg0Offset; }
         uint16_t getCustomTextHeaderSize() const { return this->customTextHeaderSize; }
         uint16_t getCustomTextHeaderOffset() const { return this->customTextHeaderOffset; }
 
@@ -152,14 +154,15 @@ namespace mod::rando
         /* 0x7C */ EntryInfo fanfareTableInfo;
         /* 0x80 */ EntryInfo sfxTableInfo;
         /* 0x84 */ uint16_t clr0Offset;
-        /* 0x86 */ uint16_t customTextHeaderSize;
-        /* 0x88 */ uint16_t customTextHeaderOffset;
-        /* 0x8A */ uint8_t castleRequirements;
-        /* 0x8B */ uint8_t palaceRequirements;
-        /* 0x8C */ uint8_t mapClearBits;
-        /* 0x8D */ uint8_t damageMagnification;
-        /* 0x8E */ uint8_t totSwordRequirement;
-        /* 0x8F */ uint8_t padding;
+        /* 0x86 */ uint16_t bmg0Offset;
+        /* 0x88 */ uint16_t customTextHeaderSize;
+        /* 0x8A */ uint16_t customTextHeaderOffset;
+        /* 0x8C */ uint8_t castleRequirements;
+        /* 0x8E */ uint8_t palaceRequirements;
+        /* 0x8F */ uint8_t mapClearBits;
+        /* 0x90 */ uint8_t damageMagnification;
+        /* 0x91 */ uint8_t totSwordRequirement;
+        /* 0x92 */ uint8_t padding;
     } __attribute__((__packed__));
 
     class Seed
@@ -223,6 +226,7 @@ namespace mod::rando
         const CLR0Header* getCLR0Ptr() const { return this->m_CLR0; }
         const RawRGBTable* getRawRGBTablePtr() const { return this->m_RawRGBTable; }
         const BMDEntry* getBmdEntriesPtr() const { return this->m_BmdEntries; }
+        const BMG0Section* getBMG0SectionPtr() const { return this->m_BMG0; }
 
         uint16_t getNumLoadedDZXChecks() const { return this->m_NumLoadedDZXChecks; }
         uint16_t getNumLoadedRELChecks() const { return this->m_NumLoadedRELChecks; }
@@ -292,6 +296,7 @@ namespace mod::rando
         const CLR0Header* m_CLR0;
         const RawRGBTable* m_RawRGBTable;
         const BMDEntry* m_BmdEntries;
+        const BMG0Section* m_BMG0;
 
         uint16_t m_NumLoadedDZXChecks;       // Number of currently loaded DZXCheck
         uint16_t m_NumLoadedRELChecks;       // Number of currently loaded RELCheck
