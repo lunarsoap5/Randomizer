@@ -45,7 +45,6 @@
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "util/texture_utils.h"
-#include "rando/data.h"
 #include "gc_wii/OSInterrupt.h"
 #include "tp/d_kankyo.h"
 #include "rando/customItems.h"
@@ -2077,32 +2076,38 @@ namespace mod
     {
         using namespace libtp::data;
         using namespace libtp::tp;
+
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
+        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
+        savePtr->mRestart.mLastMode = 0;
+
+        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they aren't forced to be wolf
+        // un-necessarily.
+        libtp::tp::d_save::dSv_save_c* saveFilePtr = &savePtr->save_file;
+        libtp::tp::d_save::dSv_player_status_b_c* playerStatusBPtr = &saveFilePtr->player.player_status_b;
+        uint8_t* memoryFlagsPtr = &saveFilePtr->mSave[4].temp_flags.memoryFlags[0xA];
+
+        for (int32_t i = 0; i < 4; i++)
+        {
+            if (!d_save::isDarkClearLV(static_cast<void*>(playerStatusBPtr), i))
+            {
+                playerStatusBPtr->transform_level_flag &= ~(1 << i);
+
+                if (i == 0x3) // MDH
+                {
+                    // Unset the flag that starts MDH
+                    *memoryFlagsPtr &= ~0x40;
+                    d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
+                }
+            }
+        }
+
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
 
         // The very first entry of the shuffledEntrances table is always the spawn entrance.
         const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
-
-        // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
-        gameInfoPtr->save.mRestart.mLastMode = 0;
-
-        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they arean't forced to be wolf
-        // un-necessarily.
-        for (int32_t i = 0; i < 4; i++)
-        {
-            if (!d_save::isDarkClearLV(static_cast<void*>(&gameInfoPtr->save.save_file.player.player_status_b), i))
-            {
-                gameInfoPtr->save.save_file.player.player_status_b.transform_level_flag &= ~(1 << i);
-
-                if (i == 0x3) // MDH
-                {
-                    // Unset the flag that starts MDH
-                    gameInfoPtr->save.save_file.mSave[4].temp_flags.memoryFlags[0xA] &= ~0x40;
-                    d_save::offEventBit(&gameInfoPtr->save.save_file.mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
-                }
-            }
-        }
 
         libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
 

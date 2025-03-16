@@ -1289,10 +1289,9 @@ namespace mod::events
                     localSignActor.rot[1] = static_cast<int16_t>(0x9228);
                     tools::spawnActor(4, localSignActor);
 
-                    if (!tp::d_save::isEventBit(&tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent,
-                                                data::flags::CLEARED_FARON_TWILIGHT) &&
-                        tp::d_save::isEventBit(&tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent,
-                                               data::flags::ORDON_DAY_2_OVER))
+                    libtp::tp::d_save::dSv_event_c* eventPtr = &tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent;
+                    if (!tp::d_save::isEventBit(eventPtr, data::flags::CLEARED_FARON_TWILIGHT) &&
+                        tp::d_save::isEventBit(eventPtr, data::flags::ORDON_DAY_2_OVER))
                     {
                         tools::spawnActor(4, gCoroActr);
                     }

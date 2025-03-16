@@ -6,6 +6,7 @@
 #include "events.h"
 #include "tp/d_a_alink.h"
 #include "tp/d_com_inf_game.h"
+#include "rando/randomizer.h"
 
 namespace mod::game_patch
 {
@@ -21,10 +22,12 @@ namespace mod::game_patch
         if ((rando::gRandomizer->getSeedPtr()->getStageIDX() > 29) &&
             !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
         {
-            d_save::dSv_player_c* playerPtr = &d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
-            d_save::dSv_player_return_place_c* playerReturnPlacePtr = &playerPtr->player_return_place;
-            d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
-            uint16_t startPoint = d_com_inf_game::dComIfG_gameInfo.save.mRestart.mStartPoint;
+            libtp::tp::d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
+            libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
+
+            d_save::dSv_player_return_place_c* playerReturnPlacePtr = &savePtr->save_file.player.player_return_place;
+            d_stage::dStage_startStage* startStgPtr = &gameInfoPtr->play.mStartStage;
+            const uint32_t startPoint = static_cast<uint32_t>(savePtr->mRestart.mStartPoint);
 
             if (startPoint == 0xFFFC) // Portal
             {
@@ -33,7 +36,7 @@ namespace mod::game_patch
             }
             else
             {
-                playerReturnPlacePtr->link_spawn_point_id = startPoint;
+                playerReturnPlacePtr->link_spawn_point_id = static_cast<uint8_t>(startPoint);
             }
 
             strncpy(playerReturnPlacePtr->link_current_stage,
