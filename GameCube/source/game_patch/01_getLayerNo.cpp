@@ -718,8 +718,7 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Hidden_Village:
                     {
-                        condition =
-                            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GAVE_ILIA_HER_CHARM); // Ilia shown Ilia's Charm
+                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GOT_ILIAS_CHARM); // Ilia shown Ilia's Charm
 
                         if (condition != false)
                         {
