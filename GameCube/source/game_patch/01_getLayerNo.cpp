@@ -718,12 +718,24 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Hidden_Village:
                     {
-                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GOT_ILIAS_CHARM); // Ilia shown Ilia's Charm
+                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
+                            GAVE_ILIA_THE_WOOD_STATUE); // Ilia shown the wooden statue
 
                         if (condition != false)
                         {
+                            condition =
+                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GOT_ILIAS_CHARM); // Ilia shown Ilia's Charm
+
+                            if (condition != false)
+                            {
+                                chosenLayer = stage::HiddenVillageStateIDs::Hidden_Village_Showed_Ilia_Charm;
+                            }
+                        }
+                        else
+                        {
                             chosenLayer = stage::HiddenVillageStateIDs::Hidden_Village_Showed_Ilia_Charm;
                         }
+
                         break;
                     }
 

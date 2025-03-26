@@ -2117,6 +2117,7 @@ namespace mod
 
         nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
         nextStagePtr->mPoint = currentEntrance->getNewSpawn();
+        savePtr->mRestart.mStartPoint = currentEntrance->getNewSpawn();
         nextStagePtr->mLayer = currentEntrance->getNewState();
         nextStagePtr->enabled |= 0x1;
 
