@@ -525,14 +525,24 @@ namespace mod::game_patch
 
                         if (condition)
                         {
-                            darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                            if (darkIsClear != false)
+                            condition =
+                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(FINISHED_SEWERS); // First trip to Sewers done
+
+                            if (condition)
                             {
-                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
+                                darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
+                                if (darkIsClear != false)
+                                {
+                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
+                                }
+                                else
+                                {
+                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
+                                }
                             }
                             else
                             {
-                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Talo_Rescued;
                             }
                         }
                         else

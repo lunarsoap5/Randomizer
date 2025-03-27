@@ -79,7 +79,7 @@ namespace mod::events
         {"E_wb", 0xFFFFFFFF, 1650.f, 0.f, 1250.f, 0, static_cast<int16_t>(0xA000), 0x0, 0xFFFF};
 
     const libtp::tp::dzx::ACTR gCoroActr =
-        {"Kkri", 0x812AFF01, -13505.f, 250.f, -14405.f, 0x65, static_cast<int16_t>(0xC889), 0x0, 0xFFFF};
+        {"Kkri", 0x174EFF01, -13505.f, 250.f, -14405.f, 0x65, static_cast<int16_t>(0xC889), 0x0, 0xFFFF};
 
     // Custom shop sold out actors for shop checks. using actor template: 0x48 bytes in memory due to instructions
     // Creating new actors uses less memory than modifying a template due to the amount of memory used by instructions.
