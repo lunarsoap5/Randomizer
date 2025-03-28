@@ -278,6 +278,14 @@ namespace mod
                                            void* flowNode,
                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
 
+    int32_t handle_eventNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                 libtp::tp::f_op_actor::fopAc_ac_c* abc,
+                                 libtp::tp::f_op_actor::fopAc_ac_c* param_1);
+
+    extern int32_t (*gReturn_eventNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                            void* flowNode,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
     // Save flag functions
     bool handle_isDungeonItem(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);
     extern bool (*gReturn_isDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);

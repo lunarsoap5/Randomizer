@@ -12,6 +12,7 @@
 
 #include "rando/randomizer.h"
 #include "tp/control.h"
+#include "tp/d_msg_flow.h"
 #include "data/stages.h"
 #include "data/items.h"
 #include "gc_wii/OSCache.h"
@@ -182,6 +183,17 @@ namespace mod::game_patch
     const char* _05_getMsgById(uint32_t msgId, uint16_t* msgSizeOut);
     const char* _05_getSpecialMsgById(uint32_t msgId);
     const char** _05_replaceMessageString(const char** text);
+
+    // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+    //                        void* flowNode,
+    //                        libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
+    int _05_customEvent067();
+
+    // extern int (*customEventFunctions[])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+    //                                      void* flowNode,
+    //                                      libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
+
+    extern uint32_t customEventFunctions[1][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();

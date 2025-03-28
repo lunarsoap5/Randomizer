@@ -712,6 +712,16 @@ namespace mod::rando
         }
     }
 
+    uint16_t Randomizer::getLatestCustomINFIndex()
+    {
+        return this->m_latestCustomINFIndex;
+    }
+
+    void Randomizer::setLatestCustomINFIndex(uint16_t infIndex)
+    {
+        this->m_latestCustomINFIndex = infIndex;
+    }
+
     // uint16_t Randomizer::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex)
     // {
     //     if (msgFlow == NULL)

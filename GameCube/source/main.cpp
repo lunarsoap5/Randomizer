@@ -1309,12 +1309,21 @@ namespace mod
         uint8_t flowNodeCopy[8];
         memcpy(&flowNodeCopy, flowNode, 8);
 
+        // uint8_t i = flowNodeCopy[1] + 1;
+        // uint32_t* a = game_patch::customEventFunctions[i];
+        // if (i > 0)
+        // {
+        //     flowNodeCopy[1] = a[2] & 0xFF;
+        //     // a(NULL, NULL, NULL);
+        // }
+
         // uint16_t customINFIndex = rando::gRandomizer->getCustomINFIndex(msgFlow);
         const uint16_t customINFIndex = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow);
         if (customINFIndex != 0xFFFF)
         {
-            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
-            u16Arr[1] = customINFIndex;
+            // uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
+            // u16Arr[1] = customINFIndex;
+            rando::gRandomizer->setLatestCustomINFIndex(customINFIndex);
         }
 
         // uint16_t customInitNode = rando::gRandomizer->getSeedPtr()->getCustomInitNodeIndex(flowNode);

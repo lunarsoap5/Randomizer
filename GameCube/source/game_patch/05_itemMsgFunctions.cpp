@@ -659,9 +659,12 @@ namespace mod::game_patch
         if (currentInf1 == getZel00BmgInf())
         {
             const char* newMessage;
+
+            uint16_t latestCustomInfIndex = rando::gRandomizer->getLatestCustomINFIndex();
+
             // if (msgId == 0x1369) // The custom message ID used for hints on custom signs
             // if (msgId == 0x136d) // The custom message ID used for hints on custom signs
-            if (msgId >= 0x1369) // The custom message ID used for hints on custom signs
+            if (latestCustomInfIndex > 0x3000 || msgId >= 0x1369) // The custom message ID used for hints on custom signs
             {
                 // TODO: ^ can set a range on these. Maybe don't really need
                 // this split between _05_getSpecialMsgById and
@@ -863,4 +866,20 @@ namespace mod::game_patch
         // Didn't find msgId
         return nullptr;
     }
+
+    // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+    //                                  void* flowNode,
+    //                                  libtp::tp::f_op_actor::fopAc_ac_c* actorPtr)
+    int _05_customEvent067()
+    {
+        events::handleTimeOfDayChange();
+        return 1;
+    }
+
+    // int (*customEventFunctions[1])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+    //                                void* flowNode,
+    //                                libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
+
+    uint32_t customEventFunctions[1][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)}};
+    //    libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
 } // namespace mod::game_patch

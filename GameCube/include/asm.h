@@ -108,6 +108,10 @@ namespace mod::assembly
         void asmManageEquippedItemsAsWolf();
         int32_t handleManageEquippedItemsAsWolf(int32_t status);
 
+        // d_msg_flow.o
+        void asmGetEventNodeFnPtr();
+        int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex);
+
         // d_a_alink.o
 #ifdef TP_JP
         void asmUnpatchMapGlitchStart();

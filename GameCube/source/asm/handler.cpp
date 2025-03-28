@@ -162,6 +162,17 @@ namespace mod::assembly
         return status;
     }
 
+    int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex)
+    {
+        if (eventListIndex >= 43)
+        {
+            uint8_t newIndex = eventListIndex - 43;
+            uint32_t* ptmf = game_patch::customEventFunctions[newIndex];
+            return reinterpret_cast<uint32_t>(ptmf);
+        }
+        return 0;
+    }
+
 #ifdef TP_JP
     void unpatchMapGlitch(libtp::tp::d_a_alink::daAlink* d_a_alink)
     {
