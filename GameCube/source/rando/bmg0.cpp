@@ -70,11 +70,11 @@ namespace mod::rando
         if (context == 0)
             return nullptr;
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
         const uint16_t numEntries = this->numStrRemapEntries;
         if (numEntries == 0)
             return nullptr;
 
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
         const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->strRemapLookupOffset);
 
         uint32_t lookupVal = (context << 16) + infIndex;

@@ -1,6 +1,8 @@
 .global asmGetEventNodeFnPtr
 # asmGetEventNodeFnPtr needs to be used in at least one subrel, so it cannot be set to hidden
 
+.hidden _finished
+
 asmGetEventNodeFnPtr:
 # Restore the original instruction immediately. If we end up doing nothing
 # special here, then we want to use the value that was already calculated

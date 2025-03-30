@@ -14,6 +14,7 @@
 #include "tp/d_msg_class.h"
 #include "tp/resource.h"
 #include "tp/d_msg_flow.h"
+#include "tp/d_msg_object.h"
 #include "tp/d_a_npc.h"
 #include "tp/d_menu_window.h"
 #include "Z2AudioLib/Z2AudioMgr.h"
@@ -207,6 +208,8 @@ namespace mod
         // Branch to a handling of event indexes (including custom ones)
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x48,
                                     assembly::asmGetEventNodeFnPtr);
+        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex) + 0x11C,
+                                    assembly::asmAdjustSelectMsg);
 
         // Save flag functions
         gReturn_isDungeonItem = patch::hookFunction(tp::d_save::isDungeonItem, handle_isDungeonItem);

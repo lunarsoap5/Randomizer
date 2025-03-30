@@ -173,6 +173,12 @@ namespace mod::assembly
         return 0;
     }
 
+    char* handleAdjustSelectMsg(uint16_t infIndex)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(rando::gRandomizer->getFlowContext(),
+                                                                                        infIndex);
+    }
+
 #ifdef TP_JP
     void unpatchMapGlitch(libtp::tp::d_a_alink::daAlink* d_a_alink)
     {

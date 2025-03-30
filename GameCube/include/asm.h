@@ -112,6 +112,10 @@ namespace mod::assembly
         void asmGetEventNodeFnPtr();
         int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex);
 
+        // d_msg_object.o
+        void asmAdjustSelectMsg();
+        char* handleAdjustSelectMsg(uint16_t infIndex);
+
         // d_a_alink.o
 #ifdef TP_JP
         void asmUnpatchMapGlitchStart();
