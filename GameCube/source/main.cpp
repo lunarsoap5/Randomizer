@@ -1121,11 +1121,12 @@ namespace mod
         // Call the original function immediately as we need its output
         const int32_t menuType = gReturn_query037(unk1, unk2, unk3);
 
-        if ((menuType == 0x2) && (reinterpret_cast<int32_t>(libtp::tp::d_a_player::m_midnaActor) ==
-                                  libtp::tp::f_op_actor_mng::fopAcM_getTalkEventPartner(nullptr)))
-        {
-            events::handleTimeOfDayChange();
-        }
+        // TODO: disabling this time of day change
+        // if ((menuType == 0x2) && (reinterpret_cast<int32_t>(libtp::tp::d_a_player::m_midnaActor) ==
+        //                           libtp::tp::f_op_actor_mng::fopAcM_getTalkEventPartner(nullptr)))
+        // {
+        //     events::handleTimeOfDayChange();
+        // }
 
         return menuType;
     }
@@ -1265,7 +1266,15 @@ namespace mod
         // }
         // }
 
-        return gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
+        // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
+
+        int32_t ret = gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
+
+        // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
+
+        return ret;
+
+        // return gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
     }
 
     KEEP_FUNC void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1273,11 +1282,28 @@ namespace mod
                                        libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
     {
         // try to remap here
-        const uint16_t customInitNode =
+        // const uint16_t customInitNode =
+        //     rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomInitNodeIndex(msgFlow, flwIndex);
+        // if (customInitNode != 0xFFFF)
+        // {
+        //     flwIndex = customInitNode;
+        //     // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
+        //     // // need to unset it.
+        //     // msgFlow->field_0x26 = 0;
+        //     // msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
+        //     // // Was defaulting to 0x24 (36) at the moment.
+        // }
+
+        // TODO: update
+        rando::gRandomizer->checkResetFlowContext(msgFlow);
+
+        const rando::FlwIdxRemap* remapEntry =
             rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomInitNodeIndex(msgFlow, flwIndex);
-        if (customInitNode != 0xFFFF)
+        if (remapEntry != nullptr)
         {
-            flwIndex = customInitNode;
+            flwIndex = remapEntry->getNewInitFLWIndex();
+            const uint16_t newContext = remapEntry->getNewContext();
+            rando::gRandomizer->setFlowContext(msgFlow, newContext);
             // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
             // // need to unset it.
             // msgFlow->field_0x26 = 0;
@@ -1286,6 +1312,24 @@ namespace mod
         }
 
         gReturn_setNodeIndex(msgFlow, flwIndex, actrPtr);
+
+        // TODO: what if we use a custom eventNode to set the context? That
+        // might make things more difficult / way bigger in data size in the
+        // GCI.
+
+        // Let's say we have something like this:
+        // - FLI value, currentContext(or any okay), newNodeIndex, newContext
+
+        // We definitely need to patch nodeProc's switch to read the correct
+        // value in the case that we are remapping the node
+
+        // Actually, let's assume we cannot remap a node's type. We can only
+        // remap its data as used by the branch, msg, and event procs.
+
+        // TODO: first thing to do is assume we have a specific context value.
+        // Need to remap the text for the "What is it, Link?" and the
+        // "Transform/Talk To Midna" to say "Testing" and "Hints/Change time of
+        // day".
     }
 
     KEEP_FUNC int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1321,9 +1365,9 @@ namespace mod
         const uint16_t customINFIndex = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow);
         if (customINFIndex != 0xFFFF)
         {
-            // uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
-            // u16Arr[1] = customINFIndex;
-            rando::gRandomizer->setLatestCustomINFIndex(customINFIndex);
+            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
+            u16Arr[1] = customINFIndex;
+            // rando::gRandomizer->setLatestCustomINFIndex(customINFIndex);
         }
 
         // uint16_t customInitNode = rando::gRandomizer->getSeedPtr()->getCustomInitNodeIndex(flowNode);
@@ -1422,6 +1466,45 @@ namespace mod
 
         // return gReturn_setNormalMsg(msgFlow, flowNode, actrPtr);
         return gReturn_setNormalMsg(msgFlow, flowNodeCopy, actrPtr);
+    }
+
+    KEEP_FUNC int32_t handle_messageNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2)
+    {
+        // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
+
+        int32_t ret = gReturn_messageNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+
+        // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
+
+        return ret;
+    }
+
+    KEEP_FUNC int32_t handle_branchNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2)
+    {
+        // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
+
+        int32_t ret = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+
+        // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
+
+        return ret;
+    }
+
+    KEEP_FUNC int32_t handle_eventNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2)
+    {
+        // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
+
+        int32_t ret = gReturn_eventNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+
+        // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
+
+        return ret;
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)

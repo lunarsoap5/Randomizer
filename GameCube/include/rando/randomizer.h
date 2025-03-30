@@ -161,8 +161,9 @@ namespace mod::rando
         void addItemToEventQueue(uint32_t itemToAdd);
         void recolorArchiveTextures(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive);
         uint8_t getFoolishItemModelId(uint8_t originalItem);
-        uint16_t getLatestCustomINFIndex();
-        void setLatestCustomINFIndex(uint16_t infIndex);
+        uint16_t getFlowContext();
+        void setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext);
+        void checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
         // uint16_t getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex);
         // uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
@@ -195,7 +196,8 @@ namespace mod::rando
         EventItemStatus m_GiveItemToPlayerStatus;
         TimeChange m_TimeChange;
 
-        uint16_t m_latestCustomINFIndex = 0xFFFF;
+        uint16_t m_latestFLIVal = 0xFFFF;
+        uint16_t m_flowContext = 0;
 
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages m_CurrentLanguage;

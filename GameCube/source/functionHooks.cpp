@@ -154,6 +154,18 @@ namespace mod
                                              void* flowNode,
                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
 
+    KEEP_VAR int32_t (*gReturn_messageNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
+
+    KEEP_VAR int32_t (*gReturn_branchNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
+
+    KEEP_VAR int32_t (*gReturn_eventNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
+
     // Save flag functions
     KEEP_VAR bool (*gReturn_isDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;
     KEEP_VAR void (*gReturn_onDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;

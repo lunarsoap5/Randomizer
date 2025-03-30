@@ -201,7 +201,10 @@ namespace mod
         gReturn_doFlow = patch::hookFunction(libtp::tp::d_msg_flow::doFlow, handle_doFlow);
         gReturn_setNodeIndex = patch::hookFunction(libtp::tp::d_msg_flow::setNodeIndex, handle_setNodeIndex);
         gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
-        // Branch to a custom function that checks for the 20 soul flag as well as soul count.
+        gReturn_messageNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::messageNodeProc, handle_messageNodeProc);
+        gReturn_branchNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::branchNodeProc, handle_branchNodeProc);
+        gReturn_eventNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::eventNodeProc, handle_eventNodeProc);
+        // Branch to a handling of event indexes (including custom ones)
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x48,
                                     assembly::asmGetEventNodeFnPtr);
 

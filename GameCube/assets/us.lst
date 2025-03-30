@@ -400,6 +400,8 @@
 8024a528:getEventId
 8024a7cc:setNodeIndex
 8024aa50:setNormalMsg
+8024ab30:messageNodeProc
+8024ad54:branchNodeProc
 8024adec:eventNodeProc
 
 //d_menu_window.o

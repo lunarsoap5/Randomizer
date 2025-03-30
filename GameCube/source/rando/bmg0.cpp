@@ -8,16 +8,18 @@
 
 namespace mod::rando
 {
-    uint16_t BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const
+    FlwIdxRemap* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const
     {
         if (msgFlow == nullptr)
-            return -1;
+            return nullptr;
+        // return -1;
 
         // Only allow remapping 0xFFFF if the msgFlow itself is being
         // initialized. Otherwise you can get stuck in a loop of messages when
         // it tries to exit normally using 0xFFFF.
         if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
-            return -1;
+            return nullptr;
+        // return -1;
 
         const uint16_t targetFLIValue = msgFlow->mFlow;
 
@@ -29,10 +31,13 @@ namespace mod::rando
         {
             if (entries[i].getFLIValue() == targetFLIValue && entries[i].getOldInitFLWIndex() == flwIndex)
             {
-                return entries[i].getNewInitFLWIndex();
+                uint32_t u32Addr = reinterpret_cast<uint32_t>(entries) + i * sizeof(FlwIdxRemap);
+                return reinterpret_cast<FlwIdxRemap*>(u32Addr);
+                // return &(entries[i]);
+                // return entries[i].getNewInitFLWIndex();
             }
         }
-        return -1;
+        return nullptr;
     }
 
     uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const
@@ -59,4 +64,33 @@ namespace mod::rando
         }
         return -1;
     }
+
+    char* BMG0Section::getReplacementStr(uint16_t context, uint16_t infIndex) const
+    {
+        if (context == 0)
+            return nullptr;
+
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
+        const uint16_t numEntries = this->numStrRemapEntries;
+        if (numEntries == 0)
+            return nullptr;
+
+        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->strRemapLookupOffset);
+
+        uint32_t lookupVal = (context << 16) + infIndex;
+        for (int i = 0; i < numEntries; i++)
+        {
+            if (lookupTable[i] == lookupVal)
+            {
+                const uint16_t* offsetsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strRemapOffsetsOffset);
+                const uint16_t offsetInStrTable = offsetsTable[i];
+
+                uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffset + offsetInStrTable;
+                return reinterpret_cast<char*>(strAddr);
+            }
+        }
+
+        return nullptr;
+    }
+
 } // namespace mod::rando

@@ -278,13 +278,29 @@ namespace mod
                                            void* flowNode,
                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
 
+    int32_t handle_messageNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                   libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                   libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    extern int32_t (*gReturn_messageNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    int32_t handle_branchNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                  libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                  libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    extern int32_t (*gReturn_branchNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
     int32_t handle_eventNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                 libtp::tp::f_op_actor::fopAc_ac_c* abc,
-                                 libtp::tp::f_op_actor::fopAc_ac_c* param_1);
+                                 libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                 libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
 
     extern int32_t (*gReturn_eventNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                            void* flowNode,
-                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
 
     // Save flag functions
     bool handle_isDungeonItem(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);

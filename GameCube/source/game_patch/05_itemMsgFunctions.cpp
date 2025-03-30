@@ -660,11 +660,23 @@ namespace mod::game_patch
         {
             const char* newMessage;
 
-            uint16_t latestCustomInfIndex = rando::gRandomizer->getLatestCustomINFIndex();
+            const char* remappedStr =
+                rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(rando::gRandomizer->getFlowContext(),
+                                                                                         msgId);
 
-            // if (msgId == 0x1369) // The custom message ID used for hints on custom signs
-            // if (msgId == 0x136d) // The custom message ID used for hints on custom signs
-            if (latestCustomInfIndex > 0x3000 || msgId >= 0x1369) // The custom message ID used for hints on custom signs
+            //  getCustomInitNodeIndex(msgFlow, flwIndex);
+
+            if (remappedStr != nullptr)
+            {
+                newMessage = remappedStr;
+
+                // uint16_t latestCustomInfIndex = rando::gRandomizer->getLatestCustomINFIndex();
+
+                // if (msgId == 0x1369) // The custom message ID used for hints on custom signs
+                // if (msgId == 0x136d) // The custom message ID used for hints on custom signs
+                // if (latestCustomInfIndex > 0x3000 || msgId >= 0x1369) // The custom message ID used for hints on custom signs
+            }
+            else if (msgId >= 0x1369) // The custom message ID used for hints on custom signs
             {
                 // TODO: ^ can set a range on these. Maybe don't really need
                 // this split between _05_getSpecialMsgById and

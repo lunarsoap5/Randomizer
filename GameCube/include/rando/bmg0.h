@@ -22,12 +22,13 @@ namespace mod::rando
         uint16_t getFLIValue() const { return this->fliValue; }
         uint16_t getOldInitFLWIndex() const { return this->oldInitFlwIndex; }
         uint16_t getNewInitFLWIndex() const { return this->newInitFlwIndex; }
+        uint16_t getNewContext() const { return this->newContext; }
 
        private:
         uint16_t fliValue;
         uint16_t oldInitFlwIndex;
         uint16_t newInitFlwIndex;
-        uint16_t padding;
+        uint16_t newContext;
     } __attribute__((__packed__));
 
     class InfRemap
@@ -54,8 +55,9 @@ namespace mod::rando
         BMG0Section() {}
         ~BMG0Section() {}
 
-        uint16_t getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
+        FlwIdxRemap* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
+        char* getReplacementStr(uint16_t context, uint16_t infIndex) const;
 
        private:
         /* 0x00 */ uint16_t signToInitFliOffset;
@@ -64,7 +66,11 @@ namespace mod::rando
         /* 0x06 */ uint16_t numFlwIdxRemapEntries;
         /* 0x08 */ uint16_t infRemapOffset;
         /* 0x0A */ uint16_t numInfRemapEntries;
-        /* 0x0C */ uint32_t padding;
+        /* 0x0C */ uint16_t strRemapLookupOffset;
+        /* 0x0E */ uint16_t strRemapOffsetsOffset;
+        /* 0x10 */ uint16_t numStrRemapEntries;
+        /* 0x12 */ uint16_t strTableOffset;
+        /* 0x14 */ uint32_t padding;
     } __attribute__((__packed__));
 } // namespace mod::rando
 #endif

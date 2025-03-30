@@ -712,14 +712,32 @@ namespace mod::rando
         }
     }
 
-    uint16_t Randomizer::getLatestCustomINFIndex()
+    uint16_t Randomizer::getFlowContext()
     {
-        return this->m_latestCustomINFIndex;
+        return this->m_flowContext;
     }
 
-    void Randomizer::setLatestCustomINFIndex(uint16_t infIndex)
+    void Randomizer::setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext)
     {
-        this->m_latestCustomINFIndex = infIndex;
+        if (msgFlow != nullptr && msgFlow->mFlow == this->m_latestFLIVal)
+        {
+            this->m_flowContext = flowContext;
+        }
+    }
+
+    void Randomizer::checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        if (msgFlow == nullptr)
+        {
+            // Not expected to ever run
+            this->m_latestFLIVal = 0xFFFF;
+            this->m_flowContext = 0;
+        }
+        else if (msgFlow->mFlow != this->m_latestFLIVal)
+        {
+            this->m_latestFLIVal = msgFlow->mFlow;
+            this->m_flowContext = 0;
+        }
     }
 
     // uint16_t Randomizer::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex)
