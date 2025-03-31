@@ -27,8 +27,8 @@ lwz %r4,0x10(%sp)
 
 bl handleAdjustMsgBranchResultNode
 
-# If result is -1, then no custom result.
-cmpwi %r3,-1
+# If result is nullptr, then no custom result.
+cmpwi %r3,0
 bne- _setCustomFlwIndex
 
 # If no custom index, restore r4 to value from stack
@@ -36,8 +36,7 @@ lwz %r4,0x18(%sp)
 b _finished
 
 _setCustomFlwIndex:
-rlwinm %r3,%r3,0,16,31
-mr %r4,%r3
+lhz %r4,0x0(%r3)
 
 _finished:
 # Pop stack except r4 which was handled above

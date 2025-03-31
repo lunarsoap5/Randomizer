@@ -58,9 +58,9 @@ namespace mod::rando
         FlwIdxRemap* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
         char* getReplacementStr(uint16_t context, uint16_t infIndex) const;
-        uint16_t getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                           uint16_t context,
-                                           uint16_t branchProcResult) const;
+        const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                  uint16_t context,
+                                                  uint16_t branchProcResult) const;
 
        private:
         const uint16_t* getBranchEditData(uint16_t context, uint16_t flwIndex) const;
