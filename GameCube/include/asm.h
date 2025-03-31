@@ -16,6 +16,7 @@
 #include "tp/dynamic_link.h"
 #include "tp/f_op_actor.h"
 #include "tp/d_a_alink.h"
+#include "tp/d_msg_flow.h"
 
 // Original: li 0xE0
 // Normally loads the poesoul item id into r4
@@ -109,6 +110,8 @@ namespace mod::assembly
         int32_t handleManageEquippedItemsAsWolf(int32_t status);
 
         // d_msg_flow.o
+        void adjustMsgBranchResultNode();
+        int32_t handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus);
         void asmGetEventNodeFnPtr();
         int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex);
 

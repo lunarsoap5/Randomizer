@@ -1487,6 +1487,46 @@ namespace mod
     {
         // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
 
+        // Need to do this with assembly since there is the ptmf stuff.
+
+        // const uint32_t lookupVal =
+        //     rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getBranchEditData(rando::gRandomizer->getFlowContext(),
+        //                                                                              msgFlow->field_0x10);
+
+        // int32_t ret;
+        // if (lookupVal != 0xFFFFFFFF)
+        // {
+        //     uint8_t flowNodeCopy[8];
+
+        //     // Get a pointer to our branch
+        //     uint16_t branchIndex = (lookupVal >> 16) & 0xFFFF;
+        //     if (branchIndex != 0xFFFF)
+        //     {
+        //         // Custom branch
+        //     }
+        //     else
+        //     {
+        //         // Use the vanilla branch node data
+        //         uint8_t* flowNodeTBL = reinterpret_cast<uint8_t*>(msgFlow->mFlowNodeTBL);
+        //         uint16_t flwIndex = msgFlow->field_0x10;
+
+        //         uint32_t flowNodeAddr = reinterpret_cast<uint32_t>(flowNodeTBL) + flwIndex * 8;
+        //         uint8_t* flowNode = reinterpret_cast<uint8_t*>(flowNodeAddr);
+        //         memcpy(&flowNodeCopy, flowNode, 8);
+        //     }
+
+        //     // mesg_flow_node_branch* node = (mesg_flow_node_branch*)&mFlowNodeTBL[field_0x10];
+        //     // int proc_status = (this->*mQueryList[node->msg_index])(node, param_0, 1);
+
+        //     // setNodeIndex(field_0x14[(node->params[1] + proc_status) & 0xFFFF], param_1);
+        //     ret = 1;
+        // }
+        // else
+        // {
+        //     // Run vanilla function
+        //     ret = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+        // }
+
         int32_t ret = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
 
         // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);

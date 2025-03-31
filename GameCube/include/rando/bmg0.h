@@ -58,8 +58,13 @@ namespace mod::rando
         FlwIdxRemap* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
         char* getReplacementStr(uint16_t context, uint16_t infIndex) const;
+        uint16_t getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                           uint16_t context,
+                                           uint16_t branchProcResult) const;
 
        private:
+        const uint16_t* getBranchEditData(uint16_t context, uint16_t flwIndex) const;
+
         /* 0x00 */ uint16_t signToInitFliOffset;
         /* 0x02 */ uint16_t numSignToInitFliOffsetEntries;
         /* 0x04 */ uint16_t flwIdxRemapOffset;
@@ -70,7 +75,11 @@ namespace mod::rando
         /* 0x0E */ uint16_t strRemapOffsetsOffset;
         /* 0x10 */ uint16_t numStrRemapEntries;
         /* 0x12 */ uint16_t strTableOffset;
-        /* 0x14 */ uint32_t padding;
+        /* 0x14 */ uint16_t branchEditLookupsOffset;
+        /* 0x16 */ uint16_t numBranchEditLookups;
+        /* 0x18 */ uint16_t branchNodesOffset;
+        /* 0x1A */ uint16_t branchProcResultsOffset;
+        /* 0x1C */ uint32_t padding;
     } __attribute__((__packed__));
 } // namespace mod::rando
 #endif

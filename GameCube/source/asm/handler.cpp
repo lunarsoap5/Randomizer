@@ -162,6 +162,21 @@ namespace mod::assembly
         return status;
     }
 
+    int32_t handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus)
+    {
+        const uint16_t customBranchResultNode =
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomBranchResultNode(
+                msgFlow,
+                rando::gRandomizer->getFlowContext(),
+                branchProcStatus);
+
+        if (customBranchResultNode == 0xFFFF)
+        {
+            return -1;
+        }
+        return customBranchResultNode;
+    }
+
     int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex)
     {
         if (eventListIndex >= 43)

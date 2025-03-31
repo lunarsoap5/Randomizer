@@ -208,17 +208,17 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         " wind blows..."
     MSG_END();
-    MSG_BEGIN_ARRAY(talkToMidnaEn)
-        "What is it, "
-        MSG_PLYR_NAME
-        "?"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        "Transform\n"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        "Warp\n"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        "Change time of day"
-    MSG_END();
+    // MSG_BEGIN_ARRAY(talkToMidnaEn)
+    //     "What is it, "
+    //     MSG_PLYR_NAME
+    //     "?"
+    //     MSG_OPTION_LIST(MSG_OPTION_1)
+    //     "Transform\n"
+    //     MSG_OPTION_LIST(MSG_OPTION_2)
+    //     "Warp\n"
+    //     MSG_OPTION_LIST(MSG_OPTION_3)
+    //     "Change time of day"
+    // MSG_END();
     MSG_BEGIN_ARRAY(bigWalletEn)
         MSG_SPEED(MSG_SPEED_FAST)
         "You got the "
@@ -399,10 +399,10 @@ namespace mod::customMessages
         sizeof(foolishItemEn),
         0x0077,
 
-        // Talking to Midna
-        talkToMidnaEn,
-        sizeof(talkToMidnaEn),
-        0x0BBB,
+        // // Talking to Midna
+        // talkToMidnaEn,
+        // sizeof(talkToMidnaEn),
+        // 0x0BBB,
 
         // Big Wallet
         bigWalletEn,
