@@ -68,7 +68,6 @@ namespace mod::rando
 
         uint16_t getHash() const { return this->hash; }
         uint8_t getStageIDX() const { return this->stageIDX; }
-        uint8_t getMagicByte() const { return this->magicByte; }
 
         uint8_t getData(uint32_t index) const
         {
@@ -83,7 +82,7 @@ namespace mod::rando
        private:
         uint16_t hash;
         uint8_t stageIDX;
-        uint8_t magicByte; // ignore this byte in data[]
+        uint8_t padding;
         uint8_t data[0x20];
     } __attribute__((__packed__));
 

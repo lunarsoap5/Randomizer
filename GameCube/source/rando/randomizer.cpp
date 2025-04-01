@@ -218,10 +218,7 @@ namespace mod::rando
                         // Fetch replacement byte
                         const uint8_t newByte = currentDzxReplacement->getData(b);
 
-                        if (newByte != currentDzxReplacement->getMagicByte())
-                        {
-                            target[b] = newByte;
-                        }
+                        target[b] = newByte;
                     }
 
                     // Placeholders for item replacements
