@@ -117,6 +117,30 @@ namespace mod::rando
         return nullptr;
     }
 
+    const uint16_t* BMG0Section::getEventEditData(uint16_t context, uint16_t flwIndex) const
+    {
+        if (context == 0)
+            return nullptr;
+
+        const uint16_t numEntries = this->numEventEditLookups;
+        if (numEntries == 0)
+            return nullptr;
+
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
+        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->eventEditLookupsOffset);
+
+        uint32_t lookupVal = (flwIndex << 16) + context;
+        for (int i = 0; i < numEntries; i++)
+        {
+            if (lookupTable[i] == lookupVal)
+            {
+                return reinterpret_cast<const uint16_t*>(&(lookupTable[i + 1]));
+            }
+        }
+
+        return nullptr;
+    }
+
     const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                            uint16_t context,
                                                            uint16_t branchProcResult) const
@@ -132,9 +156,26 @@ namespace mod::rando
         const uint16_t finalTableIndex = baseTableIndex + branchProcResult;
 
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint16_t* branchProcResultsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->branchProcResultsOffset);
+        const uint16_t* branchProcResultsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->nextFlwTableOffset);
 
         return &(branchProcResultsTable[finalTableIndex]);
+    }
+
+    const uint8_t* BMG0Section::getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    {
+        if (msgFlow == nullptr)
+            return nullptr;
+
+        const uint16_t* branchEditData = getEventEditData(context, msgFlow->field_0x10);
+        if (branchEditData == nullptr)
+            return nullptr;
+
+        const uint16_t tableIndex = branchEditData[0];
+
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
+        const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->eventNodesOffset);
+
+        return &(branchProcResultsTable[tableIndex * 8]);
     }
 
 } // namespace mod::rando

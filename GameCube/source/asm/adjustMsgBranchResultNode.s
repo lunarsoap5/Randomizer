@@ -1,10 +1,10 @@
-.global adjustMsgBranchResultNode
-# adjustMsgBranchResultNode needs to be used in at least one subrel, so it cannot be set to hidden
+.global asmAdjustMsgBranchResultNode
+# asmAdjustMsgBranchResultNode needs to be used in at least one subrel, so it cannot be set to hidden
 
 .hidden _setCustomFlwIndex
 .hidden _finished
 
-adjustMsgBranchResultNode:
+asmAdjustMsgBranchResultNode:
 # Move the branch proc_status which we need to r0
 mr %r0,%r5
 

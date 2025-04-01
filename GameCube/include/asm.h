@@ -110,8 +110,10 @@ namespace mod::assembly
         int32_t handleManageEquippedItemsAsWolf(int32_t status);
 
         // d_msg_flow.o
-        void adjustMsgBranchResultNode();
+        void asmAdjustMsgBranchResultNode();
         const uint16_t* handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus);
+        void asmGetMsgEventNode();
+        const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
         void asmGetEventNodeFnPtr();
         int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex);
 

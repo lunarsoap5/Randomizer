@@ -170,6 +170,13 @@ namespace mod::assembly
             branchProcStatus);
     }
 
+    const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getEventNodeReplacement(
+            msgFlow,
+            rando::gRandomizer->getFlowContext());
+    }
+
     int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex)
     {
         if (eventListIndex >= 43)
