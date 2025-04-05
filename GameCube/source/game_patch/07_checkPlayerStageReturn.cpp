@@ -27,9 +27,9 @@ namespace mod::game_patch
 
             d_save::dSv_player_return_place_c* playerReturnPlacePtr = &savePtr->save_file.player.player_return_place;
             d_stage::dStage_startStage* startStgPtr = &gameInfoPtr->play.mStartStage;
-            const uint32_t startPoint = static_cast<uint32_t>(savePtr->mRestart.mStartPoint);
+            const int32_t startPoint = static_cast<int32_t>(savePtr->mRestart.mStartPoint);
 
-            if (startPoint == 0xFFFC) // Portal
+            if (startPoint == -0x4) // Portal
             {
                 playerReturnPlacePtr->link_spawn_point_id = 0; // Just set the spawn to 0 so that the player has a valid spawn
                                                                // location since you can't load a save from a portal spawn.
