@@ -2087,6 +2087,16 @@ namespace mod::events
         }
     }
 
+    KEEP_FUNC void replaceHorseCallItem()
+    {
+        using namespace libtp::data;
+
+        // Give the player the Horse Call replacement
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        uint32_t itemToGive = randoPtr->getEventItem(items::Horse_Call);
+        libtp::tp::d_item::execItemGet(itemToGive);
+    }
+
     KEEP_FUNC void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value)
     {
         *reinterpret_cast<uint32_t*>(memoryOffset) = value;

@@ -19,6 +19,7 @@
 #include "functionHooks.h"
 #include "tp/d_menu_ring.h"
 #include "tp/d_a_obj_item.h"
+#include "tp/d_s_play.h"
 
 namespace mod::game_patch
 {
@@ -131,6 +132,11 @@ namespace mod::game_patch
         // Modify checkGroundSpecialMode to patch twilight fog transforms
         const uint32_t checkGroundAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkGroundSpecialMode);
         libtp::patch::writeBranchBL(checkGroundAddress + 0x4C, events::checkValidGroundTransform);
+
+        // Modify d_s_play::phase1 to not give the horse call during the cutscene and instead give our custom item.
+        const uint32_t dScnPlayPhase1Addr = reinterpret_cast<uint32_t>(libtp::tp::d_s_play::dScnPlay_phase_1);
+        *reinterpret_cast<uint32_t*>(dScnPlayPhase1Addr + 0x234) = ASM_NOP;
+        libtp::patch::writeBranchBL(dScnPlayPhase1Addr + 0x24C, events::replaceHorseCallItem);
 
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);

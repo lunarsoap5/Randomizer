@@ -167,6 +167,7 @@ namespace mod::events
     void* handleTransformAnywhere(libtp::tp::f_op_actor_iter::fopAcIt_JudgeFunc unk1, void* unk2);
     bool checkValidTransformAnywhere();
     bool checkValidGroundTransform(libtp::tp::d_a_alink::daAlink* linkMapPtr);
+    void replaceHorseCallItem();
 
     void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value);
 

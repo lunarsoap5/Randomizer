@@ -511,3 +511,6 @@
 8015ceec:itemGetNextExecute
 8015ccd0:mode_wait
 8015b3d8:CreateInit
+
+// d_s_play.o
+80259d84:dScnPlay_phase_1

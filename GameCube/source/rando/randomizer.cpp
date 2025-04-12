@@ -343,19 +343,6 @@ namespace mod::rando
         const uint8_t stageIdx = seedPtr->getStageIDX();
         seedPtr->LoadARCChecks(stageIdx, fileDirectory, roomNo);
 
-        if ((stageIdx == libtp::data::stage::StageIDs::Ordon_Village) && (fileDirectory == FileDirectory::Room))
-        {
-            // Unlock the right door to Bo's House
-            uint32_t replacementAddress = fileAddr + 0x2F58;
-            *reinterpret_cast<uint16_t*>((replacementAddress)) = 0xFFFF;
-            libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(replacementAddress), sizeof(uint16_t));
-
-            // Unlock the left door to Bo's House
-            replacementAddress = fileAddr + 0x2F7C;
-            *reinterpret_cast<uint16_t*>((replacementAddress)) = 0xFFFF;
-            libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(replacementAddress), sizeof(uint16_t));
-        }
-
         // Loop through all ArcChecks and replace the item at an offset given the fileIndex.
         const uint32_t numReplacements = seedPtr->getNumLoadedArcReplacements();
         const ARCReplacement* arcReplacements = seedPtr->getArcReplacementsPtr();
