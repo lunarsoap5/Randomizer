@@ -894,4 +894,34 @@ namespace mod::game_patch
         bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Gate_Keys);
         return static_cast<int32_t>(result);
     }
+
+    KEEP_FUNC int32_t _02_letterItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Renardos_Letter);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_invoiceItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Invoice);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_statueItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Wooden_Statue);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_charmItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Ilias_Charm);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_horseCallItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Horse_Call);
+        return static_cast<int32_t>(result);
+    }
 } // namespace mod::game_patch

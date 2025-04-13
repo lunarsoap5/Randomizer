@@ -541,6 +541,11 @@ namespace mod::game_patch
         itemGetCheckFuncPtr[customItems::Jump_Strike] = _02_jumpStrikeItemGetCheck;
         itemGetCheckFuncPtr[customItems::Bulblin_Camp_Key] = _02_campSmallKeyItemGetCheck;
         itemGetCheckFuncPtr[items::Gate_Keys] = _02_gateKeysItemGetCheck;
+        itemGetCheckFuncPtr[items::Renardos_Letter] = _02_letterItemGetCheck;
+        itemGetCheckFuncPtr[items::Invoice] = _02_invoiceItemGetCheck;
+        itemGetCheckFuncPtr[items::Wooden_Statue] = _02_statueItemGetCheck;
+        itemGetCheckFuncPtr[items::Ilias_Charm] = _02_charmItemGetCheck;
+        itemGetCheckFuncPtr[items::Horse_Call] = _02_horseCallItemGetCheck;
     }
 
     void _02_modifyItemData()

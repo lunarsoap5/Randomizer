@@ -167,12 +167,14 @@ namespace mod::item_wheel_menu
         bool shouldDrawRingThisFrame() const { return this->ringDrawnThisFrame; }
         bool shouldDisplayMenu() const { return this->displayMenu; }
         bool ringIsOpen() const { return this->ringOpen; }
+        bool shouldChangeQuestItem() const { return this->updatedQuestItem; }
 
         void drawRingThisFrame() { this->ringDrawnThisFrame = true; }
         void resetRingDrawnThisFrame() { this->ringDrawnThisFrame = false; }
         void setDisplayMenu(bool value) { this->displayMenu = value; }
         void dontDisplayMenu() { this->displayMenu = false; }
         void setRingOpen(bool state) { this->ringOpen = state; }
+        void changeQuestItem(bool state) { this->updatedQuestItem = state; }
 
        private:
         ItemWheelMenuData data;
@@ -185,6 +187,8 @@ namespace mod::item_wheel_menu
 
         // Used to determine whether or not the item wheel ring is open
         bool ringOpen;
+
+        bool updatedQuestItem;
     };
 } // namespace mod::item_wheel_menu
 

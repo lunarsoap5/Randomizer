@@ -318,8 +318,9 @@ namespace mod
 #endif
         rando::Randomizer* randoPtr = rando::gRandomizer;
 
-        // New frame, so the ring will be redrawn
+        // New frame, so the ring will be redrawn and quest items can be changed again
         randoPtr->getItemWheelMenuPtr()->resetRingDrawnThisFrame();
+        randoPtr->getItemWheelMenuPtr()->changeQuestItem(true);
 
         dComIfG_inf_c* gameInfo = &dComIfG_gameInfo;
         CPadInfo* padInfo = &cpadInfo[PAD_1];
