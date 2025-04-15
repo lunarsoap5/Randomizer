@@ -238,9 +238,6 @@ namespace mod
         gReturn_checkCastleTownUseItem =
             patch::hookFunction(libtp::tp::d_a_alink::checkCastleTownUseItem, handle_checkCastleTownUseItem);
 
-        gReturn_checkEquipHeavyBoots =
-            patch::hookFunction(libtp::tp::d_a_alink::checkEquipHeavyBoots, handle_checkEquipHeavyBoots);
-
         // Only hook damageMagnification if the current damage magnification value is not vanilla
         if (seedPtr->getHeaderPtr()->getDamageMagnification() != 1)
         {

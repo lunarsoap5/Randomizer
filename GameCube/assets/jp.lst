@@ -156,7 +156,6 @@
 800b9f88:checkGroundSpecialMode
 800c0348:checkDungeon
 800c0300:checkBossRoom
-801412fc:checkEquipHeavyBoots
 
 // data
 80388C0C:climbVars

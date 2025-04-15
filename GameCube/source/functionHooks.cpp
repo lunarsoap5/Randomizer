@@ -180,7 +180,6 @@ namespace mod
 
     KEEP_VAR bool (*gReturn_checkCastleTownUseItem)(uint16_t item_id) = nullptr;
     KEEP_VAR int32_t (*gReturn_procCoGetItemInit)(libtp::tp::d_a_alink::daAlink* linkActrPtr) = nullptr;
-    KEEP_VAR uint32_t (*gReturn_checkEquipHeavyBoots)(libtp::tp::d_a_alink::daAlink* linkActrPtr) = nullptr;
 
     // Audio functions
     KEEP_VAR void (*gReturn_loadSeWave)(void* Z2SceneMgr, uint32_t waveID) = nullptr;
