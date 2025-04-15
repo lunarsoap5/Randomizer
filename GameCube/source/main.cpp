@@ -1925,6 +1925,32 @@ namespace mod
         return gReturn_procCoGetItemInit(linkActrPtr);
     }
 
+    KEEP_FUNC uint32_t handle_checkEquipHeavyBoots(libtp::tp::d_a_alink::daAlink* linkActrPtr)
+    {
+        using namespace libtp::tp::m_do_controller_pad;
+        // Execute the vanilla function immediately as we need the return value
+        uint32_t ret = gReturn_checkEquipHeavyBoots(linkActrPtr);
+
+        // Set the float that Link's actor references when heavy to be the default value.
+        float* heavyStateSpeedPtr = &libtp::tp::d_a_alink::ironBootsVars.heavyStateSpeed;
+
+        if (ret)
+        {
+            if (checkButtonsHeld(PadInputs::Button_R))
+            {
+                *heavyStateSpeedPtr = 1.f;
+            }
+            else
+            {
+                *heavyStateSpeedPtr = 0.4f;
+            }
+        }
+
+        // Clear the cache for the modified value
+        libtp::gc_wii::os_cache::DCFlushRange(heavyStateSpeedPtr, sizeof(float));
+        return ret;
+    }
+
     KEEP_FUNC void* handle_dScnLogo_c_dt(void* dScnLogo_c, int16_t bFreeThis)
     {
         // Call the original function immediately, as certain values need to be set first

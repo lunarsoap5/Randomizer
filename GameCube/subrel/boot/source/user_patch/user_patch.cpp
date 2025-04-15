@@ -9,11 +9,9 @@
 
 #include "user_patch/00_wallet.h"
 #include "user_patch/02_enemybgm.h"
-#include "user_patch/04_removeIBLimit.h"
 #include "user_patch/05_newFileFunctions.h"
 
 namespace mod::user_patch
 {
-    GamePatch oneTimePatches[6] =
-        {patchWallet, removeIBLimit, disableBattleMusic, setInstantText, skipMajorCutscenes, invertCameraAxis};
+    GamePatch oneTimePatches[5] = {patchWallet, disableBattleMusic, setInstantText, skipMajorCutscenes, invertCameraAxis};
 }
