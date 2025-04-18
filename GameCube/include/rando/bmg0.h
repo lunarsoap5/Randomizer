@@ -49,6 +49,18 @@ namespace mod::rando
         uint16_t newInfIndex;
     } __attribute__((__packed__));
 
+    class BmgStrCompData
+    {
+       public:
+        BmgStrCompData() {}
+        ~BmgStrCompData() {}
+
+        uint16_t contextCompsStartIndex;
+        uint16_t contextCompsLength = 0;
+        uint16_t basicCompsStartIndex;
+        uint16_t basicCompsLength = 0;
+    } __attribute__((__packed__));
+
     class BMG0Section
     {
        public:
@@ -57,7 +69,7 @@ namespace mod::rando
 
         FlwIdxRemap* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
-        char* getReplacementStr(uint16_t context, uint16_t infIndex) const;
+        char* getReplacementStr(uint8_t bgmNumber, uint16_t context, uint16_t infIndex) const;
         const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                   uint16_t context,
                                                   uint16_t branchProcResult) const;
@@ -84,8 +96,15 @@ namespace mod::rando
         /* 0x1C */ uint16_t numEventEditLookups;
         /* 0x1E */ uint16_t eventNodesOffset;
         /* 0x20 */ uint16_t nextFlwTableOffset;
-        /* 0x22 */ uint16_t padding_0x22;
-        /* 0x24 */ uint32_t padding_0x24;
+        //
+        /* 0x22 */ uint16_t bmgStrCompsTableOffset;
+        /* 0x24 */ uint16_t bmgStrCompsTableNumEntries;
+        /* 0x26 */ uint16_t contextCompValsOffset;
+        /* 0x28 */ uint16_t basicCompValsOffset;
+        /* 0x2A */ uint16_t strOffsetsTableOffset;
+        /* 0x2C */ uint16_t numContextCompStrOffsets;
+        /* 0x2E */ uint16_t strTableOffsetNew;
+
     } __attribute__((__packed__));
 } // namespace mod::rando
 #endif

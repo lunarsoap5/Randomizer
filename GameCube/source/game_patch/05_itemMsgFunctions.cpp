@@ -72,7 +72,7 @@ namespace mod::game_patch
 
     // Most checks will use zel_00.bmg, so use a dedicated function for it that specifies the archive, so less code runs per
     // check
-    void* getZel00BmgInf()
+    void* _05_getZel00BmgInf()
     {
         uint32_t infPtrRaw = reinterpret_cast<uint32_t>(libtp::tp::JKRArchivePub::JKRArchivePub_getGlbResource(
             0x524F4F54, // ROOT
@@ -655,28 +655,30 @@ namespace mod::game_patch
         }
         const void* currentInf1 = *reinterpret_cast<void**>(reinterpret_cast<uint32_t>(unk) + 0xC);
 
+        bool isZel00BmgInf = currentInf1 == _05_getZel00BmgInf();
+
+        uint8_t bmgNumber = 0;
+        if (!isZel00BmgInf)
+        {
+            bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
+
+        const char* remappedStr =
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
+                                                                                     rando::gRandomizer->getFlowContext(),
+                                                                                     msgId);
+
+        if (remappedStr != nullptr)
+        {
+            setMessageText(remappedStr);
+            return;
+        }
+
         // Most text replacements are for zel_00.bmg, so check that first
-        if (currentInf1 == getZel00BmgInf())
+        if (isZel00BmgInf)
         {
             const char* newMessage;
-
-            const char* remappedStr =
-                rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(rando::gRandomizer->getFlowContext(),
-                                                                                         msgId);
-
-            //  getCustomInitNodeIndex(msgFlow, flwIndex);
-
-            if (remappedStr != nullptr)
-            {
-                newMessage = remappedStr;
-
-                // uint16_t latestCustomInfIndex = rando::gRandomizer->getLatestCustomINFIndex();
-
-                // if (msgId == 0x1369) // The custom message ID used for hints on custom signs
-                // if (msgId == 0x136d) // The custom message ID used for hints on custom signs
-                // if (latestCustomInfIndex > 0x3000 || msgId >= 0x1369) // The custom message ID used for hints on custom signs
-            }
-            else if (msgId >= 0x1369) // The custom message ID used for hints on custom signs
+            if (msgId >= 0x1369) // The custom message ID used for hints on custom signs
             {
                 // TODO: ^ can set a range on these. Maybe don't really need
                 // this split between _05_getSpecialMsgById and

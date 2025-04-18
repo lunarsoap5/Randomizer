@@ -188,9 +188,16 @@ namespace mod::assembly
         return 0;
     }
 
-    char* handleAdjustSelectMsg(uint16_t infIndex)
+    char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
     {
-        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(rando::gRandomizer->getFlowContext(),
+        uint8_t bmgNumber = 0;
+        if (infDataBlockPtr != mod::game_patch::_05_getZel00BmgInf())
+        {
+            bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
+
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
+                                                                                        rando::gRandomizer->getFlowContext(),
                                                                                         infIndex);
     }
 

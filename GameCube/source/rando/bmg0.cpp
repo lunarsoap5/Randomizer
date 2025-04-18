@@ -65,27 +65,79 @@ namespace mod::rando
         return -1;
     }
 
-    char* BMG0Section::getReplacementStr(uint16_t context, uint16_t infIndex) const
+    template<typename T>
+    int binarySearch(T arr[], uint32_t low, uint32_t high, T target)
     {
-        if (context == 0)
-            return nullptr;
+        while (low <= high)
+        {
+            int mid = low + (high - low) / 2;
 
-        const uint16_t numEntries = this->numStrRemapEntries;
-        if (numEntries == 0)
+            // Check if target is present at mid
+            if (arr[mid] == target)
+                return mid;
+
+            // Adjust to left or right half
+            if (arr[mid] < target)
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+        return -1;
+    }
+
+    char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
+    {
+        const uint16_t numBmgEntries = this->bmgStrCompsTableNumEntries;
+        if (bmgNumber >= numBmgEntries)
+        {
+            // Bail if bmgNumber is out of range (not 0 through 8)
             return nullptr;
+        }
 
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->strRemapLookupOffset);
+        const BmgStrCompData* bmgDataTable = reinterpret_cast<const BmgStrCompData*>(headerPtr + this->bmgStrCompsTableOffset);
+        const uint16_t* offsetsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strOffsetsTableOffset);
 
-        uint32_t lookupVal = (context << 16) + infIndex;
-        for (int i = 0; i < numEntries; i++)
+        // Try to find in contextComps table
+        if (context != 0)
         {
-            if (lookupTable[i] == lookupVal)
+            uint16_t contextCompsLength = bmgDataTable[bmgNumber].contextCompsLength;
+            if (contextCompsLength > 0)
             {
-                const uint16_t* offsetsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strRemapOffsetsOffset);
-                const uint16_t offsetInStrTable = offsetsTable[i];
+                const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->contextCompValsOffset);
 
-                uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffset + offsetInStrTable;
+                const uint32_t startIdx = bmgDataTable[bmgNumber].contextCompsStartIndex;
+                const uint32_t endIndex = startIdx + contextCompsLength;
+
+                const uint32_t lookupVal = (context << 16) + infIndex;
+                int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
+                if (foundIdx >= 0)
+                {
+                    // Find in str offsets
+                    const uint16_t offsetInStrTable = offsetsTable[foundIdx];
+
+                    uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
+                    return reinterpret_cast<char*>(strAddr);
+                }
+            }
+        }
+
+        // Try to find in basicComps table
+        uint16_t basicCompsLength = bmgDataTable[bmgNumber].basicCompsLength;
+        if (basicCompsLength > 0)
+        {
+            const uint16_t* lookupTable = reinterpret_cast<const uint16_t*>(headerPtr + this->basicCompValsOffset);
+
+            const uint32_t startIdx = bmgDataTable[bmgNumber].basicCompsStartIndex;
+            const uint32_t endIndex = startIdx + basicCompsLength;
+
+            int foundIdx = binarySearch<const uint16_t>(lookupTable, startIdx, endIndex, infIndex);
+            if (foundIdx >= 0)
+            {
+                // Find in str offsets
+                const uint16_t offsetInStrTable = offsetsTable[this->numContextCompStrOffsets + foundIdx];
+
+                uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
                 return reinterpret_cast<char*>(strAddr);
             }
         }

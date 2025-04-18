@@ -119,7 +119,7 @@ namespace mod::assembly
 
         // d_msg_object.o
         void asmAdjustSelectMsg();
-        char* handleAdjustSelectMsg(uint16_t infIndex);
+        char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr);
 
         // d_a_alink.o
 #ifdef TP_JP

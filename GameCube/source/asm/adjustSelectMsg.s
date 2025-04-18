@@ -16,7 +16,12 @@ mflr %r0
 stw %r0,0x14(%sp)
 stw %r3,0xC(%sp)
 
-# The INF index paramw we need is already in r3 at this point
+# The INF index param we need is already in r3 at this point.
+
+# There is a pointer to the current INF1 chunk we are operating in in r28, so
+# move it to r4. We do not need to worry about restoring r4 since the current
+# value is not used.
+mr %r4,%r28
 
 bl handleAdjustSelectMsg
 cmplwi %r3,0

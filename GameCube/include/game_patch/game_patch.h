@@ -178,6 +178,7 @@ namespace mod::game_patch
     // 05 - Function definitions related to custom messages
     void _05_setCustomItemMessage(libtp::tp::control::TControl* control, const void* TProcessor, uint16_t unk3, uint16_t msgId);
 
+    void* _05_getZel00BmgInf();
     uint32_t _05_getCustomMsgColor(uint8_t colorId);
     const char* _05_getMsgById(uint32_t msgId);
     const char* _05_getMsgById(uint32_t msgId, uint16_t* msgSizeOut);
