@@ -8,36 +8,116 @@
 
 namespace mod::rando
 {
-    FlwIdxRemap* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const
+    template<typename T>
+    // int binarySearch(T arr[], uint32_t low, uint32_t high, T target)
+    int binarySearch(T arr[], int low, int high, T target)
+    {
+        // Reduce high by 1 so it isn't inclusive
+        high -= 1;
+
+        while (low <= high)
+        {
+            int mid = low + (high - low) / 2;
+
+            // Check if target is present at mid
+            if (arr[mid] == target)
+                return mid;
+
+            // Adjust to left or right half
+            if (arr[mid] < target)
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+        return -1;
+    }
+
+    const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                        uint16_t flwIndex,
+                                                        uint16_t flowContext) const
     {
         if (msgFlow == nullptr)
             return nullptr;
         // return -1;
 
-        // Only allow remapping 0xFFFF if the msgFlow itself is being
-        // initialized. Otherwise you can get stuck in a loop of messages when
-        // it tries to exit normally using 0xFFFF.
-        if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
-            return nullptr;
-        // return -1;
+        // // Only allow remapping 0xFFFF if the msgFlow itself is being
+        // // initialized. Otherwise you can get stuck in a loop of messages when
+        // // it tries to exit normally using 0xFFFF.
+        // if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
+        //     return nullptr;
+        // // return -1;
 
-        const uint16_t targetFLIValue = msgFlow->mFlow;
+        // binary search
 
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const FlwIdxRemap* entries = reinterpret_cast<const FlwIdxRemap*>(headerPtr + this->flwIdxRemapOffset);
-        const uint16_t num_entries = this->numFlwIdxRemapEntries;
+        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapCompsOffset);
 
-        for (uint32_t i = 0; i < num_entries; i++)
+        for (uint32_t i = 0; i < 2; i++)
         {
-            if (entries[i].getFLIValue() == targetFLIValue && entries[i].getOldInitFLWIndex() == flwIndex)
+            int startIdx;
+            int endIndex;
+            uint32_t lookupVal;
+
+            if (i == 0)
             {
-                uint32_t u32Addr = reinterpret_cast<uint32_t>(entries) + i * sizeof(FlwIdxRemap);
-                return reinterpret_cast<FlwIdxRemap*>(u32Addr);
-                // return &(entries[i]);
-                // return entries[i].getNewInitFLWIndex();
+                // Context compare
+                if (flowContext == 0)
+                    continue;
+
+                startIdx = 0;
+                endIndex = this->nodeRemapContextCompsLength;
+                lookupVal = (flowContext << 0x10) + flwIndex;
+            }
+            else
+            {
+                // FLI compare
+                const BmgStrCompData* bmgDataTable =
+                    reinterpret_cast<const BmgStrCompData*>(headerPtr + this->bmgStrCompsTableOffset);
+
+                uint8_t bmgNumber = 0; // hardcoded for now
+                startIdx = bmgDataTable[bmgNumber].nodeRemapContextCompStartIndex;
+                endIndex = startIdx + bmgDataTable[bmgNumber].nodeRemapContextCompLength;
+                lookupVal = (msgFlow->mFlow << 0x10) + flwIndex;
+            }
+
+            int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
+            if (foundIdx >= 0)
+            {
+                // Get from results table
+                const uint32_t* resultsTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapResultsOffset);
+
+                const uint32_t* ptr = &(resultsTable[foundIdx]);
+                return reinterpret_cast<const uint16_t*>(ptr);
+
+                // // Find in str offsets
+                // const uint16_t offsetInStrTable = offsetsTable[foundIdx];
+
+                // const uint32_t* resultsTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapResultsOffset);
+
+                // uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
+                // return reinterpret_cast<char*>(strAddr);
             }
         }
+
         return nullptr;
+
+        // const uint16_t targetFLIValue = msgFlow->mFlow;
+
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
+        // const FlwIdxRemap* entries = reinterpret_cast<const FlwIdxRemap*>(headerPtr + this->flwIdxRemapOffset);
+        // const uint16_t num_entries = this->numFlwIdxRemapEntries;
+
+        // for (uint32_t i = 0; i < num_entries; i++)
+        // {
+        //     if (entries[i].getFLIValue() == targetFLIValue && entries[i].getOldInitFLWIndex() == flwIndex)
+        //     {
+        //         uint32_t u32Addr = reinterpret_cast<uint32_t>(entries) + i * sizeof(FlwIdxRemap);
+        //         return reinterpret_cast<FlwIdxRemap*>(u32Addr);
+        //         // return &(entries[i]);
+        //         // return entries[i].getNewInitFLWIndex();
+        //     }
+        // }
+        // return nullptr;
     }
 
     uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const
@@ -65,26 +145,6 @@ namespace mod::rando
         return -1;
     }
 
-    template<typename T>
-    int binarySearch(T arr[], uint32_t low, uint32_t high, T target)
-    {
-        while (low <= high)
-        {
-            int mid = low + (high - low) / 2;
-
-            // Check if target is present at mid
-            if (arr[mid] == target)
-                return mid;
-
-            // Adjust to left or right half
-            if (arr[mid] < target)
-                low = mid + 1;
-            else
-                high = mid - 1;
-        }
-        return -1;
-    }
-
     char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
     {
         const uint16_t numBmgEntries = this->bmgStrCompsTableNumEntries;
@@ -106,8 +166,8 @@ namespace mod::rando
             {
                 const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->contextCompValsOffset);
 
-                const uint32_t startIdx = bmgDataTable[bmgNumber].contextCompsStartIndex;
-                const uint32_t endIndex = startIdx + contextCompsLength;
+                const int startIdx = bmgDataTable[bmgNumber].contextCompsStartIndex;
+                const int endIndex = startIdx + contextCompsLength;
 
                 const uint32_t lookupVal = (context << 16) + infIndex;
                 int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
@@ -128,8 +188,8 @@ namespace mod::rando
         {
             const uint16_t* lookupTable = reinterpret_cast<const uint16_t*>(headerPtr + this->basicCompValsOffset);
 
-            const uint32_t startIdx = bmgDataTable[bmgNumber].basicCompsStartIndex;
-            const uint32_t endIndex = startIdx + basicCompsLength;
+            const int startIdx = bmgDataTable[bmgNumber].basicCompsStartIndex;
+            const int endIndex = startIdx + basicCompsLength;
 
             int foundIdx = binarySearch<const uint16_t>(lookupTable, startIdx, endIndex, infIndex);
             if (foundIdx >= 0)

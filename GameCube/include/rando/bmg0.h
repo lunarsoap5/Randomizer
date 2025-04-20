@@ -13,23 +13,23 @@
 
 namespace mod::rando
 {
-    class FlwIdxRemap
-    {
-       public:
-        FlwIdxRemap() {}
-        ~FlwIdxRemap() {}
+    // class FlwIdxRemap
+    // {
+    //    public:
+    //     FlwIdxRemap() {}
+    //     ~FlwIdxRemap() {}
 
-        uint16_t getFLIValue() const { return this->fliValue; }
-        uint16_t getOldInitFLWIndex() const { return this->oldInitFlwIndex; }
-        uint16_t getNewInitFLWIndex() const { return this->newInitFlwIndex; }
-        uint16_t getNewContext() const { return this->newContext; }
+    //     uint16_t getFLIValue() const { return this->fliValue; }
+    //     uint16_t getOldInitFLWIndex() const { return this->oldInitFlwIndex; }
+    //     uint16_t getNewInitFLWIndex() const { return this->newInitFlwIndex; }
+    //     uint16_t getNewContext() const { return this->newContext; }
 
-       private:
-        uint16_t fliValue;
-        uint16_t oldInitFlwIndex;
-        uint16_t newInitFlwIndex;
-        uint16_t newContext;
-    } __attribute__((__packed__));
+    //    private:
+    //     uint16_t fliValue;
+    //     uint16_t oldInitFlwIndex;
+    //     uint16_t newInitFlwIndex;
+    //     uint16_t newContext;
+    // } __attribute__((__packed__));
 
     class InfRemap
     {
@@ -55,10 +55,12 @@ namespace mod::rando
         BmgStrCompData() {}
         ~BmgStrCompData() {}
 
-        uint16_t contextCompsStartIndex;
-        uint16_t contextCompsLength = 0;
-        uint16_t basicCompsStartIndex;
-        uint16_t basicCompsLength = 0;
+        /* 0x00 */ uint16_t nodeRemapContextCompStartIndex;
+        /* 0x02 */ uint16_t nodeRemapContextCompLength = 0;
+        /* 0x04 */ uint16_t contextCompsStartIndex;
+        /* 0x06 */ uint16_t contextCompsLength = 0;
+        /* 0x08 */ uint16_t basicCompsStartIndex;
+        /* 0x0A */ uint16_t basicCompsLength = 0;
     } __attribute__((__packed__));
 
     class BMG0Section
@@ -67,7 +69,10 @@ namespace mod::rando
         BMG0Section() {}
         ~BMG0Section() {}
 
-        FlwIdxRemap* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
+        // FlwIdxRemap* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex) const;
+        const uint16_t* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                               uint16_t flwIndex,
+                                               uint16_t flowContext) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
         char* getReplacementStr(uint8_t bgmNumber, uint16_t context, uint16_t infIndex) const;
         const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -99,11 +104,14 @@ namespace mod::rando
         //
         /* 0x22 */ uint16_t bmgStrCompsTableOffset;
         /* 0x24 */ uint16_t bmgStrCompsTableNumEntries;
-        /* 0x26 */ uint16_t contextCompValsOffset;
-        /* 0x28 */ uint16_t basicCompValsOffset;
-        /* 0x2A */ uint16_t strOffsetsTableOffset;
-        /* 0x2C */ uint16_t numContextCompStrOffsets;
-        /* 0x2E */ uint16_t strTableOffsetNew;
+        /* 0x26 */ uint16_t nodeRemapCompsOffset;
+        /* 0x28 */ uint16_t nodeRemapContextCompsLength;
+        /* 0x2A */ uint16_t nodeRemapResultsOffset;
+        /* 0x2C */ uint16_t contextCompValsOffset;
+        /* 0x2E */ uint16_t basicCompValsOffset;
+        /* 0x30 */ uint16_t strOffsetsTableOffset;
+        /* 0x32 */ uint16_t numContextCompStrOffsets;
+        /* 0x34 */ uint16_t strTableOffsetNew;
 
     } __attribute__((__packed__));
 } // namespace mod::rando
