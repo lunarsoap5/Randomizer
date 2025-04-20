@@ -43,7 +43,7 @@ namespace mod
 
     KEEP_VAR int32_t (*gReturn_tgscInfoInit)(void* stageDt, void* i_data, int32_t entryNum, void* param_3) = nullptr;
     KEEP_VAR void (*gReturn_roomLoader)(void* data, void* stageDt, int32_t roomNo) = nullptr;
-    // KEEP_VAR void ( *gReturn_stageLoader )( void* data, void* stageDt ) = nullptr;
+    KEEP_VAR void (*gReturn_stageLoader)(void* data, void* stageDt) = nullptr;
 
     KEEP_VAR int32_t (*gReturn_dStage_playerInit)(void* stageDt,
                                                   libtp::tp::d_stage::stage_dzr_header_entry* i_data,

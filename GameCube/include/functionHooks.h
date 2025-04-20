@@ -89,8 +89,8 @@ namespace mod
     void handle_roomLoader(void* data, void* stageDt, int32_t roomNo);
     extern void (*gReturn_roomLoader)(void* data, void* stageDt, int32_t roomNo);
 
-    // void handle_stageLoader( void* data, void* stageDt );
-    // extern void ( *gReturn_stageLoader )( void* data, void* stageDt );
+    void handle_stageLoader(void* data, void* stageDt);
+    extern void (*gReturn_stageLoader)(void* data, void* stageDt);
 
     int32_t handle_dStage_playerInit(void* stageDt,
                                      libtp::tp::d_stage::stage_dzr_header_entry* i_data,

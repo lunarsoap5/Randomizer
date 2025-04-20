@@ -715,21 +715,17 @@ namespace mod
         rando::Randomizer* randoPtr = rando::gRandomizer;
         events::onARC(randoPtr, data, roomNo, rando::FileDirectory::Room); // Replace room based checks.
 
-        // Could hook stageLoader instead since it takes the first param as a pointer to the stage.dzs
-        void* filePtr = libtp::tp::d_com_inf_game::dComIfG_getStageRes("stage.dzs");
-
-        events::onARC(randoPtr, filePtr, roomNo, rando::FileDirectory::Stage); // Replace stage based checks.
         return gReturn_roomLoader(data, stageDt, roomNo);
     }
 
-    /*
-    KEEP_FUNC void handle_stageLoader( void* data, void* stageDt )
+    KEEP_FUNC void handle_stageLoader(void* data, void* stageDt)
     {
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         // This function is a placeholder for now. May work with Taka on getting some ARC checks converted over to use this
         // function instead of roomLoader
-        return gReturn_stageLoader( data, stageDt );
+        events::onARC(randoPtr, data, 0xFF, rando::FileDirectory::Stage); // Replace stage based checks.
+        return gReturn_stageLoader(data, stageDt);
     }
-    */
 
     KEEP_FUNC int32_t handle_dStage_playerInit(void* stageDt,
                                                libtp::tp::d_stage::stage_dzr_header_entry* i_data,

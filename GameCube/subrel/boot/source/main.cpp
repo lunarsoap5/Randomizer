@@ -132,7 +132,7 @@ namespace mod
         gReturn_actorCommonLayerInit = patch::hookFunction(actorCommonLayerInit, handle_actorCommonLayerInit);
         gReturn_tgscInfoInit = patch::hookFunction(tgscInfoInit, handle_tgscInfoInit);
         gReturn_roomLoader = patch::hookFunction(libtp::tp::d_stage::roomLoader, handle_roomLoader);
-        // gReturn_stageLoader = patch::hookFunction( libtp::tp::d_stage::stageLoader, handle_stageLoader );
+        gReturn_stageLoader = patch::hookFunction(libtp::tp::d_stage::stageLoader, handle_stageLoader);
         gReturn_dStage_playerInit = patch::hookFunction(libtp::tp::d_stage::dStage_playerInit, handle_dStage_playerInit);
 
         // Only hook dComIfGp_setNextStage if there is at least one shuffled entrance
