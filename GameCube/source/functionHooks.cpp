@@ -150,6 +150,11 @@ namespace mod
                                           uint16_t flwIndex,
                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
 
+    KEEP_VAR int32_t (*gReturn_setSelectMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                             void* bodyMsgFlowNode,
+                                             void* optionsMsgFlowNode,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
+
     KEEP_VAR int32_t (*gReturn_setNormalMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                              void* flowNode,
                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
@@ -165,6 +170,8 @@ namespace mod
     KEEP_VAR int32_t (*gReturn_eventNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
+
+    KEEP_VAR void (*gReturn_endFlowGroup)(void* msgObjPtr) = nullptr;
 
     // Save flag functions
     KEEP_VAR bool (*gReturn_isDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;

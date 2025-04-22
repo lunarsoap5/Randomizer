@@ -5,6 +5,8 @@
  *	@bug No known bugs.
  */
 #include "rando/bmg0.h"
+#include "tp/d_com_inf_game.h"
+#include "tp/JKRArchivePub.h"
 
 namespace mod::rando
 {
@@ -30,6 +32,20 @@ namespace mod::rando
                 high = mid - 1;
         }
         return -1;
+    }
+
+    void* getZel00BmgFlw()
+    {
+        uint32_t infPtrRaw = reinterpret_cast<uint32_t>(libtp::tp::JKRArchivePub::JKRArchivePub_getGlbResource(
+            0x524F4F54, // ROOT
+            "zel_00.bmg",
+            libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mMsgDtArchive[0]));
+
+        // All zel_xx.bmg files have the offet to the FLW1 block relative to the
+        // start of the file (MESGbmg1) stored as a word at offset 0x8.
+        uint32_t offsetToFlwBlock = reinterpret_cast<uint32_t*>(infPtrRaw)[2];
+        uint32_t flwBlockAddr = infPtrRaw + offsetToFlwBlock;
+        return reinterpret_cast<void*>(flwBlockAddr);
     }
 
     const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -71,10 +87,23 @@ namespace mod::rando
             else
             {
                 // FLI compare
+                if (flwIndex == 0xFFFF && flowContext != 0)
+                {
+                    // Disallow remapping 0xFFFF using an FLI value when we have
+                    // a flowContext. This is to help avoid infinite loops
+                    // caused by developer error.
+                    continue;
+                }
+
+                uint8_t bmgNumber = 0;
+                if (msgFlow->mFlow_p != getZel00BmgFlw())
+                {
+                    bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+                }
+
                 const BmgStrCompData* bmgDataTable =
                     reinterpret_cast<const BmgStrCompData*>(headerPtr + this->bmgStrCompsTableOffset);
 
-                uint8_t bmgNumber = 0; // hardcoded for now
                 startIdx = bmgDataTable[bmgNumber].nodeRemapContextCompStartIndex;
                 endIndex = startIdx + bmgDataTable[bmgNumber].nodeRemapContextCompLength;
                 lookupVal = (msgFlow->mFlow << 0x10) + flwIndex;
@@ -120,30 +149,45 @@ namespace mod::rando
         // return nullptr;
     }
 
-    uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const
+    uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const
     {
-        if (msgFlow == nullptr)
-            return -1;
-
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const InfRemap* entries = reinterpret_cast<const InfRemap*>(headerPtr + this->infRemapOffset);
-        const uint16_t num_entries = this->numInfRemapEntries;
-
-        const uint16_t targetFLIValue = msgFlow->mFlow;
-        const uint16_t targetFLWIndex = msgFlow->field_0x10;
-
-        for (uint32_t i = 0; i < num_entries; i++)
+        if (msgFlow != nullptr)
         {
-            const uint16_t bitMask = entries[i].getBitMask();
-            const uint16_t maskedFliValue = bitMask & targetFLIValue;
-
-            if (entries[i].getFLIValue() == maskedFliValue && entries[i].getFLWIndex() == targetFLWIndex)
+            if (msgFlow->mFlow >= 0x7000)
             {
-                return entries[i].getNewINFIndex();
+                if (isSelectOptionsNode)
+                    return 0x136a;
+                else
+                    return 0x1369;
             }
         }
         return -1;
     }
+
+    // uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const
+    // {
+    //     if (msgFlow == nullptr)
+    //         return -1;
+
+    //     const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
+    //     const InfRemap* entries = reinterpret_cast<const InfRemap*>(headerPtr + this->infRemapOffset);
+    //     const uint16_t num_entries = this->numInfRemapEntries;
+
+    //     const uint16_t targetFLIValue = msgFlow->mFlow;
+    //     const uint16_t targetFLWIndex = msgFlow->field_0x10;
+
+    //     for (uint32_t i = 0; i < num_entries; i++)
+    //     {
+    //         const uint16_t bitMask = entries[i].getBitMask();
+    //         const uint16_t maskedFliValue = bitMask & targetFLIValue;
+
+    //         if (entries[i].getFLIValue() == maskedFliValue && entries[i].getFLWIndex() == targetFLWIndex)
+    //         {
+    //             return entries[i].getNewINFIndex();
+    //         }
+    //     }
+    //     return -1;
+    // }
 
     char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
     {
@@ -220,9 +264,10 @@ namespace mod::rando
         uint32_t lookupVal = (flwIndex << 16) + context;
         for (int i = 0; i < numEntries; i++)
         {
-            if (lookupTable[i] == lookupVal)
+            int checkIndex = i * 2;
+            if (lookupTable[checkIndex] == lookupVal)
             {
-                return reinterpret_cast<const uint16_t*>(&(lookupTable[i + 1]));
+                return reinterpret_cast<const uint16_t*>(&(lookupTable[checkIndex + 1]));
             }
         }
 
@@ -244,9 +289,10 @@ namespace mod::rando
         uint32_t lookupVal = (flwIndex << 16) + context;
         for (int i = 0; i < numEntries; i++)
         {
-            if (lookupTable[i] == lookupVal)
+            int checkIndex = i * 2;
+            if (lookupTable[checkIndex] == lookupVal)
             {
-                return reinterpret_cast<const uint16_t*>(&(lookupTable[i + 1]));
+                return reinterpret_cast<const uint16_t*>(&(lookupTable[checkIndex + 1]));
             }
         }
 
@@ -265,12 +311,35 @@ namespace mod::rando
             return nullptr;
 
         const uint16_t baseTableIndex = branchEditData[1];
+        if (baseTableIndex == 0xFFFF)
+        {
+            // No result remapping
+            return nullptr;
+        }
+
         const uint16_t finalTableIndex = baseTableIndex + branchProcResult;
 
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
         const uint16_t* branchProcResultsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->nextFlwTableOffset);
 
         return &(branchProcResultsTable[finalTableIndex]);
+    }
+
+    const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    {
+        if (msgFlow == nullptr)
+            return nullptr;
+
+        const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
+        if (branchEditData == nullptr)
+            return nullptr;
+
+        const uint16_t tableIndex = branchEditData[0];
+
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
+        const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->branchNodesOffset);
+
+        return &(branchProcResultsTable[tableIndex * 8]);
     }
 
     const uint8_t* BMG0Section::getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const

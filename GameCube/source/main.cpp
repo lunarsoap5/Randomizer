@@ -1348,6 +1348,61 @@ namespace mod
         // day".
     }
 
+    KEEP_FUNC int32_t handle_setSelectMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                          void* bodyMsgFlowNode,
+                                          void* optionsMsgFlowNode,
+                                          libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
+    {
+        uint8_t bodyFlowNodeCopy[8];
+        uint8_t optionsFlowNodeCopy[8];
+
+        if (msgFlow != nullptr)
+        {
+            memcpy(&bodyFlowNodeCopy, bodyMsgFlowNode, 8);
+            memcpy(&optionsFlowNodeCopy, optionsMsgFlowNode, 8);
+
+            // TODO: we should manually get the flwIndexes in question by using the same
+            // offset 0x10 on the msgFlow* which is the bodyMsgFlowNode index.
+
+            // We don't need to do anything about fetching the nodes since we
+            // literally already have them.
+
+            // Then we read the u16 at offset 0x4 on the bodyNode to get the
+            // flwIndex for the options node.
+
+            // TODO: can uncomment these and pass as a param if needed.
+            // uint16_t bodyFlwIndex = msgFlow->field_0x10; // current FLW index
+            // uint16_t optionsFlwIndex = reinterpret_cast<const uint16_t*>(bodyMsgFlowNode)[2];
+
+            // const uint16_t customINFIndex =
+            // rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow);
+            // if (customINFIndex != 0xFFFF)
+            // {
+            //     uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
+            //     u16Arr[1] = customINFIndex;
+            //     // rando::gRandomizer->setLatestCustomINFIndex(customINFIndex);
+            // }
+
+            const rando::BMG0Section* bmgSection = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr();
+
+            const uint16_t bodyCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, false);
+            if (bodyCustomInfIdx != 0xFFFF)
+            {
+                uint16_t* u16Arr = reinterpret_cast<uint16_t*>(bodyFlowNodeCopy);
+                u16Arr[1] = bodyCustomInfIdx;
+            }
+
+            const uint16_t optionsCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, true);
+            if (optionsCustomInfIdx != 0xFFFF)
+            {
+                uint16_t* u16Arr = reinterpret_cast<uint16_t*>(optionsFlowNodeCopy);
+                u16Arr[1] = optionsCustomInfIdx;
+            }
+        }
+
+        return gReturn_setSelectMsg(msgFlow, bodyFlowNodeCopy, optionsFlowNodeCopy, actrPtr);
+    }
+
     KEEP_FUNC int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                           void* flowNode,
                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
@@ -1378,7 +1433,8 @@ namespace mod
         // }
 
         // uint16_t customINFIndex = rando::gRandomizer->getCustomINFIndex(msgFlow);
-        const uint16_t customINFIndex = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow);
+        const uint16_t customINFIndex =
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow, false);
         if (customINFIndex != 0xFFFF)
         {
             uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
@@ -1561,6 +1617,15 @@ namespace mod
         // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
 
         return ret;
+    }
+
+    KEEP_FUNC void handle_endFlowGroup(void* msgObjPtr)
+    {
+        // Force reset flowContext info when flow group ends.
+        rando::gRandomizer->checkResetFlowContext(nullptr);
+
+        // Call original function
+        gReturn_endFlowGroup(msgObjPtr);
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)

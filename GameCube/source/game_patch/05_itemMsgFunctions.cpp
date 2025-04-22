@@ -890,10 +890,19 @@ namespace mod::game_patch
         return 1;
     }
 
+    // Give item
+    int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode, libtp::tp::f_op_actor::fopAc_ac_c*)
+    {
+        const uint16_t params = reinterpret_cast<const uint16_t*>(flowNode)[2];
+        rando::gRandomizer->addItemToEventQueue(params);
+        return 1;
+    }
+
     // int (*customEventFunctions[1])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                void* flowNode,
     //                                libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
 
-    uint32_t customEventFunctions[1][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)}};
+    uint32_t customEventFunctions[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
+                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent068)}};
     //    libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
 } // namespace mod::game_patch

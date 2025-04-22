@@ -116,6 +116,8 @@ namespace mod::assembly
         const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
         void asmGetEventNodeFnPtr();
         int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex);
+        void asmGetMsgBranchNode();
+        const uint8_t* handleGetMsgBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
         // d_msg_object.o
         void asmAdjustSelectMsg();

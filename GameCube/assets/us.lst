@@ -378,6 +378,7 @@
 // d_msg_object.o
 80233D04:setMessageIndex
 802369D8:isSend
+80238098:endFlowGroup
 802383d0:getMessageID
 
 // processor.o
@@ -401,6 +402,7 @@
 8024a528:getEventId
 8024a6ec:getMsgDataBlock
 8024a7cc:setNodeIndex
+8024a95c:setSelectMsg
 8024aa50:setNormalMsg
 8024ab30:messageNodeProc
 8024ad54:branchNodeProc

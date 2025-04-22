@@ -270,6 +270,16 @@ namespace mod
                                         uint16_t flwIndex,
                                         libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
 
+    int32_t handle_setSelectMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                void* bodyMsgFlowNode,
+                                void* optionsMsgFlowNode,
+                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
+    extern int32_t (*gReturn_setSelectMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                           void* bodyMsgFlowNode,
+                                           void* optionsMsgFlowNode,
+                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
     int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                 void* flowNode,
                                 libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
@@ -301,6 +311,10 @@ namespace mod
     extern int32_t (*gReturn_eventNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    void handle_endFlowGroup(void* msgObjPtr);
+
+    extern void (*gReturn_endFlowGroup)(void* msgObjPtr);
 
     // Save flag functions
     bool handle_isDungeonItem(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);

@@ -189,12 +189,15 @@ namespace mod::game_patch
     //                        void* flowNode,
     //                        libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
     int _05_customEvent067();
+    int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                           void* flowNode,
+                           libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
 
     // extern int (*customEventFunctions[])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                      void* flowNode,
     //                                      libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
 
-    extern uint32_t customEventFunctions[1][3];
+    extern uint32_t customEventFunctions[2][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();

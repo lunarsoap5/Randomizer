@@ -73,11 +73,13 @@ namespace mod::rando
         const uint16_t* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                uint16_t flwIndex,
                                                uint16_t flowContext) const;
-        uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
+        // uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const;
+        uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const;
         char* getReplacementStr(uint8_t bgmNumber, uint16_t context, uint16_t infIndex) const;
         const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                   uint16_t context,
                                                   uint16_t branchProcResult) const;
+        const uint8_t* getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
         const uint8_t* getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
 
        private:

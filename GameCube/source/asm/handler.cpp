@@ -177,6 +177,13 @@ namespace mod::assembly
             rando::gRandomizer->getFlowContext());
     }
 
+    const uint8_t* handleGetMsgBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getBranchNodeReplacement(
+            msgFlow,
+            rando::gRandomizer->getFlowContext());
+    }
+
     int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex)
     {
         if (eventListIndex >= 43)
@@ -195,6 +202,10 @@ namespace mod::assembly
         {
             bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
         }
+
+        // TODO: temp test code
+        if (infIndex == 0x136b)
+            infIndex = 0x136c;
 
         return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
                                                                                         rando::gRandomizer->getFlowContext(),

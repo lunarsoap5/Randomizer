@@ -201,6 +201,7 @@ namespace mod
         gReturn_event017 = patch::hookFunction(libtp::tp::d_msg_flow::event017, handle_event017);
         gReturn_doFlow = patch::hookFunction(libtp::tp::d_msg_flow::doFlow, handle_doFlow);
         gReturn_setNodeIndex = patch::hookFunction(libtp::tp::d_msg_flow::setNodeIndex, handle_setNodeIndex);
+        gReturn_setSelectMsg = patch::hookFunction(libtp::tp::d_msg_flow::setSelectMsg, handle_setSelectMsg);
         gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
         gReturn_messageNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::messageNodeProc, handle_messageNodeProc);
         // gReturn_branchNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::branchNodeProc, handle_branchNodeProc);
@@ -212,8 +213,11 @@ namespace mod
                                     assembly::asmGetMsgEventNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x74,
                                     assembly::asmAdjustMsgBranchResultNode);
+        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x2C,
+                                    assembly::asmGetMsgBranchNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex) + 0x11C,
                                     assembly::asmAdjustSelectMsg);
+        gReturn_endFlowGroup = patch::hookFunction(libtp::tp::d_msg_object::endFlowGroup, handle_endFlowGroup);
 
         // Save flag functions
         gReturn_isDungeonItem = patch::hookFunction(tp::d_save::isDungeonItem, handle_isDungeonItem);
