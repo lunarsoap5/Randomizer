@@ -139,45 +139,10 @@ namespace mod::rando
         return -1;
     }
 
-    // void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo, TableSliceInfo* outTableSliceInfos) const
     void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo,
                                          uint8_t bmgNumber,
                                          TableSliceInfo* outTableSliceInfos) const
     {
-        // if (bmgNumber >= 9)
-        //     return;
-
-        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-        // const TableSliceInfo* tableSliceInfoTable =
-        //     reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
-
-        // uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
-
-        // bool hasCtxComp = (rawBmgByte >> 7) & 0x01;
-        // bool hasBasicComp = (rawBmgByte >> 6) & 0x01;
-        // uint8_t offsetForBmg = rawBmgByte & 0x3F;
-
-        // uint16_t currIdx = entityInfo->tableSliceInfoStartIdx + offsetForBmg;
-
-        // // Fill out param with 0s
-        // for (int i = 0; i < 8; i++)
-        // {
-        //     reinterpret_cast<uint8_t*>(outTableSliceInfos)[i] = 0;
-        // }
-
-        // if (hasCtxComp)
-        // {
-        //     outTableSliceInfos[0].startIdx = tableSliceInfoTable[currIdx].startIdx;
-        //     outTableSliceInfos[0].len = tableSliceInfoTable[currIdx].len;
-        //     currIdx++;
-        // }
-
-        // if (hasBasicComp)
-        // {
-        //     outTableSliceInfos[1].startIdx = tableSliceInfoTable[currIdx].startIdx;
-        //     outTableSliceInfos[1].len = tableSliceInfoTable[currIdx].len;
-        // }
-
         if (bmgNumber >= 9)
             return;
 
@@ -186,25 +151,14 @@ namespace mod::rando
             reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
 
         uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
-
-        // bool hasCtxComp = (rawBmgByte >> 7) & 0x01;
-        // bool hasBasicComp = (rawBmgByte >> 6) & 0x01;
-        // uint8_t offsetForBmg = rawBmgByte & 0x3F;
-
-        uint16_t currIdx = entityInfo->tableSliceInfoStartIdx;
-
-        // // Fill out param with 0s
-        // for (int i = 0; i < 8; i++)
-        // {
-        //     reinterpret_cast<uint8_t*>(outTableSliceInfos)[i] = 0;
-        // }
+        uint16_t baseIdx = entityInfo->tableSliceInfoStartIdx;
 
         for (int i = 0; i < 2; i++)
         {
             uint8_t offset = (rawBmgByte >> (i * 4)) & 0x0F;
             if (offset < 9)
             {
-                uint16_t idx = currIdx + offset;
+                uint16_t idx = baseIdx + offset;
                 outTableSliceInfos[i].startIdx = tableSliceInfoTable[idx].startIdx;
                 outTableSliceInfos[i].len = tableSliceInfoTable[idx].len;
             }
@@ -214,32 +168,18 @@ namespace mod::rando
                 outTableSliceInfos[i].len = 0;
             }
         }
-
-        // if (hasCtxComp)
-        // {
-        //     outTableSliceInfos[0].startIdx = tableSliceInfoTable[currIdx].startIdx;
-        //     outTableSliceInfos[0].len = tableSliceInfoTable[currIdx].len;
-        //     currIdx++;
-        // }
-
-        // if (hasBasicComp)
-        // {
-        //     outTableSliceInfos[1].startIdx = tableSliceInfoTable[currIdx].startIdx;
-        //     outTableSliceInfos[1].len = tableSliceInfoTable[currIdx].len;
-        // }
     }
 
-    const char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
+    int BMG0Section::doNormalEntitySearch(EntityInfoIdx entityInfoIdx,
+                                          uint8_t bmgNumber,
+                                          uint16_t context,
+                                          uint16_t infIndex) const
     {
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
-        const uint16_t* strOffsetTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strOffsetTableOffset);
-        const char* strTable = reinterpret_cast<const char*>(headerPtr + this->strTableOffset);
 
-        const EntityInfo* strReplEntityInfo = &(entityInfoTable[EntityInfoIdx::STRING_REPLACEMENT]);
+        const EntityInfo* strReplEntityInfo = &(entityInfoTable[entityInfoIdx]);
         TableSliceInfo tableSliceInfos[2];
-        // tableSliceInfos[0] = TableSliceInfo();
-        // tableSliceInfos[1] = TableSliceInfo();
         getTableSliceInfos(strReplEntityInfo, bmgNumber, tableSliceInfos);
 
         // Context compare
@@ -254,10 +194,7 @@ namespace mod::rando
             if (foundIdx >= 0)
             {
                 // Adjust from relative to absolute index
-                foundIdx += strReplEntityInfo->ctxCompAdjustment;
-
-                uint16_t strOffset = strOffsetTable[foundIdx];
-                return &(strTable[strOffset]);
+                return foundIdx + strReplEntityInfo->ctxCompAdjustment;
             }
         }
 
@@ -272,71 +209,25 @@ namespace mod::rando
             if (foundIdx >= 0)
             {
                 // Adjust from relative to absolute index
-                foundIdx += strReplEntityInfo->basicCompAdjustment;
-
-                uint16_t strOffset = strOffsetTable[foundIdx];
-                return &(strTable[strOffset]);
+                return foundIdx + strReplEntityInfo->basicCompAdjustment;
             }
         }
 
-        //
+        return -1;
+    }
 
-        // const uint16_t numBmgEntries = this->bmgStrCompsTableNumEntries;
-        // if (bmgNumber >= numBmgEntries)
-        // {
-        //     // Bail if bmgNumber is out of range (not 0 through 8)
-        //     return nullptr;
-        // }
+    const char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
+    {
+        int foundIdx = doNormalEntitySearch(EntityInfoIdx::STRING_REPLACEMENT, bmgNumber, context, infIndex);
+        if (foundIdx >= 0)
+        {
+            const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+            const uint16_t* strOffsetTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strOffsetTableOffset);
+            const char* strTable = reinterpret_cast<const char*>(headerPtr + this->strTableOffset);
 
-        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-        // const BmgStrCompData* bmgDataTable = reinterpret_cast<const BmgStrCompData*>(headerPtr +
-        // this->bmgStrCompsTableOffset); const uint16_t* offsetsTable = reinterpret_cast<const uint16_t*>(headerPtr +
-        // this->strOffsetsTableOffset);
-
-        // // Try to find in contextComps table
-        // if (context != 0)
-        // {
-        //     uint16_t contextCompsLength = bmgDataTable[bmgNumber].contextCompsLength;
-        //     if (contextCompsLength > 0)
-        //     {
-        //         const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->contextCompValsOffset);
-
-        //         const int startIdx = bmgDataTable[bmgNumber].contextCompsStartIndex;
-        //         const int endIndex = startIdx + contextCompsLength;
-
-        //         const uint32_t lookupVal = (context << 16) + infIndex;
-        //         int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
-        //         if (foundIdx >= 0)
-        //         {
-        //             // Find in str offsets
-        //             const uint16_t offsetInStrTable = offsetsTable[foundIdx];
-
-        //             uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
-        //             return reinterpret_cast<char*>(strAddr);
-        //         }
-        //     }
-        // }
-
-        // // Try to find in basicComps table
-        // uint16_t basicCompsLength = bmgDataTable[bmgNumber].basicCompsLength;
-        // if (basicCompsLength > 0)
-        // {
-        //     const uint16_t* lookupTable = reinterpret_cast<const uint16_t*>(headerPtr + this->basicCompValsOffset);
-
-        //     const int startIdx = bmgDataTable[bmgNumber].basicCompsStartIndex;
-        //     const int endIndex = startIdx + basicCompsLength;
-
-        //     int foundIdx = binarySearch<const uint16_t>(lookupTable, startIdx, endIndex, infIndex);
-        //     if (foundIdx >= 0)
-        //     {
-        //         // Find in str offsets
-        //         const uint16_t offsetInStrTable = offsetsTable[this->numContextCompStrOffsets + foundIdx];
-
-        //         uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
-        //         return reinterpret_cast<char*>(strAddr);
-        //     }
-        // }
-
+            uint16_t strOffset = strOffsetTable[foundIdx];
+            return &(strTable[strOffset]);
+        }
         return nullptr;
     }
 
