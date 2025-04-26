@@ -144,6 +144,40 @@ namespace mod::rando
                                          uint8_t bmgNumber,
                                          TableSliceInfo* outTableSliceInfos) const
     {
+        // if (bmgNumber >= 9)
+        //     return;
+
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const TableSliceInfo* tableSliceInfoTable =
+        //     reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
+
+        // uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
+
+        // bool hasCtxComp = (rawBmgByte >> 7) & 0x01;
+        // bool hasBasicComp = (rawBmgByte >> 6) & 0x01;
+        // uint8_t offsetForBmg = rawBmgByte & 0x3F;
+
+        // uint16_t currIdx = entityInfo->tableSliceInfoStartIdx + offsetForBmg;
+
+        // // Fill out param with 0s
+        // for (int i = 0; i < 8; i++)
+        // {
+        //     reinterpret_cast<uint8_t*>(outTableSliceInfos)[i] = 0;
+        // }
+
+        // if (hasCtxComp)
+        // {
+        //     outTableSliceInfos[0].startIdx = tableSliceInfoTable[currIdx].startIdx;
+        //     outTableSliceInfos[0].len = tableSliceInfoTable[currIdx].len;
+        //     currIdx++;
+        // }
+
+        // if (hasBasicComp)
+        // {
+        //     outTableSliceInfos[1].startIdx = tableSliceInfoTable[currIdx].startIdx;
+        //     outTableSliceInfos[1].len = tableSliceInfoTable[currIdx].len;
+        // }
+
         if (bmgNumber >= 9)
             return;
 
@@ -153,30 +187,46 @@ namespace mod::rando
 
         uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
 
-        bool hasCtxComp = (rawBmgByte >> 7) & 0x01;
-        bool hasBasicComp = (rawBmgByte >> 6) & 0x01;
-        uint8_t offsetForBmg = rawBmgByte & 0x3F;
+        // bool hasCtxComp = (rawBmgByte >> 7) & 0x01;
+        // bool hasBasicComp = (rawBmgByte >> 6) & 0x01;
+        // uint8_t offsetForBmg = rawBmgByte & 0x3F;
 
-        uint16_t currIdx = entityInfo->tableSliceInfoStartIdx + offsetForBmg;
+        uint16_t currIdx = entityInfo->tableSliceInfoStartIdx;
 
-        // Fill out param with 0s
-        for (int i = 0; i < 8; i++)
+        // // Fill out param with 0s
+        // for (int i = 0; i < 8; i++)
+        // {
+        //     reinterpret_cast<uint8_t*>(outTableSliceInfos)[i] = 0;
+        // }
+
+        for (int i = 0; i < 2; i++)
         {
-            reinterpret_cast<uint8_t*>(outTableSliceInfos)[i] = 0;
+            uint8_t offset = (rawBmgByte >> (i * 4)) & 0x0F;
+            if (offset < 9)
+            {
+                uint16_t idx = currIdx + offset;
+                outTableSliceInfos[i].startIdx = tableSliceInfoTable[idx].startIdx;
+                outTableSliceInfos[i].len = tableSliceInfoTable[idx].len;
+            }
+            else
+            {
+                outTableSliceInfos[i].startIdx = 0;
+                outTableSliceInfos[i].len = 0;
+            }
         }
 
-        if (hasCtxComp)
-        {
-            outTableSliceInfos[0].startIdx = tableSliceInfoTable[currIdx].startIdx;
-            outTableSliceInfos[0].len = tableSliceInfoTable[currIdx].len;
-            currIdx++;
-        }
+        // if (hasCtxComp)
+        // {
+        //     outTableSliceInfos[0].startIdx = tableSliceInfoTable[currIdx].startIdx;
+        //     outTableSliceInfos[0].len = tableSliceInfoTable[currIdx].len;
+        //     currIdx++;
+        // }
 
-        if (hasBasicComp)
-        {
-            outTableSliceInfos[1].startIdx = tableSliceInfoTable[currIdx].startIdx;
-            outTableSliceInfos[1].len = tableSliceInfoTable[currIdx].len;
-        }
+        // if (hasBasicComp)
+        // {
+        //     outTableSliceInfos[1].startIdx = tableSliceInfoTable[currIdx].startIdx;
+        //     outTableSliceInfos[1].len = tableSliceInfoTable[currIdx].len;
+        // }
     }
 
     const char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
@@ -188,6 +238,8 @@ namespace mod::rando
 
         const EntityInfo* strReplEntityInfo = &(entityInfoTable[EntityInfoIdx::STRING_REPLACEMENT]);
         TableSliceInfo tableSliceInfos[2];
+        // tableSliceInfos[0] = TableSliceInfo();
+        // tableSliceInfos[1] = TableSliceInfo();
         getTableSliceInfos(strReplEntityInfo, bmgNumber, tableSliceInfos);
 
         // Context compare
