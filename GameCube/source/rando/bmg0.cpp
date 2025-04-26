@@ -12,11 +12,9 @@ namespace mod::rando
 {
     template<typename T>
     // int binarySearch(T arr[], uint32_t low, uint32_t high, T target)
-    int binarySearch(T arr[], int low, int high, T target)
+    int binarySearch(T arr[], int low, int len, T target)
     {
-        // Reduce high by 1 so it isn't inclusive
-        high -= 1;
-
+        int high = low + len;
         while (low <= high)
         {
             int mid = low + (high - low) / 2;
@@ -48,105 +46,82 @@ namespace mod::rando
         return reinterpret_cast<void*>(flwBlockAddr);
     }
 
-    const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                                        uint16_t flwIndex,
-                                                        uint16_t flowContext) const
-    {
-        if (msgFlow == nullptr)
-            return nullptr;
-        // return -1;
+    // Function to get a u16,u16,u16,u16 tableSlice data given an EntityInfo
 
-        // // Only allow remapping 0xFFFF if the msgFlow itself is being
-        // // initialized. Otherwise you can get stuck in a loop of messages when
-        // // it tries to exit normally using 0xFFFF.
-        // if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
+    // const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+    //                                                     uint16_t flwIndex,
+    //                                                     uint16_t flowContext) const
+    const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t, uint16_t) const
+    {
+        // if (msgFlow == nullptr)
         //     return nullptr;
         // // return -1;
 
-        // binary search
+        // // // Only allow remapping 0xFFFF if the msgFlow itself is being
+        // // // initialized. Otherwise you can get stuck in a loop of messages when
+        // // // it tries to exit normally using 0xFFFF.
+        // // if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
+        // //     return nullptr;
+        // // // return -1;
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapCompsOffset);
+        // // binary search
 
-        for (uint32_t i = 0; i < 2; i++)
-        {
-            int startIdx;
-            int endIndex;
-            uint32_t lookupVal;
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapCompsOffset);
 
-            if (i == 0)
-            {
-                // Context compare
-                if (flowContext == 0)
-                    continue;
-
-                startIdx = 0;
-                endIndex = this->nodeRemapContextCompsLength;
-                lookupVal = (flowContext << 0x10) + flwIndex;
-            }
-            else
-            {
-                // FLI compare
-                if (flwIndex == 0xFFFF && flowContext != 0)
-                {
-                    // Disallow remapping 0xFFFF using an FLI value when we have
-                    // a flowContext. This is to help avoid infinite loops
-                    // caused by developer error.
-                    continue;
-                }
-
-                uint8_t bmgNumber = 0;
-                if (msgFlow->mFlow_p != getZel00BmgFlw())
-                {
-                    bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
-                }
-
-                const BmgStrCompData* bmgDataTable =
-                    reinterpret_cast<const BmgStrCompData*>(headerPtr + this->bmgStrCompsTableOffset);
-
-                startIdx = bmgDataTable[bmgNumber].nodeRemapContextCompStartIndex;
-                endIndex = startIdx + bmgDataTable[bmgNumber].nodeRemapContextCompLength;
-                lookupVal = (msgFlow->mFlow << 0x10) + flwIndex;
-            }
-
-            int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
-            if (foundIdx >= 0)
-            {
-                // Get from results table
-                const uint32_t* resultsTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapResultsOffset);
-
-                const uint32_t* ptr = &(resultsTable[foundIdx]);
-                return reinterpret_cast<const uint16_t*>(ptr);
-
-                // // Find in str offsets
-                // const uint16_t offsetInStrTable = offsetsTable[foundIdx];
-
-                // const uint32_t* resultsTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapResultsOffset);
-
-                // uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
-                // return reinterpret_cast<char*>(strAddr);
-            }
-        }
-
-        return nullptr;
-
-        // const uint16_t targetFLIValue = msgFlow->mFlow;
-
-        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        // const FlwIdxRemap* entries = reinterpret_cast<const FlwIdxRemap*>(headerPtr + this->flwIdxRemapOffset);
-        // const uint16_t num_entries = this->numFlwIdxRemapEntries;
-
-        // for (uint32_t i = 0; i < num_entries; i++)
+        // for (uint32_t i = 0; i < 2; i++)
         // {
-        //     if (entries[i].getFLIValue() == targetFLIValue && entries[i].getOldInitFLWIndex() == flwIndex)
+        //     int startIdx;
+        //     int endIndex;
+        //     uint32_t lookupVal;
+
+        //     if (i == 0)
         //     {
-        //         uint32_t u32Addr = reinterpret_cast<uint32_t>(entries) + i * sizeof(FlwIdxRemap);
-        //         return reinterpret_cast<FlwIdxRemap*>(u32Addr);
-        //         // return &(entries[i]);
-        //         // return entries[i].getNewInitFLWIndex();
+        //         // Context compare
+        //         if (flowContext == 0)
+        //             continue;
+
+        //         startIdx = 0;
+        //         endIndex = this->nodeRemapContextCompsLength;
+        //         lookupVal = (flowContext << 0x10) + flwIndex;
+        //     }
+        //     else
+        //     {
+        //         // FLI compare
+        //         if (flwIndex == 0xFFFF && flowContext != 0)
+        //         {
+        //             // Disallow remapping 0xFFFF using an FLI value when we have
+        //             // a flowContext. This is to help avoid infinite loops
+        //             // caused by developer error.
+        //             continue;
+        //         }
+
+        //         uint8_t bmgNumber = 0;
+        //         if (msgFlow->mFlow_p != getZel00BmgFlw())
+        //         {
+        //             bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        //         }
+
+        //         const BmgStrCompData* bmgDataTable =
+        //             reinterpret_cast<const BmgStrCompData*>(headerPtr + this->bmgStrCompsTableOffset);
+
+        //         startIdx = bmgDataTable[bmgNumber].nodeRemapContextCompStartIndex;
+        //         endIndex = startIdx + bmgDataTable[bmgNumber].nodeRemapContextCompLength;
+        //         lookupVal = (msgFlow->mFlow << 0x10) + flwIndex;
+        //     }
+
+        //     int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
+        //     if (foundIdx >= 0)
+        //     {
+        //         // Get from results table
+        //         const uint32_t* resultsTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapResultsOffset);
+
+        //         const uint32_t* ptr = &(resultsTable[foundIdx]);
+        //         return reinterpret_cast<const uint16_t*>(ptr);
         //     }
         // }
-        // return nullptr;
+
+        return nullptr;
     }
 
     uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const
@@ -164,199 +139,274 @@ namespace mod::rando
         return -1;
     }
 
-    // uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow) const
-    // {
-    //     if (msgFlow == nullptr)
-    //         return -1;
-
-    //     const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-    //     const InfRemap* entries = reinterpret_cast<const InfRemap*>(headerPtr + this->infRemapOffset);
-    //     const uint16_t num_entries = this->numInfRemapEntries;
-
-    //     const uint16_t targetFLIValue = msgFlow->mFlow;
-    //     const uint16_t targetFLWIndex = msgFlow->field_0x10;
-
-    //     for (uint32_t i = 0; i < num_entries; i++)
-    //     {
-    //         const uint16_t bitMask = entries[i].getBitMask();
-    //         const uint16_t maskedFliValue = bitMask & targetFLIValue;
-
-    //         if (entries[i].getFLIValue() == maskedFliValue && entries[i].getFLWIndex() == targetFLWIndex)
-    //         {
-    //             return entries[i].getNewINFIndex();
-    //         }
-    //     }
-    //     return -1;
-    // }
-
-    char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
+    // void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo, TableSliceInfo* outTableSliceInfos) const
+    void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo,
+                                         uint8_t bmgNumber,
+                                         TableSliceInfo* outTableSliceInfos) const
     {
-        const uint16_t numBmgEntries = this->bmgStrCompsTableNumEntries;
-        if (bmgNumber >= numBmgEntries)
+        if (bmgNumber >= 9)
+            return;
+
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const TableSliceInfo* tableSliceInfoTable =
+            reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
+
+        uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
+
+        bool hasCtxComp = (rawBmgByte >> 7) & 0x01;
+        bool hasBasicComp = (rawBmgByte >> 6) & 0x01;
+        uint8_t offsetForBmg = rawBmgByte & 0x3F;
+
+        uint16_t currIdx = entityInfo->tableSliceInfoStartIdx + offsetForBmg;
+
+        // Fill out param with 0s
+        for (int i = 0; i < 8; i++)
         {
-            // Bail if bmgNumber is out of range (not 0 through 8)
-            return nullptr;
+            reinterpret_cast<uint8_t*>(outTableSliceInfos)[i] = 0;
         }
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const BmgStrCompData* bmgDataTable = reinterpret_cast<const BmgStrCompData*>(headerPtr + this->bmgStrCompsTableOffset);
-        const uint16_t* offsetsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strOffsetsTableOffset);
-
-        // Try to find in contextComps table
-        if (context != 0)
+        if (hasCtxComp)
         {
-            uint16_t contextCompsLength = bmgDataTable[bmgNumber].contextCompsLength;
-            if (contextCompsLength > 0)
-            {
-                const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->contextCompValsOffset);
-
-                const int startIdx = bmgDataTable[bmgNumber].contextCompsStartIndex;
-                const int endIndex = startIdx + contextCompsLength;
-
-                const uint32_t lookupVal = (context << 16) + infIndex;
-                int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
-                if (foundIdx >= 0)
-                {
-                    // Find in str offsets
-                    const uint16_t offsetInStrTable = offsetsTable[foundIdx];
-
-                    uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
-                    return reinterpret_cast<char*>(strAddr);
-                }
-            }
+            outTableSliceInfos[0].startIdx = tableSliceInfoTable[currIdx].startIdx;
+            outTableSliceInfos[0].len = tableSliceInfoTable[currIdx].len;
+            currIdx++;
         }
 
-        // Try to find in basicComps table
-        uint16_t basicCompsLength = bmgDataTable[bmgNumber].basicCompsLength;
-        if (basicCompsLength > 0)
+        if (hasBasicComp)
         {
-            const uint16_t* lookupTable = reinterpret_cast<const uint16_t*>(headerPtr + this->basicCompValsOffset);
+            outTableSliceInfos[1].startIdx = tableSliceInfoTable[currIdx].startIdx;
+            outTableSliceInfos[1].len = tableSliceInfoTable[currIdx].len;
+        }
+    }
 
-            const int startIdx = bmgDataTable[bmgNumber].basicCompsStartIndex;
-            const int endIndex = startIdx + basicCompsLength;
+    const char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
+    {
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
+        const uint16_t* strOffsetTable = reinterpret_cast<const uint16_t*>(headerPtr + this->strOffsetTableOffset);
+        const char* strTable = reinterpret_cast<const char*>(headerPtr + this->strTableOffset);
 
-            int foundIdx = binarySearch<const uint16_t>(lookupTable, startIdx, endIndex, infIndex);
+        const EntityInfo* strReplEntityInfo = &(entityInfoTable[EntityInfoIdx::STRING_REPLACEMENT]);
+        TableSliceInfo tableSliceInfos[2];
+        getTableSliceInfos(strReplEntityInfo, bmgNumber, tableSliceInfos);
+
+        // Context compare
+        if (tableSliceInfos[0].len > 0)
+        {
+            const uint32_t* wordCompTable = reinterpret_cast<const uint32_t*>(headerPtr + this->wordCompValsOffset);
+
+            const uint32_t lookupVal = (context << 16) + infIndex;
+            int foundIdx =
+                binarySearch<const uint32_t>(wordCompTable, tableSliceInfos[0].startIdx, tableSliceInfos[0].len, lookupVal);
+
             if (foundIdx >= 0)
             {
-                // Find in str offsets
-                const uint16_t offsetInStrTable = offsetsTable[this->numContextCompStrOffsets + foundIdx];
+                // Adjust from relative to absolute index
+                foundIdx += strReplEntityInfo->ctxCompAdjustment;
 
-                uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
-                return reinterpret_cast<char*>(strAddr);
+                uint16_t strOffset = strOffsetTable[foundIdx];
+                return &(strTable[strOffset]);
             }
         }
 
-        return nullptr;
-    }
-
-    const uint16_t* BMG0Section::getBranchEditData(uint16_t context, uint16_t flwIndex) const
-    {
-        if (context == 0)
-            return nullptr;
-
-        const uint16_t numEntries = this->numBranchEditLookups;
-        if (numEntries == 0)
-            return nullptr;
-
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->branchEditLookupsOffset);
-
-        uint32_t lookupVal = (flwIndex << 16) + context;
-        for (int i = 0; i < numEntries; i++)
+        // Basic compare
+        if (tableSliceInfos[1].len > 0)
         {
-            int checkIndex = i * 2;
-            if (lookupTable[checkIndex] == lookupVal)
+            const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
+
+            int foundIdx =
+                binarySearch<const uint16_t>(shortCompTable, tableSliceInfos[1].startIdx, tableSliceInfos[1].len, infIndex);
+
+            if (foundIdx >= 0)
             {
-                return reinterpret_cast<const uint16_t*>(&(lookupTable[checkIndex + 1]));
+                // Adjust from relative to absolute index
+                foundIdx += strReplEntityInfo->basicCompAdjustment;
+
+                uint16_t strOffset = strOffsetTable[foundIdx];
+                return &(strTable[strOffset]);
             }
         }
+
+        //
+
+        // const uint16_t numBmgEntries = this->bmgStrCompsTableNumEntries;
+        // if (bmgNumber >= numBmgEntries)
+        // {
+        //     // Bail if bmgNumber is out of range (not 0 through 8)
+        //     return nullptr;
+        // }
+
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const BmgStrCompData* bmgDataTable = reinterpret_cast<const BmgStrCompData*>(headerPtr +
+        // this->bmgStrCompsTableOffset); const uint16_t* offsetsTable = reinterpret_cast<const uint16_t*>(headerPtr +
+        // this->strOffsetsTableOffset);
+
+        // // Try to find in contextComps table
+        // if (context != 0)
+        // {
+        //     uint16_t contextCompsLength = bmgDataTable[bmgNumber].contextCompsLength;
+        //     if (contextCompsLength > 0)
+        //     {
+        //         const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->contextCompValsOffset);
+
+        //         const int startIdx = bmgDataTable[bmgNumber].contextCompsStartIndex;
+        //         const int endIndex = startIdx + contextCompsLength;
+
+        //         const uint32_t lookupVal = (context << 16) + infIndex;
+        //         int foundIdx = binarySearch<const uint32_t>(lookupTable, startIdx, endIndex, lookupVal);
+        //         if (foundIdx >= 0)
+        //         {
+        //             // Find in str offsets
+        //             const uint16_t offsetInStrTable = offsetsTable[foundIdx];
+
+        //             uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
+        //             return reinterpret_cast<char*>(strAddr);
+        //         }
+        //     }
+        // }
+
+        // // Try to find in basicComps table
+        // uint16_t basicCompsLength = bmgDataTable[bmgNumber].basicCompsLength;
+        // if (basicCompsLength > 0)
+        // {
+        //     const uint16_t* lookupTable = reinterpret_cast<const uint16_t*>(headerPtr + this->basicCompValsOffset);
+
+        //     const int startIdx = bmgDataTable[bmgNumber].basicCompsStartIndex;
+        //     const int endIndex = startIdx + basicCompsLength;
+
+        //     int foundIdx = binarySearch<const uint16_t>(lookupTable, startIdx, endIndex, infIndex);
+        //     if (foundIdx >= 0)
+        //     {
+        //         // Find in str offsets
+        //         const uint16_t offsetInStrTable = offsetsTable[this->numContextCompStrOffsets + foundIdx];
+
+        //         uint32_t strAddr = reinterpret_cast<uint32_t>(headerPtr) + this->strTableOffsetNew + offsetInStrTable;
+        //         return reinterpret_cast<char*>(strAddr);
+        //     }
+        // }
 
         return nullptr;
     }
 
-    const uint16_t* BMG0Section::getEventEditData(uint16_t context, uint16_t flwIndex) const
+    // const uint16_t* BMG0Section::getBranchEditData(uint16_t context, uint16_t flwIndex) const
+    const uint16_t* BMG0Section::getBranchEditData(uint16_t, uint16_t) const
     {
-        if (context == 0)
-            return nullptr;
+        // if (context == 0)
+        //     return nullptr;
 
-        const uint16_t numEntries = this->numEventEditLookups;
-        if (numEntries == 0)
-            return nullptr;
+        // const uint16_t numEntries = this->numBranchEditLookups;
+        // if (numEntries == 0)
+        //     return nullptr;
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->eventEditLookupsOffset);
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->branchEditLookupsOffset);
 
-        uint32_t lookupVal = (flwIndex << 16) + context;
-        for (int i = 0; i < numEntries; i++)
-        {
-            int checkIndex = i * 2;
-            if (lookupTable[checkIndex] == lookupVal)
-            {
-                return reinterpret_cast<const uint16_t*>(&(lookupTable[checkIndex + 1]));
-            }
-        }
+        // uint32_t lookupVal = (flwIndex << 16) + context;
+        // for (int i = 0; i < numEntries; i++)
+        // {
+        //     int checkIndex = i * 2;
+        //     if (lookupTable[checkIndex] == lookupVal)
+        //     {
+        //         return reinterpret_cast<const uint16_t*>(&(lookupTable[checkIndex + 1]));
+        //     }
+        // }
 
         return nullptr;
     }
 
-    const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                                           uint16_t context,
-                                                           uint16_t branchProcResult) const
+    // const uint16_t* BMG0Section::getEventEditData(uint16_t context, uint16_t flwIndex) const
+    const uint16_t* BMG0Section::getEventEditData(uint16_t, uint16_t) const
     {
-        if (msgFlow == nullptr)
-            return nullptr;
+        // if (context == 0)
+        //     return nullptr;
 
-        const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
-        if (branchEditData == nullptr)
-            return nullptr;
+        // const uint16_t numEntries = this->numEventEditLookups;
+        // if (numEntries == 0)
+        //     return nullptr;
 
-        const uint16_t baseTableIndex = branchEditData[1];
-        if (baseTableIndex == 0xFFFF)
-        {
-            // No result remapping
-            return nullptr;
-        }
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const uint32_t* lookupTable = reinterpret_cast<const uint32_t*>(headerPtr + this->eventEditLookupsOffset);
 
-        const uint16_t finalTableIndex = baseTableIndex + branchProcResult;
+        // uint32_t lookupVal = (flwIndex << 16) + context;
+        // for (int i = 0; i < numEntries; i++)
+        // {
+        //     int checkIndex = i * 2;
+        //     if (lookupTable[checkIndex] == lookupVal)
+        //     {
+        //         return reinterpret_cast<const uint16_t*>(&(lookupTable[checkIndex + 1]));
+        //     }
+        // }
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint16_t* branchProcResultsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->nextFlwTableOffset);
-
-        return &(branchProcResultsTable[finalTableIndex]);
+        return nullptr;
     }
 
-    const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    // const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+    //                                                        uint16_t context,
+    //                                                        uint16_t branchProcResult) const
+    const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t, uint16_t) const
     {
-        if (msgFlow == nullptr)
-            return nullptr;
+        return nullptr;
 
-        const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
-        if (branchEditData == nullptr)
-            return nullptr;
+        // if (msgFlow == nullptr)
+        //     return nullptr;
 
-        const uint16_t tableIndex = branchEditData[0];
+        // const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
+        // if (branchEditData == nullptr)
+        //     return nullptr;
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->branchNodesOffset);
+        // const uint16_t baseTableIndex = branchEditData[1];
+        // if (baseTableIndex == 0xFFFF)
+        // {
+        //     // No result remapping
+        //     return nullptr;
+        // }
 
-        return &(branchProcResultsTable[tableIndex * 8]);
+        // const uint16_t finalTableIndex = baseTableIndex + branchProcResult;
+
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const uint16_t* branchProcResultsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->nextFlwTableOffset);
+
+        // return &(branchProcResultsTable[finalTableIndex]);
     }
 
-    const uint8_t* BMG0Section::getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    // const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t) const
     {
-        if (msgFlow == nullptr)
-            return nullptr;
+        return nullptr;
 
-        const uint16_t* branchEditData = getEventEditData(context, msgFlow->field_0x10);
-        if (branchEditData == nullptr)
-            return nullptr;
+        // if (msgFlow == nullptr)
+        //     return nullptr;
 
-        const uint16_t tableIndex = branchEditData[0];
+        // const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
+        // if (branchEditData == nullptr)
+        //     return nullptr;
 
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->signToInitFliOffset);
-        const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->eventNodesOffset);
+        // const uint16_t tableIndex = branchEditData[0];
 
-        return &(branchProcResultsTable[tableIndex * 8]);
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->branchNodesOffset);
+
+        // return &(branchProcResultsTable[tableIndex * 8]);
+    }
+
+    // const uint8_t* BMG0Section::getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    const uint8_t* BMG0Section::getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t) const
+    {
+        return nullptr;
+
+        // if (msgFlow == nullptr)
+        //     return nullptr;
+
+        // const uint16_t* branchEditData = getEventEditData(context, msgFlow->field_0x10);
+        // if (branchEditData == nullptr)
+        //     return nullptr;
+
+        // const uint16_t tableIndex = branchEditData[0];
+
+        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        // const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->eventNodesOffset);
+
+        // return &(branchProcResultsTable[tableIndex * 8]);
     }
 
 } // namespace mod::rando

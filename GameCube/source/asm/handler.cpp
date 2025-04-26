@@ -195,7 +195,7 @@ namespace mod::assembly
         return 0;
     }
 
-    char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
+    const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
     {
         uint8_t bmgNumber = 0;
         if (infDataBlockPtr != mod::game_patch::_05_getZel00BmgInf())
