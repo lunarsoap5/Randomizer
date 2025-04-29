@@ -125,9 +125,11 @@ namespace mod::rando
 
     int BMG0Section::doNormalEntitySearch(uint8_t bmgNumber,
                                           uint16_t context,
-                                          uint16_t infIndex,
+                                          uint16_t idxInBlock,
                                           EntityInfoIdx entityInfoIdx) const
     {
+        // Note: idxInBlock is either a FLW index or an INF index depending on
+        // the entity type.
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
 
@@ -139,7 +141,7 @@ namespace mod::rando
         if (context > 0)
         {
             const uint32_t* wordCompTable = reinterpret_cast<const uint32_t*>(headerPtr + this->wordCompValsOffset);
-            const uint32_t lookupVal = (context << 16) + infIndex;
+            const uint32_t lookupVal = (context << 16) + idxInBlock;
             int idx = searchCompTable(tableSliceInfos, wordCompTable, lookupVal, strReplEntityInfo->ctxCompAdjustment);
             if (idx >= 0)
                 return idx;
@@ -147,7 +149,7 @@ namespace mod::rando
 
         // Basic compare
         const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
-        int idx = searchCompTable(tableSliceInfos, shortCompTable, infIndex, strReplEntityInfo->basicCompAdjustment);
+        int idx = searchCompTable(tableSliceInfos, shortCompTable, idxInBlock, strReplEntityInfo->basicCompAdjustment);
         if (idx >= 0)
             return idx;
 
@@ -229,8 +231,26 @@ namespace mod::rando
     // const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                                        uint16_t context,
     //                                                        uint16_t branchProcResult) const
-    const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t, uint16_t) const
+    const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                           uint16_t context,
+                                                           uint16_t branchProcResult) const
     {
+        uint8_t bmgNumber = getCurrentBmgNumber(msgFlow);
+        uint16_t flwIdx = msgFlow->field_0x10;
+
+        int foundIdx = doNormalEntitySearch(bmgNumber, context, flwIdx, EntityInfoIdx::BRANCH_NEXT_NODE);
+        if (foundIdx >= 0)
+        {
+            const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+            const uint16_t* baseIdxTable =
+                reinterpret_cast<const uint16_t*>(headerPtr + this->branchNextNodeBaseIdxTableOffset);
+
+            const uint16_t baseIdx = baseIdxTable[foundIdx];
+            const uint16_t finalIdx = baseIdx + branchProcResult;
+
+            const uint16_t* nextNodeTable = reinterpret_cast<const uint16_t*>(headerPtr + this->branchNextNodeTableOffset);
+            return &(nextNodeTable[finalIdx]);
+        }
         return nullptr;
 
         // if (msgFlow == nullptr)

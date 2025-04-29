@@ -84,8 +84,8 @@ namespace mod::rando
 
        private:
         void getTableSliceInfos(const EntityInfo* entityInfo, uint8_t bmgNumber, TableSliceInfo* outTableSliceInfos) const;
-        int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t infIndex, EntityInfoIdx entityInfoIdx) const;
-        int doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t infIndex, uint16_t fliValue) const;
+        int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t idxInBlock, EntityInfoIdx entityInfoIdx) const;
+        int doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t fliValue) const;
         void tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                               uint16_t context,
                               uint8_t* mutFlowNode,
