@@ -130,6 +130,7 @@ namespace mod::rando
         void setGiveItemToPlayerStatus(EventItemStatus status) { this->m_GiveItemToPlayerStatus = status; }
         void setDungeonItemAreaColorIndex(uint8_t index) { this->m_DungeonItemAreaColorIndex = index; }
         void setTimeChange(TimeChange time) { this->m_TimeChange = time; }
+        void setMutFlowNodePtr(uint8_t* ptr) { this->m_mutFlowNodePtr = ptr; }
 
 #if defined TP_EU || defined TP_WUS2
         void setCurrentLanguage(libtp::tp::d_s_logo::Languages language) { this->m_CurrentLanguage = language; }
@@ -164,6 +165,7 @@ namespace mod::rando
         uint16_t getFlowContext();
         void setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext);
         void checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        uint8_t* getMutFlowNodePtr();
         // uint16_t getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex);
         // uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
@@ -198,6 +200,7 @@ namespace mod::rando
 
         uint16_t m_latestFLIVal = 0xFFFF;
         uint16_t m_flowContext = 0;
+        uint8_t* m_mutFlowNodePtr = nullptr;
 
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages m_CurrentLanguage;

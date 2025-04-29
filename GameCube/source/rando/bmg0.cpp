@@ -46,6 +46,15 @@ namespace mod::rando
         return reinterpret_cast<void*>(flwBlockAddr);
     }
 
+    uint8_t getCurrentBmgNumber(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        if (msgFlow->mFlow_p != getZel00BmgFlw())
+        {
+            return libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
+        return 0;
+    }
+
     // Function to get a u16,u16,u16,u16 tableSlice data given an EntityInfo
 
     // const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -144,7 +153,11 @@ namespace mod::rando
                                          TableSliceInfo* outTableSliceInfos) const
     {
         if (bmgNumber >= 9)
+        {
+            outTableSliceInfos[0].len = 0;
+            outTableSliceInfos[1].len = 0;
             return;
+        }
 
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const TableSliceInfo* tableSliceInfoTable =
@@ -164,16 +177,15 @@ namespace mod::rando
             }
             else
             {
-                outTableSliceInfos[i].startIdx = 0;
                 outTableSliceInfos[i].len = 0;
             }
         }
     }
 
-    int BMG0Section::doNormalEntitySearch(EntityInfoIdx entityInfoIdx,
-                                          uint8_t bmgNumber,
+    int BMG0Section::doNormalEntitySearch(uint8_t bmgNumber,
                                           uint16_t context,
-                                          uint16_t infIndex) const
+                                          uint16_t infIndex,
+                                          EntityInfoIdx entityInfoIdx) const
     {
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
@@ -218,7 +230,7 @@ namespace mod::rando
 
     const char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const
     {
-        int foundIdx = doNormalEntitySearch(EntityInfoIdx::STRING_REPLACEMENT, bmgNumber, context, infIndex);
+        int foundIdx = doNormalEntitySearch(bmgNumber, context, infIndex, EntityInfoIdx::STRING_REPLACEMENT);
         if (foundIdx >= 0)
         {
             const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
@@ -312,24 +324,55 @@ namespace mod::rando
         // return &(branchProcResultsTable[finalTableIndex]);
     }
 
-    // const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
-    const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t) const
+    // TODO: need to add code to correctly update context based nodeRemap entity
+    // data. Branch appears to be working if we pause and correct the register
+    // to have the correct context value.
+
+    void BMG0Section::tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                       uint16_t context,
+                                       uint8_t* mutFlowNode,
+                                       const uint8_t* patchTable,
+                                       EntityInfoIdx entityInfoIdx) const
     {
-        return nullptr;
+        if (msgFlow == nullptr || mutFlowNode == nullptr)
+            return;
 
-        // if (msgFlow == nullptr)
-        //     return nullptr;
+        uint8_t bmgNumber = getCurrentBmgNumber(msgFlow);
+        uint16_t currFlwIdx = msgFlow->field_0x10;
 
-        // const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
-        // if (branchEditData == nullptr)
-        //     return nullptr;
+        int foundIdx = doNormalEntitySearch(bmgNumber, context, currFlwIdx, entityInfoIdx);
+        if (foundIdx >= 0)
+        {
+            const uint8_t* patchData = patchTable + foundIdx * 8;
 
-        // const uint16_t tableIndex = branchEditData[0];
+            uint8_t magicByte = patchData[0];
 
-        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-        // const uint8_t* branchProcResultsTable = reinterpret_cast<const uint8_t*>(headerPtr + this->branchNodesOffset);
+            for (int i = 1; i < 8; i++)
+            {
+                uint8_t patchByte = patchData[i];
+                if (patchByte != magicByte)
+                {
+                    mutFlowNode[i] = patchByte;
+                }
+            }
+        }
+    }
 
-        // return &(branchProcResultsTable[tableIndex * 8]);
+    // const uint8_t* BMG0Section::getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    void BMG0Section::tryPatchBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const
+    {
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const uint8_t* branchPatchTable = reinterpret_cast<const uint8_t*>(headerPtr + this->branchPatchTableOffset);
+
+        tryPatchFlowNode(msgFlow, context, mutFlowNode, branchPatchTable, EntityInfoIdx::BRANCH_PATCH);
+    }
+
+    void BMG0Section::tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const
+    {
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const uint8_t* eventPatchTable = reinterpret_cast<const uint8_t*>(headerPtr + this->eventPatchTableOffset);
+
+        tryPatchFlowNode(msgFlow, context, mutFlowNode, eventPatchTable, EntityInfoIdx::EVENT_PATCH);
     }
 
     // const uint8_t* BMG0Section::getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const

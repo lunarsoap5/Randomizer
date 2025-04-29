@@ -1599,7 +1599,23 @@ namespace mod
         //     ret = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
         // }
 
+        // uint8_t* a = reinterpret_cast<uint8_t*>(&(msgFlow->mFlowNodeTBL[msgFlow->field_0x10]));
+
+        uint8_t mutNodeCopy[8];
+
+        uint8_t* flowNodeTable = reinterpret_cast<uint8_t*>(msgFlow->mFlowNodeTBL);
+        uint16_t flowNodeIdx = msgFlow->field_0x10;
+        uint8_t* branchNodeSrc = flowNodeTable + flowNodeIdx * 8;
+
+        memcpy(mutNodeCopy, branchNodeSrc, 8);
+
+        // Store pointer to copy on randomizer
+        rando::gRandomizer->setMutFlowNodePtr(mutNodeCopy);
+
         int32_t ret = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+
+        // Set ptr on randomizer to be nullptr
+        rando::gRandomizer->setMutFlowNodePtr(nullptr);
 
         // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
 

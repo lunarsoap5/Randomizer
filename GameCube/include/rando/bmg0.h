@@ -79,14 +79,22 @@ namespace mod::rando
         const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                   uint16_t context,
                                                   uint16_t branchProcResult) const;
-        const uint8_t* getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
+        // const uint8_t* getBranchNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
+        void tryPatchBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
+        void tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
+
         const uint8_t* getEventNodeReplacement(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
 
        private:
         void getTableSliceInfos(const EntityInfo* entityInfo, uint8_t bmgNumber, TableSliceInfo* outTableSliceInfos) const;
-        int doNormalEntitySearch(EntityInfoIdx entityInfoIdx, uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const;
+        int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t infIndex, EntityInfoIdx entityInfoIdx) const;
         const uint16_t* getBranchEditData(uint16_t context, uint16_t flwIndex) const;
         const uint16_t* getEventEditData(uint16_t context, uint16_t flwIndex) const;
+        void tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                              uint16_t context,
+                              uint8_t* mutFlowNode,
+                              const uint8_t* patchTable,
+                              EntityInfoIdx entityInfoIdx) const;
 
         /* 0x00 */ char magic[4];
         /* 0x04 */ uint16_t signToInitFliOffset;

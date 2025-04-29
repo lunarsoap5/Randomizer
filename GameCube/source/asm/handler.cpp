@@ -172,16 +172,23 @@ namespace mod::assembly
 
     const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
-        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getEventNodeReplacement(
-            msgFlow,
-            rando::gRandomizer->getFlowContext());
+        // return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getEventNodeReplacement(
+        //     msgFlow,
+        //     rando::gRandomizer->getFlowContext());
+        uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
+        rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchEventNode(msgFlow,
+                                                                                 rando::gRandomizer->getFlowContext(),
+                                                                                 mutFlowNodePtr);
+        return mutFlowNodePtr;
     }
 
     const uint8_t* handleGetMsgBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
-        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getBranchNodeReplacement(
-            msgFlow,
-            rando::gRandomizer->getFlowContext());
+        uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
+        rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchBranchNode(msgFlow,
+                                                                                  rando::gRandomizer->getFlowContext(),
+                                                                                  mutFlowNodePtr);
+        return mutFlowNodePtr;
     }
 
     int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex)

@@ -788,4 +788,10 @@ namespace mod::rando
     //     // }
     //     return -1;
     // }
+
+    uint8_t* Randomizer::getMutFlowNodePtr()
+    {
+        return m_mutFlowNodePtr;
+    }
+
 } // namespace mod::rando
