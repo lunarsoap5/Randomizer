@@ -71,9 +71,9 @@ namespace mod::rando
         BMG0Section() {}
         ~BMG0Section() {}
 
-        const uint16_t* getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                               uint16_t flwIndex,
-                                               uint16_t flowContext) const;
+        const uint16_t* getNodeRemapData(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                         uint16_t flwIndex,
+                                         uint16_t flowContext) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const;
         const char* getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const;
         const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -88,6 +88,7 @@ namespace mod::rando
        private:
         void getTableSliceInfos(const EntityInfo* entityInfo, uint8_t bmgNumber, TableSliceInfo* outTableSliceInfos) const;
         int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t infIndex, EntityInfoIdx entityInfoIdx) const;
+        int doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t infIndex, uint16_t fliValue) const;
         const uint16_t* getBranchEditData(uint16_t context, uint16_t flwIndex) const;
         const uint16_t* getEventEditData(uint16_t context, uint16_t flwIndex) const;
         void tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,

@@ -55,13 +55,187 @@ namespace mod::rando
         return 0;
     }
 
-    // Function to get a u16,u16,u16,u16 tableSlice data given an EntityInfo
+    uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const
+    {
+        if (msgFlow != nullptr)
+        {
+            if (msgFlow->mFlow >= 0x7000)
+            {
+                if (isSelectOptionsNode)
+                    return 0x136a;
+                else
+                    return 0x1369;
+            }
+        }
+        return -1;
+    }
+
+    void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo,
+                                         uint8_t bmgNumber,
+                                         TableSliceInfo* outTableSliceInfos) const
+    {
+        if (bmgNumber >= 9)
+        {
+            outTableSliceInfos[0].len = 0;
+            outTableSliceInfos[1].len = 0;
+            return;
+        }
+
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const TableSliceInfo* tableSliceInfoTable =
+            reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
+
+        uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
+        uint16_t baseIdx = entityInfo->tableSliceInfoStartIdx;
+
+        for (int i = 0; i < 2; i++)
+        {
+            uint8_t offset = (rawBmgByte >> (i * 4)) & 0x0F;
+            if (offset < 9)
+            {
+                uint16_t idx = baseIdx + offset;
+                outTableSliceInfos[i].startIdx = tableSliceInfoTable[idx].startIdx;
+                outTableSliceInfos[i].len = tableSliceInfoTable[idx].len;
+            }
+            else
+            {
+                outTableSliceInfos[i].len = 0;
+            }
+        }
+    }
+
+    template<typename T>
+    int searchCompTable(TableSliceInfo* tableSliceInfo, const T* compTable, T compVal, int16_t idxAdjustment)
+    {
+        if (tableSliceInfo->len > 0)
+        {
+            int foundIdx = binarySearch<const T>(compTable, tableSliceInfo->startIdx, tableSliceInfo->len, compVal);
+
+            if (foundIdx >= 0)
+            {
+                // Adjust from relative to absolute index
+                return foundIdx + idxAdjustment;
+            }
+        }
+        return -1;
+    }
+
+    int BMG0Section::doNormalEntitySearch(uint8_t bmgNumber,
+                                          uint16_t context,
+                                          uint16_t infIndex,
+                                          EntityInfoIdx entityInfoIdx) const
+    {
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
+
+        const EntityInfo* strReplEntityInfo = &(entityInfoTable[entityInfoIdx]);
+        TableSliceInfo tableSliceInfos[2];
+        getTableSliceInfos(strReplEntityInfo, bmgNumber, tableSliceInfos);
+
+        // // Context compare
+        if (context > 0)
+        {
+            const uint32_t* wordCompTable = reinterpret_cast<const uint32_t*>(headerPtr + this->wordCompValsOffset);
+            const uint32_t lookupVal = (context << 16) + infIndex;
+            int idx = searchCompTable(tableSliceInfos, wordCompTable, lookupVal, strReplEntityInfo->ctxCompAdjustment);
+            if (idx >= 0)
+                return idx;
+        }
+
+        // // Context compare
+        // if (tableSliceInfos[0].len > 0)
+        // {
+        //     const uint32_t lookupVal = (context << 16) + infIndex;
+        //     int foundIdx =
+        //         binarySearch<const uint32_t>(wordCompTable, tableSliceInfos[0].startIdx, tableSliceInfos[0].len, lookupVal);
+
+        //     if (foundIdx >= 0)
+        //     {
+        //         // Adjust from relative to absolute index
+        //         return foundIdx + strReplEntityInfo->ctxCompAdjustment;
+        //     }
+        // }
+
+        // Basic compare
+        // if (tableSliceInfos[1].len > 0)
+        // {
+        //     const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
+
+        //     int foundIdx =
+        //         binarySearch<const uint16_t>(shortCompTable, tableSliceInfos[1].startIdx, tableSliceInfos[1].len, infIndex);
+
+        //     if (foundIdx >= 0)
+        //     {
+        //         // Adjust from relative to absolute index
+        //         return foundIdx + strReplEntityInfo->basicCompAdjustment;
+        //     }
+        // }
+
+        const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
+        int idx = searchCompTable(tableSliceInfos, shortCompTable, infIndex, strReplEntityInfo->basicCompAdjustment);
+        if (idx >= 0)
+            return idx;
+
+        return -1;
+    }
+
+    int BMG0Section::doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t fliValue) const
+    {
+        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+        const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
+        const EntityInfo* entityInfo = &(entityInfoTable[EntityInfoIdx::NODE_REMAP]);
+        TableSliceInfo tableSliceInfos[2];
+        getTableSliceInfos(entityInfo, bmgNumber, tableSliceInfos);
+
+        const uint32_t* wordCompTable = reinterpret_cast<const uint32_t*>(headerPtr + this->wordCompValsOffset);
+
+        // Context compare
+        if (context > 0)
+        {
+            const uint32_t ctxLookupVal = (context << 16) + flwIndex;
+            int idx = searchCompTable(tableSliceInfos, wordCompTable, ctxLookupVal, entityInfo->ctxCompAdjustment);
+            if (idx >= 0)
+                return idx;
+        }
+
+        // FLI compare
+        if (flwIndex != 0xFFFF || context == 0)
+        {
+            // Only allow remapping 0xFFFF using an FLI value when we do not
+            // have a flowContext. This is to help avoid infinite loops caused
+            // by developer error.
+            const uint32_t basicLookupVal = (fliValue << 0x10) + flwIndex;
+            int idx = searchCompTable(&(tableSliceInfos[1]), wordCompTable, basicLookupVal, entityInfo->basicCompAdjustment);
+            if (idx >= 0)
+                return idx;
+        }
+
+        return -1;
+    }
 
     // const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                                     uint16_t flwIndex,
     //                                                     uint16_t flowContext) const
-    const uint16_t* BMG0Section::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow*, uint16_t, uint16_t) const
+    const uint16_t* BMG0Section::getNodeRemapData(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                  uint16_t flwIndex,
+                                                  uint16_t context) const
     {
+        if (msgFlow == nullptr)
+            return nullptr;
+
+        uint8_t bmgNumber = getCurrentBmgNumber(msgFlow);
+
+        int foundIdx = doNodeRemapEntitySearch(bmgNumber, context, flwIndex, msgFlow->mFlow);
+        if (foundIdx >= 0)
+        {
+            // Get from results table
+            const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+            const uint32_t* nodeRemapTable = reinterpret_cast<const uint32_t*>(headerPtr + this->nodeRemapTableOffset);
+
+            const uint32_t* ptr = &(nodeRemapTable[foundIdx]);
+            return reinterpret_cast<const uint16_t*>(ptr);
+        }
+
         // if (msgFlow == nullptr)
         //     return nullptr;
         // // return -1;
@@ -131,101 +305,6 @@ namespace mod::rando
         // }
 
         return nullptr;
-    }
-
-    uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const
-    {
-        if (msgFlow != nullptr)
-        {
-            if (msgFlow->mFlow >= 0x7000)
-            {
-                if (isSelectOptionsNode)
-                    return 0x136a;
-                else
-                    return 0x1369;
-            }
-        }
-        return -1;
-    }
-
-    void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo,
-                                         uint8_t bmgNumber,
-                                         TableSliceInfo* outTableSliceInfos) const
-    {
-        if (bmgNumber >= 9)
-        {
-            outTableSliceInfos[0].len = 0;
-            outTableSliceInfos[1].len = 0;
-            return;
-        }
-
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-        const TableSliceInfo* tableSliceInfoTable =
-            reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
-
-        uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
-        uint16_t baseIdx = entityInfo->tableSliceInfoStartIdx;
-
-        for (int i = 0; i < 2; i++)
-        {
-            uint8_t offset = (rawBmgByte >> (i * 4)) & 0x0F;
-            if (offset < 9)
-            {
-                uint16_t idx = baseIdx + offset;
-                outTableSliceInfos[i].startIdx = tableSliceInfoTable[idx].startIdx;
-                outTableSliceInfos[i].len = tableSliceInfoTable[idx].len;
-            }
-            else
-            {
-                outTableSliceInfos[i].len = 0;
-            }
-        }
-    }
-
-    int BMG0Section::doNormalEntitySearch(uint8_t bmgNumber,
-                                          uint16_t context,
-                                          uint16_t infIndex,
-                                          EntityInfoIdx entityInfoIdx) const
-    {
-        const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-        const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
-
-        const EntityInfo* strReplEntityInfo = &(entityInfoTable[entityInfoIdx]);
-        TableSliceInfo tableSliceInfos[2];
-        getTableSliceInfos(strReplEntityInfo, bmgNumber, tableSliceInfos);
-
-        // Context compare
-        if (tableSliceInfos[0].len > 0)
-        {
-            const uint32_t* wordCompTable = reinterpret_cast<const uint32_t*>(headerPtr + this->wordCompValsOffset);
-
-            const uint32_t lookupVal = (context << 16) + infIndex;
-            int foundIdx =
-                binarySearch<const uint32_t>(wordCompTable, tableSliceInfos[0].startIdx, tableSliceInfos[0].len, lookupVal);
-
-            if (foundIdx >= 0)
-            {
-                // Adjust from relative to absolute index
-                return foundIdx + strReplEntityInfo->ctxCompAdjustment;
-            }
-        }
-
-        // Basic compare
-        if (tableSliceInfos[1].len > 0)
-        {
-            const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
-
-            int foundIdx =
-                binarySearch<const uint16_t>(shortCompTable, tableSliceInfos[1].startIdx, tableSliceInfos[1].len, infIndex);
-
-            if (foundIdx >= 0)
-            {
-                // Adjust from relative to absolute index
-                return foundIdx + strReplEntityInfo->basicCompAdjustment;
-            }
-        }
-
-        return -1;
     }
 
     const char* BMG0Section::getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const

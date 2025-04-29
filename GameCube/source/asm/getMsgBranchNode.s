@@ -8,11 +8,14 @@ asmGetMsgBranchNode:
 add %r31,%r4,%r0
 
 # Push stack
-stwu %sp,-0x10(%sp)
+stwu %sp,-0x20(%sp)
 mflr %r0
-stw %r0,0x14(%sp)
-# Need to maintain r3 only
-stw %r3,0xC(%sp)
+stw %r0,0x24(%sp)
+# Need to maintain r3 through r6
+stw %r3,0x10(%sp)
+stw %r4,0x14(%sp)
+stw %r5,0x18(%sp)
+stw %r6,0x1C(%sp)
 
 # r3 already contains the dMsgFlow_c*
 bl handleGetMsgBranchNode
@@ -25,9 +28,12 @@ beq+ _finished
 mr %r31,%r3
 
 _finished:
-lwz %r3,0xC(%sp)
+lwz %r3,0x10(%sp)
+lwz %r4,0x14(%sp)
+lwz %r5,0x18(%sp)
+lwz %r6,0x1C(%sp)
 
-lwz %r0,0x14(%sp)
+lwz %r0,0x24(%sp)
 mtlr %r0
-addi %sp,%sp,0x10
+addi %sp,%sp,0x20
 blr

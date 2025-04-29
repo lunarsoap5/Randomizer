@@ -1314,7 +1314,7 @@ namespace mod
         uint16_t flowContext = rando::gRandomizer->getFlowContext();
 
         const uint16_t* remapEntry =
-            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomInitNodeIndex(msgFlow, flwIndex, flowContext);
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getNodeRemapData(msgFlow, flwIndex, flowContext);
         if (remapEntry != nullptr)
         {
             flwIndex = remapEntry[0];
