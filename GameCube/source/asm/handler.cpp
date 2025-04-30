@@ -170,6 +170,13 @@ namespace mod::assembly
             branchProcStatus);
     }
 
+    const uint16_t* handleAdjustMsgEventResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomEventNextNode(
+            msgFlow,
+            rando::gRandomizer->getFlowContext());
+    }
+
     const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
         // return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getEventNodeReplacement(

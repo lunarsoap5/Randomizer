@@ -79,6 +79,7 @@ namespace mod::rando
         const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                   uint16_t context,
                                                   uint16_t branchProcResult) const;
+        const uint16_t* getCustomEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
         void tryPatchBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
         void tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
 
@@ -103,10 +104,13 @@ namespace mod::rando
         /* 0x12 */ uint16_t branchPatchTableOffset;
         /* 0x14 */ uint16_t branchNextNodeBaseIdxTableOffset;
         /* 0x16 */ uint16_t branchNextNodeTableOffset;
-        /* 0x18 */ uint16_t eventPatchTableOffset;
-        /* 0x1A */ uint16_t strOffsetTableOffset;
-        /* 0x1C */ uint16_t strTableOffset;
-        /* 0x1E */ uint16_t strTableLen;
+        /* 0x18 */ uint16_t eventNextNodeTableOffset;
+        /* 0x1A */ uint16_t eventPatchTableOffset;
+        /* 0x1C */ uint16_t strOffsetTableOffset;
+        /* 0x1E */ uint16_t strTableOffset;
+        /* 0x20 */ uint16_t strTableLen;
+        /* 0x22 */ uint16_t padding_0x22;
+        /* 0x24 */ uint32_t padding_0x24;
     } __attribute__((__packed__));
 } // namespace mod::rando
 #endif

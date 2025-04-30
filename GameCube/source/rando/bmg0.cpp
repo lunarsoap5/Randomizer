@@ -149,7 +149,7 @@ namespace mod::rando
 
         // Basic compare
         const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
-        int idx = searchCompTable(tableSliceInfos, shortCompTable, idxInBlock, strReplEntityInfo->basicCompAdjustment);
+        int idx = searchCompTable(&(tableSliceInfos[1]), shortCompTable, idxInBlock, strReplEntityInfo->basicCompAdjustment);
         if (idx >= 0)
             return idx;
 
@@ -252,27 +252,22 @@ namespace mod::rando
             return &(nextNodeTable[finalIdx]);
         }
         return nullptr;
+    }
 
-        // if (msgFlow == nullptr)
-        //     return nullptr;
+    const uint16_t* BMG0Section::getCustomEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const
+    {
+        uint8_t bmgNumber = getCurrentBmgNumber(msgFlow);
+        uint16_t flwIdx = msgFlow->field_0x10;
 
-        // const uint16_t* branchEditData = getBranchEditData(context, msgFlow->field_0x10);
-        // if (branchEditData == nullptr)
-        //     return nullptr;
+        int foundIdx = doNormalEntitySearch(bmgNumber, context, flwIdx, EntityInfoIdx::EVENT_NEXT_NODE);
+        if (foundIdx >= 0)
+        {
+            const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
+            const uint16_t* nextNodeTable = reinterpret_cast<const uint16_t*>(headerPtr + this->eventNextNodeTableOffset);
 
-        // const uint16_t baseTableIndex = branchEditData[1];
-        // if (baseTableIndex == 0xFFFF)
-        // {
-        //     // No result remapping
-        //     return nullptr;
-        // }
-
-        // const uint16_t finalTableIndex = baseTableIndex + branchProcResult;
-
-        // const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-        // const uint16_t* branchProcResultsTable = reinterpret_cast<const uint16_t*>(headerPtr + this->nextFlwTableOffset);
-
-        // return &(branchProcResultsTable[finalTableIndex]);
+            return &(nextNodeTable[foundIdx]);
+        }
+        return nullptr;
     }
 
     void BMG0Section::tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,

@@ -112,6 +112,8 @@ namespace mod::assembly
         // d_msg_flow.o
         void asmAdjustMsgBranchResultNode();
         const uint16_t* handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus);
+        void asmAdjustMsgEventResultNode();
+        const uint16_t* handleAdjustMsgEventResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
         void asmGetMsgEventNode();
         const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
         void asmGetEventNodeFnPtr();
