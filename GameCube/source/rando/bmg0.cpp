@@ -13,7 +13,7 @@ namespace mod::rando
     template<typename T>
     int binarySearch(T arr[], int low, int len, T target)
     {
-        int high = low + len;
+        int high = low + len - 1;
         while (low <= high)
         {
             int mid = low + (high - low) / 2;
