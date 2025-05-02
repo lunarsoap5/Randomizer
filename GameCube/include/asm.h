@@ -119,7 +119,7 @@ namespace mod::assembly
         void asmGetFlowQueryFnPtr();
         void* handleGetFlowQueryFnPtr(uint16_t queryListIndex);
         void asmGetEventNodeFnPtr();
-        int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex);
+        void* handleGetEventNodeFnPtr(uint8_t eventListIndex);
         void asmGetMsgBranchNode();
         const uint8_t* handleGetMsgBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
