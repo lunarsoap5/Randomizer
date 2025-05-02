@@ -881,6 +881,12 @@ namespace mod::game_patch
         return nullptr;
     }
 
+    int _05_customQuery054_returnParams(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    {
+        uint16_t params = reinterpret_cast<uint16_t*>(flowNode)[2];
+        return params;
+    }
+
     // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                  void* flowNode,
     //                                  libtp::tp::f_op_actor::fopAc_ac_c* actorPtr)
@@ -901,6 +907,8 @@ namespace mod::game_patch
     // int (*customEventFunctions[1])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                void* flowNode,
     //                                libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
+
+    uint32_t customQueryFunctions[1][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery054_returnParams)}};
 
     uint32_t customEventFunctions[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
                                            {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent068)}};

@@ -198,6 +198,17 @@ namespace mod::assembly
         return mutFlowNodePtr;
     }
 
+    void* handleGetFlowQueryFnPtr(uint16_t queryListIndex)
+    {
+        if (queryListIndex >= 53)
+        {
+            uint8_t newIndex = queryListIndex - 53;
+            uint32_t* ptmf = game_patch::customQueryFunctions[newIndex];
+            return reinterpret_cast<void*>(ptmf);
+        }
+        return nullptr;
+    }
+
     int32_t handleGetEventNodeFnPtr(uint8_t eventListIndex)
     {
         if (eventListIndex >= 43)
@@ -208,6 +219,26 @@ namespace mod::assembly
         }
         return 0;
     }
+
+    // TODO: ^ the above should return a uint32_t*?
+
+    // TODO: patch to where we can use custom branch functions, and create one
+    // for knowing if we can "Change ToD" or not. Basically "would we be able to
+    // warp if we had Shadow Crystal even if we might not right now"? So you
+    // can't do it in dungeons and interiors for example. Also needs to confirm
+    // that we are not in Twilight such that there is no time since it does not
+    // make sense to change ToD here even if you can warp.
+
+    // TODO: add custom branch event where we use the params to specify a
+    // branchProcResult. Useful for effectively skipping a check since we simply
+    // pick the outcome we always want.
+
+    // TODO: add a custom event which is just a nop. We can use this as a good
+    // way to disable an eventNode rather than trying to skip over it. Should be
+    // easier to read and write in the C# code.
+
+    // TODO: see if possible to have changing ToD (as wolf?) not make the menu
+    // pop back up while the screen is fading out
 
     const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
     {

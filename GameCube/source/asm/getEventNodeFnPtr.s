@@ -9,6 +9,9 @@ asmGetEventNodeFnPtr:
 # into r12 like normal.
 add %r12,%r0,%r7
 
+# TODO: need to protect r3,r4,r5
+
+# TODO: don't need this instruction
 # Move r0 to r3 since it contains the value we need
 #mr %r3,%r0
 
