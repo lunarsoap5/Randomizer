@@ -316,6 +316,11 @@ namespace mod
 
     extern void (*gReturn_endFlowGroup)(void* msgObjPtr);
 
+    // Event functions
+    void handle_talkEnd(void* eventPtr);
+
+    extern void (*gReturn_talkEnd)(void* eventPtr);
+
     // Save flag functions
     bool handle_isDungeonItem(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);
     extern bool (*gReturn_isDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);

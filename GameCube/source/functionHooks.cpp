@@ -173,6 +173,9 @@ namespace mod
 
     KEEP_VAR void (*gReturn_endFlowGroup)(void* msgObjPtr) = nullptr;
 
+    // Event functions
+    KEEP_VAR void (*gReturn_talkEnd)(void* eventPtr) = nullptr;
+
     // Save flag functions
     KEEP_VAR bool (*gReturn_isDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;
     KEEP_VAR void (*gReturn_onDungeonItem)(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit) = nullptr;

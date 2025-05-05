@@ -908,7 +908,8 @@ namespace mod::game_patch
     //                                  libtp::tp::f_op_actor::fopAc_ac_c* actorPtr)
     int _05_customEvent067()
     {
-        events::handleTimeOfDayChange();
+        rando::gRandomizer->setHasPendingTodChange(true);
+        // events::handleTimeOfDayChange();
         return 1;
     }
 

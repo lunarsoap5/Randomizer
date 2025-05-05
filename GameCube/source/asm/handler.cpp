@@ -220,9 +220,6 @@ namespace mod::assembly
         return nullptr;
     }
 
-    // TODO: see if possible to have changing ToD (as wolf?) not make the menu
-    // pop back up while the screen is fading out
-
     const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
     {
         uint8_t bmgNumber = 0;

@@ -74,6 +74,7 @@
 800337ec:checkEmptyBottle
 
 // d_event.o
+80041d34:talkEnd
 80042778:defaultSkipStb
 800429D4:skipper
 

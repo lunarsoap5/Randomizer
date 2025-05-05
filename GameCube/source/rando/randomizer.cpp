@@ -794,4 +794,9 @@ namespace mod::rando
         return m_mutFlowNodePtr;
     }
 
+    bool Randomizer::getHasPendingTodChange()
+    {
+        return m_hasPendingTodChange;
+    }
+
 } // namespace mod::rando

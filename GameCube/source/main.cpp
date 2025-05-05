@@ -1608,6 +1608,23 @@ namespace mod
         gReturn_endFlowGroup(msgObjPtr);
     }
 
+    KEEP_FUNC void handle_talkEnd(void* eventPtr)
+    {
+        // Call original function
+        gReturn_talkEnd(eventPtr);
+
+        // We handle a pending ToD change from talking to Midna once this
+        // function has run after the conversation ends so that the Midna actor
+        // has been updated to know the conversation has ended. This avoids
+        // having the Midna conversation pop back up after selecting "Change
+        // ToD" when talking to Midna as wolf (now functions the same as human).
+        if (rando::gRandomizer->getHasPendingTodChange())
+        {
+            rando::gRandomizer->setHasPendingTodChange(false);
+            events::handleTimeOfDayChange();
+        }
+    }
+
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)
     {
         // Call the original function immediately as it sets necessary values needed later on.

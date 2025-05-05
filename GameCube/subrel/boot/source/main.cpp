@@ -224,6 +224,9 @@ namespace mod
                                     assembly::asmAdjustSelectMsg);
         gReturn_endFlowGroup = patch::hookFunction(libtp::tp::d_msg_object::endFlowGroup, handle_endFlowGroup);
 
+        // Event functions
+        gReturn_talkEnd = patch::hookFunction(libtp::tp::d_event::talkEnd, handle_talkEnd);
+
         // Save flag functions
         gReturn_isDungeonItem = patch::hookFunction(tp::d_save::isDungeonItem, handle_isDungeonItem);
         gReturn_onDungeonItem = patch::hookFunction(tp::d_save::onDungeonItem, handle_onDungeonItem);
