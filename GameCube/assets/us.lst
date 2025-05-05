@@ -163,7 +163,10 @@
 800b5284:decideDoStatus
 800b9f50:checkGroundSpecialMode
 800c0310:checkDungeon
+800c0284:checkField
 800c02c8:checkBossRoom
+800c0358:checkCastleTown
+800e1408:checkForestOldCentury
 
 // data
 8038EB8C:climbVars

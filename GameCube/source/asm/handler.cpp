@@ -220,13 +220,6 @@ namespace mod::assembly
         return nullptr;
     }
 
-    // TODO: create custom branch function for knowing if we can "Change ToD" or
-    // not. Basically "would we be able to warp if we had Shadow Crystal even if
-    // we might not right now"? So you can't do it in dungeons and interiors for
-    // example. Also needs to confirm that we are not in Twilight such that
-    // there is no time since it does not make sense to change ToD here even if
-    // you can warp.
-
     // TODO: add a custom event which is just a nop. We can use this as a good
     // way to disable an eventNode rather than trying to skip over it. Should be
     // easier to read and write in the C# code.
