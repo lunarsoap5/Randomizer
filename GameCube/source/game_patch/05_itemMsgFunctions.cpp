@@ -920,6 +920,13 @@ namespace mod::game_patch
         return 1;
     }
 
+    // Does nothing. This provides an easy way to patch existing event nodes to
+    // simply do nothing rather than their vanilla behavior.
+    int _05_customEvent069_nop()
+    {
+        return 1;
+    }
+
     // int (*customEventFunctions[1])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                void* flowNode,
     //                                libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
@@ -927,7 +934,8 @@ namespace mod::game_patch
     uint32_t customQueryFunctions[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery054_returnParams)},
                                            {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery055_canChangeTod)}};
 
-    uint32_t customEventFunctions[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
-                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent068)}};
+    uint32_t customEventFunctions[3][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
+                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent068)},
+                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent069_nop)}};
     //    libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
 } // namespace mod::game_patch

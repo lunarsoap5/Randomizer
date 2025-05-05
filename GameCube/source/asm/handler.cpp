@@ -220,10 +220,6 @@ namespace mod::assembly
         return nullptr;
     }
 
-    // TODO: add a custom event which is just a nop. We can use this as a good
-    // way to disable an eventNode rather than trying to skip over it. Should be
-    // easier to read and write in the C# code.
-
     // TODO: see if possible to have changing ToD (as wolf?) not make the menu
     // pop back up while the screen is fading out
 

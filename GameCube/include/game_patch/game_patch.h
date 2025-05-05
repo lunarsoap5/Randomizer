@@ -198,7 +198,7 @@ namespace mod::game_patch
     //                                      libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
 
     extern uint32_t customQueryFunctions[2][3];
-    extern uint32_t customEventFunctions[2][3];
+    extern uint32_t customEventFunctions[3][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();
