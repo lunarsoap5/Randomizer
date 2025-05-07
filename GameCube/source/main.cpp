@@ -1387,29 +1387,11 @@ namespace mod
                 break;
             }
 
-            case ARBITERS_GROUNDS_CLEARED: // AG story flag.
-            {
-                if (checkStageName(stagesPtr[StageIDs::Stallord]))
-                {
-                    return false; // If the flag is set, the post boss music plays during the boss fight.
-                }
-                break;
-            }
-
             case SNOWPEAK_RUINS_CLEARED: // Snowpeak Ruins Story flag
             {
                 if (checkStageName(stagesPtr[StageIDs::Kakariko_Graveyard]))
                 {
                     return false; // If the flag is set, Ralis will no longer spawn in the graveyard.
-                }
-                break;
-            }
-
-            case FOREST_TEMPLE_CLEARED: // Forest Temple Story Flag
-            {
-                if (checkStageName(stagesPtr[StageIDs::Diababa]))
-                {
-                    return false; // If the flag is set, the post boss music plays during the boss fight.
                 }
                 break;
             }
