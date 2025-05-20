@@ -100,6 +100,7 @@ namespace mod::events
 
     const libtp::tp::dzx::ACTR gMstrSrdActr = {"mstrsrd", 0x000020110, 0.f, 1700.f, -5435.f, 0x147, 0x0, 0x0, 0xFFFF};
 
+    const libtp::tp::dzx::ACTR gShadowBeastActr = {"E_s1", 0x15FF0F00, -11717.4f, 902.1f, -9846.7f, 0x0000, 0x4924, 0, 0xFFFF};
     void onLoad(rando::Randomizer* randomizer)
     {
         randomizer->onStageLoad();
@@ -1058,7 +1059,6 @@ namespace mod::events
         using namespace libtp::data::flags;
         using namespace libtp::data::stage;
 
-        const auto stagesPtr = &allStages[0];
         rando::Randomizer* randoPtr = rando::gRandomizer;
         tp::d_save::dSv_info_c* savePtr = &tp::d_com_inf_game::dComIfG_gameInfo.save;
 
@@ -1089,11 +1089,41 @@ namespace mod::events
                             events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
                         }
                     }
-                    if (tp::d_a_alink::checkStageName(stagesPtr[StageIDs::Stallord]))
+
+                    switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
                     {
-                        const uint32_t agDungeonReward = randoPtr->getEventItem(rando::customItems::Mirror_Piece_1);
-                        randoPtr->addItemToEventQueue(agDungeonReward);
+                        case StageIDs::Stallord:
+                        {
+                            const uint32_t agDungeonReward = randoPtr->getEventItem(rando::customItems::Mirror_Piece_1);
+                            randoPtr->addItemToEventQueue(agDungeonReward);
+                            break;
+                        }
+
+                        case StageIDs::Fyrus:
+                        {
+                            // Set dungeon-completed related flags
+                            libtp::tp::d_save::onSwitch_dSv_memBit(
+                                &savePtr->save_file.mSave[static_cast<uint8_t>(AreaNodesID::Eldin)].temp_flags,
+                                0x7C);
+                            setSaveFileEventFlag(WATCHED_CUTSCENE_AFTER_GORON_MINES);
+                            break;
+                        }
+
+                        case StageIDs::Blizzeta:
+                        {
+                            // Set dungeon-completed related flags
+                            libtp::tp::d_save::onSwitch_dSv_memBit(
+                                &savePtr->save_file.mSave[static_cast<uint8_t>(AreaNodesID::Snowpeak)].temp_flags,
+                                0x19);
+                            break;
+                        }
+
+                        default:
+                        {
+                            break;
+                        }
                     }
+
                     break;
                 }
                 default:
@@ -1165,6 +1195,7 @@ namespace mod::events
         using namespace libtp::data::stage;
 
         tp::dzx::ACTR localSignActor;
+        tp::d_save::dSv_info_c* savePtr = &tp::d_com_inf_game::dComIfG_gameInfo.save;
         memcpy(&localSignActor, &gSignActor, sizeof(tp::dzx::ACTR));
 
         const int32_t roomIDX = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mEvtManager.mRoomNo;
@@ -1197,6 +1228,34 @@ namespace mod::events
                     localSignActor.rot[1] = static_cast<int16_t>(0x8000);
                     tools::spawnActor(1, localSignActor);
                 }
+                break;
+            }
+
+            case StageIDs::Mirror_Chamber:
+            {
+                if ((rando::MirrorChamberRequirement)randomizer->getSeedPtr()->getHeaderPtr()->getMirrorChamberRequirement() !=
+                    rando::MirrorChamberRequirement::Open)
+                {
+                    if (((rando::MirrorChamberRequirement)randomizer->getSeedPtr()
+                             ->getHeaderPtr()
+                             ->getMirrorChamberRequirement() == rando::MirrorChamberRequirement::Closed) ||
+                        !libtp::tp::d_save::isDungeonItem(
+                            &savePtr->save_file.mSave[(int)AreaNodesID::Arbiters_Grounds].temp_flags,
+                            3))
+
+                    {
+                        libtp::tp::dzx::ACTR localGanonBarrierActor;
+                        memcpy(&localGanonBarrierActor, &gGanonBarrierActor, sizeof(libtp::tp::dzx::ACTR));
+
+                        localGanonBarrierActor.pos.x = 1794.f;
+                        localGanonBarrierActor.pos.y = 2523.f;
+                        localGanonBarrierActor.pos.z = -17400.f;
+                        localGanonBarrierActor.rot[0] = 0xFF7F;
+                        localGanonBarrierActor.rot[1] = 0x0;
+                        tools::spawnActor(4, localGanonBarrierActor);
+                    }
+                }
+
                 break;
             }
 
@@ -1477,6 +1536,13 @@ namespace mod::events
                 localSignActor.pos.z = -17388.1992f;
                 localSignActor.rot[1] = static_cast<int16_t>(0x2C5A);
                 tools::spawnActor(0, localSignActor);
+
+                if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::SNOWPEAK_RUINS_CLEARED))
+                {
+                    tools::spawnActor(1, gShadowBeastActr);
+                    tools::spawnActor(1, gShadowBeastActr);
+                    tools::spawnActor(1, gShadowBeastActr);
+                }
                 break;
             }
 

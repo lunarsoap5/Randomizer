@@ -156,6 +156,13 @@ namespace mod::rando
         MessageResource = 0x5, // Replaces values in the MESG section of a bmgres archive file.
     };
 
+    enum class MirrorChamberRequirement : uint8_t
+    {
+        Open = 0x0,
+        Barrier = 0x1,
+        Closed = 0x2,
+    };
+
     class ARCReplacement
     {
        public:
