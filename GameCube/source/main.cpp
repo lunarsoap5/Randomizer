@@ -668,8 +668,10 @@ namespace mod
 
         // getConsole() << stageIDX << "," << roomNo << "," << point << "," << layer << "\n";
 
-        if (stageIDX != libtp::data::stage::StageIDs::Title_Screen) // We won't want to shuffle if we are loading a save since
-                                                                    // some stages use their default spawn for their entrances.
+        if (!libtp::tp::d_a_alink::checkStageName(
+                libtp::data::stage::allStages
+                    [libtp::data::stage::StageIDs::Title_Screen])) // We won't want to shuffle if we are loading a save since
+                                                                   // some stages use their default spawn for their entrances.
         {
             for (uint32_t i = 0; i < numShuffledEntrances; i++)
             {

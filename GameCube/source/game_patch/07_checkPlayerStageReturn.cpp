@@ -31,8 +31,21 @@ namespace mod::game_patch
 
             if (startPoint == -0x4) // Portal
             {
-                playerReturnPlacePtr->link_spawn_point_id = 0; // Just set the spawn to 0 so that the player has a valid spawn
-                                                               // location since you can't load a save from a portal spawn.
+                switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
+                {
+                    case StageIDs::Snowpeak:
+                    {
+                        playerReturnPlacePtr->link_spawn_point_id = 5; // Snowpeak doesn't have a valid spawn 0 on the mountain.
+                        break;
+                    }
+                    default:
+                    {
+                        playerReturnPlacePtr->link_spawn_point_id =
+                            0; // Just set the spawn to 0 so that the player has a valid spawn
+                        // location since you can't load a save from a portal spawn.
+                        break;
+                    }
+                }
             }
             else
             {
