@@ -913,6 +913,13 @@ namespace mod::game_patch
         return 1;
     }
 
+    // TODO: ^ put handleTimeOfDayChange back here. If we change ToD as human,
+    // we have to wait for the shadow Midna to go away before the ToD change
+    // starts which is not desirable. We get the menu popping back up when
+    // changing ToD in room which immediately reloads when doing it as Wolf, but
+    // this is an okay trade-off and it obviously takes up less space in terms
+    // of bytes for code.
+
     // Give item
     int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode, libtp::tp::f_op_actor::fopAc_ac_c*)
     {

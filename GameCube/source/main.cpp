@@ -1311,20 +1311,33 @@ namespace mod
         //     // // Was defaulting to 0x24 (36) at the moment.
         // }
 
-        uint16_t flowContext = rando::gRandomizer->getFlowContext();
-
-        const uint16_t* remapEntry =
-            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getNodeRemapData(msgFlow, flwIndex, flowContext);
-        if (remapEntry != nullptr)
+        if (msgFlow != nullptr)
         {
-            flwIndex = remapEntry[0];
-            const uint16_t newContext = remapEntry[1];
-            rando::gRandomizer->setFlowContext(msgFlow, newContext);
-            // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-            // // need to unset it.
-            // msgFlow->field_0x26 = 0;
-            // msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
-            // // Was defaulting to 0x24 (36) at the moment.
+            uint16_t flowContext = rando::gRandomizer->getFlowContext();
+
+            const uint16_t* remapEntry =
+                rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getNodeRemapData(msgFlow, flwIndex, flowContext);
+            if (remapEntry != nullptr)
+            {
+                flwIndex = remapEntry[0];
+                const uint16_t newContext = remapEntry[1];
+                rando::gRandomizer->setFlowContext(msgFlow, newContext);
+                // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
+                // // need to unset it.
+                // msgFlow->field_0x26 = 0;
+                // msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
+                // // Was defaulting to 0x24 (36) at the moment.
+            }
+            else if (flowContext == 0 && msgFlow->mFlow >= 0x7000)
+            {
+                // If we do not find a starting node for an FLI in the 0x7000's
+                // (meaning a custom sign), then set to FLW index 0x28 (any msg
+                // node with next node idx 0xFFFF is fine) with reserved context
+                // value 1 for the "No hints were placed here." fallback. Check
+                // that flowContext is 0 to avoid infinite msg loops.
+                flwIndex = 0x28;
+                rando::gRandomizer->setFlowContext(msgFlow, 1);
+            }
         }
 
         gReturn_setNodeIndex(msgFlow, flwIndex, actrPtr);

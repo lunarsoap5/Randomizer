@@ -1168,8 +1168,15 @@ namespace mod::events
         tp::dzx::ACTR localSignActor;
         memcpy(&localSignActor, &gSignActor, sizeof(tp::dzx::ACTR));
 
+        const uint8_t stageIDX = randomizer->getSeedPtr()->getStageIDX();
         const int32_t roomIDX = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mEvtManager.mRoomNo;
-        switch (randomizer->getSeedPtr()->getStageIDX())
+
+        // Set base FLI on custom sign actor based on stage. Currently any FLI
+        // in the 0x7000's is reserved for custom signs, but this range could be
+        // decreased if needed (unlikely).
+        localSignActor.rot[0] = 0x7000 | ((uint16_t)stageIDX << 4);
+
+        switch (stageIDX)
         {
             case StageIDs::Lake_Hylia:
             {
@@ -1192,6 +1199,7 @@ namespace mod::events
 
                 if (roomIDX == 1) // Lanayru Spring
                 {
+                    localSignActor.rot[0] |= 1;
                     localSignActor.pos.x = -309.997833f;
                     localSignActor.pos.y = -1614.82178f;
                     localSignActor.pos.z = 157.970795f;
@@ -1228,6 +1236,7 @@ namespace mod::events
 
                 if (roomIDX == 6) // Faron Field
                 {
+                    localSignActor.rot[0] |= 1;
                     localSignActor.pos.x = -46039.4922f;
                     localSignActor.pos.y = -9250.f;
                     localSignActor.pos.z = 81859.2891f;
@@ -1237,6 +1246,7 @@ namespace mod::events
 
                 if (roomIDX == 3) // Kakariko Gorge
                 {
+                    localSignActor.rot[0] |= 2;
                     localSignActor.pos.x = -11394.7832f;
                     localSignActor.pos.y = -3258.73096f;
                     localSignActor.pos.z = 39702.91995f;
@@ -1246,6 +1256,7 @@ namespace mod::events
 
                 if (roomIDX == 7) // North Eldin Hint Sign
                 {
+                    localSignActor.rot[0] |= 3;
                     localSignActor.pos.x = 29691.0742f;
                     localSignActor.pos.y = 661.668;
                     localSignActor.pos.z = -53367.16f;
@@ -1255,6 +1266,7 @@ namespace mod::events
 
                 if (roomIDX == 10) // Lanayru Field
                 {
+                    localSignActor.rot[0] |= 4;
                     localSignActor.pos.x = -46711.957f;
                     localSignActor.pos.y = 268.4848f;
                     localSignActor.pos.z = -55505.5508f;
@@ -1264,6 +1276,7 @@ namespace mod::events
 
                 if (roomIDX == 13) // Great Bridge of Hylia
                 {
+                    localSignActor.rot[0] |= 5;
                     localSignActor.pos.x = -94678.8672f;
                     localSignActor.pos.y = -3900.f;
                     localSignActor.pos.z = 18410.543f;
@@ -1413,6 +1426,7 @@ namespace mod::events
                 }
                 else if (roomIDX == 16) // South of CT
                 {
+                    localSignActor.rot[0] |= 1;
                     localSignActor.pos.x = -51500.f;
                     localSignActor.pos.y = -5500.f;
                     localSignActor.pos.z = 27368.3086f;
@@ -1553,6 +1567,7 @@ namespace mod::events
                 // ToT midpoint sign
                 tp::dzx::ACTR localSignActor2;
                 memcpy(&localSignActor2, &gSignActor, sizeof(tp::dzx::ACTR));
+                localSignActor2.rot[0] = 0x7091; // FLI for StageIdx 9 for ToT | 1;
                 localSignActor2.pos.x = -3885.2157f;
                 localSignActor2.pos.y = 4450.f;
                 localSignActor2.pos.z = -6353.38135f;
