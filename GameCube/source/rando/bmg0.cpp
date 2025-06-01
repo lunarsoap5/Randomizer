@@ -31,27 +31,18 @@ namespace mod::rando
         return -1;
     }
 
-    void* getZel00BmgFlw()
-    {
-        uint32_t infPtrRaw = reinterpret_cast<uint32_t>(libtp::tp::JKRArchivePub::JKRArchivePub_getGlbResource(
-            0x524F4F54, // ROOT
-            "zel_00.bmg",
-            libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mMsgDtArchive[0]));
-
-        // All zel_xx.bmg files have the offet to the FLW1 block relative to the
-        // start of the file (MESGbmg1) stored as a word at offset 0x8.
-        uint32_t offsetToFlwBlock = reinterpret_cast<uint32_t*>(infPtrRaw)[2];
-        uint32_t flwBlockAddr = infPtrRaw + offsetToFlwBlock;
-        return reinterpret_cast<void*>(flwBlockAddr);
-    }
-
     uint8_t getCurrentBmgNumber(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
-        if (msgFlow->mFlow_p != getZel00BmgFlw())
+        // FLI value of 3000 (0xbb8) or more indicates to use the global bmg
+        // zel_00 and not the stage's bmg. This is vanilla behavior seen in
+        // dMsgObject_c::changeFlowGroupLocal. Note that the FLI value is
+        // treated as an s16 by dMsgObject_c which is why our max custom FLI is
+        // only 0x7FFF and not 0xFFFF.
+        if (msgFlow->mFlow >= 3000)
         {
-            return libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+            return 0;
         }
-        return 0;
+        return libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
     }
 
     uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const
