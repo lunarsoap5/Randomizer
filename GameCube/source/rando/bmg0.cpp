@@ -64,7 +64,7 @@ namespace mod::rando
         return -1;
     }
 
-    const TableSliceInfo* BMG0Section::getTableSliceInfos2(const EntityInfo* lookup, uint8_t bmgNumber) const
+    const TableSliceInfo* BMG0Section::getTableSliceInfo(const EntityInfo* lookup, uint8_t bmgNumber) const
     {
         static const uint8_t NIBBLE_LOOKUP[16] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
 
@@ -91,54 +91,6 @@ namespace mod::rando
 
         return &(tableSliceInfoTable[finalOffset]);
     }
-
-    // void BMG0Section::getTableSliceInfos(const EntityInfo* entityInfo,
-    //                                      uint8_t bmgNumber,
-    //                                      TableSliceInfo* outTableSliceInfos) const
-    // {
-    //     // New method: if >= 9, return nullptr (pointer is to u16 start, u16 len)
-
-    //     // Do 0b1 << (bmgNumber) and AND with u16. If 0, return nullptr.
-    //     // Then if bmg is 0, the relative offset to the 7-bit is 0.
-
-    //     // Otherwise, take the number such as 0100 0000 (for bmg 6; treating it
-    //     // as a u16), and subtract 1. This will convert it to a mask to apply to
-    //     // the initial u16 which will give us a u16 which we can treat as a u8
-    //     // to do a setBitCount in order to get the offset.
-
-    //     // TODO: just pass the u32Struct* to the searchCompTable func.
-    //     // Internally it can determine the TableSliceInfo (if it exists) to know
-    //     // where/if it should search.
-
-    //     if (bmgNumber >= 9)
-    //     {
-    //         outTableSliceInfos[0].len = 0;
-    //         outTableSliceInfos[1].len = 0;
-    //         return;
-    //     }
-
-    //     const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
-    //     const TableSliceInfo* tableSliceInfoTable =
-    //         reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
-
-    //     uint8_t rawBmgByte = entityInfo->bmgLookupBytes[bmgNumber];
-    //     uint16_t baseIdx = entityInfo->tableSliceInfoStartIdx;
-
-    //     for (int i = 0; i < 2; i++)
-    //     {
-    //         uint8_t offset = (rawBmgByte >> (i * 4)) & 0x0F;
-    //         if (offset < 9)
-    //         {
-    //             uint16_t idx = baseIdx + offset;
-    //             outTableSliceInfos[i].startIdx = tableSliceInfoTable[idx].startIdx;
-    //             outTableSliceInfos[i].len = tableSliceInfoTable[idx].len;
-    //         }
-    //         else
-    //         {
-    //             outTableSliceInfos[i].len = 0;
-    //         }
-    //     }
-    // }
 
     template<typename T>
     int searchCompTable(const TableSliceInfo* tableSliceInfo, const T* compTable, T compVal, int16_t idxAdjustment)
@@ -167,7 +119,7 @@ namespace mod::rando
         const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
 
         const EntityInfo* entityInfo = &(entityInfoTable[entityInfoIdx * 2]);
-        const TableSliceInfo* tableSliceInfo = getTableSliceInfos2(entityInfo, bmgNumber);
+        const TableSliceInfo* tableSliceInfo = getTableSliceInfo(entityInfo, bmgNumber);
 
         // Context compare
         if (context > 0)
@@ -180,7 +132,7 @@ namespace mod::rando
         }
 
         entityInfo += 1; // Point to next entry for basic lookup
-        const TableSliceInfo* tableSliceInfoBasic = getTableSliceInfos2(entityInfo, bmgNumber);
+        const TableSliceInfo* tableSliceInfoBasic = getTableSliceInfo(entityInfo, bmgNumber);
 
         // Basic compare
         const uint16_t* shortCompTable = reinterpret_cast<const uint16_t*>(headerPtr + this->shortCompValsOffset);
@@ -193,9 +145,7 @@ namespace mod::rando
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const EntityInfo* entityInfoTable = reinterpret_cast<const EntityInfo*>(headerPtr + this->entityInfoTableOffset);
         const EntityInfo* entityInfo = &(entityInfoTable[EntityInfoIdx::NODE_REMAP * 2]);
-        const TableSliceInfo* tableSliceInfo = getTableSliceInfos2(entityInfo, bmgNumber);
-        // TableSliceInfo tableSliceInfos[2];
-        // getTableSliceInfos(entityInfo, bmgNumber, tableSliceInfos);
+        const TableSliceInfo* tableSliceInfo = getTableSliceInfo(entityInfo, bmgNumber);
 
         const uint32_t* wordCompTable = reinterpret_cast<const uint32_t*>(headerPtr + this->wordCompValsOffset);
 
@@ -212,7 +162,7 @@ namespace mod::rando
         if (flwIndex != 0xFFFF || context == 0)
         {
             entityInfo += 1; // Point to next entry for basic lookup
-            const TableSliceInfo* tableSliceInfoBasic = getTableSliceInfos2(entityInfo, bmgNumber);
+            const TableSliceInfo* tableSliceInfoBasic = getTableSliceInfo(entityInfo, bmgNumber);
 
             // Only allow remapping 0xFFFF using an FLI value when we do not
             // have a flowContext. This is to help avoid infinite loops caused
