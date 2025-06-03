@@ -47,11 +47,8 @@ namespace mod::rando
         EntityInfo() {}
         ~EntityInfo() {}
 
-        /* 0x00 */ int16_t ctxCompAdjustment;
-        /* 0x02 */ int16_t basicCompAdjustment;
-        /* 0x04 */ uint8_t tableSliceInfoStartIdx;
-        /* 0x05 */ uint8_t bmgLookupBytes[9];
-        // Size: 0x1E bytes
+        /* 0x00 */ int16_t idxAdjustment;
+        /* 0x02 */ uint16_t bmgLookup; // 7 bits + 9-bit bitfield
     } __attribute__((__packed__));
 
     class TableSliceInfo
@@ -61,8 +58,8 @@ namespace mod::rando
         ~TableSliceInfo() {}
 
        public:
-        uint16_t startIdx;
-        uint16_t len;
+        /* 0x00 */ uint16_t startIdx;
+        /* 0x02 */ uint16_t len;
     } __attribute__((__packed__));
 
     class BMG0Section
@@ -84,7 +81,8 @@ namespace mod::rando
         void tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
 
        private:
-        void getTableSliceInfos(const EntityInfo* entityInfo, uint8_t bmgNumber, TableSliceInfo* outTableSliceInfos) const;
+        // void getTableSliceInfos(const EntityInfo* entityInfo, uint8_t bmgNumber, TableSliceInfo* outTableSliceInfos) const;
+        const TableSliceInfo* getTableSliceInfos2(const EntityInfo* entityInfo, uint8_t bmgNumber) const;
         int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t idxInBlock, EntityInfoIdx entityInfoIdx) const;
         int doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t fliValue) const;
         void tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -94,23 +92,20 @@ namespace mod::rando
                               EntityInfoIdx entityInfoIdx) const;
 
         /* 0x00 */ char magic[4];
-        /* 0x04 */ uint16_t signToInitFliOffset;
-        /* 0x06 */ uint16_t numSignToInitFliOffsetEntries;
-        /* 0x08 */ uint16_t entityInfoTableOffset;
-        /* 0x0A */ uint16_t tableSliceInfosOffset;
-        /* 0x0C */ uint16_t wordCompValsOffset;
-        /* 0x0E */ uint16_t shortCompValsOffset;
-        /* 0x10 */ uint16_t nodeRemapTableOffset;
-        /* 0x12 */ uint16_t branchPatchTableOffset;
-        /* 0x14 */ uint16_t branchNextNodeBaseIdxTableOffset;
-        /* 0x16 */ uint16_t branchNextNodeTableOffset;
-        /* 0x18 */ uint16_t eventNextNodeTableOffset;
-        /* 0x1A */ uint16_t eventPatchTableOffset;
-        /* 0x1C */ uint16_t strOffsetTableOffset;
-        /* 0x1E */ uint16_t strTableOffset;
-        /* 0x20 */ uint16_t strTableLen;
-        /* 0x22 */ uint16_t padding_0x22;
-        /* 0x24 */ uint32_t padding_0x24;
+        /* 0x04 */ uint16_t entityInfoTableOffset;
+        /* 0x06 */ uint16_t tableSliceInfosOffset;
+        /* 0x08 */ uint16_t wordCompValsOffset;
+        /* 0x0A */ uint16_t shortCompValsOffset;
+        /* 0x0C */ uint16_t nodeRemapTableOffset;
+        /* 0x0E */ uint16_t branchPatchTableOffset;
+        /* 0x10 */ uint16_t branchNextNodeBaseIdxTableOffset;
+        /* 0x12 */ uint16_t branchNextNodeTableOffset;
+        /* 0x14 */ uint16_t eventNextNodeTableOffset;
+        /* 0x16 */ uint16_t eventPatchTableOffset;
+        /* 0x18 */ uint16_t strOffsetTableOffset;
+        /* 0x1A */ uint16_t strTableOffset;
+        /* 0x1C */ uint16_t strTableLen;
+        /* 0x1E */ uint16_t padding_0x1E;
     } __attribute__((__packed__));
 } // namespace mod::rando
 #endif
