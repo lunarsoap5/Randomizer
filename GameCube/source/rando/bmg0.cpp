@@ -31,6 +31,61 @@ namespace mod::rando
         return -1;
     }
 
+    void BMG0Section::init()
+    {
+        if (!isDecrypted)
+        {
+            isDecrypted = true;
+            decryptStrings();
+        }
+    }
+
+    // XTEA
+    void decipher(uint32_t numRounds, uint32_t* blockPtr, uint32_t* key)
+    {
+        uint32_t v0 = blockPtr[0];
+        uint32_t v1 = blockPtr[1];
+        uint32_t delta = 0x9E3779B9;
+        uint32_t sum = delta * numRounds;
+
+        for (uint32_t i = 0; i < numRounds; i++)
+        {
+            v1 -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + key[(int)((sum >> 11) & 3)]);
+            sum -= delta;
+            v0 -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + key[(int)(sum & 3)]);
+        }
+
+        blockPtr[0] = v0;
+        blockPtr[1] = v1;
+    }
+
+    void BMG0Section::decryptStrings()
+    {
+        uint8_t* headerPtr = reinterpret_cast<uint8_t*>(&this->magic);
+        char* strTable = reinterpret_cast<char*>(headerPtr + this->strTableOffset);
+        uint32_t* blockPtr = reinterpret_cast<uint32_t*>(strTable + this->strTableEncodedStart);
+
+        // Init prevEncodedBlock to IV for first iteration
+        uint32_t prevEncodedBlock[2];
+        prevEncodedBlock[0] = this->encryptionKey[0];
+        prevEncodedBlock[1] = this->encryptionKey[1];
+
+        uint32_t numBlocks = this->encodedStrTableNumBlocks;
+        for (uint32_t blockIdx = 0; blockIdx < numBlocks; blockIdx++)
+        {
+            uint32_t tempBlock0 = blockPtr[0];
+            uint32_t tempBlock1 = blockPtr[1];
+
+            decipher(2, blockPtr, this->encryptionKey);
+            blockPtr[0] ^= prevEncodedBlock[0];
+            blockPtr[1] ^= prevEncodedBlock[1];
+
+            prevEncodedBlock[0] = tempBlock0;
+            prevEncodedBlock[1] = tempBlock1;
+            blockPtr += 2;
+        }
+    }
+
     uint8_t getCurrentBmgNumber(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
         // FLI value of 3000 (0xbb8) or more indicates to use the global bmg
@@ -209,7 +264,8 @@ namespace mod::rando
             const char* strTable = reinterpret_cast<const char*>(headerPtr + this->strTableOffset);
 
             uint16_t strOffset = strOffsetTable[foundIdx];
-            return &(strTable[strOffset]);
+            if (isDecrypted || strOffset < this->strTableEncodedStart)
+                return &(strTable[strOffset]);
         }
         return nullptr;
     }

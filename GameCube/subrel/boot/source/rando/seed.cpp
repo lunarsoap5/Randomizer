@@ -89,7 +89,7 @@ namespace mod::rando
         // Get the main seed data
         // Align to 0x20 for safety, since some functions cast parts of it to classes/structs/arrays/etc.
         const uint32_t dataSize = headerPtr->getDataSize();
-        const uint8_t* gciDataPtr = new (0x20) uint8_t[dataSize];
+        uint8_t* gciDataPtr = new (0x20) uint8_t[dataSize];
         this->m_GCIData = gciDataPtr;
 
         memcpy(const_cast<uint8_t*>(gciDataPtr), &data[headerPtr->getHeaderSize()], dataSize);
@@ -102,7 +102,7 @@ namespace mod::rando
         this->m_BmdEntries = reinterpret_cast<const BMDEntry*>(gciDataPtr + clr0Offset + cLR0Ptr->getBmdEntriesOffset());
 
         const uint32_t bmg0Offset = headerPtr->getBmg0Offset();
-        const BMG0Section* bmg0Ptr = reinterpret_cast<const BMG0Section*>(gciDataPtr + bmg0Offset);
+        BMG0Section* bmg0Ptr = reinterpret_cast<BMG0Section*>(gciDataPtr + bmg0Offset);
         this->m_BMG0 = bmg0Ptr;
 
         // Load the custom text data

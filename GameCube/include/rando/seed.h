@@ -296,7 +296,7 @@ namespace mod::rando
         const CLR0Header* m_CLR0;
         const RawRGBTable* m_RawRGBTable;
         const BMDEntry* m_BmdEntries;
-        const BMG0Section* m_BMG0;
+        BMG0Section* m_BMG0;
 
         uint16_t m_NumLoadedDZXChecks;       // Number of currently loaded DZXCheck
         uint16_t m_NumLoadedRELChecks;       // Number of currently loaded RELCheck

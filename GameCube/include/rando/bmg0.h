@@ -68,6 +68,7 @@ namespace mod::rando
         BMG0Section() {}
         ~BMG0Section() {}
 
+        void init();
         const uint16_t* getNodeRemapData(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                          uint16_t flwIndex,
                                          uint16_t flowContext) const;
@@ -81,6 +82,7 @@ namespace mod::rando
         void tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
 
        private:
+        void decryptStrings();
         const TableSliceInfo* getTableSliceInfo(const EntityInfo* entityInfo, uint8_t bmgNumber) const;
         int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t idxInBlock, EntityInfoIdx entityInfoIdx) const;
         int doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t fliValue) const;
@@ -103,8 +105,10 @@ namespace mod::rando
         /* 0x16 */ uint16_t eventPatchTableOffset;
         /* 0x18 */ uint16_t strOffsetTableOffset;
         /* 0x1A */ uint16_t strTableOffset;
-        /* 0x1C */ uint16_t strTableLen;
-        /* 0x1E */ uint16_t padding_0x1E;
+        /* 0x1C */ uint16_t strTableEncodedStart;
+        /* 0x1E */ uint16_t encodedStrTableNumBlocks;
+        /* 0x20 */ uint32_t encryptionKey[4];
+        /* 0x30 */ bool isDecrypted;
     } __attribute__((__packed__));
 } // namespace mod::rando
 #endif
