@@ -266,6 +266,13 @@ namespace mod::rando
             uint16_t strOffset = strOffsetTable[foundIdx];
             if (isDecrypted || strOffset < this->strTableEncodedStart)
                 return &(strTable[strOffset]);
+            else
+            {
+                // If result is a string which has not been decrypted, point to
+                // fallback msg which is always at the start of the stringTable.
+                // This is never expected to run.
+                return strTable;
+            }
         }
         return nullptr;
     }
