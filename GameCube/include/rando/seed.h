@@ -226,7 +226,7 @@ namespace mod::rando
         const CLR0Header* getCLR0Ptr() const { return this->m_CLR0; }
         const RawRGBTable* getRawRGBTablePtr() const { return this->m_RawRGBTable; }
         const BMDEntry* getBmdEntriesPtr() const { return this->m_BmdEntries; }
-        const BMG0Section* getBMG0SectionPtr() const { return this->m_BMG0; }
+        BMG0Section* getBMG0SectionPtr() const { return this->m_BMG0; }
 
         uint16_t getNumLoadedDZXChecks() const { return this->m_NumLoadedDZXChecks; }
         uint16_t getNumLoadedRELChecks() const { return this->m_NumLoadedRELChecks; }

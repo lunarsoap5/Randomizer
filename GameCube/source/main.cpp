@@ -408,6 +408,10 @@ namespace mod
                 // Volatile patches need to be applied whenever a file is loaded
                 // getConsole() << "Applying volatile patches:\n";
                 randoPtr->getSeedPtr()->applyVolatilePatches();
+
+                // Until we implement passwords using a racetime bot, simply
+                // handle decrypting hint text here.
+                randoPtr->getSeedPtr()->getBMG0SectionPtr()->init();
             }
         }
         else if (randoPtr->randomizerIsEnabled())

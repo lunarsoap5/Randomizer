@@ -136,7 +136,7 @@ namespace mod::game_patch
         // FLI value regardless of the current room when talking to Midna with
         // no special overrides.
         const uint32_t eventNodeProcAddress = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc);
-        *reinterpret_cast<uint32_t*>(eventNodeProcAddress + 0x14C) = ASM_LOAD_IMMEDIATE(4, 0xbb8);
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddress + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
 
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);

@@ -55,10 +55,6 @@ namespace mod::rando
         this->m_EventFlagsModified = 0;
         this->m_PatchesApplied = 0;
 
-        getConsole() << "Before bmg init... \n";
-        this->m_BMG0->init();
-        getConsole() << "After bmg init... \n";
-
         // getConsole() << "Setting Event Flags... \n";
         this->applyEventFlags();
 
