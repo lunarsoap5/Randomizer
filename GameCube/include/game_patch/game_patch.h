@@ -188,7 +188,9 @@ namespace mod::game_patch
     // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                        void* flowNode,
     //                        libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
-    int _05_customEvent067();
+    int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                           void* flowNode,
+                           libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
     int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                            void* flowNode,
                            libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);

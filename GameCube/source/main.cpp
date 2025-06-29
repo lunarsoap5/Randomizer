@@ -1634,7 +1634,7 @@ namespace mod
         // function has run after the conversation ends so that the Midna actor
         // has been updated to know the conversation has ended. This avoids
         // having the Midna conversation pop back up after selecting "Change
-        // ToD" when talking to Midna as wolf (now functions the same as human).
+        // ToD" when talking to Midna as wolf.
         if (rando::gRandomizer->getHasPendingTodChange())
         {
             rando::gRandomizer->setHasPendingTodChange(false);

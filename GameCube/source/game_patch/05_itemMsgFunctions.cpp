@@ -906,19 +906,22 @@ namespace mod::game_patch
     // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                  void* flowNode,
     //                                  libtp::tp::f_op_actor::fopAc_ac_c* actorPtr)
-    int _05_customEvent067()
+    int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
     {
-        rando::gRandomizer->setHasPendingTodChange(true);
-        // events::handleTimeOfDayChange();
+        // Check if player is wolf the same way query002 does. If player is
+        // wolf, we should queue the ToD change so it runs once the conversation
+        // ends (to avoid any weirdness where the Midna flow restarts after it
+        // ends). If we are a human, go ahead and queue the event so we do not
+        // have to wait for the shadow Midna to fully disappear (mainly relevant
+        // for when time does not flow and the room will immediately reload).
+        libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
+        if (linkMapPtr->mNoResetFlg1 & 0x2000000)
+            rando::gRandomizer->setHasPendingTodChange(true);
+        else
+            events::handleTimeOfDayChange();
+
         return 1;
     }
-
-    // TODO: ^ put handleTimeOfDayChange back here. If we change ToD as human,
-    // we have to wait for the shadow Midna to go away before the ToD change
-    // starts which is not desirable. We get the menu popping back up when
-    // changing ToD in room which immediately reloads when doing it as Wolf, but
-    // this is an okay trade-off and it obviously takes up less space in terms
-    // of bytes for code.
 
     // Give item
     int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode, libtp::tp::f_op_actor::fopAc_ac_c*)
