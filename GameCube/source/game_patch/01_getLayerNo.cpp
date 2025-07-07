@@ -416,31 +416,13 @@ namespace mod::game_patch
                     {
                         if (roomId == 0)
                         {
-                            condition =
-                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_1_FINISHED); // Ordon Day 1 done
-
-                            if (condition)
+                            if (!libtp::tp::d_kankyo::dKy_daynight_check())
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo Saved
-                                if (condition)
-                                {
-                                    if (!libtp::tp::d_kankyo::dKy_daynight_check())
-                                    {
-                                        chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::OrdonVillageStateIDs::Ordon_Epona_Tamed_Night;
-                                    }
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
-                                }
+                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
                             }
                             else
                             {
-                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_New_Game;
+                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Epona_Tamed_Night;
                             }
                         }
 

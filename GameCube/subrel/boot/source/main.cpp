@@ -315,6 +315,9 @@ namespace mod
         // Link's Animated Equipment
         randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/AlAnm.arc"), DvdEntryNumId::ResObjectAlAnm);
 
+        // Epona
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Horse.arc"), DvdEntryNumId::ResObjectHorse);
+
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/CWShd.arc"), DvdEntryNumId::ResObjectCWShd);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/SWShd.arc"), DvdEntryNumId::ResObjectSWShd);

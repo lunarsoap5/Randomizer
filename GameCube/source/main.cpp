@@ -995,12 +995,8 @@ namespace mod
                 // Check to see if currently in Snowpeak Ruins
                 if (libtp::tp::d_a_alink::checkStageName(stagesPtr[StageIDs::Darkhammer]))
                 {
-                    if (libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
-                                                               0x5F)) // Picked up the Ball and Chain check.
-                    {
-                        // Return true so that they check cannot be infinitely picked up.
-                        return 1;
-                    }
+                    return libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
+                                                                  0x5F); // Picked up the Ball and Chain check.
                 }
                 break;
             }
