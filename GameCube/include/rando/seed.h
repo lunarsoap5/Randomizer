@@ -89,6 +89,9 @@ namespace mod::rando
         uint8_t getDamageMagnification() const { return this->damageMagnification; }
         uint8_t getToTSwordRequirement() const { return this->totSwordRequirement; }
         uint8_t getMirrorChamberRequirement() const { return this->mirrorChamberEntrance; }
+        uint8_t getBarrierReqCount() const { return this->barrierReqCount; }
+        uint8_t getHcBkReqCount() const { return this->hcBkReqCount; }
+        uint8_t getHcBkRequirement() const { return this->hcBkRequirement; }
 
         const EntryInfo* getVolatilePatchInfoPtr() const { return &this->volatilePatchInfo; }
         const EntryInfo* getOneTimePatchInfoPtr() const { return &this->oneTimePatchInfo; }
@@ -161,7 +164,15 @@ namespace mod::rando
         /* 0x8D */ uint8_t damageMagnification;
         /* 0x8E */ uint8_t totSwordRequirement;
         /* 0x8F */ uint8_t mirrorChamberEntrance;
+        /* 0x90 */ uint8_t barrierReqCount; // See below for notes
+        /* 0x91 */ uint8_t hcBkRequirement;
+        /* 0x92 */ uint8_t hcBkReqCount; // See below for notes
+        /* 0x93 */ uint8_t padding;
     } __attribute__((__packed__));
+
+    /* The 'reqCount' variables are dynamic and based on their respective requirement. (i.e if reqCount is 4 and the requirement
+     * is poe souls, then the interpretation is that 4 poe souls are needed to fill the requirement. If requirement is dungeons,
+     * then 4 dungeons are needed.)*/
 
     class Seed
     {

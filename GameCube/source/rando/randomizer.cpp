@@ -27,6 +27,7 @@
 #include "util/texture_utils.h"
 #include "tools.h"
 #include "rando/customItems.h"
+#include "data/flags.h"
 
 namespace mod::rando
 {
@@ -688,6 +689,48 @@ namespace mod::rando
                 reserveBytesPtr[i] = static_cast<uint8_t>(itemToAdd);
                 break;
             }
+        }
+    }
+
+    void Randomizer::checkSetHCBarrierFlag(CastleEntryRequirements req, uint8_t currentCount)
+    {
+        using namespace libtp;
+        using namespace libtp::data::flags;
+
+        rando::Seed* seedPtr = this->getSeedPtr();
+        const uint8_t reqCount = this->getSeedPtr()->getHeaderPtr()->getBarrierReqCount();
+
+        // If we aren't checking the current requirement, we don't need to proceed.
+        if (req != seedPtr->getHeaderPtr()->getCastleRequirements())
+        {
+            return;
+        }
+
+        if (currentCount >= reqCount)
+        {
+            events::setSaveFileEventFlag(BARRIER_GONE);
+        }
+    }
+
+    void Randomizer::checkSetHCBkFlag(CastleBkRequirements req, uint8_t currentCount)
+    {
+        using namespace libtp;
+        using namespace libtp::data::flags;
+        using namespace libtp::data::stage;
+
+        rando::Seed* seedPtr = this->getSeedPtr();
+        const uint8_t reqCount = this->getSeedPtr()->getHeaderPtr()->getHcBkReqCount();
+
+        // If we aren't checking the current requirement, we don't need to proceed.
+        if (req != seedPtr->getHeaderPtr()->getHcBkRequirement())
+        {
+            return;
+        }
+
+        if (currentCount >= reqCount)
+        {
+            tp::d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Hyrule_Castle),
+                                                       0x4B); // Unlock BK gate
         }
     }
 } // namespace mod::rando

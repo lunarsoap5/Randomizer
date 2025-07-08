@@ -536,6 +536,11 @@ namespace mod::game_patch
         // Give player first fused shadow.
         libtp::tp::d_save::onCollectCrystal(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                             '\0');
+        // Check if the requirement for the HC barrier is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 1);
+
+        // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Fused_Shadows, 1);
     }
 
     KEEP_FUNC void _02_secondFusedShadowItemFunc()
@@ -543,6 +548,11 @@ namespace mod::game_patch
         // Give player second fused shadow.
         libtp::tp::d_save::onCollectCrystal(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                             '\x01');
+        // Check if the requirement for the HC barrier is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 2);
+
+        // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Fused_Shadows, 2);
     }
 
     KEEP_FUNC void _02_thirdFusedShadowItemFunc()
@@ -553,23 +563,28 @@ namespace mod::game_patch
 
         const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
 
-        // If the player has the castle requirement set to Fused Shadows.
-        if (headerPtr->getCastleRequirements() == rando::CastleEntryRequirements::HC_Fused_Shadows)
-        {
-            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
-        }
-
         // If the player has the palace requirement set to Fused Shadows.
         if (headerPtr->getPalaceRequirements() == rando::PalaceEntryRequirements::PoT_Fused_Shadows)
         {
             events::setSaveFileEventFlag(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT);
         }
+
+        // Check if the requirement for the HC barrier is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 3);
+
+        // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Fused_Shadows, 3);
     }
 
     KEEP_FUNC void _02_firstMirrorShardItemFunc()
     {
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\0');
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 1);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 1);
     }
 
     KEEP_FUNC void _02_secondMirrorShardItemFunc()
@@ -577,6 +592,11 @@ namespace mod::game_patch
         // Give player second mirror shard.
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\x01');
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 2);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 2);
     }
 
     KEEP_FUNC void _02_thirdMirrorShardItemFunc()
@@ -584,6 +604,11 @@ namespace mod::game_patch
         // Give player third mirror shard.
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\x02');
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 3);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 3);
     }
 
     KEEP_FUNC void _02_fourthMirrorShardItemFunc()
@@ -594,16 +619,17 @@ namespace mod::game_patch
 
         const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
 
-        // If the player has the castle requirement set to Mirror Shards.
-        if (headerPtr->getCastleRequirements() == rando::CastleEntryRequirements::HC_Mirror_Shards)
-        {
-            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
-        }
         // If the player has the palace requirement set to Mirror Shards.
         if (headerPtr->getPalaceRequirements() == rando::PalaceEntryRequirements::PoT_Mirror_Shards)
         {
             events::setSaveFileEventFlag(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT);
         }
+
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 4);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 4);
     }
 
     KEEP_FUNC void _02_endingBlowItemFunc()

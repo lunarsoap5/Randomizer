@@ -1119,27 +1119,24 @@ namespace mod::events
             {
                 case BOSS_DEFEATED:
                 {
-                    if (randoPtr->getSeedPtr()->getHeaderPtr()->getCastleRequirements() ==
-                        rando::CastleEntryRequirements::HC_All_Dungeons) // All Dungeons
+                    // Start at 1 because the current stage has not had the boss flag value updated yet.
+                    uint32_t numDungeons = 1;
+
+                    libtp::tp::d_save::dSv_memory_c* mSavePtr = savePtr->save_file.mSave;
+
+                    for (int32_t i = 0x10; i < 0x18; i++)
                     {
-                        // Check to see if the player has completed all of the other dungeons, if so, destroy the barrier.
-                        libtp::tp::d_save::dSv_memory_c* mSavePtr = savePtr->save_file.mSave;
-                        uint32_t numDungeons = 0;
-
-                        for (int32_t i = 0x10; i < 0x18; i++)
+                        if (libtp::tp::d_save::isDungeonItem(&mSavePtr[i].temp_flags, 3))
                         {
-                            if (libtp::tp::d_save::isDungeonItem(&mSavePtr[i].temp_flags, 3))
-                            {
-                                numDungeons++;
-                            }
-                        }
-
-                        if (numDungeons == 7) // We check for 7 instead of 8 because when this code runs, the temp_flags for
-                                              // the current stage has not been updated with the boss flag value yet.
-                        {
-                            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
+                            numDungeons++;
                         }
                     }
+
+                    // Check if we have completed enough dungeons to break the barrier.
+                    randoPtr->checkSetHCBarrierFlag(rando::HC_Dungeons, numDungeons);
+
+                    // Check if we have completed enough dungeons to unlock the BK check.
+                    randoPtr->checkSetHCBkFlag(rando::HC_Bk_Dungeons, numDungeons);
 
                     switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
                     {
