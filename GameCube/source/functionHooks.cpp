@@ -102,6 +102,8 @@ namespace mod
 
     KEEP_VAR void (*gReturn_CheckFieldItemCreateHeap)(libtp::tp::f_op_actor::fopAc_ac_c* actor) = nullptr;
 
+    KEEP_VAR void (*gReturn_CreateInit)(void* daItem) = nullptr;
+
     // Item Wheel trampoline
     KEEP_VAR void (*gReturn_setLineUpItem)(libtp::tp::d_save::dSv_player_item_c*) = nullptr;
 

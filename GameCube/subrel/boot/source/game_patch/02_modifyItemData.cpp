@@ -217,6 +217,7 @@ namespace mod::game_patch
                 case items::Boomerang:
                 {
                     itemInfoPtr[item].mFlags = yellowRupeeInfoPtr->mFlags;
+                    itemInfoPtr[item].mShadowSize = yellowRupeeInfoPtr->mShadowSize;
                     break;
                 }
                 default:

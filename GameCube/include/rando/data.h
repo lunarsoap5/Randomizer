@@ -468,10 +468,10 @@ namespace mod::rando
         ResObjectMmdl,   // Magic Armor
         ResObjectAlAnm,  // Link's Animated Equipment
         ResObjectHorse,
-        // ResObjectWmdl,      // Wolf Link and Midna on back
-        // ResObjectCWShd,     // Ordon Shield
-        // ResObjectSWShd,     // Wooden Shield
-        // ResObjectHyShd,     // Hylian Shield
+        ResObjectWmdl, // Wolf Link and Midna on back
+                       // ResObjectCWShd,     // Ordon Shield
+                       // ResObjectSWShd,     // Wooden Shield
+                       // ResObjectHyShd,     // Hylian Shield
 
         DvdEntryNumIdSize,
         // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above this one and don't forget to actually add the

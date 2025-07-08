@@ -181,6 +181,9 @@ namespace mod
     void handle_CheckFieldItemCreateHeap(libtp::tp::f_op_actor::fopAc_ac_c* actor);
     extern void (*gReturn_CheckFieldItemCreateHeap)(libtp::tp::f_op_actor::fopAc_ac_c* actor);
 
+    void handle_CreateInit(void* daDitem);
+    extern void (*gReturn_CreateInit)(void* daDitem);
+
     // Item Wheel functions
     void handle_setLineUpItem(libtp::tp::d_save::dSv_player_item_c*);
     extern void (*gReturn_setLineUpItem)(libtp::tp::d_save::dSv_player_item_c*);

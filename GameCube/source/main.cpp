@@ -899,6 +899,14 @@ namespace mod
         }
     }
 
+    KEEP_FUNC void handle_CreateInit(void* daItem)
+    {
+        // Modify the scale params of the rupee actor before it is created.
+        gReturn_CreateInit(daItem);
+        events::onAdjustCreateRupeeItemParams(daItem);
+        return;
+    }
+
     KEEP_FUNC void handle_setLineUpItem(libtp::tp::d_save::dSv_player_item_c* unk1)
     {
         (void)unk1;

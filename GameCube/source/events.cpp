@@ -913,6 +913,57 @@ namespace mod::events
         }
     }
 
+    void onAdjustCreateRupeeItemParams(void* daDitem)
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::data::items;
+        using namespace rando::customItems;
+
+        uint32_t itemID = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(daDitem) + 0x92A);
+
+        // Must check for foolish items first, as they will use the item id of the item they are copying
+        itemID = rando::gRandomizer->getFoolishItemModelId(static_cast<uint8_t>(itemID));
+
+        cXyz newScale;
+
+        switch (itemID)
+        {
+            case Heart_Container:
+            case Piece_of_Heart:
+            case Arrows_10:
+            case Arrows_20:
+            case Arrows_30:
+            {
+                newScale.setall(1.0f); // scale
+                break;
+            }
+
+            case Heros_Bow:
+            {
+                newScale.setall(1.5f); // scale
+                break;
+            }
+
+            case Master_Sword:
+            case Master_Sword_Light:
+            case Mirror_Piece_1:
+            case Mirror_Piece_2:
+            case Mirror_Piece_3:
+            case Mirror_Piece_4:
+            {
+                newScale.setall(0.7f); // scale
+                break;
+            }
+            default:
+            {
+                newScale.setall(2.0f); // scale
+                break;
+            }
+        }
+
+        *reinterpret_cast<cXyz*>(reinterpret_cast<uint32_t>(daDitem) + 0x930) = newScale;
+    }
+
     int32_t proc_query022(void* unk1, void* unk2, int32_t unk3)
     {
         using namespace libtp::data;
