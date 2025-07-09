@@ -1136,7 +1136,7 @@ namespace mod::events
                     randoPtr->checkSetHCBarrierFlag(rando::HC_Dungeons, numDungeons);
 
                     // Check if we have completed enough dungeons to unlock the BK check.
-                    randoPtr->checkSetHCBkFlag(rando::HC_Bk_Dungeons, numDungeons);
+                    randoPtr->checkSetHCBkFlag(rando::HC_BK_Dungeons, numDungeons);
 
                     switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
                     {

@@ -1025,6 +1025,36 @@ namespace mod
         }
     }
 
+    KEEP_FUNC void handle_item_func_KAKERA_HEART()
+    {
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        // Run the vanilla function immedaitely as it updates necessary health values.
+        gReturn_item_func_KAKERA_HEART();
+
+        uint8_t maxLife = libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.maxHealth + 1;
+
+        // Check if we have enough hearts to break the barrier.
+        randoPtr->checkSetHCBarrierFlag(rando::HC_Hearts, maxLife);
+
+        // Check if we have enough hearts to unlock the BK check.
+        randoPtr->checkSetHCBkFlag(rando::HC_BK_Hearts, maxLife);
+    }
+
+    KEEP_FUNC void handle_item_func_UTUWA_HEART()
+    {
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        // Run the vanilla function immedaitely as it updates necessary health values.
+        gReturn_item_func_UTUWA_HEART();
+
+        uint8_t maxLife = libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.maxHealth + 5;
+
+        // Check if we have enough hearts to break the barrier.
+        randoPtr->checkSetHCBarrierFlag(rando::HC_Hearts, maxLife);
+
+        // Check if we have enough hearts to unlock the BK check.
+        randoPtr->checkSetHCBkFlag(rando::HC_BK_Hearts, maxLife);
+    }
+
     KEEP_FUNC bool handle_setMessageCode_inSequence(libtp::tp::control::TControl* control,
                                                     const void* TProcessor,
                                                     uint16_t unk3,

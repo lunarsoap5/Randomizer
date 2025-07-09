@@ -181,6 +181,10 @@ namespace mod
         gReturn_checkItemGet = patch::hookFunction(libtp::tp::d_item::checkItemGet, handle_checkItemGet);
         gReturn_item_func_ASHS_SCRIBBLING =
             patch::hookFunction(libtp::tp::d_item::item_func_ASHS_SCRIBBLING, handle_item_func_ASHS_SCRIBBLING);
+        gReturn_item_func_KAKERA_HEART =
+            patch::hookFunction(libtp::tp::d_item::item_func_KAKERA_HEART, handle_item_func_KAKERA_HEART);
+        gReturn_item_func_UTUWA_HEART =
+            patch::hookFunction(libtp::tp::d_item::item_func_UTUWA_HEART, handle_item_func_UTUWA_HEART);
 
         // Message Functions
         gReturn_setMessageCode_inSequence =

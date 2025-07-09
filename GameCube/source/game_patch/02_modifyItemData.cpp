@@ -540,7 +540,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 1);
 
         // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Fused_Shadows, 1);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Fused_Shadows, 1);
     }
 
     KEEP_FUNC void _02_secondFusedShadowItemFunc()
@@ -552,7 +552,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 2);
 
         // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Fused_Shadows, 2);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Fused_Shadows, 2);
     }
 
     KEEP_FUNC void _02_thirdFusedShadowItemFunc()
@@ -573,7 +573,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 3);
 
         // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Fused_Shadows, 3);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Fused_Shadows, 3);
     }
 
     KEEP_FUNC void _02_firstMirrorShardItemFunc()
@@ -584,7 +584,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 1);
 
         // Check if the requirement for the HC BK is set to shards, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 1);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 1);
     }
 
     KEEP_FUNC void _02_secondMirrorShardItemFunc()
@@ -596,7 +596,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 2);
 
         // Check if the requirement for the HC BK is set to shards, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 2);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 2);
     }
 
     KEEP_FUNC void _02_thirdMirrorShardItemFunc()
@@ -608,7 +608,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 3);
 
         // Check if the requirement for the HC BK is set to shards, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 3);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 3);
     }
 
     KEEP_FUNC void _02_fourthMirrorShardItemFunc()
@@ -629,7 +629,7 @@ namespace mod::game_patch
         rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 4);
 
         // Check if the requirement for the HC BK is set to shards, and if so, set the flag
-        rando::gRandomizer->checkSetHCBkFlag(rando::HC_Bk_Mirror_Shards, 4);
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 4);
     }
 
     KEEP_FUNC void _02_endingBlowItemFunc()

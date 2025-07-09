@@ -111,6 +111,8 @@ namespace mod
     KEEP_VAR void (*gReturn_execItemGet)(uint8_t item) = nullptr;
     KEEP_VAR int32_t (*gReturn_checkItemGet)(uint8_t item, int32_t defaultValue) = nullptr;
     KEEP_VAR void (*gReturn_item_func_ASHS_SCRIBBLING)() = nullptr;
+    KEEP_VAR void (*gReturn_item_func_KAKERA_HEART)() = nullptr;
+    KEEP_VAR void (*gReturn_item_func_UTUWA_HEART)() = nullptr;
 
     // Message functions
     KEEP_VAR bool (*gReturn_setMessageCode_inSequence)(libtp::tp::control::TControl* control,

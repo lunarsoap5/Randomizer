@@ -407,15 +407,17 @@ namespace mod::rando
         HC_Dungeons,
         HC_Vanilla,
         HC_Poe_Souls,
+        HC_Hearts,
     };
 
     enum CastleBkRequirements : uint8_t
     {
-        HC_Bk_None = 0,
-        HC_Bk_Fused_Shadows = 1,
-        HC_Bk_Mirror_Shards,
-        HC_Bk_Dungeons,
-        HC_Bk_Poe_Souls,
+        HC_BK_None = 0,
+        HC_BK_Fused_Shadows = 1,
+        HC_BK_Mirror_Shards,
+        HC_BK_Dungeons,
+        HC_BK_Poe_Souls,
+        HC_BK_Hearts,
     };
 
     enum PalaceEntryRequirements : uint8_t

@@ -198,6 +198,12 @@ namespace mod
     void handle_item_func_ASHS_SCRIBBLING();
     extern void (*gReturn_item_func_ASHS_SCRIBBLING)();
 
+    void handle_item_func_KAKERA_HEART();
+    extern void (*gReturn_item_func_KAKERA_HEART)();
+
+    void handle_item_func_UTUWA_HEART();
+    extern void (*gReturn_item_func_UTUWA_HEART)();
+
     // Message functions
     bool handle_setMessageCode_inSequence(libtp::tp::control::TControl* control,
                                           const void* TProcessor,

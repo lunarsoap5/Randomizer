@@ -27,6 +27,6 @@ namespace mod::game_patch
         randoPtr->checkSetHCBarrierFlag(rando::HC_Poe_Souls, *poeCountPtr);
 
         // Check if the HC bk check requires poes and if we have enough poe souls to unlock the check.
-        randoPtr->checkSetHCBkFlag(rando::HC_Bk_Poe_Souls, *poeCountPtr);
+        randoPtr->checkSetHCBkFlag(rando::HC_BK_Poe_Souls, *poeCountPtr);
     }
 } // namespace mod::game_patch
