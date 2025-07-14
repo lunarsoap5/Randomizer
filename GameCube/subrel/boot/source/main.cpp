@@ -35,6 +35,7 @@
 #include "tp/d_menu_option.h"
 #include "functionHooks.h"
 #include "tp/d_a_obj_item.h"
+#include "tp/JAISe.h"
 
 #include <cstdint>
 #include <cstring>
@@ -271,6 +272,8 @@ namespace mod
 
         gReturn_checkBgmIDPlaying =
             patch::hookFunction(libtp::z2audiolib::z2seqmgr::checkBgmIDPlaying, handle_checkBgmIDPlaying);
+
+        gReturn_JAISeMgr_start_ID = patch::hookFunction(libtp::tp::JAudio2::JAISeMgr_start_ID, handle_JAISeMgr_start_ID);
 
         // Title Screen functions
         gReturn_dScnLogo_c_dt = patch::hookFunction(libtp::tp::d_s_logo::dScnLogo_c_dt, handle_dScnLogo_c_dt);

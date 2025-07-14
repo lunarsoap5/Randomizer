@@ -370,6 +370,15 @@ namespace mod
                                       void* soundHandle,
                                       void* pos);
 
+    void handle_JAISeMgr_start_ID(void* JAISeMgr,
+                                  libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                  void* param_2,
+                                  void* param_3);
+    extern void (*gReturn_JAISeMgr_start_ID)(void* JAISeMgr,
+                                             libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                             void* param_2,
+                                             void* param_3);
+
     bool handle_checkBgmIDPlaying(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id);
     extern bool (*gReturn_checkBgmIDPlaying)(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id);
 

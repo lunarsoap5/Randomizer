@@ -72,6 +72,8 @@ namespace mod::rando
             case libtp::data::stage::StageIDs::Gerudo_Desert:
             case libtp::data::stage::StageIDs::Upper_Zoras_River:
             case libtp::data::stage::StageIDs::Hidden_Village:
+            case libtp::data::stage::StageIDs::Ordon_Village:
+            case libtp::data::stage::StageIDs::Faron_Woods:
             {
                 game_patch::_02_modifyFoolishFieldModel();
                 break;

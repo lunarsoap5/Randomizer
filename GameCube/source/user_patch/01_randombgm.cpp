@@ -87,4 +87,31 @@ namespace mod
         // Call the original function
         gReturn_startSound(soundMgr, soundId, soundHandle, pos);
     }
+
+    KEEP_FUNC void handle_JAISeMgr_start_ID(void* JAISeMgr,
+                                            libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                            void* param_2,
+                                            void* param_3)
+    {
+        const uint32_t id = soundID.id;
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+        const rando::SfxReplacement* sfxTablePtr = seedPtr->getSfxTablePtr();
+        const uint32_t entries = seedPtr->getNumShuffledSfx();
+
+        for (uint32_t i = 0; i < entries; i++)
+        {
+            const rando::SfxReplacement* currentfanfareTable = &sfxTablePtr[i];
+            if (currentfanfareTable->getOriginalSfxID() == id)
+            {
+                // Both have the same ID, so play the replacement
+                libtp::z2audiolib::z2scenemgr::JAISoundID replacementId;
+                replacementId.id = currentfanfareTable->getReplacementSfxID();
+
+                return gReturn_JAISeMgr_start_ID(JAISeMgr, replacementId, param_2, param_3);
+            }
+        }
+
+        // Call the original function
+        gReturn_JAISeMgr_start_ID(JAISeMgr, soundID, param_2, param_3);
+    }
 } // namespace mod

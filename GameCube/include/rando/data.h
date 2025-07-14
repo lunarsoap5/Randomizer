@@ -32,6 +32,20 @@ namespace mod::rando
         uint8_t padding;
     } __attribute__((__packed__));
 
+    class SfxReplacement
+    {
+       public:
+        SfxReplacement() {}
+        ~SfxReplacement() {}
+
+        uint32_t getOriginalSfxID() const { return this->originalSfxID; }
+        uint32_t getReplacementSfxID() const { return this->replacementSfxID; }
+
+       private:
+        uint32_t originalSfxID;
+        uint32_t replacementSfxID;
+    } __attribute__((__packed__));
+
     class RegionFlag
     {
        public:

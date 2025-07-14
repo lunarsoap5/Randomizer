@@ -1399,9 +1399,10 @@ namespace mod
 
             case GORON_MINES_CLEARED: // Goron Mines Story Flag
             {
-                if (checkStageName(stagesPtr[StageIDs::Goron_Mines]))
+                if (checkStageName(stagesPtr[StageIDs::Goron_Mines]) ||
+                    checkStageName(stagesPtr[StageIDs::Death_Mountain_Interiors]))
                 {
-                    return false; // The elders will not spawn if the flag is set.
+                    return false; // The gorons will not act properly if the flag is set.
                 }
                 break;
             }

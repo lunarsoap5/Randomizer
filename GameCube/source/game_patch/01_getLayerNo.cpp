@@ -357,6 +357,16 @@ namespace mod::game_patch
                                 chosenLayer = stage::CastleTownStateIDs::Castle_Town_West_MDH_Clear;
                             }
                         }
+
+                        if (roomId == 0)
+                        {
+                            const int32_t startPoint =
+                                static_cast<int32_t>(libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.mRestart.mStartPoint);
+                            if (startPoint == 0xF)
+                            {
+                                chosenLayer = 5;
+                            }
+                        }
                         break;
                     }
 

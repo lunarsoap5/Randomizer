@@ -202,6 +202,11 @@ namespace mod
                                         void* soundHandle,
                                         void* pos) = nullptr;
 
+    KEEP_VAR void (*gReturn_JAISeMgr_start_ID)(void* JAISeMgr,
+                                               libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                               void* param_2,
+                                               void* param_3) = nullptr;
+
     KEEP_VAR bool (*gReturn_checkBgmIDPlaying)(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id) = nullptr;
 
     // Title Screen functions

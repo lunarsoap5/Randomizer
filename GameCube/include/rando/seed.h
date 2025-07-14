@@ -113,6 +113,7 @@ namespace mod::rando
         const EntryInfo* getEntranceTableCheckInfoPtr() const { return &this->entranceTableInfo; }
         const EntryInfo* getBgmTableInfoPtr() const { return &this->bgmTableInfo; }
         const EntryInfo* getFanfareTableInfoPtr() const { return &this->fanfareTableInfo; }
+        const EntryInfo* getSfxTableInfoPtr() const { return &this->sfxTableInfo; }
 
        private:
         /* 0x00 */ char magic[3]; // Not null terminated, should always be TPR
@@ -232,6 +233,7 @@ namespace mod::rando
         const ShuffledEntrance* getShuffledEntrancesPtr() const { return this->m_ShuffledEntrances; }
         const BGMReplacement* getBgmTablePtr() const { return this->m_BgmTable; }
         const BGMReplacement* getFanfareTablePtr() const { return this->m_FanfareTable; }
+        const SfxReplacement* getSfxTablePtr() const { return this->m_SfxTable; }
         const CLR0Header* getCLR0Ptr() const { return this->m_CLR0; }
         const RawRGBTable* getRawRGBTablePtr() const { return this->m_RawRGBTable; }
         const BMDEntry* getBmdEntriesPtr() const { return this->m_BmdEntries; }
@@ -248,6 +250,7 @@ namespace mod::rando
         uint16_t getNumShuffledEntrances() const { return this->m_NumShuffledEntrances; }
         uint16_t getNumShuffledBgmTracks() const { return this->m_BgmTableEntries; }
         uint16_t getNumShuffledFanfares() const { return this->m_FanfareTableEntries; }
+        uint16_t getNumShuffledSfx() const { return this->m_SfxTableEntries; }
 
         uint8_t getStageIDX() const { return this->m_StageIDX; }
 
@@ -300,6 +303,7 @@ namespace mod::rando
 
         const BGMReplacement* m_BgmTable;     // Bgm replacement data
         const BGMReplacement* m_FanfareTable; // Fanfare replacement data
+        const SfxReplacement* m_SfxTable;     // Sfx replacement data
         const ShuffledEntrance* m_ShuffledEntrances;
         const CLR0Header* m_CLR0;
         const RawRGBTable* m_RawRGBTable;
@@ -317,6 +321,7 @@ namespace mod::rando
         uint16_t m_NumShuffledEntrances;
         uint16_t m_BgmTableEntries;
         uint16_t m_FanfareTableEntries;
+        uint16_t m_SfxTableEntries;
 
         uint16_t m_PatchesApplied;
         uint16_t m_EventFlagsModified;

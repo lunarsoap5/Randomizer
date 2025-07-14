@@ -504,3 +504,6 @@
 
 // d_s_play.o
 8025ab84:dScnPlay_phase_1
+
+// JAISe.o
+802a0450:JAISeMgr_start_ID
