@@ -1493,6 +1493,7 @@ namespace mod
     KEEP_FUNC void handle_onEventBit(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag)
     {
         using namespace libtp::tp::d_a_alink;
+        using namespace libtp::tp::d_com_inf_game;
         using namespace libtp::data::stage;
         using namespace libtp::data::flags;
 
@@ -1604,6 +1605,7 @@ namespace mod
                     {
                         playerStatusBPtr->transform_level_flag |= 0x1; // Set the last transformed twilight to include Faron
                     }
+                    break;
                 }
 
                 default:
@@ -1655,10 +1657,10 @@ namespace mod
     {
         libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
 
+        const auto stagesPtr = &libtp::data::stage::allStages[0];
+
         if (memoryBit == &savePtr->memory.temp_flags)
         {
-            const auto stagesPtr = &libtp::data::stage::allStages[0];
-
             if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Forest_Temple]))
             {
                 if (flag == 0x52)
@@ -1694,6 +1696,18 @@ namespace mod
                 {
                     // Remove the coming soon sign so the hawkeye can be bought.
                     libtp::tp::d_save::offSwitch_dSv_memBit(memoryBit, 0xB);
+                }
+            }
+        }
+
+        if (memoryBit == &savePtr->save_file.mSave[6].temp_flags)
+        {
+            if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Kakariko_Village_Interiors]))
+            {
+                if (flag == 0x1B) // Repair Castle Town Bridge
+                {
+                    *reinterpret_cast<uint16_t*>(&savePtr->save_file.mEvent.mEvent[0xF9]) =
+                        rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getMaloShopDonationAmount();
                 }
             }
         }
