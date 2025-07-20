@@ -12,6 +12,8 @@
 #include "rando/seed.h"
 #include "memory.h"
 #include "gc_wii/OSTime.h"
+#include "user_patch/user_patch.h"
+#include "user_patch/00_wallet.h"
 
 #if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
@@ -51,6 +53,7 @@ namespace mod::rando
 
             // getConsole() << "Applying one-time patches:\n";
             seedPtr->applyOneTimePatches();
+            user_patch::patchWallet(seedPtr->getHeaderPtr()->getWalletSize());
         }
         else
         {

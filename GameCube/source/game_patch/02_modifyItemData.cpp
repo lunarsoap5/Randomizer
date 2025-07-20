@@ -16,6 +16,8 @@
 #include "data/flags.h"
 #include "rando/data.h"
 #include "rando/customItems.h"
+#include "rando/seed.h"
+#include "user_patch/00_wallet.h"
 #include "tools.h"
 
 namespace mod::game_patch
@@ -483,11 +485,21 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_bigWalletItemFunc()
     {
-        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.currentWallet =
-            libtp::data::items::BIG_WALLET;
+        using namespace libtp::tp::d_com_inf_game;
+        using namespace libtp::tp::d_save;
+
+        dSv_player_status_a_c* plrStatusAPtr = &dComIfG_gameInfo.save.save_file.player.player_status_a;
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+
+        plrStatusAPtr->currentWallet = libtp::data::items::BIG_WALLET;
 
         libtp::tp::J2DWindow::J2DWindow* windowPtr =
             libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
+
+        if (seedPtr->walletsAreAutoFilled())
+        {
+            plrStatusAPtr->currentRupees = mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][1];
+        }
 
         if (!windowPtr)
         {
@@ -502,11 +514,21 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_giantWalletItemFunc()
     {
-        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.currentWallet =
-            libtp::data::items::GIANT_WALLET;
+        using namespace libtp::tp::d_com_inf_game;
+        using namespace libtp::tp::d_save;
+
+        dSv_player_status_a_c* plrStatusAPtr = &dComIfG_gameInfo.save.save_file.player.player_status_a;
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+
+        plrStatusAPtr->currentWallet = libtp::data::items::GIANT_WALLET;
 
         libtp::tp::J2DWindow::J2DWindow* windowPtr =
             libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
+
+        if (seedPtr->walletsAreAutoFilled())
+        {
+            plrStatusAPtr->currentRupees = mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][2];
+        }
 
         if (!windowPtr)
         {

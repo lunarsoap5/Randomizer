@@ -30,7 +30,7 @@ namespace mod::rando
         QUICK_TRANSFORM,
         INCREASE_SPINNER_SPEED,
         BONKS_DO_DAMAGE,
-        INCREASE_WALLETS,
+        AUTOFILL_WALLETS,
         MODIFY_SHOP_MODELS,
     };
 
@@ -92,6 +92,7 @@ namespace mod::rando
         uint8_t getBarrierReqCount() const { return this->barrierReqCount; }
         uint8_t getHcBkReqCount() const { return this->hcBkReqCount; }
         uint8_t getHcBkRequirement() const { return this->hcBkRequirement; }
+        uint8_t getWalletSize() const { return this->walletSize; }
 
         const EntryInfo* getVolatilePatchInfoPtr() const { return &this->volatilePatchInfo; }
         const EntryInfo* getOneTimePatchInfoPtr() const { return &this->oneTimePatchInfo; }
@@ -168,7 +169,7 @@ namespace mod::rando
         /* 0x90 */ uint8_t barrierReqCount; // See below for notes
         /* 0x91 */ uint8_t hcBkRequirement;
         /* 0x92 */ uint8_t hcBkReqCount; // See below for notes
-        /* 0x93 */ uint8_t padding;
+        /* 0x93 */ uint8_t walletSize;
     } __attribute__((__packed__));
 
     /* The 'reqCount' variables are dynamic and based on their respective requirement. (i.e if reqCount is 4 and the requirement
@@ -259,7 +260,7 @@ namespace mod::rando
         bool canTransformAnywhere() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::TRANSFORM_ANYWHERE); }
         bool canQuickTransform() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::QUICK_TRANSFORM); }
         bool bonksDoDamage() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::BONKS_DO_DAMAGE); }
-        bool walletsAreIncreased() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::INCREASE_WALLETS); }
+        bool walletsAreAutoFilled() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::AUTOFILL_WALLETS); }
         bool shopModelsAreModified() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::MODIFY_SHOP_MODELS); }
 
         bool spinnerSpeedIsIncreased() const
@@ -272,7 +273,7 @@ namespace mod::rando
         void clearChecks();
         void loadBgmData();
 
-       private:
+              private:
         void applyEventFlags();
         void applyRegionFlags();
         void giveStartingItems();

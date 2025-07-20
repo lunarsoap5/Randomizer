@@ -22,6 +22,7 @@
 #include "tp/m_do_ext.h"
 #include "tp/rel/d_a_obj_Lv5Key.h"
 #include "user_patch/03_customCosmetics.h"
+#include "user_patch/00_wallet.h"
 #include "tp/J2DPicture.h"
 #include "data/flags.h"
 #include "tp/m_do_controller_pad.h"
@@ -124,6 +125,7 @@ namespace mod::events
         libtp::tp::d_com_inf_game::dComIfG_play* playPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play;
         d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
         d_stage::dStage_startStage* startStagePtr = &playPtr->mStartStage;
+        rando::Seed* seedPtr = randomizer->getSeedPtr();
 
         const char* currentStage = startStagePtr->mStage;
         const int32_t currentRoom = startStagePtr->mRoomNo;
@@ -135,6 +137,13 @@ namespace mod::events
             (currentPoint == 0x15))
         {
             randomizer->initSave();
+
+            // Auto fill the first wallet if the setting is enabled
+            if (seedPtr->walletsAreAutoFilled())
+            {
+                savePtr->save_file.player.player_status_a.currentRupees =
+                    mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][0];
+            }
 
             if (d_com_inf_game::dComIfGs_isEventBit(flags::ORDON_DAY_2_OVER))
             {
