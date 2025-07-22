@@ -926,7 +926,7 @@ namespace mod::game_patch
     // Give item
     int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode, libtp::tp::f_op_actor::fopAc_ac_c*)
     {
-        const uint16_t params = reinterpret_cast<const uint16_t*>(flowNode)[2];
+        const uint32_t params = reinterpret_cast<const uint32_t*>(flowNode)[1];
         rando::gRandomizer->addItemToEventQueue(params);
         return 1;
     }
