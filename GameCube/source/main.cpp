@@ -683,15 +683,16 @@ namespace mod
                     // getConsole() << "Shuffling Entrance\n";
 
                     // Note: we use 0 for lastMode so warping out with Ooccoo
-                    // works correctly with ER. We can potentially add more
-                    // logic here once more entrance types are randomized
-                    // (especially as it relates to riding on Epona, etc.)
+                    // (normally 0xC) works correctly with ER. We can
+                    // potentially add more logic here once more entrance types
+                    // are randomized (especially as it relates to riding on
+                    // Epona, etc.)
                     return gReturn_dComIfGp_setNextStage(libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
                                                          currentEntrance->getNewSpawn(),
                                                          currentEntrance->getNewRoomIDX(),
                                                          currentEntrance->getNewState(),
                                                          lastSpeed,
-                                                         0,
+                                                         lastMode == 0xC ? 0 : lastMode,
                                                          setPoint,
                                                          wipe,
                                                          lastAngle,
