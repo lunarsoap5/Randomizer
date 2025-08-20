@@ -61,6 +61,7 @@ namespace mod
     // Variables
     KEEP_VAR libtp::display::Console* gConsole = nullptr;
     KEEP_VAR bool gConsoleState = false;
+    KEEP_VAR float rainbowPhaseAngle = 0.0f;
 
     void main()
     {
@@ -467,9 +468,9 @@ namespace mod
             events::handleTimeSpeed();
         }
 
-        // Giving items at any point
         if (linkMapPtr)
         {
+            // Giving items at any point
             initGiveItemToPlayer(linkMapPtr, randoPtr);
         }
 

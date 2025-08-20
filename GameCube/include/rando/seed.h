@@ -32,6 +32,7 @@ namespace mod::rando
         BONKS_DO_DAMAGE,
         AUTOFILL_WALLETS,
         MODIFY_SHOP_MODELS,
+        RAINBOW_LANTERN,
     };
 
     // Function for checking if specific bits in various bitfields are enabled. Currently used for volatilePatchInfo,
@@ -264,6 +265,7 @@ namespace mod::rando
         bool bonksDoDamage() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::BONKS_DO_DAMAGE); }
         bool walletsAreAutoFilled() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::AUTOFILL_WALLETS); }
         bool shopModelsAreModified() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::MODIFY_SHOP_MODELS); }
+        bool isLanternRainbow() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::RAINBOW_LANTERN); }
 
         bool spinnerSpeedIsIncreased() const
         {

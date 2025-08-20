@@ -502,3 +502,6 @@
 
 // JAISe.o
 802a1a90:JAISeMgr_start_ID
+
+// math 
+8036ee84:sinf
