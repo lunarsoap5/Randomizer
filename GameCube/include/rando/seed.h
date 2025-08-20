@@ -160,7 +160,6 @@ namespace mod::rando
         /* 0x7C */ EntryInfo fanfareTableInfo;
         /* 0x80 */ EntryInfo sfxTableInfo;
         /* 0x84 */ uint16_t clr0Offset;
-        // /* 0x86 */ uint16_t bmg0Offset;
         /* 0x86 */ uint16_t customTextHeaderSize;
         /* 0x88 */ uint16_t customTextHeaderOffset;
         /* 0x8A */ uint16_t maloShopDonationAmount;
@@ -174,7 +173,7 @@ namespace mod::rando
         /* 0x93 */ uint8_t hcBkRequirement;
         /* 0x94 */ uint8_t hcBkReqCount; // See below for notes
         /* 0x95 */ uint8_t walletSize;
-        /* 0x96 */ uint8_t padding[2];
+        /* 0x96 */ uint16_t bmg0Offset;
     } __attribute__((__packed__));
 
     /* The 'reqCount' variables are dynamic and based on their respective requirement. (i.e if reqCount is 4 and the requirement
