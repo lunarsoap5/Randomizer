@@ -70,9 +70,13 @@ namespace mod::user_patch
         libtp::tp::d_save::dSv_player_status_b_c* playerStatusPtr =
             &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_b;
 
-        // Set the flag for the last transformed twilight. Also puts Midna on the player's back
-        playerStatusPtr->transform_level_flag |= 0x8;
-        playerStatusPtr->dark_clear_level_flag |= 0x8;
+        if (playerStatusPtr->dark_clear_level_flag == 0x7)
+        {
+            playerStatusPtr->transform_level_flag |=
+                0x8; // Set the flag for the last transformed twilight. Also puts Midna on the player's back
+
+            playerStatusPtr->dark_clear_level_flag |= 0x8;
+        }
     }
 
     void setMapRegionBits(rando::Randomizer* randomizer)

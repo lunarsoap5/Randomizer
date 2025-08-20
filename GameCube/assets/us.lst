@@ -121,6 +121,7 @@
 80097e8c:execItemGet
 800986c4:item_func_WOOD_STICK
 800982b4:item_func_UTUWA_HEART
+8009829c:item_func_KAKERA_HEART
 
 // d_item_data.o
 803AC5A0:item_resource
@@ -524,3 +525,9 @@
 8015ceec:itemGetNextExecute
 8015ccd0:mode_wait
 8015b3d8:CreateInit
+
+// d_s_play.o
+80259d84:dScnPlay_phase_1
+
+// JAISe.o
+8029f650:JAISeMgr_start_ID

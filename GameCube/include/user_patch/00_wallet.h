@@ -11,12 +11,7 @@
 
 namespace mod::user_patch
 {
-    /**
-     *  @brief Sets new limits to your wallet
-     *
-     *  Patched: 1000, 5000, 9999
-     *  Unpatched: 300, 600, 1000
-     */
-    void patchWallet(rando::Randomizer* randomizer);
+    extern uint16_t walletValues[4][3];
+    void patchWallet(uint8_t walletSize);
 } // namespace mod::user_patch
 #endif

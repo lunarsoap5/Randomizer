@@ -120,6 +120,7 @@
 803B1258:item_getcheck_func_ptr
 800987f4:item_func_WOOD_STICK
 800983e4:item_func_UTUWA_HEART
+800983cc:item_func_KAKERA_HEART
 
 // d_a_alink.h
 800B2928:setStickData
@@ -500,3 +501,9 @@
 8015d0f8:itemGetNextExecute
 8015cedc:mode_wait
 8015b5e4:CreateInit
+
+// d_s_play.o
+8025ab84:dScnPlay_phase_1
+
+// JAISe.o
+802a0450:JAISeMgr_start_ID

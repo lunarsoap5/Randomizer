@@ -35,6 +35,8 @@
 #include "tp/d_file_select.h"
 #include "tp/d_menu_option.h"
 #include "functionHooks.h"
+#include "tp/d_a_obj_item.h"
+#include "tp/JAISe.h"
 
 #include <cstdint>
 #include <cstring>
@@ -133,7 +135,7 @@ namespace mod
         gReturn_actorCommonLayerInit = patch::hookFunction(actorCommonLayerInit, handle_actorCommonLayerInit);
         gReturn_tgscInfoInit = patch::hookFunction(tgscInfoInit, handle_tgscInfoInit);
         gReturn_roomLoader = patch::hookFunction(libtp::tp::d_stage::roomLoader, handle_roomLoader);
-        // gReturn_stageLoader = patch::hookFunction( libtp::tp::d_stage::stageLoader, handle_stageLoader );
+        gReturn_stageLoader = patch::hookFunction(libtp::tp::d_stage::stageLoader, handle_stageLoader);
         gReturn_dStage_playerInit = patch::hookFunction(libtp::tp::d_stage::dStage_playerInit, handle_dStage_playerInit);
 
         // Only hook dComIfGp_setNextStage if there is at least one shuffled entrance
@@ -161,6 +163,8 @@ namespace mod
         gReturn_CheckFieldItemCreateHeap =
             patch::hookFunction(libtp::tp::d_a_itembase::CheckFieldItemCreateHeap, handle_CheckFieldItemCreateHeap);
 
+        gReturn_CreateInit = patch::hookFunction(libtp::tp::d_a_obj_item::CreateInit, handle_CreateInit);
+
         // Item Wheel functions
         gReturn_setLineUpItem = patch::hookFunction(tp::d_save::setLineUpItem, handle_setLineUpItem);
 
@@ -179,6 +183,10 @@ namespace mod
         gReturn_checkItemGet = patch::hookFunction(libtp::tp::d_item::checkItemGet, handle_checkItemGet);
         gReturn_item_func_ASHS_SCRIBBLING =
             patch::hookFunction(libtp::tp::d_item::item_func_ASHS_SCRIBBLING, handle_item_func_ASHS_SCRIBBLING);
+        gReturn_item_func_KAKERA_HEART =
+            patch::hookFunction(libtp::tp::d_item::item_func_KAKERA_HEART, handle_item_func_KAKERA_HEART);
+        gReturn_item_func_UTUWA_HEART =
+            patch::hookFunction(libtp::tp::d_item::item_func_UTUWA_HEART, handle_item_func_UTUWA_HEART);
 
         // Message Functions
         gReturn_setMessageCode_inSequence =
@@ -291,6 +299,8 @@ namespace mod
         gReturn_checkBgmIDPlaying =
             patch::hookFunction(libtp::z2audiolib::z2seqmgr::checkBgmIDPlaying, handle_checkBgmIDPlaying);
 
+        gReturn_JAISeMgr_start_ID = patch::hookFunction(libtp::tp::JAudio2::JAISeMgr_start_ID, handle_JAISeMgr_start_ID);
+
         // Title Screen functions
         gReturn_dScnLogo_c_dt = patch::hookFunction(libtp::tp::d_s_logo::dScnLogo_c_dt, handle_dScnLogo_c_dt);
 
@@ -341,7 +351,11 @@ namespace mod
         // Link's Animated Equipment
         randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/AlAnm.arc"), DvdEntryNumId::ResObjectAlAnm);
 
-        // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
+        // Epona
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Horse.arc"), DvdEntryNumId::ResObjectHorse);
+
+        // Wolf Link and Midna on Back
+        randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/Wmdl.arc"), DvdEntryNumId::ResObjectWmdl);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/CWShd.arc"), DvdEntryNumId::ResObjectCWShd);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/SWShd.arc"), DvdEntryNumId::ResObjectSWShd);
         // randoPtr->setDvdEntryNum(DVDConvertPathToEntrynum("/res/Object/HyShd.arc"), DvdEntryNumId::ResObjectHyShd);

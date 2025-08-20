@@ -89,8 +89,8 @@ namespace mod
     void handle_roomLoader(void* data, void* stageDt, int32_t roomNo);
     extern void (*gReturn_roomLoader)(void* data, void* stageDt, int32_t roomNo);
 
-    // void handle_stageLoader( void* data, void* stageDt );
-    // extern void ( *gReturn_stageLoader )( void* data, void* stageDt );
+    void handle_stageLoader(void* data, void* stageDt);
+    extern void (*gReturn_stageLoader)(void* data, void* stageDt);
 
     int32_t handle_dStage_playerInit(void* stageDt,
                                      libtp::tp::d_stage::stage_dzr_header_entry* i_data,
@@ -181,6 +181,9 @@ namespace mod
     void handle_CheckFieldItemCreateHeap(libtp::tp::f_op_actor::fopAc_ac_c* actor);
     extern void (*gReturn_CheckFieldItemCreateHeap)(libtp::tp::f_op_actor::fopAc_ac_c* actor);
 
+    void handle_CreateInit(void* daDitem);
+    extern void (*gReturn_CreateInit)(void* daDitem);
+
     // Item Wheel functions
     void handle_setLineUpItem(libtp::tp::d_save::dSv_player_item_c*);
     extern void (*gReturn_setLineUpItem)(libtp::tp::d_save::dSv_player_item_c*);
@@ -194,6 +197,12 @@ namespace mod
 
     void handle_item_func_ASHS_SCRIBBLING();
     extern void (*gReturn_item_func_ASHS_SCRIBBLING)();
+
+    void handle_item_func_KAKERA_HEART();
+    extern void (*gReturn_item_func_KAKERA_HEART)();
+
+    void handle_item_func_UTUWA_HEART();
+    extern void (*gReturn_item_func_UTUWA_HEART)();
 
     // Message functions
     bool handle_setMessageCode_inSequence(libtp::tp::control::TControl* control,
@@ -411,6 +420,15 @@ namespace mod
                                       libtp::z2audiolib::z2scenemgr::JAISoundID soundId,
                                       void* soundHandle,
                                       void* pos);
+
+    void handle_JAISeMgr_start_ID(void* JAISeMgr,
+                                  libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                  void* param_2,
+                                  void* param_3);
+    extern void (*gReturn_JAISeMgr_start_ID)(void* JAISeMgr,
+                                             libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                             void* param_2,
+                                             void* param_3);
 
     bool handle_checkBgmIDPlaying(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id);
     extern bool (*gReturn_checkBgmIDPlaying)(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id);

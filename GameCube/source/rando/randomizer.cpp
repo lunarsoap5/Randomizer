@@ -27,10 +27,12 @@
 #include "util/texture_utils.h"
 #include "tools.h"
 #include "rando/customItems.h"
+#include "data/flags.h"
 
 namespace mod::rando
 {
     KEEP_VAR Randomizer* gRandomizer = nullptr;
+    KEEP_VAR uint16_t walletValues[4][3] = {{99, 500, 1000}, {300, 500, 1000}, {500, 1000, 5000}, {1000, 5000, 9999}};
 
     uint8_t Randomizer::getFoolishItemModelId(uint8_t originalItem)
     {
@@ -71,6 +73,8 @@ namespace mod::rando
             case libtp::data::stage::StageIDs::Gerudo_Desert:
             case libtp::data::stage::StageIDs::Upper_Zoras_River:
             case libtp::data::stage::StageIDs::Hidden_Village:
+            case libtp::data::stage::StageIDs::Ordon_Village:
+            case libtp::data::stage::StageIDs::Faron_Woods:
             {
                 game_patch::_02_modifyFoolishFieldModel();
                 break;
@@ -218,10 +222,7 @@ namespace mod::rando
                         // Fetch replacement byte
                         const uint8_t newByte = currentDzxReplacement->getData(b);
 
-                        if (newByte != currentDzxReplacement->getMagicByte())
-                        {
-                            target[b] = newByte;
-                        }
+                        target[b] = newByte;
                     }
 
                     // Placeholders for item replacements
@@ -347,19 +348,6 @@ namespace mod::rando
         const uint8_t stageIdx = specialStageIdx > 0 ? specialStageIdx : seedPtr->getStageIDX();
         // const uint8_t stageIdx = seedPtr->getStageIDX();
         seedPtr->LoadARCChecks(stageIdx, fileDirectory, roomNo);
-
-        if ((stageIdx == libtp::data::stage::StageIDs::Ordon_Village) && (fileDirectory == FileDirectory::Room))
-        {
-            // Unlock the right door to Bo's House
-            uint32_t replacementAddress = fileAddr + 0x2F58;
-            *reinterpret_cast<uint16_t*>((replacementAddress)) = 0xFFFF;
-            libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(replacementAddress), sizeof(uint16_t));
-
-            // Unlock the left door to Bo's House
-            replacementAddress = fileAddr + 0x2F7C;
-            *reinterpret_cast<uint16_t*>((replacementAddress)) = 0xFFFF;
-            libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(replacementAddress), sizeof(uint16_t));
-        }
 
         // Loop through all ArcChecks and replace the item at an offset given the fileIndex.
         const uint32_t numReplacements = seedPtr->getNumLoadedArcReplacements();
@@ -799,4 +787,45 @@ namespace mod::rando
         return m_hasPendingTodChange;
     }
 
+    void Randomizer::checkSetHCBarrierFlag(CastleEntryRequirements req, uint8_t currentCount)
+    {
+        using namespace libtp;
+        using namespace libtp::data::flags;
+
+        rando::Seed* seedPtr = this->getSeedPtr();
+        const uint8_t reqCount = this->getSeedPtr()->getHeaderPtr()->getBarrierReqCount();
+
+        // If we aren't checking the current requirement, we don't need to proceed.
+        if (req != seedPtr->getHeaderPtr()->getCastleRequirements())
+        {
+            return;
+        }
+
+        if (currentCount >= reqCount)
+        {
+            events::setSaveFileEventFlag(BARRIER_GONE);
+        }
+    }
+
+    void Randomizer::checkSetHCBkFlag(CastleBkRequirements req, uint8_t currentCount)
+    {
+        using namespace libtp;
+        using namespace libtp::data::flags;
+        using namespace libtp::data::stage;
+
+        rando::Seed* seedPtr = this->getSeedPtr();
+        const uint8_t reqCount = this->getSeedPtr()->getHeaderPtr()->getHcBkReqCount();
+
+        // If we aren't checking the current requirement, we don't need to proceed.
+        if (req != seedPtr->getHeaderPtr()->getHcBkRequirement())
+        {
+            return;
+        }
+
+        if (currentCount >= reqCount)
+        {
+            tp::d_com_inf_game::dComIfGs_onStageSwitch(static_cast<uint32_t>(AreaNodesID::Hyrule_Castle),
+                                                       0x4B); // Unlock BK gate
+        }
+    }
 } // namespace mod::rando

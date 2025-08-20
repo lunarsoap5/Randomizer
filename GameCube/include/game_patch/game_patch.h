@@ -161,6 +161,11 @@ namespace mod::game_patch
     int32_t _02_jumpStrikeItemGetCheck();
     int32_t _02_campSmallKeyItemGetCheck();
     int32_t _02_gateKeysItemGetCheck();
+    int32_t _02_letterItemGetCheck();
+    int32_t _02_invoiceItemGetCheck();
+    int32_t _02_statueItemGetCheck();
+    int32_t _02_charmItemGetCheck();
+    int32_t _02_horseCallItemGetCheck();
 
     // 03 - Function definitions to modify different values for Link's actions
     void _03_increaseClimbSpeed();

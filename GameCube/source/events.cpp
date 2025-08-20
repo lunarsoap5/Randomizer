@@ -22,6 +22,7 @@
 #include "tp/m_do_ext.h"
 #include "tp/rel/d_a_obj_Lv5Key.h"
 #include "user_patch/03_customCosmetics.h"
+#include "user_patch/00_wallet.h"
 #include "tp/J2DPicture.h"
 #include "data/flags.h"
 #include "tp/m_do_controller_pad.h"
@@ -79,7 +80,7 @@ namespace mod::events
         {"E_wb", 0xFFFFFFFF, 1650.f, 0.f, 1250.f, 0, static_cast<int16_t>(0xA000), 0x0, 0xFFFF};
 
     const libtp::tp::dzx::ACTR gCoroActr =
-        {"Kkri", 0x812AFF01, -13505.f, 250.f, -14405.f, 0x65, static_cast<int16_t>(0xC889), 0x0, 0xFFFF};
+        {"Kkri", 0x174EFF01, -13505.f, 250.f, -14405.f, 0x65, static_cast<int16_t>(0xC889), 0x0, 0xFFFF};
 
     // Custom shop sold out actors for shop checks. using actor template: 0x48 bytes in memory due to instructions
     // Creating new actors uses less memory than modifying a template due to the amount of memory used by instructions.
@@ -101,6 +102,7 @@ namespace mod::events
 
     const libtp::tp::dzx::ACTR gMstrSrdActr = {"mstrsrd", 0x000020110, 0.f, 1700.f, -5435.f, 0x147, 0x0, 0x0, 0xFFFF};
 
+    const libtp::tp::dzx::ACTR gShadowBeastActr = {"E_s1", 0x15FF0F00, -11717.4f, 902.1f, -9846.7f, 0x0000, 0x4924, 0, 0xFFFF};
     void onLoad(rando::Randomizer* randomizer)
     {
         randomizer->onStageLoad();
@@ -124,6 +126,7 @@ namespace mod::events
         libtp::tp::d_com_inf_game::dComIfG_play* playPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play;
         d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
         d_stage::dStage_startStage* startStagePtr = &playPtr->mStartStage;
+        rando::Seed* seedPtr = randomizer->getSeedPtr();
 
         const char* currentStage = startStagePtr->mStage;
         const int32_t currentRoom = startStagePtr->mRoomNo;
@@ -135,6 +138,13 @@ namespace mod::events
             (currentPoint == 0x15))
         {
             randomizer->initSave();
+
+            // Auto fill the first wallet if the setting is enabled
+            if (seedPtr->walletsAreAutoFilled())
+            {
+                savePtr->save_file.player.player_status_a.currentRupees =
+                    mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][0];
+            }
 
             if (d_com_inf_game::dComIfGs_isEventBit(flags::ORDON_DAY_2_OVER))
             {
@@ -913,6 +923,57 @@ namespace mod::events
         }
     }
 
+    void onAdjustCreateRupeeItemParams(void* daDitem)
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::data::items;
+        using namespace rando::customItems;
+
+        uint32_t itemID = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(daDitem) + 0x92A);
+
+        // Must check for foolish items first, as they will use the item id of the item they are copying
+        itemID = rando::gRandomizer->getFoolishItemModelId(static_cast<uint8_t>(itemID));
+
+        cXyz newScale;
+
+        switch (itemID)
+        {
+            case Heart_Container:
+            case Piece_of_Heart:
+            case Arrows_10:
+            case Arrows_20:
+            case Arrows_30:
+            {
+                newScale.setall(1.0f); // scale
+                break;
+            }
+
+            case Heros_Bow:
+            {
+                newScale.setall(1.5f); // scale
+                break;
+            }
+
+            case Master_Sword:
+            case Master_Sword_Light:
+            case Mirror_Piece_1:
+            case Mirror_Piece_2:
+            case Mirror_Piece_3:
+            case Mirror_Piece_4:
+            {
+                newScale.setall(0.7f); // scale
+                break;
+            }
+            default:
+            {
+                newScale.setall(2.0f); // scale
+                break;
+            }
+        }
+
+        *reinterpret_cast<cXyz*>(reinterpret_cast<uint32_t>(daDitem) + 0x930) = newScale;
+    }
+
     int32_t proc_query022(void* unk1, void* unk2, int32_t unk3)
     {
         using namespace libtp::data;
@@ -1060,7 +1121,6 @@ namespace mod::events
         using namespace libtp::data::flags;
         using namespace libtp::data::stage;
 
-        const auto stagesPtr = &allStages[0];
         rando::Randomizer* randoPtr = rando::gRandomizer;
         tp::d_save::dSv_info_c* savePtr = &tp::d_com_inf_game::dComIfG_gameInfo.save;
 
@@ -1070,32 +1130,59 @@ namespace mod::events
             {
                 case BOSS_DEFEATED:
                 {
-                    if (randoPtr->getSeedPtr()->getHeaderPtr()->getCastleRequirements() ==
-                        rando::CastleEntryRequirements::HC_All_Dungeons) // All Dungeons
+                    // Start at 1 because the current stage has not had the boss flag value updated yet.
+                    uint32_t numDungeons = 1;
+
+                    libtp::tp::d_save::dSv_memory_c* mSavePtr = savePtr->save_file.mSave;
+
+                    for (int32_t i = 0x10; i < 0x18; i++)
                     {
-                        // Check to see if the player has completed all of the other dungeons, if so, destroy the barrier.
-                        libtp::tp::d_save::dSv_memory_c* mSavePtr = savePtr->save_file.mSave;
-                        uint32_t numDungeons = 0;
-
-                        for (int32_t i = 0x10; i < 0x18; i++)
+                        if (libtp::tp::d_save::isDungeonItem(&mSavePtr[i].temp_flags, 3))
                         {
-                            if (libtp::tp::d_save::isDungeonItem(&mSavePtr[i].temp_flags, 3))
-                            {
-                                numDungeons++;
-                            }
-                        }
-
-                        if (numDungeons == 7) // We check for 7 instead of 8 because when this code runs, the temp_flags for
-                                              // the current stage has not been updated with the boss flag value yet.
-                        {
-                            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
+                            numDungeons++;
                         }
                     }
-                    if (tp::d_a_alink::checkStageName(stagesPtr[StageIDs::Stallord]))
+
+                    // Check if we have completed enough dungeons to break the barrier.
+                    randoPtr->checkSetHCBarrierFlag(rando::HC_Dungeons, numDungeons);
+
+                    // Check if we have completed enough dungeons to unlock the BK check.
+                    randoPtr->checkSetHCBkFlag(rando::HC_BK_Dungeons, numDungeons);
+
+                    switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
                     {
-                        const uint32_t agDungeonReward = randoPtr->getEventItem(rando::customItems::Mirror_Piece_1);
-                        randoPtr->addItemToEventQueue(agDungeonReward);
+                        case StageIDs::Stallord:
+                        {
+                            const uint32_t agDungeonReward = randoPtr->getEventItem(rando::customItems::Mirror_Piece_1);
+                            randoPtr->addItemToEventQueue(agDungeonReward);
+                            break;
+                        }
+
+                        case StageIDs::Fyrus:
+                        {
+                            // Set dungeon-completed related flags
+                            libtp::tp::d_save::onSwitch_dSv_memBit(
+                                &savePtr->save_file.mSave[static_cast<uint8_t>(AreaNodesID::Eldin)].temp_flags,
+                                0x7C);
+                            setSaveFileEventFlag(WATCHED_CUTSCENE_AFTER_GORON_MINES);
+                            break;
+                        }
+
+                        case StageIDs::Blizzeta:
+                        {
+                            // Set dungeon-completed related flags
+                            libtp::tp::d_save::onSwitch_dSv_memBit(
+                                &savePtr->save_file.mSave[static_cast<uint8_t>(AreaNodesID::Snowpeak)].temp_flags,
+                                0x19);
+                            break;
+                        }
+
+                        default:
+                        {
+                            break;
+                        }
                     }
+
                     break;
                 }
                 default:
@@ -1167,6 +1254,7 @@ namespace mod::events
         using namespace libtp::data::stage;
 
         tp::dzx::ACTR localSignActor;
+        tp::d_save::dSv_info_c* savePtr = &tp::d_com_inf_game::dComIfG_gameInfo.save;
         memcpy(&localSignActor, &gSignActor, sizeof(tp::dzx::ACTR));
 
         const uint8_t stageIDX = randomizer->getSeedPtr()->getStageIDX();
@@ -1207,6 +1295,34 @@ namespace mod::events
                     localSignActor.rot[1] = static_cast<int16_t>(0x8000);
                     tools::spawnActor(1, localSignActor);
                 }
+                break;
+            }
+
+            case StageIDs::Mirror_Chamber:
+            {
+                if ((rando::MirrorChamberRequirement)randomizer->getSeedPtr()->getHeaderPtr()->getMirrorChamberRequirement() !=
+                    rando::MirrorChamberRequirement::Open)
+                {
+                    if (((rando::MirrorChamberRequirement)randomizer->getSeedPtr()
+                             ->getHeaderPtr()
+                             ->getMirrorChamberRequirement() == rando::MirrorChamberRequirement::Closed) ||
+                        !libtp::tp::d_save::isDungeonItem(
+                            &savePtr->save_file.mSave[(int)AreaNodesID::Arbiters_Grounds].temp_flags,
+                            3))
+
+                    {
+                        libtp::tp::dzx::ACTR localGanonBarrierActor;
+                        memcpy(&localGanonBarrierActor, &gGanonBarrierActor, sizeof(libtp::tp::dzx::ACTR));
+
+                        localGanonBarrierActor.pos.x = 1794.f;
+                        localGanonBarrierActor.pos.y = 2523.f;
+                        localGanonBarrierActor.pos.z = -17400.f;
+                        localGanonBarrierActor.rot[0] = 0xFF7F;
+                        localGanonBarrierActor.rot[1] = 0x0;
+                        tools::spawnActor(4, localGanonBarrierActor);
+                    }
+                }
+
                 break;
             }
 
@@ -1304,10 +1420,9 @@ namespace mod::events
                     localSignActor.rot[1] = static_cast<int16_t>(0x9228);
                     tools::spawnActor(4, localSignActor);
 
-                    if (!tp::d_save::isEventBit(&tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent,
-                                                data::flags::CLEARED_FARON_TWILIGHT) &&
-                        tp::d_save::isEventBit(&tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent,
-                                               data::flags::ORDON_DAY_2_OVER))
+                    libtp::tp::d_save::dSv_event_c* eventPtr = &tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.mEvent;
+                    if (!tp::d_save::isEventBit(eventPtr, data::flags::CLEARED_FARON_TWILIGHT) &&
+                        tp::d_save::isEventBit(eventPtr, data::flags::ORDON_DAY_2_OVER))
                     {
                         tools::spawnActor(4, gCoroActr);
                     }
@@ -1494,6 +1609,13 @@ namespace mod::events
                 localSignActor.pos.z = -17388.1992f;
                 localSignActor.rot[1] = static_cast<int16_t>(0x2C5A);
                 tools::spawnActor(0, localSignActor);
+
+                if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::SNOWPEAK_RUINS_CLEARED))
+                {
+                    tools::spawnActor(1, gShadowBeastActr);
+                    tools::spawnActor(1, gShadowBeastActr);
+                    tools::spawnActor(1, gShadowBeastActr);
+                }
                 break;
             }
 
@@ -2103,6 +2225,16 @@ namespace mod::events
         {
             return false;
         }
+    }
+
+    KEEP_FUNC void replaceHorseCallItem()
+    {
+        using namespace libtp::data;
+
+        // Give the player the Horse Call replacement
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        uint32_t itemToGive = randoPtr->getEventItem(items::Horse_Call);
+        libtp::tp::d_item::execItemGet(itemToGive);
     }
 
     KEEP_FUNC void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value)

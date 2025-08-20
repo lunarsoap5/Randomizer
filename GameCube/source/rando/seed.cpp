@@ -15,6 +15,7 @@
 #include "gc_wii/card.h"
 #include "main.h"
 #include "rando/data.h"
+#include "data/flags.h"
 #include "tp/d_com_inf_game.h"
 #include "tp/d_item.h"
 #include "user_patch/user_patch.h"
@@ -94,6 +95,12 @@ namespace mod::rando
         }
 
         this->m_EventFlagsModified = static_cast<uint16_t>(eventFlagsModified);
+
+        if (tp::d_com_inf_game::dComIfGs_isEventBit(data::flags::BRIDGE_REPAIR_FUNDRAISING_COMPLETED))
+        {
+            *reinterpret_cast<uint16_t*>(&mEventPtr[0xF9]) =
+                rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getMaloShopDonationAmount();
+        }
     }
 
     void Seed::applyRegionFlags()

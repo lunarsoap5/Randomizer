@@ -14,6 +14,5 @@
 
 namespace mod::user_patch
 {
-    GamePatch oneTimePatches[6] =
-        {patchWallet, removeIBLimit, disableBattleMusic, setInstantText, skipMajorCutscenes, invertCameraAxis};
+    GamePatch oneTimePatches[5] = {removeIBLimit, disableBattleMusic, setInstantText, skipMajorCutscenes, invertCameraAxis};
 }

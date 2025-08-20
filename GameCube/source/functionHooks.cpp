@@ -43,7 +43,7 @@ namespace mod
 
     KEEP_VAR int32_t (*gReturn_tgscInfoInit)(void* stageDt, void* i_data, int32_t entryNum, void* param_3) = nullptr;
     KEEP_VAR void (*gReturn_roomLoader)(void* data, void* stageDt, int32_t roomNo) = nullptr;
-    // KEEP_VAR void ( *gReturn_stageLoader )( void* data, void* stageDt ) = nullptr;
+    KEEP_VAR void (*gReturn_stageLoader)(void* data, void* stageDt) = nullptr;
 
     KEEP_VAR int32_t (*gReturn_dStage_playerInit)(void* stageDt,
                                                   libtp::tp::d_stage::stage_dzr_header_entry* i_data,
@@ -102,6 +102,8 @@ namespace mod
 
     KEEP_VAR void (*gReturn_CheckFieldItemCreateHeap)(libtp::tp::f_op_actor::fopAc_ac_c* actor) = nullptr;
 
+    KEEP_VAR void (*gReturn_CreateInit)(void* daItem) = nullptr;
+
     // Item Wheel trampoline
     KEEP_VAR void (*gReturn_setLineUpItem)(libtp::tp::d_save::dSv_player_item_c*) = nullptr;
 
@@ -109,6 +111,8 @@ namespace mod
     KEEP_VAR void (*gReturn_execItemGet)(uint8_t item) = nullptr;
     KEEP_VAR int32_t (*gReturn_checkItemGet)(uint8_t item, int32_t defaultValue) = nullptr;
     KEEP_VAR void (*gReturn_item_func_ASHS_SCRIBBLING)() = nullptr;
+    KEEP_VAR void (*gReturn_item_func_KAKERA_HEART)() = nullptr;
+    KEEP_VAR void (*gReturn_item_func_UTUWA_HEART)() = nullptr;
 
     // Message functions
     KEEP_VAR bool (*gReturn_setMessageCode_inSequence)(libtp::tp::control::TControl* control,
@@ -223,6 +227,11 @@ namespace mod
                                         libtp::z2audiolib::z2scenemgr::JAISoundID soundId,
                                         void* soundHandle,
                                         void* pos) = nullptr;
+
+    KEEP_VAR void (*gReturn_JAISeMgr_start_ID)(void* JAISeMgr,
+                                               libtp::z2audiolib::z2scenemgr::JAISoundID soundID,
+                                               void* param_2,
+                                               void* param_3) = nullptr;
 
     KEEP_VAR bool (*gReturn_checkBgmIDPlaying)(libtp::z2audiolib::z2seqmgr::Z2SeqMgr* seqMgr, uint32_t sfx_id) = nullptr;
 

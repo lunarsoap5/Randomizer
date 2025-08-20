@@ -219,6 +219,15 @@ namespace mod::rando
         // Set the pointer as offset into our buffer
         this->m_FanfareTable = reinterpret_cast<const BGMReplacement*>(&gciDataPtr[gci_offset]);
         this->m_FanfareTableEntries = static_cast<uint16_t>(num_shuffledTracks);
+
+        // Sfx replacement data
+        shuffledBgmInfoPtr = headerPtr->getSfxTableInfoPtr();
+        num_shuffledTracks = shuffledBgmInfoPtr->getNumEntries();
+        gci_offset = shuffledBgmInfoPtr->getDataOffset();
+
+        // Set the pointer as offset into our buffer
+        this->m_SfxTable = reinterpret_cast<const SfxReplacement*>(&gciDataPtr[gci_offset]);
+        this->m_SfxTableEntries = static_cast<uint16_t>(num_shuffledTracks);
     }
 
     void Seed::loadShuffledEntrances()

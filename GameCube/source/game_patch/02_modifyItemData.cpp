@@ -16,6 +16,8 @@
 #include "data/flags.h"
 #include "rando/data.h"
 #include "rando/customItems.h"
+#include "rando/seed.h"
+#include "user_patch/00_wallet.h"
 #include "tools.h"
 
 namespace mod::game_patch
@@ -483,11 +485,21 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_bigWalletItemFunc()
     {
-        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.currentWallet =
-            libtp::data::items::BIG_WALLET;
+        using namespace libtp::tp::d_com_inf_game;
+        using namespace libtp::tp::d_save;
+
+        dSv_player_status_a_c* plrStatusAPtr = &dComIfG_gameInfo.save.save_file.player.player_status_a;
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+
+        plrStatusAPtr->currentWallet = libtp::data::items::BIG_WALLET;
 
         libtp::tp::J2DWindow::J2DWindow* windowPtr =
             libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
+
+        if (seedPtr->walletsAreAutoFilled())
+        {
+            plrStatusAPtr->currentRupees = mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][1];
+        }
 
         if (!windowPtr)
         {
@@ -502,11 +514,21 @@ namespace mod::game_patch
 
     KEEP_FUNC void _02_giantWalletItemFunc()
     {
-        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.currentWallet =
-            libtp::data::items::GIANT_WALLET;
+        using namespace libtp::tp::d_com_inf_game;
+        using namespace libtp::tp::d_save;
+
+        dSv_player_status_a_c* plrStatusAPtr = &dComIfG_gameInfo.save.save_file.player.player_status_a;
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+
+        plrStatusAPtr->currentWallet = libtp::data::items::GIANT_WALLET;
 
         libtp::tp::J2DWindow::J2DWindow* windowPtr =
             libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
+
+        if (seedPtr->walletsAreAutoFilled())
+        {
+            plrStatusAPtr->currentRupees = mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][2];
+        }
 
         if (!windowPtr)
         {
@@ -536,6 +558,11 @@ namespace mod::game_patch
         // Give player first fused shadow.
         libtp::tp::d_save::onCollectCrystal(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                             '\0');
+        // Check if the requirement for the HC barrier is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 1);
+
+        // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Fused_Shadows, 1);
     }
 
     KEEP_FUNC void _02_secondFusedShadowItemFunc()
@@ -543,6 +570,11 @@ namespace mod::game_patch
         // Give player second fused shadow.
         libtp::tp::d_save::onCollectCrystal(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                             '\x01');
+        // Check if the requirement for the HC barrier is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 2);
+
+        // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Fused_Shadows, 2);
     }
 
     KEEP_FUNC void _02_thirdFusedShadowItemFunc()
@@ -553,23 +585,28 @@ namespace mod::game_patch
 
         const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
 
-        // If the player has the castle requirement set to Fused Shadows.
-        if (headerPtr->getCastleRequirements() == rando::CastleEntryRequirements::HC_Fused_Shadows)
-        {
-            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
-        }
-
         // If the player has the palace requirement set to Fused Shadows.
         if (headerPtr->getPalaceRequirements() == rando::PalaceEntryRequirements::PoT_Fused_Shadows)
         {
             events::setSaveFileEventFlag(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT);
         }
+
+        // Check if the requirement for the HC barrier is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Fused_Shadows, 3);
+
+        // Check if the requirement for the HC BK is set to shadows, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Fused_Shadows, 3);
     }
 
     KEEP_FUNC void _02_firstMirrorShardItemFunc()
     {
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\0');
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 1);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 1);
     }
 
     KEEP_FUNC void _02_secondMirrorShardItemFunc()
@@ -577,6 +614,11 @@ namespace mod::game_patch
         // Give player second mirror shard.
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\x01');
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 2);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 2);
     }
 
     KEEP_FUNC void _02_thirdMirrorShardItemFunc()
@@ -584,6 +626,11 @@ namespace mod::game_patch
         // Give player third mirror shard.
         libtp::tp::d_save::onCollectMirror(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect,
                                            '\x02');
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 3);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 3);
     }
 
     KEEP_FUNC void _02_fourthMirrorShardItemFunc()
@@ -594,16 +641,17 @@ namespace mod::game_patch
 
         const rando::Header* headerPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr();
 
-        // If the player has the castle requirement set to Mirror Shards.
-        if (headerPtr->getCastleRequirements() == rando::CastleEntryRequirements::HC_Mirror_Shards)
-        {
-            events::setSaveFileEventFlag(libtp::data::flags::BARRIER_GONE);
-        }
         // If the player has the palace requirement set to Mirror Shards.
         if (headerPtr->getPalaceRequirements() == rando::PalaceEntryRequirements::PoT_Mirror_Shards)
         {
             events::setSaveFileEventFlag(libtp::data::flags::FIXED_THE_MIRROR_OF_TWILIGHT);
         }
+
+        // Check if the requirement for the HC barrier is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBarrierFlag(rando::HC_Mirror_Shards, 4);
+
+        // Check if the requirement for the HC BK is set to shards, and if so, set the flag
+        rando::gRandomizer->checkSetHCBkFlag(rando::HC_BK_Mirror_Shards, 4);
     }
 
     KEEP_FUNC void _02_endingBlowItemFunc()
@@ -892,6 +940,36 @@ namespace mod::game_patch
     KEEP_FUNC int32_t _02_gateKeysItemGetCheck()
     {
         bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Gate_Keys);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_letterItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Renardos_Letter);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_invoiceItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Invoice);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_statueItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Wooden_Statue);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_charmItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Ilias_Charm);
+        return static_cast<int32_t>(result);
+    }
+
+    KEEP_FUNC int32_t _02_horseCallItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Horse_Call);
         return static_cast<int32_t>(result);
     }
 } // namespace mod::game_patch

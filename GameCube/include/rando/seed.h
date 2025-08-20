@@ -31,7 +31,7 @@ namespace mod::rando
         QUICK_TRANSFORM,
         INCREASE_SPINNER_SPEED,
         BONKS_DO_DAMAGE,
-        INCREASE_WALLETS,
+        AUTOFILL_WALLETS,
         MODIFY_SHOP_MODELS,
     };
 
@@ -84,12 +84,17 @@ namespace mod::rando
         uint16_t getBmg0Offset() const { return this->bmg0Offset; }
         uint16_t getCustomTextHeaderSize() const { return this->customTextHeaderSize; }
         uint16_t getCustomTextHeaderOffset() const { return this->customTextHeaderOffset; }
-
+        uint16_t getMaloShopDonationAmount() const { return this->maloShopDonationAmount; }
         uint8_t getCastleRequirements() const { return this->castleRequirements; }
         uint8_t getPalaceRequirements() const { return this->palaceRequirements; }
         uint8_t getMapClearBits() const { return this->mapClearBits; }
         uint8_t getDamageMagnification() const { return this->damageMagnification; }
         uint8_t getToTSwordRequirement() const { return this->totSwordRequirement; }
+        uint8_t getMirrorChamberRequirement() const { return this->mirrorChamberEntrance; }
+        uint8_t getBarrierReqCount() const { return this->barrierReqCount; }
+        uint8_t getHcBkReqCount() const { return this->hcBkReqCount; }
+        uint8_t getHcBkRequirement() const { return this->hcBkRequirement; }
+        uint8_t getWalletSize() const { return this->walletSize; }
 
         const EntryInfo* getVolatilePatchInfoPtr() const { return &this->volatilePatchInfo; }
         const EntryInfo* getOneTimePatchInfoPtr() const { return &this->oneTimePatchInfo; }
@@ -111,6 +116,7 @@ namespace mod::rando
         const EntryInfo* getEntranceTableCheckInfoPtr() const { return &this->entranceTableInfo; }
         const EntryInfo* getBgmTableInfoPtr() const { return &this->bgmTableInfo; }
         const EntryInfo* getFanfareTableInfoPtr() const { return &this->fanfareTableInfo; }
+        const EntryInfo* getSfxTableInfoPtr() const { return &this->sfxTableInfo; }
 
        private:
         /* 0x00 */ char magic[3]; // Not null terminated, should always be TPR
@@ -154,16 +160,26 @@ namespace mod::rando
         /* 0x7C */ EntryInfo fanfareTableInfo;
         /* 0x80 */ EntryInfo sfxTableInfo;
         /* 0x84 */ uint16_t clr0Offset;
-        /* 0x86 */ uint16_t bmg0Offset;
-        /* 0x88 */ uint16_t customTextHeaderSize;
-        /* 0x8A */ uint16_t customTextHeaderOffset;
+        // /* 0x86 */ uint16_t bmg0Offset;
+        /* 0x86 */ uint16_t customTextHeaderSize;
+        /* 0x88 */ uint16_t customTextHeaderOffset;
+        /* 0x8A */ uint16_t maloShopDonationAmount;
         /* 0x8C */ uint8_t castleRequirements;
-        /* 0x8E */ uint8_t palaceRequirements;
-        /* 0x8F */ uint8_t mapClearBits;
-        /* 0x90 */ uint8_t damageMagnification;
-        /* 0x91 */ uint8_t totSwordRequirement;
-        /* 0x92 */ uint8_t padding;
+        /* 0x8D */ uint8_t palaceRequirements;
+        /* 0x8E */ uint8_t mapClearBits;
+        /* 0x8F */ uint8_t damageMagnification;
+        /* 0x90 */ uint8_t totSwordRequirement;
+        /* 0x91 */ uint8_t mirrorChamberEntrance;
+        /* 0x92 */ uint8_t barrierReqCount; // See below for notes
+        /* 0x93 */ uint8_t hcBkRequirement;
+        /* 0x94 */ uint8_t hcBkReqCount; // See below for notes
+        /* 0x95 */ uint8_t walletSize;
+        /* 0x96 */ uint8_t padding[2];
     } __attribute__((__packed__));
+
+    /* The 'reqCount' variables are dynamic and based on their respective requirement. (i.e if reqCount is 4 and the requirement
+     * is poe souls, then the interpretation is that 4 poe souls are needed to fill the requirement. If requirement is dungeons,
+     * then 4 dungeons are needed.)*/
 
     class Seed
     {
@@ -223,6 +239,7 @@ namespace mod::rando
         const ShuffledEntrance* getShuffledEntrancesPtr() const { return this->m_ShuffledEntrances; }
         const BGMReplacement* getBgmTablePtr() const { return this->m_BgmTable; }
         const BGMReplacement* getFanfareTablePtr() const { return this->m_FanfareTable; }
+        const SfxReplacement* getSfxTablePtr() const { return this->m_SfxTable; }
         const CLR0Header* getCLR0Ptr() const { return this->m_CLR0; }
         const RawRGBTable* getRawRGBTablePtr() const { return this->m_RawRGBTable; }
         const BMDEntry* getBmdEntriesPtr() const { return this->m_BmdEntries; }
@@ -240,6 +257,7 @@ namespace mod::rando
         uint16_t getNumShuffledEntrances() const { return this->m_NumShuffledEntrances; }
         uint16_t getNumShuffledBgmTracks() const { return this->m_BgmTableEntries; }
         uint16_t getNumShuffledFanfares() const { return this->m_FanfareTableEntries; }
+        uint16_t getNumShuffledSfx() const { return this->m_SfxTableEntries; }
 
         uint8_t getStageIDX() const { return this->m_StageIDX; }
 
@@ -248,7 +266,7 @@ namespace mod::rando
         bool canTransformAnywhere() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::TRANSFORM_ANYWHERE); }
         bool canQuickTransform() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::QUICK_TRANSFORM); }
         bool bonksDoDamage() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::BONKS_DO_DAMAGE); }
-        bool walletsAreIncreased() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::INCREASE_WALLETS); }
+        bool walletsAreAutoFilled() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::AUTOFILL_WALLETS); }
         bool shopModelsAreModified() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::MODIFY_SHOP_MODELS); }
 
         bool spinnerSpeedIsIncreased() const
@@ -292,6 +310,7 @@ namespace mod::rando
 
         const BGMReplacement* m_BgmTable;     // Bgm replacement data
         const BGMReplacement* m_FanfareTable; // Fanfare replacement data
+        const SfxReplacement* m_SfxTable;     // Sfx replacement data
         const ShuffledEntrance* m_ShuffledEntrances;
         const CLR0Header* m_CLR0;
         const RawRGBTable* m_RawRGBTable;
@@ -310,6 +329,7 @@ namespace mod::rando
         uint16_t m_NumShuffledEntrances;
         uint16_t m_BgmTableEntries;
         uint16_t m_FanfareTableEntries;
+        uint16_t m_SfxTableEntries;
 
         uint16_t m_PatchesApplied;
         uint16_t m_EventFlagsModified;

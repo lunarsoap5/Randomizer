@@ -161,6 +161,8 @@ namespace mod::rando
         void getHiddenSkillItem(void* daNpcGWolfPtr, int16_t flag, uint32_t markerFlag);
         void replaceWolfLockDomeColor(libtp::tp::d_a_alink::daAlink* linkActrPtr);
         void addItemToEventQueue(uint32_t itemToAdd);
+        void checkSetHCBarrierFlag(CastleEntryRequirements req, uint8_t currentCount);
+        void checkSetHCBkFlag(CastleBkRequirements req, uint8_t currentCount);
         void recolorArchiveTextures(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive);
         uint8_t getFoolishItemModelId(uint8_t originalItem);
         uint16_t getFlowContext();

@@ -45,7 +45,6 @@
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "util/texture_utils.h"
-#include "rando/data.h"
 #include "rando/bmg0.h"
 #include "gc_wii/OSInterrupt.h"
 #include "tp/d_kankyo.h"
@@ -320,8 +319,9 @@ namespace mod
 #endif
         rando::Randomizer* randoPtr = rando::gRandomizer;
 
-        // New frame, so the ring will be redrawn
+        // New frame, so the ring will be redrawn and quest items can be changed again
         randoPtr->getItemWheelMenuPtr()->resetRingDrawnThisFrame();
+        randoPtr->getItemWheelMenuPtr()->changeQuestItem(true);
 
         dComIfG_inf_c* gameInfo = &dComIfG_gameInfo;
         CPadInfo* padInfo = &cpadInfo[PAD_1];
@@ -673,8 +673,10 @@ namespace mod
 
         // getConsole() << stageIDX << "," << roomNo << "," << point << "," << layer << "\n";
 
-        if (stageIDX != libtp::data::stage::StageIDs::Title_Screen) // We won't want to shuffle if we are loading a save since
-                                                                    // some stages use their default spawn for their entrances.
+        if (!libtp::tp::d_a_alink::checkStageName(
+                libtp::data::stage::allStages
+                    [libtp::data::stage::StageIDs::Title_Screen])) // We won't want to shuffle if we are loading a save since
+                                                                   // some stages use their default spawn for their entrances.
         {
             for (uint32_t i = 0; i < numShuffledEntrances; i++)
             {
@@ -685,12 +687,17 @@ namespace mod
                 {
                     // getConsole() << "Shuffling Entrance\n";
 
+                    // Note: we use 0 for lastMode so warping out with Ooccoo
+                    // (normally 0xC) works correctly with ER. We can
+                    // potentially add more logic here once more entrance types
+                    // are randomized (especially as it relates to riding on
+                    // Epona, etc.)
                     return gReturn_dComIfGp_setNextStage(libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
                                                          currentEntrance->getNewSpawn(),
                                                          currentEntrance->getNewRoomIDX(),
                                                          currentEntrance->getNewState(),
                                                          lastSpeed,
-                                                         lastMode,
+                                                         lastMode == 0xC ? 0 : lastMode,
                                                          setPoint,
                                                          wipe,
                                                          lastAngle,
@@ -720,21 +727,17 @@ namespace mod
         rando::Randomizer* randoPtr = rando::gRandomizer;
         events::onARC(randoPtr, data, roomNo, rando::FileDirectory::Room); // Replace room based checks.
 
-        // Could hook stageLoader instead since it takes the first param as a pointer to the stage.dzs
-        void* filePtr = libtp::tp::d_com_inf_game::dComIfG_getStageRes("stage.dzs");
-
-        events::onARC(randoPtr, filePtr, roomNo, rando::FileDirectory::Stage); // Replace stage based checks.
         return gReturn_roomLoader(data, stageDt, roomNo);
     }
 
-    /*
-    KEEP_FUNC void handle_stageLoader( void* data, void* stageDt )
+    KEEP_FUNC void handle_stageLoader(void* data, void* stageDt)
     {
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         // This function is a placeholder for now. May work with Taka on getting some ARC checks converted over to use this
         // function instead of roomLoader
-        return gReturn_stageLoader( data, stageDt );
+        events::onARC(randoPtr, data, 0xFF, rando::FileDirectory::Stage); // Replace stage based checks.
+        return gReturn_stageLoader(data, stageDt);
     }
-    */
 
     KEEP_FUNC int32_t handle_dStage_playerInit(void* stageDt,
                                                libtp::tp::d_stage::stage_dzr_header_entry* i_data,
@@ -906,6 +909,14 @@ namespace mod
         }
     }
 
+    KEEP_FUNC void handle_CreateInit(void* daItem)
+    {
+        // Modify the scale params of the rupee actor before it is created.
+        gReturn_CreateInit(daItem);
+        events::onAdjustCreateRupeeItemParams(daItem);
+        return;
+    }
+
     KEEP_FUNC void handle_setLineUpItem(libtp::tp::d_save::dSv_player_item_c* unk1)
     {
         (void)unk1;
@@ -1002,12 +1013,8 @@ namespace mod
                 // Check to see if currently in Snowpeak Ruins
                 if (libtp::tp::d_a_alink::checkStageName(stagesPtr[StageIDs::Darkhammer]))
                 {
-                    if (libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
-                                                               0x5F)) // Picked up the Ball and Chain check.
-                    {
-                        // Return true so that they check cannot be infinitely picked up.
-                        return 1;
-                    }
+                    return libtp::tp::d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags,
+                                                                  0x5F); // Picked up the Ball and Chain check.
                 }
                 break;
             }
@@ -1026,6 +1033,36 @@ namespace mod
         {
             gReturn_item_func_ASHS_SCRIBBLING();
         }
+    }
+
+    KEEP_FUNC void handle_item_func_KAKERA_HEART()
+    {
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        // Run the vanilla function immedaitely as it updates necessary health values.
+        gReturn_item_func_KAKERA_HEART();
+
+        uint8_t maxLife = libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.maxHealth + 1;
+
+        // Check if we have enough hearts to break the barrier.
+        randoPtr->checkSetHCBarrierFlag(rando::HC_Hearts, maxLife);
+
+        // Check if we have enough hearts to unlock the BK check.
+        randoPtr->checkSetHCBkFlag(rando::HC_BK_Hearts, maxLife);
+    }
+
+    KEEP_FUNC void handle_item_func_UTUWA_HEART()
+    {
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        // Run the vanilla function immedaitely as it updates necessary health values.
+        gReturn_item_func_UTUWA_HEART();
+
+        uint8_t maxLife = libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.maxHealth + 5;
+
+        // Check if we have enough hearts to break the barrier.
+        randoPtr->checkSetHCBarrierFlag(rando::HC_Hearts, maxLife);
+
+        // Check if we have enough hearts to unlock the BK check.
+        randoPtr->checkSetHCBkFlag(rando::HC_BK_Hearts, maxLife);
     }
 
     KEEP_FUNC bool handle_setMessageCode_inSequence(libtp::tp::control::TControl* control,
@@ -1774,9 +1811,10 @@ namespace mod
 
             case GORON_MINES_CLEARED: // Goron Mines Story Flag
             {
-                if (checkStageName(stagesPtr[StageIDs::Goron_Mines]))
+                if (checkStageName(stagesPtr[StageIDs::Goron_Mines]) ||
+                    checkStageName(stagesPtr[StageIDs::Death_Mountain_Interiors]))
                 {
-                    return false; // The elders will not spawn if the flag is set.
+                    return false; // The gorons will not act properly if the flag is set.
                 }
                 break;
             }
@@ -1798,29 +1836,11 @@ namespace mod
                 break;
             }
 
-            case ARBITERS_GROUNDS_CLEARED: // AG story flag.
-            {
-                if (checkStageName(stagesPtr[StageIDs::Stallord]))
-                {
-                    return false; // If the flag is set, the post boss music plays during the boss fight.
-                }
-                break;
-            }
-
             case SNOWPEAK_RUINS_CLEARED: // Snowpeak Ruins Story flag
             {
                 if (checkStageName(stagesPtr[StageIDs::Kakariko_Graveyard]))
                 {
                     return false; // If the flag is set, Ralis will no longer spawn in the graveyard.
-                }
-                break;
-            }
-
-            case FOREST_TEMPLE_CLEARED: // Forest Temple Story Flag
-            {
-                if (checkStageName(stagesPtr[StageIDs::Diababa]))
-                {
-                    return false; // If the flag is set, the post boss music plays during the boss fight.
                 }
                 break;
             }
@@ -1885,6 +1905,7 @@ namespace mod
     KEEP_FUNC void handle_onEventBit(libtp::tp::d_save::dSv_event_c* eventPtr, uint16_t flag)
     {
         using namespace libtp::tp::d_a_alink;
+        using namespace libtp::tp::d_com_inf_game;
         using namespace libtp::data::stage;
         using namespace libtp::data::flags;
 
@@ -1996,6 +2017,7 @@ namespace mod
                     {
                         playerStatusBPtr->transform_level_flag |= 0x1; // Set the last transformed twilight to include Faron
                     }
+                    break;
                 }
 
                 default:
@@ -2047,10 +2069,10 @@ namespace mod
     {
         libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
 
+        const auto stagesPtr = &libtp::data::stage::allStages[0];
+
         if (memoryBit == &savePtr->memory.temp_flags)
         {
-            const auto stagesPtr = &libtp::data::stage::allStages[0];
-
             if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Forest_Temple]))
             {
                 if (flag == 0x52)
@@ -2086,6 +2108,18 @@ namespace mod
                 {
                     // Remove the coming soon sign so the hawkeye can be bought.
                     libtp::tp::d_save::offSwitch_dSv_memBit(memoryBit, 0xB);
+                }
+            }
+        }
+
+        if (memoryBit == &savePtr->save_file.mSave[6].temp_flags)
+        {
+            if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Kakariko_Village_Interiors]))
+            {
+                if (flag == 0x1B) // Repair Castle Town Bridge
+                {
+                    *reinterpret_cast<uint16_t*>(&savePtr->save_file.mEvent.mEvent[0xF9]) =
+                        rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getMaloShopDonationAmount();
                 }
             }
         }
@@ -2484,32 +2518,38 @@ namespace mod
     {
         using namespace libtp::data;
         using namespace libtp::tp;
+
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
+        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
+        savePtr->mRestart.mLastMode = 0;
+
+        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they aren't forced to be wolf
+        // un-necessarily.
+        libtp::tp::d_save::dSv_save_c* saveFilePtr = &savePtr->save_file;
+        libtp::tp::d_save::dSv_player_status_b_c* playerStatusBPtr = &saveFilePtr->player.player_status_b;
+        uint8_t* memoryFlagsPtr = &saveFilePtr->mSave[4].temp_flags.memoryFlags[0xA];
+
+        for (int32_t i = 0; i < 4; i++)
+        {
+            if (!d_save::isDarkClearLV(static_cast<void*>(playerStatusBPtr), i))
+            {
+                playerStatusBPtr->transform_level_flag &= ~(1 << i);
+
+                if (i == 0x3) // MDH
+                {
+                    // Unset the flag that starts MDH
+                    *memoryFlagsPtr &= ~0x40;
+                    d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
+                }
+            }
+        }
+
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
 
         // The very first entry of the shuffledEntrances table is always the spawn entrance.
         const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
-
-        // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
-        gameInfoPtr->save.mRestart.mLastMode = 0;
-
-        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they arean't forced to be wolf
-        // un-necessarily.
-        for (int32_t i = 0; i < 4; i++)
-        {
-            if (!d_save::isDarkClearLV(static_cast<void*>(&gameInfoPtr->save.save_file.player.player_status_b), i))
-            {
-                gameInfoPtr->save.save_file.player.player_status_b.transform_level_flag &= ~(1 << i);
-
-                if (i == 0x3) // MDH
-                {
-                    // Unset the flag that starts MDH
-                    gameInfoPtr->save.save_file.mSave[4].temp_flags.memoryFlags[0xA] &= ~0x40;
-                    d_save::offEventBit(&gameInfoPtr->save.save_file.mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
-                }
-            }
-        }
 
         libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
 
@@ -2519,6 +2559,7 @@ namespace mod
 
         nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
         nextStagePtr->mPoint = currentEntrance->getNewSpawn();
+        savePtr->mRestart.mStartPoint = currentEntrance->getNewSpawn();
         nextStagePtr->mLayer = currentEntrance->getNewState();
         nextStagePtr->enabled |= 0x1;
 

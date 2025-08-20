@@ -19,6 +19,7 @@
 #include "functionHooks.h"
 #include "tp/d_menu_ring.h"
 #include "tp/d_a_obj_item.h"
+#include "tp/d_s_play.h"
 
 namespace mod::game_patch
 {
@@ -76,9 +77,16 @@ namespace mod::game_patch
         *reinterpret_cast<uint32_t*>(onStageBossEnemyAddress + 0x60) = ASM_NOP; // Previous 480070e9
         *reinterpret_cast<uint32_t*>(onStageBossEnemyAddress + 0x8C) = ASM_NOP; // Previous 480070bd
 
-        // Patch setSceneName so that the Morpheel Boss Music plays even if MDH is skipped.
+        // Patch setSceneName so that certain Boss Music plays even if flags are set.
         uint32_t setSceneNameAddress = reinterpret_cast<uint32_t>(libtp::z2audiolib::z2scenemgr::setSceneName);
+        // Morpheel
         *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x216C) = ASM_BRANCH(0x28); // Previous beq- 0x28
+        // Stallord
+        *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x22E8) = ASM_BRANCH(0x24); // Previous beq- 0x24
+        // Armogohma
+        *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x254C) = ASM_BRANCH(0x24); // Previous beq- 0x24
+        // Diababa
+        *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x1F50) = ASM_BRANCH(0x24); // Previous beq- 0x24
 
         uint32_t mDoDvdThd_mountArchive_c__execute =
             reinterpret_cast<uint32_t>(libtp::tp::m_Do_dvd_thread::mountArchive__execute);
@@ -137,6 +145,11 @@ namespace mod::game_patch
         // no special overrides.
         const uint32_t eventNodeProcAddress = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc);
         *reinterpret_cast<uint32_t*>(eventNodeProcAddress + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
+
+        // Modify d_s_play::phase1 to not give the horse call during the cutscene and instead give our custom item.
+        const uint32_t dScnPlayPhase1Addr = reinterpret_cast<uint32_t>(libtp::tp::d_s_play::dScnPlay_phase_1);
+        *reinterpret_cast<uint32_t*>(dScnPlayPhase1Addr + 0x234) = ASM_NOP;
+        libtp::patch::writeBranchBL(dScnPlayPhase1Addr + 0x24C, events::replaceHorseCallItem);
 
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);

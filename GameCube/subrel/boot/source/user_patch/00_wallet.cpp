@@ -6,6 +6,7 @@
  */
 
 #include "user_patch/user_patch.h"
+#include "user_patch/00_wallet.h"
 #include "asm_templates.h"
 #include "main.h"
 #include "rando/randomizer.h"
@@ -15,33 +16,36 @@
 
 namespace mod::user_patch
 {
-    void patchWallet(rando::Randomizer* randomizer)
+    void patchWallet(uint8_t walletSize)
     {
         using namespace libtp;
 
-        (void)randomizer;
-
         const uint32_t getRupeeMaxPtr = reinterpret_cast<uint32_t>(tp::d_save::getRupeeMax);
         const uint32_t setWalletMaxNumPtr = reinterpret_cast<uint32_t>(tp::d_menu_collect::setWalletMaxNum);
-        static constexpr const uint16_t values[3] = {1000, 5000, 9999};
 
-        // 300 -> 1000
-        *reinterpret_cast<uint32_t*>(getRupeeMaxPtr + 0x30) = ASM_LOAD_IMMEDIATE(3, values[0]);
+        // Small Wallet
+        *reinterpret_cast<uint32_t*>(getRupeeMaxPtr + 0x30) =
+            ASM_LOAD_IMMEDIATE(3, mod::user_patch::walletValues[walletSize][0]);
 
-        // 600 -> 5000
-        *reinterpret_cast<uint32_t*>(getRupeeMaxPtr + 0x38) = ASM_LOAD_IMMEDIATE(3, values[1]);
+        // Big Wallet
+        *reinterpret_cast<uint32_t*>(getRupeeMaxPtr + 0x38) =
+            ASM_LOAD_IMMEDIATE(3, mod::user_patch::walletValues[walletSize][1]);
 
-        // 1000 -> 9999 (> 4 digit not good)
-        *reinterpret_cast<uint32_t*>(getRupeeMaxPtr + 0x40) = ASM_LOAD_IMMEDIATE(3, values[2]);
+        // Giant wallet
+        *reinterpret_cast<uint32_t*>(getRupeeMaxPtr + 0x40) =
+            ASM_LOAD_IMMEDIATE(3, mod::user_patch::walletValues[walletSize][2]);
 
-        // 300 -> 1000
-        *reinterpret_cast<uint32_t*>(setWalletMaxNumPtr + 0x24) = ASM_COMPARE_WORD_IMMEDIATE(0, values[0]);
+        // Small Wallet
+        *reinterpret_cast<uint32_t*>(setWalletMaxNumPtr + 0x24) =
+            ASM_COMPARE_WORD_IMMEDIATE(0, mod::user_patch::walletValues[walletSize][0]);
 
-        // 600 -> 5000
-        *reinterpret_cast<uint32_t*>(setWalletMaxNumPtr + 0x18) = ASM_COMPARE_WORD_IMMEDIATE(0, values[1]);
+        // Big Wallet
+        *reinterpret_cast<uint32_t*>(setWalletMaxNumPtr + 0x18) =
+            ASM_COMPARE_WORD_IMMEDIATE(0, mod::user_patch::walletValues[walletSize][1]);
 
-        // 1000 -> 9999
-        *reinterpret_cast<uint32_t*>(setWalletMaxNumPtr + 0x30) = ASM_COMPARE_WORD_IMMEDIATE(0, values[2]);
+        // Giant Wallet
+        *reinterpret_cast<uint32_t*>(setWalletMaxNumPtr + 0x30) =
+            ASM_COMPARE_WORD_IMMEDIATE(0, mod::user_patch::walletValues[walletSize][2]);
 
         // Clear the cache for the modified values
         // Assembly instructions need to clear the instruction cache as well

@@ -32,6 +32,20 @@ namespace mod::rando
         uint8_t padding;
     } __attribute__((__packed__));
 
+    class SfxReplacement
+    {
+       public:
+        SfxReplacement() {}
+        ~SfxReplacement() {}
+
+        uint32_t getOriginalSfxID() const { return this->originalSfxID; }
+        uint32_t getReplacementSfxID() const { return this->replacementSfxID; }
+
+       private:
+        uint32_t originalSfxID;
+        uint32_t replacementSfxID;
+    } __attribute__((__packed__));
+
     class RegionFlag
     {
        public:
@@ -68,7 +82,6 @@ namespace mod::rando
 
         uint16_t getHash() const { return this->hash; }
         uint8_t getStageIDX() const { return this->stageIDX; }
-        uint8_t getMagicByte() const { return this->magicByte; }
 
         uint8_t getData(uint32_t index) const
         {
@@ -83,7 +96,7 @@ namespace mod::rando
        private:
         uint16_t hash;
         uint8_t stageIDX;
-        uint8_t magicByte; // ignore this byte in data[]
+        uint8_t padding;
         uint8_t data[0x20];
     } __attribute__((__packed__));
 
@@ -155,6 +168,13 @@ namespace mod::rando
         Instruction = 0x3,     // Replaces a u32 instruction
         AlwaysLoaded = 0x4,    // Replaces values specifically in the bmgres archive which is always loaded.
         MessageResource = 0x5, // Replaces values in the MESG section of a bmgres archive file.
+    };
+
+    enum class MirrorChamberRequirement : uint8_t
+    {
+        Open = 0x0,
+        Barrier = 0x1,
+        Closed = 0x2,
     };
 
     class ARCReplacement
@@ -398,8 +418,20 @@ namespace mod::rando
         HC_Open = 0,
         HC_Fused_Shadows = 1,
         HC_Mirror_Shards,
-        HC_All_Dungeons,
-        HC_Vanilla
+        HC_Dungeons,
+        HC_Vanilla,
+        HC_Poe_Souls,
+        HC_Hearts,
+    };
+
+    enum CastleBkRequirements : uint8_t
+    {
+        HC_BK_None = 0,
+        HC_BK_Fused_Shadows = 1,
+        HC_BK_Mirror_Shards,
+        HC_BK_Dungeons,
+        HC_BK_Poe_Souls,
+        HC_BK_Hearts,
     };
 
     enum PalaceEntryRequirements : uint8_t
@@ -461,10 +493,11 @@ namespace mod::rando
         ResObjectAlink,  // Link's Equipment
         ResObjectMmdl,   // Magic Armor
         ResObjectAlAnm,  // Link's Animated Equipment
-                         // ResObjectWmdl,      // Wolf Link and Midna on back
-                         // ResObjectCWShd,     // Ordon Shield
-                         // ResObjectSWShd,     // Wooden Shield
-                         // ResObjectHyShd,     // Hylian Shield
+        ResObjectHorse,
+        ResObjectWmdl, // Wolf Link and Midna on back
+                       // ResObjectCWShd,     // Ordon Shield
+                       // ResObjectSWShd,     // Wooden Shield
+                       // ResObjectHyShd,     // Hylian Shield
 
         DvdEntryNumIdSize,
         // DvdEntryNumIdSize MUST GO LAST. When adding a new enum, put it above this one and don't forget to actually add the

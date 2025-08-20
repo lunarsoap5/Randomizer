@@ -5,6 +5,7 @@
 
 #include "item_wheel_menu.h"
 #include "main.h"
+#include "events.h"
 #include "tp/resource.h"
 #include "data/stages.h"
 #include "tp/d_meter_HIO.h"
@@ -16,6 +17,7 @@
 #include "tp/d_msg_class.h"
 #include "data/flags.h"
 #include "functionHooks.h"
+#include "tp/d_menu_Ring.h"
 
 namespace mod::item_wheel_menu
 {
@@ -135,6 +137,38 @@ namespace mod::item_wheel_menu
         // Call the original function now, as everything else should be drawn on top of the vanilla stuff
         gReturn_dMenuRing__draw(dMenuRing);
 
+        libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
+
+        bool questStatus = itemWheelMenuPtr->shouldChangeQuestItem();
+        if (checkButtonsPressedThisFrame(PadInputs::Button_DPad_Right) && questStatus)
+        {
+            using namespace libtp::data::items;
+            itemWheelMenuPtr->changeQuestItem(!questStatus);
+            static const uint8_t questItemsList[] = {Renardos_Letter, Invoice, Wooden_Statue, Ilias_Charm, Horse_Call};
+
+            constexpr uint32_t listLength = sizeof(questItemsList) / sizeof(questItemsList[0]);
+
+            for (uint32_t i = 0; i < listLength; i++)
+            {
+                const uint32_t item = questItemsList[i];
+                const uint8_t slotItem = playerPtr->player_item.item[21];
+                if (item == slotItem)
+                {
+                    uint32_t j = i;
+                    do
+                    {
+                        j = (j + 1) % listLength; // Move to next index, wrapping around if needed.
+                        if (events::haveItem(questItemsList[j]))
+                        {
+                            playerPtr->player_item.item[21] = questItemsList[j];
+                            break;
+                        }
+                    } while (j != i);
+                    break;
+                }
+            }
+        }
+
         // Everything after this point is only drawn in the menu
         if (!shouldDisplayMenu)
         {
@@ -185,8 +219,7 @@ namespace mod::item_wheel_menu
                          textSize);
 
         // Get the counts for the fused shadows and mirror shards
-        libtp::tp::d_save::dSv_player_collect_c* playerCollectPtr =
-            &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect;
+        libtp::tp::d_save::dSv_player_collect_c* playerCollectPtr = &playerPtr->player_collect;
 
         uint32_t shadowsCount = 0;
         uint32_t shardsCount = 0;

@@ -357,6 +357,16 @@ namespace mod::game_patch
                                 chosenLayer = stage::CastleTownStateIDs::Castle_Town_West_MDH_Clear;
                             }
                         }
+
+                        if (roomId == 0)
+                        {
+                            const int32_t startPoint =
+                                static_cast<int32_t>(libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.mRestart.mStartPoint);
+                            if (startPoint == 0xF)
+                            {
+                                chosenLayer = 5;
+                            }
+                        }
                         break;
                     }
 
@@ -416,31 +426,13 @@ namespace mod::game_patch
                     {
                         if (roomId == 0)
                         {
-                            condition =
-                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_1_FINISHED); // Ordon Day 1 done
-
-                            if (condition)
+                            if (!libtp::tp::d_kankyo::dKy_daynight_check())
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo Saved
-                                if (condition)
-                                {
-                                    if (!libtp::tp::d_kankyo::dKy_daynight_check())
-                                    {
-                                        chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::OrdonVillageStateIDs::Ordon_Epona_Tamed_Night;
-                                    }
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
-                                }
+                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
                             }
                             else
                             {
-                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_New_Game;
+                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Epona_Tamed_Night;
                             }
                         }
 
@@ -525,14 +517,24 @@ namespace mod::game_patch
 
                         if (condition)
                         {
-                            darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                            if (darkIsClear != false)
+                            condition =
+                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(FINISHED_SEWERS); // First trip to Sewers done
+
+                            if (condition)
                             {
-                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
+                                darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
+                                if (darkIsClear != false)
+                                {
+                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
+                                }
+                                else
+                                {
+                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
+                                }
                             }
                             else
                             {
-                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Talo_Rescued;
                             }
                         }
                         else
@@ -718,13 +720,24 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Hidden_Village:
                     {
-                        condition =
-                            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GAVE_ILIA_HER_CHARM); // Ilia shown Ilia's Charm
+                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
+                            GAVE_ILIA_THE_WOOD_STATUE); // Ilia shown the wooden statue
 
                         if (condition != false)
                         {
+                            condition =
+                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GOT_ILIAS_CHARM); // Ilia shown Ilia's Charm
+
+                            if (condition != false)
+                            {
+                                chosenLayer = stage::HiddenVillageStateIDs::Hidden_Village_Showed_Ilia_Charm;
+                            }
+                        }
+                        else
+                        {
                             chosenLayer = stage::HiddenVillageStateIDs::Hidden_Village_Showed_Ilia_Charm;
                         }
+
                         break;
                     }
 
