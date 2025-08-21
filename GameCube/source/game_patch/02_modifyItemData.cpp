@@ -77,6 +77,21 @@ namespace mod::game_patch
         }
     }
 
+    void handleTradeItemFunc(uint8_t itemId)
+    {
+        // If the trade item slot is currently set to HorseCall, skip
+        // automatically updating the slot contents when the player finds a
+        // trade item.
+        libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
+        const uint8_t currentItemInSlot = playerPtr->player_item.item[21];
+        if (currentItemInSlot != libtp::data::items::Horse_Call)
+        {
+            libtp::tp::d_save::setItem(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item,
+                                       21,
+                                       itemId);
+        }
+    }
+
     uint32_t getFoolishModelRandomIndex(rando::Randomizer* randomizer, uint8_t* foolishModelIndexes, uint32_t loopCurrentCount)
     {
         uint32_t* randStatePtr = randomizer->getRandStatePtr();
@@ -833,6 +848,43 @@ namespace mod::game_patch
         events::setSaveFileEventFlag(libtp::data::flags::DECLINED_TO_HELP_IZA);
         events::setSaveFileEventFlag(libtp::data::flags::TALKED_TO_IZA_BEFORE_UZR_PORTAL);
         events::setSaveFileEventFlag(libtp::data::flags::IZA_1_MINIGAME_UNLOCKED);
+    }
+
+    KEEP_FUNC void _02_renadosLetterItemFunc()
+    {
+        handleTradeItemFunc(libtp::data::items::Renardos_Letter);
+    }
+
+    KEEP_FUNC void _02_invoiceItemFunc()
+    {
+        handleTradeItemFunc(libtp::data::items::Invoice);
+    }
+
+    KEEP_FUNC void _02_woodenStatueItemFunc()
+    {
+        // Still set "get wood carving" event bit like the vanilla function does.
+        libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
+        libtp::tp::d_save::onEventBit(&savePtr->save_file.mEvent, 0x2204);
+
+        handleTradeItemFunc(libtp::data::items::Wooden_Statue);
+    }
+
+    KEEP_FUNC void _02_iliasCharmItemFunc()
+    {
+        handleTradeItemFunc(libtp::data::items::Ilias_Charm);
+    }
+
+    KEEP_FUNC void _02_horseCallItemFunc()
+    {
+        // Only automatically update trade item slot to HorseCall if it was empty.
+        libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
+        const uint8_t currentItemInSlot = playerPtr->player_item.item[21];
+        if (currentItemInSlot == libtp::data::items::NullItem)
+        {
+            libtp::tp::d_save::setItem(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item,
+                                       21,
+                                       libtp::data::items::Horse_Call);
+        }
     }
 
     KEEP_FUNC int32_t _02_bigWalletItemGetCheck()

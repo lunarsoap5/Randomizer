@@ -72,6 +72,7 @@
 80033060:setItem
 80034410:onLightDropGetFlag
 80033894:checkEmptyBottle
+80033cd4:setWarashibeItem
 
 // d_event.o
 800428A8:defaultSkipStb

@@ -522,6 +522,11 @@ namespace mod::game_patch
         itemFuncPtr[customItems::Sacred_Grove_Portal] = _02_SacredGrovePortalItemFunc;
         itemFuncPtr[customItems::Bridge_of_Eldin_Portal] = _02_EldinBridgePortalItemFunc;
         itemFuncPtr[customItems::Upper_Zoras_River_Portal] = _02_UpperZoraRiverPortalItemFunc;
+        itemFuncPtr[items::Renardos_Letter] = _02_renadosLetterItemFunc;
+        itemFuncPtr[items::Invoice] = _02_invoiceItemFunc;
+        itemFuncPtr[items::Wooden_Statue] = _02_woodenStatueItemFunc;
+        itemFuncPtr[items::Ilias_Charm] = _02_iliasCharmItemFunc;
+        itemFuncPtr[items::Horse_Call] = _02_horseCallItemFunc;
 
         // Some items need a valid getCheckFunc definition.
         itemGetCheckFuncPtr[items::Big_Wallet] = _02_bigWalletItemGetCheck;
