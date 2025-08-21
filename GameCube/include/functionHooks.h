@@ -307,6 +307,9 @@ namespace mod
     bool handle_isDarkClearLV(void* playerStatusPtr, int32_t twilightNode);
     extern bool (*gReturn_isDarkClearLV)(void* playerStatusPtr, int32_t twilightNode);
 
+    void handle_setWarashibeItem(libtp::tp::d_save::dSv_player_item_c* playerItemPtr, uint8_t itemID);
+    extern void (*gReturn_setWarashibeItem)(libtp::tp::d_save::dSv_player_item_c* playerItemPtr, uint8_t itemID);
+
     // Pause menu functions
     void handle_collect_save_open_init(uint8_t param_1);
     extern void (*gReturn_collect_save_open_init)(uint8_t param_1);

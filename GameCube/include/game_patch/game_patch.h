@@ -55,6 +55,7 @@ namespace mod::game_patch
     void _02_modifyFoolishShopModel(uint8_t* foolishModelIndexes, uint32_t loopCurrentCount, uint32_t shopID);
     void _02_modifyShopModelScale(uint32_t shopID, uint32_t itemID);
     void giveNodeDungeonItems(const libtp::data::stage::AreaNodesID nodeId, const libtp::data::items::NodeDungeonItemType type);
+    void handleTradeItemFunc();
 
     extern const char* _02_hiddenSkillArc;
     extern const char* _02_mirrorShardArc;
@@ -142,6 +143,11 @@ namespace mod::game_patch
     void _02_SacredGrovePortalItemFunc();
     void _02_EldinBridgePortalItemFunc();
     void _02_UpperZoraRiverPortalItemFunc();
+    void _02_renadosLetterItemFunc();
+    void _02_invoiceItemFunc();
+    void _02_woodenStatueItemFunc();
+    void _02_iliasCharmItemFunc();
+    void _02_horseCallItemFunc();
     int32_t _02_bigWalletItemGetCheck();
     int32_t _02_giantWalletItemGetCheck();
     int32_t _02_firstFusedShadowItemGetCheck();
