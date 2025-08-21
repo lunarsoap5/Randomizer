@@ -1653,13 +1653,13 @@ namespace mod
         return ret;
     }
 
-    KEEP_FUNC void handle_endFlowGroup(void* msgObjPtr)
+    KEEP_FUNC void handle_endFlowGroup()
     {
         // Force reset flowContext info when flow group ends.
         rando::gRandomizer->checkResetFlowContext(nullptr);
 
         // Call original function
-        gReturn_endFlowGroup(msgObjPtr);
+        gReturn_endFlowGroup();
     }
 
     KEEP_FUNC void handle_talkEnd(void* eventPtr)

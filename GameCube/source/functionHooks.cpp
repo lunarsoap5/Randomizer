@@ -175,7 +175,7 @@ namespace mod
                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
 
-    KEEP_VAR void (*gReturn_endFlowGroup)(void* msgObjPtr) = nullptr;
+    KEEP_VAR void (*gReturn_endFlowGroup)() = nullptr;
 
     // Event functions
     KEEP_VAR void (*gReturn_talkEnd)(void* eventPtr) = nullptr;
