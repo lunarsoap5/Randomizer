@@ -67,7 +67,7 @@ namespace mod::events
 
     // Scene Change SCOB template
     const libtp::tp::dzx::SCOB gScnChgScob =
-        {"scnChg", 0xFFFFFF01, -2936.f, -200.f, 5425.f, 0xFFF, 0, 0xFFF, 0xFFFF, 0x14, 0x0A, 0x14, 0xFF};
+        {"scnChg", 0xFFFF0001, -3176.f, -600.f, 5480.f, 0xFFF, 0, 0xFFF, 0xFFFF, 0x14, 0x43, 0x36, 0xFF};
 
     // Golden Wolf actor placed in Faron Woods.
     const libtp::tp::dzx::ACTR gForestGWolfActr =
