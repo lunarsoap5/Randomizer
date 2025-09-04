@@ -1704,6 +1704,16 @@ namespace mod
                     libtp::tp::d_save::offSwitch_dSv_memBit(memoryBit, 0xB);
                 }
             }
+            else if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Hyrule_Field]))
+            {
+                if (flag == 0x11) // Destroyed North Eldin rocks barrier
+                {
+                    // Unlock Eldin Province on map. We do this manually rather than calling `onRegionBit` since that
+                    // function would see that the rocks are not yet broken and would skip enabling the region.
+                    libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_last_stay_info
+                        .player_last_region |= 0x08;
+                }
+            }
         }
 
         if (memoryBit == &savePtr->save_file.mSave[6].temp_flags)
@@ -1761,6 +1771,72 @@ namespace mod
             itemID = libtp::data::items::Horse_Call;
         }
         gReturn_setWarashibeItem(playerItemPtr, itemID);
+    }
+
+    KEEP_FUNC void handle_onRegionBit(libtp::tp::d_save::dSv_player_field_last_stay_info_c* lastStayInfoPtr, int32_t i_region)
+    {
+        using namespace libtp::tp;
+
+        // Make barriers between Eldin and Lanayru Provinces (North Eldin rocks and CT bridge) work both ways.
+        // Prevents barely walking into Eldin Province from Lanayru to unlock Eldin warping when you otherwise
+        // have no way to proceed on foot.
+        if (i_region == 3) // Eldin Province
+        {
+            bool checkNorthEldinRocks = false;
+
+            if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hidden_Village]))
+            {
+                checkNorthEldinRocks = true;
+            }
+            else if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hyrule_Field]))
+            {
+                int32_t currentRoom = libtp::tools::getCurrentRoomNo();
+                if (currentRoom == 7) // Outside Hidden Village
+                {
+                    checkNorthEldinRocks = true;
+                }
+                else if (currentRoom == 0) // Big Eldin Field room
+                {
+                    int32_t previousRoom = libtp::tools::getPreviousRoomNo();
+                    if (previousRoom == 7)
+                    {
+                        // Walked to big Eldin Field room from outside HV
+                        checkNorthEldinRocks = true;
+                    }
+                    else if (previousRoom == -1)
+                    {
+                        // Here we are freshly loading into room 0 rather than walking to it.
+                        int16_t startStagePoint = d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mPoint;
+                        if (startStagePoint == -1)
+                        {
+                            // Never unlock Eldin Province when entering the big EF room by voiding/gameOver. Returning
+                            // from a void is based on position and not spawn, so any spawnPoint references are either
+                            // -1 or, in the case of approaching from the north, outdated and variable. This prevents
+                            // different workarounds where you void or die to unlock the region when respawning.
+                            return;
+                        }
+                        else if (startStagePoint == 7 &&
+                                 !d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags, 0x1B))
+                        {
+                            // If we are entering from the CT side of the bridge, skip unlocking if the bridge
+                            // has not yet been repaired.
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (checkNorthEldinRocks &&
+                !d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.save_file.mSave[6].temp_flags, 0x11))
+            {
+                // If Eldin/Lanayru barrier rocks are not broken, then return without unlocking Eldin Province.
+                // Breaking the rocks will immediately unlock Eldin Province (handled by other code).
+                return;
+            }
+        }
+
+        // Otherwise call the function normally.
+        gReturn_onRegionBit(lastStayInfoPtr, i_region);
     }
 
     KEEP_FUNC void handle_collect_save_open_init(uint8_t param_1)
