@@ -1777,9 +1777,9 @@ namespace mod
     {
         using namespace libtp::tp;
 
-        // Make barriers between Eldin and Lanayru Provinces (North Eldin rocks and CT bridge) work both ways.
-        // Prevents barely walking into Eldin Province from Lanayru to unlock Eldin warping when you otherwise
-        // have no way to proceed on foot.
+        // Make barriers between Lanayru/Eldin (North Eldin rocks and CT bridge) and Lanayru/Faron (gate keys)
+        // work both ways. Prevents barely walking into other Provinces from giving you full warp access when
+        // you otherwise have no way to proceed on foot.
         if (i_region == 3) // Eldin Province
         {
             bool checkNorthEldinRocks = false;
@@ -1831,6 +1831,16 @@ namespace mod
             {
                 // If Eldin/Lanayru barrier rocks are not broken, then return without unlocking Eldin Province.
                 // Breaking the rocks will immediately unlock Eldin Province (handled by other code).
+                return;
+            }
+        }
+        else if (i_region == 2) // Faron Province
+        {
+            if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hyrule_Field]) &&
+                libtp::tools::getCurrentRoomNo() == 15)
+            {
+                // The Lanayru/Faron gate which requires gate keys is in the middle of this room. Prevent this
+                // room from unlocking Faron province so you do not get free access from the Lanayru side.
                 return;
             }
         }
