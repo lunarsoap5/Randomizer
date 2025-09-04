@@ -484,6 +484,7 @@
 
 // d_menu_fmap.o
 801c88c4:region_map_proc
+801c98dc:spot_map_proc
 
 // d_menu_fmap2D.o
 801d27cc:isShowRegion

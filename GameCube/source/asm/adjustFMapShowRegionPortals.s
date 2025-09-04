@@ -1,16 +1,17 @@
-.global asmAdjustFMapShowRegionPortals
-# asmAdjustFMapShowRegionPortals needs to be used in at least one subrel, so it cannot be set to hidden
+.global asmFmapPreventPortalsRegion
+.hidden asmFmapPreventPortalsRegionDone
 
-.hidden _finished
+.global asmFmapPreventPortalsSpot
+.hidden asmFmapPreventPortalsSpotDone
 
-# At instruction 801c86e0, do vanilla instruction which loads into r3 the
-# `mpDraw2DTop`. We check on this the field at offset 0x1227 which is a byte
-# indicating the current region. We check if this is unlocked. If it is, then we
-# return to the normal flow. If it is not unlocked, then we branch to the "play
-# sound effect" setting up which is at 801c8778. The only register we need to
-# protect is r3.
+# asmFmapPreventPortalsRegion and asmFmapPreventPortalsSpot need to be used in at least one subrel, so they cannot be set to hidden
 
-asmAdjustFMapShowRegionPortals:
+# We check if currently viewed region is unlocked. If unlocked, function proceeds normally. If not unlocked, we jump
+# further down the function where it plays a `Z2SE_SYS_ERROR` sound effect and exits the function.
+# There are 2 very similar versions in this file: one for the region view and one for the spot view.
+
+
+asmFmapPreventPortalsRegion:
 # Restore the original instruction immediately
 lwz %r3,0x18(%r30)
 
@@ -22,24 +23,94 @@ stw %r0,0x14(%sp)
 # Backup important register values
 stw %r3,0x8(%sp)
 
-mr %r3,%r30 # Move dMenu_Fmap*
-bl handleAdjustFMapShowRegionPortals
+mr %r3,%r30 # dMenu_Fmap*
+bl handleFmapPreventPortals
 cmplwi %r3,1
 
-# If result is 0 (not unlocked), then we need to adjust the link register so we return to 
-
-
-# Pop stack
+# Begin pop stack
 lwz %r3,0x14(%sp)
-beq+ _finished
-# Increase to soundEffect code if not unlocked
+
+# Adjust LR address to return to if region not unlocked
+beq+ asmFmapPreventPortalsRegionDone
 addi %r3,%r3,0x94
-
-_finished:
+asmFmapPreventPortalsRegionDone:
 mr %r0,%r3
-# Restore important register values
-lwz %r3,0x8(%sp)
 
+# Restore important register values and end pop stack
+lwz %r3,0x8(%sp)
 mtlr %r0
 addi %sp,%sp,0x10
 blr
+
+
+### Spot version
+# spot_map_proc is missing the handling for post-AG but pre-mirrorRaising that is present in the
+# region_map_proc function. This was corrected in the JP version, hence the different versions below.
+
+#ifdef TP_JP
+
+asmFmapPreventPortalsSpot:
+# Restore the original instruction immediately
+lwz %r3,0x18(%r30)
+
+# Push stack
+stwu %sp,-0x10(%sp)
+mflr %r0
+stw %r0,0x14(%sp)
+
+# Backup important register values
+stw %r3,0x8(%sp)
+
+mr %r3,%r30 # dMenu_Fmap*
+bl handleFmapPreventPortals
+cmplwi %r3,1
+
+# Begin pop stack
+lwz %r3,0x14(%sp)
+
+# Adjust LR address to return to if region not unlocked
+beq+ asmFmapPreventPortalsSpotDone
+addi %r3,%r3,0x254
+asmFmapPreventPortalsSpotDone:
+mr %r0,%r3
+
+# Restore important register values and end pop stack
+lwz %r3,0x8(%sp)
+mtlr %r0
+addi %sp,%sp,0x10
+blr
+
+#else
+
+asmFmapPreventPortalsSpot:
+# Restore the original instruction immediately
+lwz %r3,0x18(%r31)
+
+# Push stack
+stwu %sp,-0x10(%sp)
+mflr %r0
+stw %r0,0x14(%sp)
+
+# Backup important register values
+stw %r3,0x8(%sp)
+
+mr %r3,%r31 # dMenu_Fmap*
+bl handleFmapPreventPortals
+cmplwi %r3,1
+
+# Begin pop stack
+lwz %r3,0x14(%sp)
+
+# Adjust LR address to return to if region not unlocked
+beq+ asmFmapPreventPortalsSpotDone
+addi %r3,%r3,0x1A0
+asmFmapPreventPortalsSpotDone:
+mr %r0,%r3
+
+# Restore important register values and end pop stack
+lwz %r3,0x8(%sp)
+mtlr %r0
+addi %sp,%sp,0x10
+blr
+
+#endif

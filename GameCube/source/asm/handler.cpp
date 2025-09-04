@@ -164,7 +164,7 @@ namespace mod::assembly
         return status;
     }
 
-    bool handleAdjustFMapShowRegionPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap)
+    bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap)
     {
         // Checks if the region the map is currently zoomed in on is unlocked.
         // This is used to check whether or not to show portals on Z press.

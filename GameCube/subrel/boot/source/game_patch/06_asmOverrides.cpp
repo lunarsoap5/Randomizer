@@ -155,7 +155,12 @@ namespace mod::game_patch
         // Modify dMenu_Fmap_c::region_map_proc so Z button press does not show
         // portals when zoomed on region if that region is not unlocked/showing.
         const uint32_t regionMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::region_map_proc);
-        libtp::patch::writeBranchBL(regionMapProcAddr + 0xE0, assembly::asmAdjustFMapShowRegionPortals);
+        libtp::patch::writeBranchBL(regionMapProcAddr + 0xE0, assembly::asmFmapPreventPortalsRegion);
+
+        // Modify dMenu_Fmap_c::spot_map_proc so Z button press does not show
+        // portals when zoomed on region if that region is not unlocked/showing.
+        const uint32_t spotMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::spot_map_proc);
+        libtp::patch::writeBranchBL(spotMapProcAddr + 0xD8, assembly::asmFmapPreventPortalsSpot);
 
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);

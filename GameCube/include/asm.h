@@ -110,8 +110,9 @@ namespace mod::assembly
         int32_t handleManageEquippedItemsAsWolf(int32_t status);
 
         // d_menu_fmap.o
-        void asmAdjustFMapShowRegionPortals();
-        bool handleAdjustFMapShowRegionPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap);
+        void asmFmapPreventPortalsRegion();
+        void asmFmapPreventPortalsSpot();
+        bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap);
 
         // d_a_alink.o
 #ifdef TP_JP
