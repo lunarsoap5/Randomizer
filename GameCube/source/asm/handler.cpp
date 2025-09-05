@@ -13,6 +13,8 @@
 #include "data/flags.h"
 #include "tp/d_a_npc.h"
 #include "game_patch/game_patch.h"
+#include "tp/d_menu_fmap.h"
+#include "tp/d_menu_fmap2D.h"
 
 namespace mod::assembly
 {
@@ -160,6 +162,17 @@ namespace mod::assembly
             return 0;
         }
         return status;
+    }
+
+    bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap)
+    {
+        // Checks if the region the map is currently zoomed in on is unlocked.
+        // This is used to check whether or not to show portals on Z press.
+        uint8_t regionCursor = dMenuFMap->mpDraw2DBack->mRegionCursor;
+
+        return libtp::tp::d_save::isRegionBit(
+            &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_last_stay_info,
+            regionCursor + 1);
     }
 
 #ifdef TP_JP

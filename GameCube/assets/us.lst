@@ -47,6 +47,7 @@
 80026b58:stageLoader
 80025014:dStage_playerInit
 80450D64:mStayNo
+80450D65:mOldStayNo
 
 // d_save.o
 80032AA8:getRupeeMax
@@ -73,6 +74,8 @@
 80034368:onLightDropGetFlag
 800337ec:checkEmptyBottle
 80033c2c:setWarashibeItem
+80032e4c:onRegionBit
+80032e78:isRegionBit
 
 // d_event.o
 80042778:defaultSkipStb
@@ -480,7 +483,12 @@
 // JKRArchivePri.o
 802D65A4:JKRArchive_findFsResource
 
+// d_menu_fmap.o
+801c8600:region_map_proc
+801c9618:spot_map_proc
+
 // d_menu_fmap2D.o
+801d2508:isShowRegion
 801d7994:checkPlayerWarpAccept
 
 // vi.o

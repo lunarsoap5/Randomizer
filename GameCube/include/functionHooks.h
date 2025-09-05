@@ -310,6 +310,9 @@ namespace mod
     void handle_setWarashibeItem(libtp::tp::d_save::dSv_player_item_c* playerItemPtr, uint8_t itemID);
     extern void (*gReturn_setWarashibeItem)(libtp::tp::d_save::dSv_player_item_c* playerItemPtr, uint8_t itemID);
 
+    void handle_onRegionBit(libtp::tp::d_save::dSv_player_field_last_stay_info_c* lastStayInfoPtr, int32_t i_region);
+    extern void (*gReturn_onRegionBit)(libtp::tp::d_save::dSv_player_field_last_stay_info_c* lastStayInfoPtr, int32_t i_region);
+
     // Pause menu functions
     void handle_collect_save_open_init(uint8_t param_1);
     extern void (*gReturn_collect_save_open_init)(uint8_t param_1);
