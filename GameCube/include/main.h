@@ -71,7 +71,7 @@ namespace mod
     void handleFoolishItem(rando::Randomizer* randoPtr);
     void handleBonkDamage();
     bool handleAdjustToTSwordReq();
-    void adjustLanternColorValues();
+    void adjustMidnaHairColor();
 
     // Inline getConsole, as it's just a shortcut to get a reference to the console variable
     inline libtp::display::Console& getConsole()
