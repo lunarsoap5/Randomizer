@@ -163,6 +163,7 @@ namespace mod::game_patch
 
         shopItemDataPtr->arcName = fieldItemResPtr->arcName;
         shopItemDataPtr->modelResIdx = fieldItemResPtr->modelResIdx;
+        shopItemDataPtr->wBtkResIdx = fieldItemResPtr->btkResIdx;
         shopItemDataPtr->wBckResIdx = fieldItemResPtr->bckResIdx;
         shopItemDataPtr->wBrkResIdx = fieldItemResPtr->brkResIdx;
         shopItemDataPtr->wBtpResIdx = fieldItemResPtr->btpResIdx;
