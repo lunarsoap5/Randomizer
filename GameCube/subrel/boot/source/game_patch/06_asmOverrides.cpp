@@ -20,6 +20,7 @@
 #include "tp/d_menu_ring.h"
 #include "tp/d_a_obj_item.h"
 #include "tp/d_s_play.h"
+#include "tp/d_menu_fmap.h"
 
 namespace mod::game_patch
 {
@@ -150,6 +151,20 @@ namespace mod::game_patch
         const uint32_t dScnPlayPhase1Addr = reinterpret_cast<uint32_t>(libtp::tp::d_s_play::dScnPlay_phase_1);
         *reinterpret_cast<uint32_t*>(dScnPlayPhase1Addr + 0x234) = ASM_NOP;
         libtp::patch::writeBranchBL(dScnPlayPhase1Addr + 0x24C, events::replaceHorseCallItem);
+
+        // Modify dMenu_Fmap2DBack_c::isShowRegion so region you are currently in does not automatically show.
+        const uint32_t isShowRegionAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap2D::isShowRegion);
+        *reinterpret_cast<uint32_t*>(isShowRegionAddr + 0x130) = ASM_LOAD_IMMEDIATE(3, 0);
+
+        // Modify dMenu_Fmap_c::region_map_proc so Z button press does not show
+        // portals when zoomed on region if that region is not unlocked/showing.
+        const uint32_t regionMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::region_map_proc);
+        libtp::patch::writeBranchBL(regionMapProcAddr + 0xE0, assembly::asmFmapPreventPortalsRegion);
+
+        // Modify dMenu_Fmap_c::spot_map_proc so Z button press does not show
+        // portals when double-zoomed on region if that region is not unlocked/showing.
+        const uint32_t spotMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::spot_map_proc);
+        libtp::patch::writeBranchBL(spotMapProcAddr + 0xD8, assembly::asmFmapPreventPortalsSpot);
 
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);

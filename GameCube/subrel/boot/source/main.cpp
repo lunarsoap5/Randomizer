@@ -245,6 +245,8 @@ namespace mod
         gReturn_onSwitch_dSv_memBit = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_memBit, handle_onSwitch_dSv_memBit);
         gReturn_onSwitch_dSv_info = patch::hookFunction(libtp::tp::d_save::onSwitch_dSv_info, handle_onSwitch_dSv_info);
         gReturn_isDarkClearLV = patch::hookFunction(tp::d_save::isDarkClearLV, handle_isDarkClearLV);
+        gReturn_setWarashibeItem = patch::hookFunction(tp::d_save::setWarashibeItem, handle_setWarashibeItem);
+        gReturn_onRegionBit = patch::hookFunction(tp::d_save::onRegionBit, handle_onRegionBit);
 
         // Pause Menu Functions
         gReturn_collect_save_open_init =

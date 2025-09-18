@@ -1,4 +1,5 @@
 #include <cstring>
+#include <math.h>
 
 #include "events.h"
 #include "asm.h"
@@ -66,7 +67,7 @@ namespace mod::events
 
     // Scene Change SCOB template
     const libtp::tp::dzx::SCOB gScnChgScob =
-        {"scnChg", 0xFFFFFF01, -2936.f, -200.f, 5425.f, 0xFFF, 0, 0xFFF, 0xFFFF, 0x14, 0x0A, 0x14, 0xFF};
+        {"scnChg", 0xFFFF0001, -3176.f, -600.f, 5480.f, 0xFFF, 0, 0xFFF, 0xFFFF, 0x14, 0x43, 0x36, 0xFF};
 
     // Golden Wolf actor placed in Faron Woods.
     const libtp::tp::dzx::ACTR gForestGWolfActr =
@@ -2198,15 +2199,53 @@ namespace mod::events
     {
         const rando::RawRGBTable* rawRGBListPtr = rando::gRandomizer->getSeedPtr()->getRawRGBTablePtr();
         const uint8_t* lanternColorPtr = rawRGBListPtr->getLanternColorPtr();
+        ;
 
         if (rawRGBListPtr->getLanternColor() != 0x502814ff) // Don't set the value if it is already vanilla
         {
-            color1->r = lanternColorPtr[0];
-            color1->g = lanternColorPtr[1];
-            color1->b = lanternColorPtr[2];
-            color2->r = lanternColorPtr[0];
-            color2->g = lanternColorPtr[1];
-            color2->b = lanternColorPtr[2];
+            if (!rando::gRandomizer->getSeedPtr()->isLanternRainbow())
+            {
+                color1->r = lanternColorPtr[0];
+                color1->g = lanternColorPtr[1];
+                color1->b = lanternColorPtr[2];
+                color2->r = lanternColorPtr[0];
+                color2->g = lanternColorPtr[1];
+                color2->b = lanternColorPtr[2];
+            }
+            else
+            {
+                float angleIncrement = 1.0f; // Degrees per frame (Adjust for speed)
+                rainbowPhaseAngle += angleIncrement;
+                if (rainbowPhaseAngle >= 360.0f)
+                {
+                    rainbowPhaseAngle -= 360.0f;
+                }
+                float phase_rad = rainbowPhaseAngle * M_PI / 180.0f;
+
+                uint16_t r_val = static_cast<uint16_t>(127.5f * (sinf(phase_rad) + 1.0f) + 0.5f);
+                uint16_t g_val = static_cast<uint16_t>(127.5f * (sinf(phase_rad + 2.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
+                uint16_t b_val = static_cast<uint16_t>(127.5f * (sinf(phase_rad + 4.0f * M_PI / 3.0f) + 1.0f));
+
+                // Apply to lantern HIO variables
+                libtp::tp::d_a_alink::daAlinkHIO_kandelaar_c0* lv = &libtp::tp::d_a_alink::lanternVars;
+                libtp::tp::d_a_alink::daAlinkHIO_huLight_c0* hlv = &libtp::tp::d_a_alink::huLightVars;
+
+                lv->innerSphereR = r_val / 2;
+                lv->innerSphereG = g_val / 2;
+                lv->innerSphereB = b_val / 2;
+                lv->outerSphereR = r_val / 2;
+                lv->outerSphereG = g_val / 2;
+                lv->outerSphereB = b_val / 2;
+                hlv->lanternAmbienceR = r_val / 2;
+                hlv->lanternAmbienceG = g_val / 2;
+                hlv->lanternAmbienceB = b_val / 2;
+                color1->r = r_val / 2;
+                color1->g = g_val / 2;
+                color1->b = b_val / 2;
+                color2->r = r_val / 2;
+                color2->g = g_val / 2;
+                color2->b = b_val / 2;
+            }
         }
 
         libtp::tp::d_pane_class::setBlackWhite(panePtr, color1, color2);

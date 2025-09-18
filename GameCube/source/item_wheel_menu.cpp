@@ -160,7 +160,10 @@ namespace mod::item_wheel_menu
                         j = (j + 1) % listLength; // Move to next index, wrapping around if needed.
                         if (events::haveItem(questItemsList[j]))
                         {
-                            playerPtr->player_item.item[21] = questItemsList[j];
+                            libtp::tp::d_save::setItem(
+                                &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item,
+                                21,
+                                questItemsList[j]);
                             break;
                         }
                     } while (j != i);

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cinttypes>
+#include <math.h>
 
 #ifdef DVD
 #include "gc_wii/dvd.h"
@@ -62,6 +63,7 @@ namespace mod
     // Variables
     KEEP_VAR libtp::display::Console* gConsole = nullptr;
     KEEP_VAR bool gConsoleState = false;
+    KEEP_VAR float rainbowPhaseAngle = 0.0f;
 
     void main()
     {
@@ -472,10 +474,15 @@ namespace mod
             events::handleTimeSpeed();
         }
 
-        // Giving items at any point
         if (linkMapPtr)
         {
+            // Giving items at any point
             initGiveItemToPlayer(linkMapPtr, randoPtr);
+
+            if (randoPtr->getSeedPtr()->isMidnaHairRainbow())
+            {
+                adjustMidnaHairColor();
+            }
         }
 
         // End of custom events
@@ -2110,6 +2117,16 @@ namespace mod
                     libtp::tp::d_save::offSwitch_dSv_memBit(memoryBit, 0xB);
                 }
             }
+            else if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Hyrule_Field]))
+            {
+                if (flag == 0x11) // Destroyed North Eldin rocks barrier
+                {
+                    // Unlock Eldin Province on map. We do this manually rather than calling `onRegionBit` since that
+                    // function would see that the rocks are not yet broken and would skip enabling the region.
+                    libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_last_stay_info
+                        .player_last_region |= 0x08;
+                }
+            }
         }
 
         if (memoryBit == &savePtr->save_file.mSave[6].temp_flags)
@@ -2154,6 +2171,95 @@ namespace mod
         }
 
         return gReturn_isDarkClearLV(playerStatusPtr, twilightNode);
+    }
+
+    KEEP_FUNC void handle_setWarashibeItem(libtp::tp::d_save::dSv_player_item_c* playerItemPtr, uint8_t itemID)
+    {
+        // If the trade item slot would be emptied (such as after showing the
+        // Invoice) and the player already has the HorseCall, update the trade
+        // item slot to be the HorseCall instead of removing the slot.
+        if (itemID == libtp::data::items::NullItem &&
+            libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Horse_Call))
+        {
+            itemID = libtp::data::items::Horse_Call;
+        }
+        gReturn_setWarashibeItem(playerItemPtr, itemID);
+    }
+
+    KEEP_FUNC void handle_onRegionBit(libtp::tp::d_save::dSv_player_field_last_stay_info_c* lastStayInfoPtr, int32_t i_region)
+    {
+        using namespace libtp::tp;
+
+        // Make barriers between Lanayru/Eldin (North Eldin rocks and CT bridge) and Lanayru/Faron (gate keys)
+        // work both ways. Prevents barely walking into other Provinces from giving you full warp access when
+        // you otherwise have no way to proceed on foot.
+        if (i_region == 3) // Eldin Province
+        {
+            bool checkNorthEldinRocks = false;
+
+            if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hidden_Village]))
+            {
+                checkNorthEldinRocks = true;
+            }
+            else if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hyrule_Field]))
+            {
+                int32_t currentRoom = libtp::tools::getCurrentRoomNo();
+                if (currentRoom == 7) // Outside Hidden Village
+                {
+                    checkNorthEldinRocks = true;
+                }
+                else if (currentRoom == 0) // Big Eldin Field room
+                {
+                    int32_t previousRoom = libtp::tools::getPreviousRoomNo();
+                    if (previousRoom == 7)
+                    {
+                        // Walked to big Eldin Field room from outside HV
+                        checkNorthEldinRocks = true;
+                    }
+                    else if (previousRoom == -1)
+                    {
+                        // Here we are freshly loading into room 0 rather than walking to it.
+                        int16_t startStagePoint = d_com_inf_game::dComIfG_gameInfo.play.mStartStage.mPoint;
+                        if (startStagePoint == -1)
+                        {
+                            // Never unlock Eldin Province when entering the big EF room by voiding/gameOver. Returning
+                            // from a void is based on position and not spawn, so any spawnPoint references are either
+                            // -1 or, in the case of approaching from the north, outdated and variable. This prevents
+                            // different workarounds where you void or die to unlock the region when respawning.
+                            return;
+                        }
+                        else if (startStagePoint == 7 &&
+                                 !d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.memory.temp_flags, 0x1B))
+                        {
+                            // If we are entering from the CT side of the bridge, skip unlocking if the bridge
+                            // has not yet been repaired.
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (checkNorthEldinRocks &&
+                !d_save::isSwitch_dSv_memBit(&d_com_inf_game::dComIfG_gameInfo.save.save_file.mSave[6].temp_flags, 0x11))
+            {
+                // If Eldin/Lanayru barrier rocks are not broken, then return without unlocking Eldin Province.
+                // Breaking the rocks will immediately unlock Eldin Province (handled by other code).
+                return;
+            }
+        }
+        else if (i_region == 2) // Faron Province
+        {
+            if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hyrule_Field]) &&
+                libtp::tools::getCurrentRoomNo() == 15)
+            {
+                // The Lanayru/Faron gate which requires gate keys is in the middle of this room. Prevent this
+                // room from unlocking Faron province so you do not get free access from the Lanayru side.
+                return;
+            }
+        }
+
+        // Otherwise call the function normally.
+        gReturn_onRegionBit(lastStayInfoPtr, i_region);
     }
 
     KEEP_FUNC void handle_collect_save_open_init(uint8_t param_1)
@@ -2603,6 +2709,44 @@ namespace mod
         }
 
         return false;
+    }
+
+    KEEP_FUNC void adjustMidnaHairColor()
+    {
+        // Rainbow Calculations
+        float angleIncrement = 1.0f;
+        rainbowPhaseAngle += angleIncrement;
+        if (rainbowPhaseAngle >= 360.0f)
+            rainbowPhaseAngle -= 360.0f;
+        float phase_rad = rainbowPhaseAngle * (float)(M_PI / 180.0);
+
+        const float amplitude = 127.5f;
+        uint16_t r_val = static_cast<uint16_t>(amplitude * (sinf(phase_rad) + 1.0f) + 0.5f);
+        uint16_t g_val = static_cast<uint16_t>(amplitude * (sinf(phase_rad + 2.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
+        uint16_t b_val = static_cast<uint16_t>(amplitude * (sinf(phase_rad + 4.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
+
+        // Apply to Midna's Hair
+        libtp::tp::d_a_player::daMidna_c* midnaPtr = libtp::tp::d_a_player::m_midnaActor;
+
+        if (midnaPtr != nullptr)
+        {
+            const uint8_t tip_color = 200;
+
+            midnaPtr->field_0x6e0.r = static_cast<int16_t>(r_val);
+            midnaPtr->field_0x6e0.g = static_cast<int16_t>(g_val);
+            midnaPtr->field_0x6e0.b = static_cast<int16_t>(b_val);
+            midnaPtr->field_0x6e0.a = 0;
+
+            midnaPtr->field_0x6e8.r = static_cast<int8_t>(r_val / 10.0f);
+            midnaPtr->field_0x6e8.g = static_cast<int8_t>(g_val / 10.0f);
+            midnaPtr->field_0x6e8.b = static_cast<int8_t>(b_val / 10.0f);
+            midnaPtr->field_0x6e8.a = 0;
+
+            midnaPtr->field_0x6ec.r = tip_color;
+            midnaPtr->field_0x6ec.g = tip_color;
+            midnaPtr->field_0x6ec.b = tip_color;
+            midnaPtr->field_0x6ec.a = 0;
+        }
     }
 
     // This is called in the NON-MAIN thread which is loading the archive where `mountArchive->mIsDone = true;` would be called

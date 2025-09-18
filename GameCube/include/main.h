@@ -38,6 +38,10 @@
 #define KEEP_FUNC __attribute__((used, visibility("default")))
 #define KEEP_VAR __attribute__((visibility("default")))
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace mod
 {
     enum GameState : uint8_t
@@ -50,6 +54,7 @@ namespace mod
     // Variables
     extern libtp::display::Console* gConsole;
     extern bool gConsoleState;
+    extern float rainbowPhaseAngle;
 
     void setConsoleScreen(bool state); // Sets visibility of console
 
@@ -66,6 +71,7 @@ namespace mod
     void handleFoolishItem(rando::Randomizer* randoPtr);
     void handleBonkDamage();
     bool handleAdjustToTSwordReq();
+    void adjustMidnaHairColor();
 
     // Inline getConsole, as it's just a shortcut to get a reference to the console variable
     inline libtp::display::Console& getConsole()

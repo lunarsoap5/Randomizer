@@ -17,6 +17,7 @@
 #include "tp/f_op_actor.h"
 #include "tp/d_a_alink.h"
 #include "tp/d_msg_flow.h"
+#include "tp/d_menu_fmap.h"
 
 // Original: li 0xE0
 // Normally loads the poesoul item id into r4
@@ -126,6 +127,11 @@ namespace mod::assembly
         // d_msg_object.o
         void asmAdjustSelectMsg();
         const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr);
+
+        // d_menu_fmap.o
+        void asmFmapPreventPortalsRegion();
+        void asmFmapPreventPortalsSpot();
+        bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap);
 
         // d_a_alink.o
 #ifdef TP_JP

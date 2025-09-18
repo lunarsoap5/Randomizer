@@ -47,6 +47,7 @@
 80026b58:stageLoader
 80025014:dStage_playerInit
 8044aea4:mStayNo
+8044aea5:mOldStayNo
 
 // d_save.o
 80032AA8:getRupeeMax
@@ -72,6 +73,9 @@
 80034368:onLightDropGetFlag
 80032bec:isTransformLV
 800337ec:checkEmptyBottle
+80033c2c:setWarashibeItem
+80032e4c:onRegionBit
+80032e78:isRegionBit
 
 // d_event.o
 80042778:defaultSkipStb
@@ -473,7 +477,12 @@
 // JKRArchivePri.o
 802D8A40:JKRArchive_findFsResource
 
+// d_menu_fmap.o
+801c85c0:region_map_proc
+801c95d8:spot_map_proc
+
 // d_menu_fmap2D.o
+801d257c:isShowRegion
 801d7a08:checkPlayerWarpAccept
 
 // vi.o
@@ -502,3 +511,6 @@
 
 // JAISe.o
 802a1a90:JAISeMgr_start_ID
+
+// math 
+8036ee84:sinf
