@@ -162,20 +162,20 @@ namespace mod::rando
         /* 0x7C */ EntryInfo fanfareTableInfo;
         /* 0x80 */ EntryInfo sfxTableInfo;
         /* 0x84 */ uint16_t clr0Offset;
-        /* 0x86 */ uint16_t customTextHeaderSize;
-        /* 0x88 */ uint16_t customTextHeaderOffset;
-        /* 0x8A */ uint16_t maloShopDonationAmount;
-        /* 0x8C */ uint8_t castleRequirements;
-        /* 0x8D */ uint8_t palaceRequirements;
-        /* 0x8E */ uint8_t mapClearBits;
-        /* 0x8F */ uint8_t damageMagnification;
-        /* 0x90 */ uint8_t totSwordRequirement;
-        /* 0x91 */ uint8_t mirrorChamberEntrance;
-        /* 0x92 */ uint8_t barrierReqCount; // See below for notes
-        /* 0x93 */ uint8_t hcBkRequirement;
-        /* 0x94 */ uint8_t hcBkReqCount; // See below for notes
-        /* 0x95 */ uint8_t walletSize;
-        /* 0x96 */ uint16_t bmg0Offset;
+        /* 0x86 */ uint16_t bmg0Offset;
+        /* 0x88 */ uint16_t customTextHeaderSize;
+        /* 0x8A */ uint16_t customTextHeaderOffset;
+        /* 0x8C */ uint16_t maloShopDonationAmount;
+        /* 0x8E */ uint8_t castleRequirements;
+        /* 0x8F */ uint8_t palaceRequirements;
+        /* 0x90 */ uint8_t mapClearBits;
+        /* 0x91 */ uint8_t damageMagnification;
+        /* 0x92 */ uint8_t totSwordRequirement;
+        /* 0x93 */ uint8_t mirrorChamberEntrance;
+        /* 0x94 */ uint8_t barrierReqCount; // See below for notes
+        /* 0x95 */ uint8_t hcBkRequirement;
+        /* 0x96 */ uint8_t hcBkReqCount; // See below for notes
+        /* 0x97 */ uint8_t walletSize;
     } __attribute__((__packed__));
 
     /* The 'reqCount' variables are dynamic and based on their respective requirement. (i.e if reqCount is 4 and the requirement
