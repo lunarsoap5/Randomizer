@@ -102,6 +102,9 @@ namespace mod
                                                 int32_t num,
                                                 void* raw_data);
 
+    void handle_dStage_Create();
+    extern void (*gReturn_dStage_Create)();
+
     // State functions
     extern int32_t (*gReturn_getLayerNo_common_common)(const char* stageName, int32_t roomId, int32_t layerOverride);
 
