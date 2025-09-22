@@ -938,6 +938,35 @@ namespace mod::game_patch
         return 1;
     }
 
+    int _05_customEvent70_warp()
+    {
+        using namespace libtp::data;
+        using namespace libtp::tp;
+
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
+        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
+
+        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
+
+        strncpy(nextStagePtr->mStage,
+                libtp::data::stage::allStages[libtp::data::stage::StageIDs::Lake_Hylia],
+                sizeof(nextStagePtr->mStage) - 1);
+
+        nextStagePtr->mRoomNo = 0; // Main LH room
+        nextStagePtr->mPoint = 13;
+        savePtr->mRestart.mStartPoint = 13;
+        // nextStagePtr->mPoint = 0;
+        // savePtr->mRestart.mStartPoint = 0;
+        nextStagePtr->mLayer = -1;
+
+        // nextStagePtr->wipe = 13;
+        savePtr->mRestart.mLastMode = 0;
+        nextStagePtr->enabled |= 0x1;
+
+        return 1;
+    }
+
     // int (*customEventFunctions[1])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
     //                                void* flowNode,
     //                                libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
@@ -945,8 +974,9 @@ namespace mod::game_patch
     uint32_t customQueryFunctions[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery054_returnParams)},
                                            {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery055_canChangeTod)}};
 
-    uint32_t customEventFunctions[3][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
+    uint32_t customEventFunctions[4][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
                                            {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent068)},
-                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent069_nop)}};
+                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent069_nop)},
+                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent70_warp)}};
     //    libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
 } // namespace mod::game_patch
