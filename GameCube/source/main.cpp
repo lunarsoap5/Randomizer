@@ -792,51 +792,18 @@ namespace mod
         return gReturn_dStage_playerInit(stageDt, i_data, num, raw_data);
     }
 
-    // Stage, room, point, layer
-    static const uint8_t openingCsEntrances[3][4] = {
-        {StageIDs::Faron_Woods, 1, 0x15, 0xD},
-        {StageIDs::Ordon_Spring, 1, 0x18, 0xD},
-        {StageIDs::Ordon_Village, 1, 0x1E, 0x9},
-    };
-
-    bool nextStageIsOpeningCutscene()
-    {
-        libtp::tp::d_stage::dStage_nextStage* nextStage = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage;
-        constexpr uint32_t totalOpeningCsEntrances = sizeof(openingCsEntrances) / sizeof(openingCsEntrances[0]);
-
-        for (uint32_t i = 0; i < totalOpeningCsEntrances; i++)
-        {
-            const uint8_t* entrance = openingCsEntrances[i];
-
-            if (!strcmp(nextStage->mStage, libtp::data::stage::allStages[entrance[0]]) && nextStage->mRoomNo == entrance[1] &&
-                nextStage->mPoint == entrance[2] && nextStage->mLayer == entrance[3])
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     KEEP_FUNC void handle_dStage_Create()
     {
         using namespace libtp::tp;
 
-        // When proceeding from the opening cutscene to the game, fix issue
-        // where Epona's position will remain wherever it was when the opening
-        // cutscene ended (either through skipping or ending naturally). We
-        // check against GAME_ACTIVE so we know we aren't returning to the title
-        // screen. Epona's stage is set to a fake value so that comparing the
-        // current stage against it never matches. This means Epona will not
-        // appear until the game specifically puts her somewhere (such as when
-        // you walk to Ordon Spring at the start of the prologue) or the player
-        // calls her, both of which overwrite the horse place to a normal value.
-        if (rando::gRandomizer->getGameState() == GameState::GAME_ACTIVE)
+        // Fix issue where Epona's position will remain wherever it was when the opening cutscene ends. Epona's stage
+        // is set to a fake value so the current stage never matches it. This means Epona will not appear until the
+        // game repositions her or the player calls her.
+        if (rando::gRandomizer->getGameState() == GameState::GAME_ACTIVE) // Check not changing to title screen
         {
             bool prevStageWasOpeningCutscene = false;
 
-            // Check string starts "Demo01_0". These comparisons are done over
-            // string compares since it uses fewer instruction bytes, executes
-            // fewer instructions, and does not require extra string data.
+            // Check string starts "Demo01_0". Written this way to improve size and execution.
             const uint32_t* demoNameAsWords = reinterpret_cast<const uint32_t*>(d_stage::mDemoArcName);
             if (demoNameAsWords[0] == 0x44656D6F && demoNameAsWords[1] == 0x30315F30) // "Demo" and "01_0"
             {
@@ -844,8 +811,7 @@ namespace mod
                 if (demoNameAsBytes[9] == 0) // Check strLen is 9
                 {
                     uint8_t lastCharByte = demoNameAsBytes[8];
-                    // Check final char in string is "1", "2", or "3", meaning
-                    // the string is "Demo01_01", "Demo01_02", or "Demo01_03".
+                    // Check str is "Demo01_01", "Demo01_02", or "Demo01_03" (opening cutscene demos).
                     if (lastCharByte >= 0x31 && lastCharByte <= 0x33) // "1", "2", or "3"
                     {
                         prevStageWasOpeningCutscene = true;
@@ -853,14 +819,29 @@ namespace mod
                 }
             }
 
-            if (prevStageWasOpeningCutscene && !nextStageIsOpeningCutscene())
+            if (prevStageWasOpeningCutscene)
             {
-                // Moving from the opening cutscene into the first stage outside
-                // of the opening cs, so hide Epona until the game manually
-                // places her or the player calls her.
-                strncpy(d_com_inf_game::dComIfG_gameInfo.save.save_file.player.horse_place.epona_current_stage,
-                        "FAKESTG",
-                        sizeof(d_com_inf_game::dComIfG_gameInfo.save.save_file.player.horse_place.epona_current_stage) - 1);
+                bool nextStageIsOpeningCutscene = false;
+                libtp::tp::d_stage::dStage_nextStage* nextStage = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage;
+                if (nextStage->mRoomNo == 1)
+                {
+                    if ((!strcmp(nextStage->mStage, libtp::data::stage::allStages[StageIDs::Ordon_Spring]) &&
+                         nextStage->mLayer == 0xD) ||
+                        (!strcmp(nextStage->mStage, libtp::data::stage::allStages[StageIDs::Ordon_Village]) &&
+                         nextStage->mLayer == 0x9))
+                    {
+                        nextStageIsOpeningCutscene = true;
+                    }
+                }
+
+                if (!nextStageIsOpeningCutscene)
+                {
+                    // Moving from the opening cutscene into the first stage outside of the opening cs, so hide Epona
+                    // until the game manually places her or the player calls her.
+                    strncpy(d_com_inf_game::dComIfG_gameInfo.save.save_file.player.horse_place.epona_current_stage,
+                            "FAKESTG",
+                            sizeof(d_com_inf_game::dComIfG_gameInfo.save.save_file.player.horse_place.epona_current_stage) - 1);
+                }
             }
         }
 
