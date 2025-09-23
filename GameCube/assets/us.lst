@@ -48,6 +48,8 @@
 80025014:dStage_playerInit
 80450D64:mStayNo
 80450D65:mOldStayNo
+80026D38:dStage_Create
+80406194:mDemoArcName
 
 // d_save.o
 80032AA8:getRupeeMax
