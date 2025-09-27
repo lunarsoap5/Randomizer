@@ -188,7 +188,7 @@ namespace mod::assembly
         return mutFlowNodePtr;
     }
 
-    const uint8_t* handleGetMsgBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
         uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
         rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchBranchNode(msgFlow,

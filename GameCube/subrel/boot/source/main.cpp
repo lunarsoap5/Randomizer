@@ -228,7 +228,7 @@ namespace mod
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x1E8,
                                     assembly::asmAdjustMsgEventResultNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x2C,
-                                    assembly::asmGetMsgBranchNode);
+                                    assembly::asmGetFlowBranchNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex) + 0x11C,
                                     assembly::asmAdjustSelectMsg);
         gReturn_endFlowGroup = patch::hookFunction(libtp::tp::d_msg_object::endFlowGroup, handle_endFlowGroup);

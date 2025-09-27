@@ -111,18 +111,20 @@ namespace mod::assembly
         int32_t handleManageEquippedItemsAsWolf(int32_t status);
 
         // d_msg_flow.o
+        void asmGetFlowBranchNode();
+        const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
         void asmAdjustMsgBranchResultNode();
         const uint16_t* handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus);
-        void asmAdjustMsgEventResultNode();
-        const uint16_t* handleAdjustMsgEventResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+
         void asmGetFlowEventNode();
         const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        void asmAdjustMsgEventResultNode();
+        const uint16_t* handleAdjustMsgEventResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+
         void asmGetFlowQueryFnPtr();
         void* handleGetFlowQueryFnPtr(uint16_t queryListIndex);
         void asmGetEventNodeFnPtr();
         void* handleGetEventNodeFnPtr(uint8_t eventListIndex);
-        void asmGetMsgBranchNode();
-        const uint8_t* handleGetMsgBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
         // d_msg_object.o
         void asmAdjustSelectMsg();
