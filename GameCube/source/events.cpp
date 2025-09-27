@@ -146,12 +146,6 @@ namespace mod::events
                 savePtr->save_file.player.player_status_a.currentRupees =
                     mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][0];
             }
-
-            if (d_com_inf_game::dComIfGs_isEventBit(flags::ORDON_DAY_2_OVER))
-            {
-                // Place Epona out of bounds in Faron if Talo has been rescued since the game will spawn her in the air.
-                savePtr->save_file.player.horse_place.mPos.y = -1000.f;
-            }
         }
 
         // Check to see if currently in City and our last visited stage was not City.

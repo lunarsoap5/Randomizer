@@ -137,6 +137,7 @@ namespace mod
         gReturn_roomLoader = patch::hookFunction(libtp::tp::d_stage::roomLoader, handle_roomLoader);
         gReturn_stageLoader = patch::hookFunction(libtp::tp::d_stage::stageLoader, handle_stageLoader);
         gReturn_dStage_playerInit = patch::hookFunction(libtp::tp::d_stage::dStage_playerInit, handle_dStage_playerInit);
+        gReturn_dStage_Create = patch::hookFunction(libtp::tp::d_stage::dStage_Create, handle_dStage_Create);
 
         // Only hook dComIfGp_setNextStage if there is at least one shuffled entrance
         if (seedPtr->getNumShuffledEntrances() > 0)

@@ -50,6 +50,8 @@ namespace mod
                                                   int32_t num,
                                                   void* raw_data) = nullptr;
 
+    KEEP_VAR void (*gReturn_dStage_Create)() = nullptr;
+
     KEEP_VAR void (*gReturn_dComIfGp_setNextStage)(const char* stage,
                                                    int16_t point,
                                                    int8_t roomNo,

@@ -797,6 +797,63 @@ namespace mod
         return gReturn_dStage_playerInit(stageDt, i_data, num, raw_data);
     }
 
+    KEEP_FUNC void handle_dStage_Create()
+    {
+        using namespace libtp::tp;
+
+        // Fix issue where Epona's position will remain wherever it was when the opening cutscene ends. Epona's stage
+        // is set to a fake value so the current stage never matches it. This means Epona will not appear until the
+        // game repositions her or the player calls her.
+        if (rando::gRandomizer->getGameState() == GameState::GAME_ACTIVE) // Check not changing to title screen
+        {
+            bool prevStageWasOpeningCutscene = false;
+
+            // Check string starts "Demo01_0". Written this way to improve size and execution.
+            const uint32_t* demoNameAsWords = reinterpret_cast<const uint32_t*>(d_stage::mDemoArcName);
+            if (demoNameAsWords[0] == 0x44656D6F && demoNameAsWords[1] == 0x30315F30) // "Demo" and "01_0"
+            {
+                const uint8_t* demoNameAsBytes = reinterpret_cast<const uint8_t*>(d_stage::mDemoArcName);
+                if (demoNameAsBytes[9] == 0) // Check strLen is 9
+                {
+                    uint8_t lastCharByte = demoNameAsBytes[8];
+                    // Check str is "Demo01_01", "Demo01_02", or "Demo01_03" (opening cutscene demos).
+                    if (lastCharByte >= 0x31 && lastCharByte <= 0x33) // "1", "2", or "3"
+                    {
+                        prevStageWasOpeningCutscene = true;
+                    }
+                }
+            }
+
+            if (prevStageWasOpeningCutscene)
+            {
+                bool nextStageIsOpeningCutscene = false;
+                libtp::tp::d_stage::dStage_nextStage* nextStage = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage;
+                if (nextStage->mRoomNo == 1)
+                {
+                    if ((!strcmp(nextStage->mStage, libtp::data::stage::allStages[StageIDs::Ordon_Spring]) &&
+                         nextStage->mLayer == 0xD) ||
+                        (!strcmp(nextStage->mStage, libtp::data::stage::allStages[StageIDs::Ordon_Village]) &&
+                         nextStage->mLayer == 0x9))
+                    {
+                        nextStageIsOpeningCutscene = true;
+                    }
+                }
+
+                if (!nextStageIsOpeningCutscene)
+                {
+                    // Moving from the opening cutscene into the first stage outside of the opening cs, so hide Epona
+                    // until the game manually places her or the player calls her.
+                    strncpy(d_com_inf_game::dComIfG_gameInfo.save.save_file.player.horse_place.epona_current_stage,
+                            "FAKESTG",
+                            sizeof(d_com_inf_game::dComIfG_gameInfo.save.save_file.player.horse_place.epona_current_stage) - 1);
+                }
+            }
+        }
+
+        // Call the original function after our code
+        gReturn_dStage_Create();
+    }
+
     KEEP_FUNC int32_t procCoGetItemInitCreateItem(const float pos[3],
                                                   int32_t item,
                                                   uint8_t unk3,
@@ -837,8 +894,8 @@ namespace mod
             parameters = 0x9F;
         }
 
-        // If we are in hyrule field then the function is running to give us the Hot Springwater heart piece and we want it to
-        // spawn on the ground.
+        // If we are in hyrule field then the function is running to give us the Hot Springwater heart piece and we want it
+        // to spawn on the ground.
         if (libtp::tp::d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hyrule_Field]))
         {
             *const_cast<float*>(&pos[1]) = -190.f;
@@ -896,8 +953,8 @@ namespace mod
     {
         libtp::tp::d_a_itembase::ItemBase* item = static_cast<libtp::tp::d_a_itembase::ItemBase*>(actor);
 
-        // We determine whether to use the item_resource or the field_item_resource structs to spawn an item based on the item
-        // being created.
+        // We determine whether to use the item_resource or the field_item_resource structs to spawn an item based on the
+        // item being created.
         switch (item->m_itemNo)
         {
             case libtp::data::items::Empty_Bottle:
@@ -1157,8 +1214,8 @@ namespace mod
     {
         if (libtp::tp::d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Cave_of_Ordeals]))
         {
-            // Return 1 to allow the player to collect the item from the floor 50 reward, as this will make the game think that
-            // the player has an empty bottle.
+            // Return 1 to allow the player to collect the item from the floor 50 reward, as this will make the game think
+            // that the player has an empty bottle.
             return 1;
         }
         return gReturn_checkEmptyBottle(playerItem);
@@ -1200,7 +1257,8 @@ namespace mod
     KEEP_FUNC int32_t handle_event000( void* messageFlow, void* nodeEvent, void* actrPtr )
     {
         // Prevent the hidden skill CS from setting the proper flags
-        if ( libtp::tp::d_a_alink::checkStageName( libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hidden_Skill] ) )
+        if ( libtp::tp::d_a_alink::checkStageName( libtp::data::stage::allStages[libtp::data::stage::StageIDs::Hidden_Skill]
+    ) )
         {
             *reinterpret_cast<uint16_t*>( reinterpret_cast<uint32_t>( nodeEvent ) + 4 ) = 0x0000;
         }
@@ -1927,9 +1985,9 @@ namespace mod
 
             switch (flag)
             {
-                // Case block for Wolf -> Human crash patches/bug fixes. Some cutscenes/events either crash or act weird if Link
-                // is Human but needs to be Wolf and the game no longer attempts to auto-transform Link once the Shadow Crystal
-                // has been obtained.
+                // Case block for Wolf -> Human crash patches/bug fixes. Some cutscenes/events either crash or act weird if
+                // Link is Human but needs to be Wolf and the game no longer attempts to auto-transform Link once the Shadow
+                // Crystal has been obtained.
                 case ENTERED_ORDON_SPRING_DAY_3:
                 {
                     if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(TRANSFORMING_UNLOCKED))
@@ -1940,9 +1998,9 @@ namespace mod
                     break;
                 }
 
-                // Case block for Human -> Wolf crash patches/bug fixes. Some cutscenes/events either crash or act weird if Link
-                // is Wolf but needs to be human and the game no longer attempts to auto-transform Link once the Shadow Crystal
-                // has been obtained.
+                // Case block for Human -> Wolf crash patches/bug fixes. Some cutscenes/events either crash or act weird if
+                // Link is Wolf but needs to be human and the game no longer attempts to auto-transform Link once the Shadow
+                // Crystal has been obtained.
                 case WATCHED_CUTSCENE_AFTER_BEING_CAPTURED_IN_FARON_TWILIGHT:
                 {
                     if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(TRANSFORMING_UNLOCKED))
@@ -1981,8 +2039,8 @@ namespace mod
                     {
                         if (darkClearLevelFlag == 0x7)
                         {
-                            playerStatusBPtr->transform_level_flag |= 0x8; // Set the flag for the last transformed twilight.
-                                                                           // Also puts Midna on the player's back
+                            playerStatusBPtr->transform_level_flag |= 0x8; // Set the flag for the last transformed
+                                                                           // twilight. Also puts Midna on the player's back
 
                             playerStatusBPtr->dark_clear_level_flag |= 0x8;
                         }
@@ -1997,8 +2055,8 @@ namespace mod
                     {
                         if (darkClearLevelFlag == 0x7) // All twilights completed
                         {
-                            playerStatusBPtr->transform_level_flag |= 0x8; // Set the flag for the last transformed twilight.
-                                                                           // Also puts Midna on the player's back
+                            playerStatusBPtr->transform_level_flag |= 0x8; // Set the flag for the last transformed
+                                                                           // twilight. Also puts Midna on the player's back
 
                             playerStatusBPtr->dark_clear_level_flag |= 0x8;
                         }
@@ -2272,8 +2330,8 @@ namespace mod
     {
         using namespace libtp::tp;
 
-        // If we are in Iza's hut and we have the bow, we want to update the save file bow item stored in g_meter2_info just in
-        // case the player started the minigame without it and somehow broke out of the minigame.
+        // If we are in Iza's hut and we have the bow, we want to update the save file bow item stored in g_meter2_info just
+        // in case the player started the minigame without it and somehow broke out of the minigame.
         if (d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Zoras_River]))
         {
             if (events::haveItem(libtp::data::items::Heros_Bow))
@@ -2462,8 +2520,8 @@ namespace mod
 
     KEEP_FUNC int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
-        // If we are giving a custom item, we want to set mParam0 to 0x100 so that instead of trying to search for an item actor
-        // that doesnt exist we want the game to create one using the item id in mGtItm.
+        // If we are giving a custom item, we want to set mParam0 to 0x100 so that instead of trying to search for an item
+        // actor that doesnt exist we want the game to create one using the item id in mGtItm.
         if (rando::gRandomizer->getGiveItemToPlayerStatus() == rando::EventItemStatus::ITEM_IN_QUEUE)
         {
             libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer->mDemo.mParam0 = 0x100;
@@ -2608,9 +2666,9 @@ namespace mod
     {
         libtp::tp::d_resource::dRes_info_c* resourcePtr = gReturn_getResInfo(arcName, objectInfo, size);
 
-        // Make sure the randomizer is enabled, as otherwise some arcs seem to get modifed that shouldn't. One example of this
-        // causing problems is when starting a file, and once you have control of Link, reset to go back to the title screen.
-        // Doing so will cause the game to crash if this code runs when the randomizer is disabled.
+        // Make sure the randomizer is enabled, as otherwise some arcs seem to get modifed that shouldn't. One example of
+        // this causing problems is when starting a file, and once you have control of Link, reset to go back to the title
+        // screen. Doing so will cause the game to crash if this code runs when the randomizer is disabled.
         rando::Randomizer* randoPtr = rando::gRandomizer;
         if (randoPtr->randomizerIsEnabled() && resourcePtr)
         {
@@ -2680,8 +2738,8 @@ namespace mod
         const int32_t roomID = libtp::tools::getCurrentRoomNo();
         libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
 
-        // If we've already struck the pedestal in grove, we don't want to strike again since that would cause a softlock. We
-        // don't need to check the stage because the code that this handle is injected into only runs in Sacred Grove.
+        // If we've already struck the pedestal in grove, we don't want to strike again since that would cause a softlock.
+        // We don't need to check the stage because the code that this handle is injected into only runs in Sacred Grove.
         if ((roomID == 0x1) && d_save::isSwitch_dSv_memBit(&savePtr->memory.temp_flags, 0x63))
         {
             return false;
@@ -2749,11 +2807,11 @@ namespace mod
         }
     }
 
-    // This is called in the NON-MAIN thread which is loading the archive where `mountArchive->mIsDone = true;` would be called
-    // normally (this is the last thing that gets called before the archive is considered loaded). The archive is no longer
-    // automatically marked as loaded, so we need to do this ourselves when we are done. (This indicates that the archive is
-    // loaded, and whatever was waiting on it will see this byte change the next time it polls the completion status (polling
-    // happens once per frame?))
+    // This is called in the NON-MAIN thread which is loading the archive where `mountArchive->mIsDone = true;` would be
+    // called normally (this is the last thing that gets called before the archive is considered loaded). The archive is no
+    // longer automatically marked as loaded, so we need to do this ourselves when we are done. (This indicates that the
+    // archive is loaded, and whatever was waiting on it will see this byte change the next time it polls the completion
+    // status (polling happens once per frame?))
     KEEP_FUNC bool handle_mountArchive__execute(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive)
     {
         const bool ret = gReturn_mountArchive__execute(mountArchive);
