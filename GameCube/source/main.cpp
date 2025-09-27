@@ -1684,15 +1684,15 @@ namespace mod
 
         memcpy(mutNodeCopy, nodeSrc, 8);
 
-        // Store pointer to copy on randomizer
+        // Store a mutable copy of the node. Our ASM patch to the proc function will possibly mutate this copy before
+        // passing it to the vanilla proc code.
         rando::gRandomizer->setMutFlowNodePtr(mutNodeCopy);
-
-        int32_t ret = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
-
-        // Set ptr on randomizer to be nullptr
+        // Call original function
+        int32_t procStatus = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+        // Clear pointer
         rando::gRandomizer->setMutFlowNodePtr(nullptr);
 
-        return ret;
+        return procStatus; // Always 1 for branch nodes
     }
 
     KEEP_FUNC int32_t handle_eventNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1707,20 +1707,20 @@ namespace mod
 
         memcpy(mutNodeCopy, nodeSrc, 8);
 
-        // Store pointer to copy on randomizer
+        // Store a mutable copy of the node. Our ASM patch to the proc function will possibly mutate this copy before
+        // passing it to the vanilla proc code.
         rando::gRandomizer->setMutFlowNodePtr(mutNodeCopy);
-
-        int32_t ret = gReturn_eventNodeProc(msgFlow, actrPtr_1, actrPtr_2);
-
-        // Set ptr on randomizer to be nullptr
+        // Call original function
+        int32_t procStatus = gReturn_eventNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+        // Clear pointer
         rando::gRandomizer->setMutFlowNodePtr(nullptr);
 
-        return ret;
+        return procStatus; // Either 0 or 1 for event nodes
     }
 
     KEEP_FUNC void handle_endFlowGroup()
     {
-        // Force reset flowContext info when flow group ends.
+        // Force reset flowContext info when flow group ends to be safe.
         rando::gRandomizer->checkResetFlowContext(nullptr);
 
         // Call original function
@@ -1732,11 +1732,9 @@ namespace mod
         // Call original function
         gReturn_talkEnd(eventPtr);
 
-        // We handle a pending ToD change from talking to Midna once this
-        // function has run after the conversation ends so that the Midna actor
-        // has been updated to know the conversation has ended. This avoids
-        // having the Midna conversation pop back up after selecting "Change
-        // ToD" when talking to Midna as wolf.
+        // We handle a pending ToD change from talking to Midna once this function has run after the conversation ends
+        // so that the Midna actor has been updated to know the conversation has ended. This avoids having the Midna
+        // conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
         if (rando::gRandomizer->getHasPendingTodChange())
         {
             rando::gRandomizer->setHasPendingTodChange(false);
