@@ -179,11 +179,8 @@ namespace mod::assembly
             rando::gRandomizer->getFlowContext());
     }
 
-    const uint8_t* handleGetMsgEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
-        // return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getEventNodeReplacement(
-        //     msgFlow,
-        //     rando::gRandomizer->getFlowContext());
         uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
         rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchEventNode(msgFlow,
                                                                                  rando::gRandomizer->getFlowContext(),
