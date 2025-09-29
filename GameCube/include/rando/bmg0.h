@@ -74,9 +74,9 @@ namespace mod::rando
                                          uint16_t flowContext) const;
         uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const;
         const char* getReplacementStr(uint8_t bmgNumber, uint16_t context, uint16_t infIndex) const;
-        const uint16_t* getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                                  uint16_t context,
-                                                  uint16_t branchProcResult) const;
+        const uint16_t* getCustomBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                uint16_t context,
+                                                uint16_t queryResult) const;
         const uint16_t* getCustomEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context) const;
         void tryPatchBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
         void tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;

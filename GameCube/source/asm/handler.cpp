@@ -164,12 +164,12 @@ namespace mod::assembly
         return status;
     }
 
-    const uint16_t* handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus)
+    const uint16_t* handleAdjustFlowBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t queryResult)
     {
-        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomBranchResultNode(
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomBranchNextNode(
             msgFlow,
             rando::gRandomizer->getFlowContext(),
-            branchProcStatus);
+            queryResult);
     }
 
     const uint16_t* handleAdjustMsgEventResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)

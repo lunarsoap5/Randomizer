@@ -113,8 +113,8 @@ namespace mod::assembly
         // d_msg_flow.o
         void asmGetFlowBranchNode();
         const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
-        void asmAdjustMsgBranchResultNode();
-        const uint16_t* handleAdjustMsgBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t branchProcStatus);
+        void asmAdjustFlowBranchNextNode();
+        const uint16_t* handleAdjustFlowBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t queryResult);
 
         void asmGetFlowEventNode();
         const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);

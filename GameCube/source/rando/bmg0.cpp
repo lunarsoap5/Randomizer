@@ -277,12 +277,9 @@ namespace mod::rando
         return nullptr;
     }
 
-    // const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-    //                                                        uint16_t context,
-    //                                                        uint16_t branchProcResult) const
-    const uint16_t* BMG0Section::getCustomBranchResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                                           uint16_t context,
-                                                           uint16_t branchProcResult) const
+    const uint16_t* BMG0Section::getCustomBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                                         uint16_t context,
+                                                         uint16_t queryResult) const
     {
         uint8_t bmgNumber = getCurrentBmgNumber(msgFlow);
         uint16_t flwIdx = msgFlow->field_0x10;
@@ -295,7 +292,7 @@ namespace mod::rando
                 reinterpret_cast<const uint16_t*>(headerPtr + this->branchNextNodeBaseIdxTableOffset);
 
             const uint16_t baseIdx = baseIdxTable[foundIdx];
-            const uint16_t finalIdx = baseIdx + branchProcResult;
+            const uint16_t finalIdx = baseIdx + queryResult;
 
             const uint16_t* nextNodeTable = reinterpret_cast<const uint16_t*>(headerPtr + this->branchNextNodeTableOffset);
             return &(nextNodeTable[finalIdx]);
