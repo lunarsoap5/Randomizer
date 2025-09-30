@@ -32,7 +32,6 @@
 namespace mod::rando
 {
     KEEP_VAR Randomizer* gRandomizer = nullptr;
-    KEEP_VAR uint16_t walletValues[4][3] = {{99, 500, 1000}, {300, 500, 1000}, {500, 1000, 5000}, {1000, 5000, 9999}};
 
     uint8_t Randomizer::getFoolishItemModelId(uint8_t originalItem)
     {
