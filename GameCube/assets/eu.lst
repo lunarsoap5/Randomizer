@@ -61,6 +61,7 @@
 80032c58:isDarkClearLV
 80032c94:isTransformLV
 80034990:isSwitch_dSv_memBit
+80034d18:isSwitch_dSv_danBit
 800333a0:setLineUpItem
 80034aec:isEventBit
 80034a64:isDungeonItem
