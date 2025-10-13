@@ -937,6 +937,12 @@ namespace mod::events
             case Arrows_10:
             case Arrows_20:
             case Arrows_30:
+            case Green_Rupee:
+            case Blue_Rupee:
+            case Red_Rupee:
+            case Yellow_Rupee:
+            case Orange_Rupee:
+            case Silver_Rupee:
             {
                 newScale.setall(1.0f); // scale
                 break;
