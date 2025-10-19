@@ -88,11 +88,9 @@ namespace mod::rando
 
     uint8_t getCurrentBmgNumber(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
-        // FLI value of 3000 (0xbb8) or more indicates to use the global bmg
-        // zel_00 and not the stage's bmg. This is vanilla behavior seen in
-        // dMsgObject_c::changeFlowGroupLocal. Note that the FLI value is
-        // treated as an s16 by dMsgObject_c which is why our max custom FLI is
-        // only 0x7FFF and not 0xFFFF.
+        // FLI value of 3000 (0xbb8) or more indicates to use the global bmg zel_00 and not the stage's bmg. This is
+        // vanilla behavior seen in dMsgObject_c::changeFlowGroupLocal. Note that the FLI value is treated as an s16 by
+        // dMsgObject_c which is why our max custom FLI is only 0x7FFF and not 0xFFFF.
         if (msgFlow->mFlow >= 3000)
         {
             return 0;
@@ -102,10 +100,8 @@ namespace mod::rando
 
     uint16_t BMG0Section::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, bool isSelectOptionsNode) const
     {
-        // Use simple implementation for now. This is only used by custom hint
-        // signs at the moment, so it makes more sense to not encode a fancy
-        // format in the seed data which would only achieve what we have here in
-        // many more steps.
+        // Use simple implementation for now. This is only used by custom hint signs at the moment, so it makes more
+        // sense to not encode a fancy format in the seed data which would only achieve what we have here in more steps.
         if (msgFlow != nullptr)
         {
             if (msgFlow->mFlow >= 0x7000)

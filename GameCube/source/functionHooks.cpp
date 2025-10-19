@@ -147,11 +147,6 @@ namespace mod
     KEEP_VAR int32_t (*gReturn_event017)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;
     KEEP_VAR int32_t (*gReturn_event003)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;
 
-    KEEP_VAR int32_t (*gReturn_doFlow)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                       libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                       libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                       int32_t i_flow) = nullptr;
-
     KEEP_VAR void (*gReturn_setNodeIndex)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                           uint16_t flwIndex,
                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
@@ -164,10 +159,6 @@ namespace mod
     KEEP_VAR int32_t (*gReturn_setNormalMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                              void* flowNode,
                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
-
-    KEEP_VAR int32_t (*gReturn_messageNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
-                                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
 
     KEEP_VAR int32_t (*gReturn_branchNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,

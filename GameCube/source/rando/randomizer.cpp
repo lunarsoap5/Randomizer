@@ -717,7 +717,6 @@ namespace mod::rando
     {
         if (msgFlow == nullptr)
         {
-            // Not expected to ever run
             this->m_latestFLIVal = 0xFFFF;
             this->m_flowContext = 0;
         }
@@ -727,55 +726,6 @@ namespace mod::rando
             this->m_flowContext = 0;
         }
     }
-
-    // uint16_t Randomizer::getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex)
-    // {
-    //     if (msgFlow == NULL)
-    //         return -1;
-
-    //     // Only allow remapping 0xFFFF if the msgFlow itself is being
-    //     // initialized. Otherwise you can get stuck in a loop of messages when
-    //     // it tries to exit normally using 0xFFFF.
-    //     if (flwIndex == 0xFFFF && msgFlow->mMsg != 0xFFFFFFFF)
-    //         return -1;
-
-    //     const uint16_t targetFLIValue = msgFlow->mFlow;
-
-    //     Seed* seedPtr = this->m_Seed;
-    //     const FlwIdxRemap* entries = seedPtr->getMsgRemapTablePtr();
-    //     const uint16_t num_entries = seedPtr->getNumMsgRemaps();
-
-    //     for (uint32_t i = 0; i < num_entries; i++)
-    //     {
-    //         if (entries[i].getFLIValue() == targetFLIValue && entries[i].getOldInitFLWIndex() == flwIndex)
-    //         {
-    //             return entries[i].getNewInitFLWIndex();
-    //         }
-    //     }
-    //     return -1;
-    // }
-
-    // uint16_t Randomizer::getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
-    // {
-    //     if (msgFlow == NULL)
-    //         return -1;
-
-    //     // Seed* seedPtr = this->m_Seed;
-    //     // const MsgRemap* entries = seedPtr->getMsgRemapTablePtr();
-    //     // const uint16_t num_entries = seedPtr->getNumMsgRemaps();
-
-    //     // const uint16_t targetFLIValue = msgFlow->mFlow;
-    //     // const uint16_t targetFLWIndex = msgFlow->field_0x10;
-
-    //     // for (uint32_t i = 0; i < num_entries; i++)
-    //     // {
-    //     //     if (entries[i].getFLIValue() == targetFLIValue && entries[i].getFLWEntryIndex() == targetFLWIndex)
-    //     //     {
-    //     //         return entries[i].getReplacementINFIndex();
-    //     //     }
-    //     // }
-    //     return -1;
-    // }
 
     uint8_t* Randomizer::getMutFlowNodePtr()
     {

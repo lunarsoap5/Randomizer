@@ -208,13 +208,13 @@ namespace mod
         gReturn_query042 = patch::hookFunction(libtp::tp::d_msg_flow::query042, handle_query042);
         // gReturn_event000 = patch::hookFunction( libtp::tp::d_msg_flow::event000, handle_event000 );
         gReturn_event017 = patch::hookFunction(libtp::tp::d_msg_flow::event017, handle_event017);
-        gReturn_doFlow = patch::hookFunction(libtp::tp::d_msg_flow::doFlow, handle_doFlow);
         gReturn_setNodeIndex = patch::hookFunction(libtp::tp::d_msg_flow::setNodeIndex, handle_setNodeIndex);
         gReturn_setSelectMsg = patch::hookFunction(libtp::tp::d_msg_flow::setSelectMsg, handle_setSelectMsg);
         gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
-        gReturn_messageNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::messageNodeProc, handle_messageNodeProc);
         gReturn_branchNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::branchNodeProc, handle_branchNodeProc);
         gReturn_eventNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::eventNodeProc, handle_eventNodeProc);
+
+        // TODO: all the "+ 0xABC" ones should be in asmOverrides
         // Handle custom query functions
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x4C,
                                     assembly::asmGetFlowQueryFnPtr);

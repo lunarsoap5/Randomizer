@@ -1279,143 +1279,11 @@ namespace mod
         return gReturn_event017(messageFlow, nodeEvent, actrPtr);
     }
 
-    KEEP_FUNC int32_t handle_doFlow(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                    libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                    libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                    int32_t i_flow)
-    {
-        using namespace libtp::data::stage;
-
-        // uint16_t customInitNode = rando::gRandomizer->getCustomInitNodeIndex(msgFlow);
-        // if (customInitNode != 0xFFFF)
-        // {
-        //     // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-        //     // need to unset it.
-        //     msgFlow->field_0x26 = 0;
-        //     msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
-        //     // Was defaulting to 0x24 (36) at the moment.
-        // }
-
-        // if (msgFlow->mFlow == 0x7FFF) // Check if it equals our custom flow value
-        // {
-        // if (msgFlow->mMsg == 0xFFFFFFFF)
-        // {
-        //     uint16_t customInitNode = rando::gRandomizer->getCustomInitNodeIndex(msgFlow->mFlow);
-        //     if (customInitNode != 0xFFFF)
-        //     {
-        //         // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-        //         // need to unset it.
-        //         msgFlow->field_0x26 = 0;
-        //         msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
-        //         // Was defaulting to 0x24 (36) at the moment.
-        //     }
-
-        //     // This seems to be the correct check in order to initialize the
-        //     // FLW entry to the correct value we are abusing, and then have
-        //     // it play out normally. That is all we do in this function: if
-        //     // the mFlow should map to an abusable one and mMsg is -1, then
-        //     // we set field_0x26 to 0 and set the initial node to the
-        //     // abusable one. Mapping the abusableNode+flow to a 0x1360 value
-        //     // is done in setNormalMsg.
-
-        //     // TODO: it seems like we specifically do not want to set offset
-        //     // 0x20 (mMsg) to 0 right now since we are not overwriting it
-        //     // later. Can see once we add more code for the signs and Midna,
-        //     // but for now where are simply using an existing node, setting
-        //     // this to 0 crashes the game while leaving it at -1 works
-        //     // great. It gets set to -1 by the code in setInitValue inside
-        //     // dMsgFlow_c::init (because r6 param_2 is hardcoded to 0 by
-        //     // sign actor), so we want to leave this alone for the code to
-        //     // function normally. It will get set inside `setNormalMsg` as
-        //     // appropriate I believe.
-
-        //     // Clear the invalid msg value since it will be set by the game once our text is loaded.
-        //     // msgFlow->mMsg = 0;
-
-        //     // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we need
-        //     // to unset it.
-        //     // msgFlow->field_0x26 = 0;
-
-        //     // if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Hyrule_Field]) ||
-        //     //     libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Outside_Castle_Town]) ||
-        //     //     libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Lake_Hylia]))
-        //     // {
-        //     //     // Hyrule Field and outside Lake Hylia do not have a valid flow node for node 0 so we want it to use its
-        //     //     // native node (8)
-        //     //     msgFlow->field_0x10 = 0x8;
-        //     // }
-        //     // else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Castle_Town]))
-        //     // {
-        //     //     // For Castle Town, both 1 and 2 seem to work at the very
-        //     //     // least. If you use 4, you will also get shiny shoes.
-        //     //     msgFlow->field_0x10 = 0x2;
-        //     // }
-        //     // else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Death_Mountain]))
-        //     // {
-        //     //     // Death Mountain does not have a valid flow node for node 0 so we want it to use its
-        //     //     // native node (4)
-        //     //     msgFlow->field_0x10 = 0x4;
-        //     // }
-        //     // else
-        //     // {
-        //     //     // Sets the flow to use the same flow grouping as the standard flow that getItem text uses.
-        //     //     msgFlow->field_0x10 = 0;
-        //     // }
-
-        //     // Right now, 23 is using the node for "If you want to warp from
-        //     // here, you hvae to find a portal in this area first!" which
-        //     // does not have anything special.
-
-        //     // msgFlow->field_0x10 = 23; // TODO: testing adjust for zel_00.bmg
-        //     // msgFlow->field_0x10 = 22; // TODO: testing adjust for zel_00.bmg
-        //     // msgFlow->field_0x10 = 36; // TODO: testing adjust for zel_00.bmg
-        // }
-        // }
-
-        // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
-
-        int32_t ret = gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
-
-        // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
-
-        return ret;
-
-        // return gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
-    }
-
     KEEP_FUNC void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                        uint16_t flwIndex,
                                        libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
     {
-        // try to remap here
-        // const uint16_t customInitNode =
-        //     rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomInitNodeIndex(msgFlow, flwIndex);
-        // if (customInitNode != 0xFFFF)
-        // {
-        //     flwIndex = customInitNode;
-        //     // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-        //     // // need to unset it.
-        //     // msgFlow->field_0x26 = 0;
-        //     // msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
-        //     // // Was defaulting to 0x24 (36) at the moment.
-        // }
-
-        // TODO: update
         rando::gRandomizer->checkResetFlowContext(msgFlow);
-
-        // const rando::FlwIdxRemap* remapEntry =
-        //     rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomInitNodeIndex(msgFlow, flwIndex);
-        // if (remapEntry != nullptr)
-        // {
-        //     flwIndex = remapEntry->getNewInitFLWIndex();
-        //     const uint16_t newContext = remapEntry->getNewContext();
-        //     rando::gRandomizer->setFlowContext(msgFlow, newContext);
-        //     // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-        //     // // need to unset it.
-        //     // msgFlow->field_0x26 = 0;
-        //     // msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
-        //     // // Was defaulting to 0x24 (36) at the moment.
-        // }
 
         if (msgFlow != nullptr)
         {
@@ -1428,43 +1296,19 @@ namespace mod
                 flwIndex = remapEntry[0];
                 const uint16_t newContext = remapEntry[1];
                 rando::gRandomizer->setFlowContext(msgFlow, newContext);
-                // // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-                // // need to unset it.
-                // msgFlow->field_0x26 = 0;
-                // msgFlow->field_0x10 = customInitNode; // TODO: testing adjust for zel_00.bmg
-                // // Was defaulting to 0x24 (36) at the moment.
             }
             else if (flowContext == 0 && msgFlow->mFlow >= 0x7000)
             {
-                // If we do not find a starting node for an FLI in the 0x7000's
-                // (meaning a custom sign), then set to FLW index 0x28 (any msg
-                // node with next node idx 0xFFFF is fine) with reserved context
-                // value 1 for the "No hints were placed here." fallback. Check
-                // that flowContext is 0 to avoid infinite msg loops.
+                // If we do not find a starting node for an FLI in the 0x7000's (meaning a custom sign), then handle
+                // showing "No hints were placed here." text. Set to any msg node with nextNodeIdx of 0xFFFF (we use
+                // 0x28 here) with reserved context value 1. Check that flowContext is 0 to avoid infinite msg loops.
+                // Note that the replacement string comes from the custom INF value used for all custom signs.
                 flwIndex = 0x28;
                 rando::gRandomizer->setFlowContext(msgFlow, 1);
             }
         }
 
         gReturn_setNodeIndex(msgFlow, flwIndex, actrPtr);
-
-        // TODO: what if we use a custom eventNode to set the context? That
-        // might make things more difficult / way bigger in data size in the
-        // GCI.
-
-        // Let's say we have something like this:
-        // - FLI value, currentContext(or any okay), newNodeIndex, newContext
-
-        // We definitely need to patch nodeProc's switch to read the correct
-        // value in the case that we are remapping the node
-
-        // Actually, let's assume we cannot remap a node's type. We can only
-        // remap its data as used by the branch, msg, and event procs.
-
-        // TODO: first thing to do is assume we have a specific context value.
-        // Need to remap the text for the "What is it, Link?" and the
-        // "Transform/Talk To Midna" to say "Testing" and "Hints/Change time of
-        // day".
     }
 
     KEEP_FUNC int32_t handle_setSelectMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1475,48 +1319,24 @@ namespace mod
         uint8_t bodyFlowNodeCopy[8];
         uint8_t optionsFlowNodeCopy[8];
 
-        if (msgFlow != nullptr)
+        memcpy(&bodyFlowNodeCopy, bodyMsgFlowNode, 8);
+        memcpy(&optionsFlowNodeCopy, optionsMsgFlowNode, 8);
+
+        const rando::BMG0Section* bmgSection = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr();
+
+        // Note: custom INF indexes here are only used for custom signs for now.
+        const uint16_t bodyCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, false);
+        if (bodyCustomInfIdx != 0xFFFF)
         {
-            memcpy(&bodyFlowNodeCopy, bodyMsgFlowNode, 8);
-            memcpy(&optionsFlowNodeCopy, optionsMsgFlowNode, 8);
+            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(bodyFlowNodeCopy);
+            u16Arr[1] = bodyCustomInfIdx;
+        }
 
-            // TODO: we should manually get the flwIndexes in question by using the same
-            // offset 0x10 on the msgFlow* which is the bodyMsgFlowNode index.
-
-            // We don't need to do anything about fetching the nodes since we
-            // literally already have them.
-
-            // Then we read the u16 at offset 0x4 on the bodyNode to get the
-            // flwIndex for the options node.
-
-            // TODO: can uncomment these and pass as a param if needed.
-            // uint16_t bodyFlwIndex = msgFlow->field_0x10; // current FLW index
-            // uint16_t optionsFlwIndex = reinterpret_cast<const uint16_t*>(bodyMsgFlowNode)[2];
-
-            // const uint16_t customINFIndex =
-            // rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow);
-            // if (customINFIndex != 0xFFFF)
-            // {
-            //     uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
-            //     u16Arr[1] = customINFIndex;
-            //     // rando::gRandomizer->setLatestCustomINFIndex(customINFIndex);
-            // }
-
-            const rando::BMG0Section* bmgSection = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr();
-
-            const uint16_t bodyCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, false);
-            if (bodyCustomInfIdx != 0xFFFF)
-            {
-                uint16_t* u16Arr = reinterpret_cast<uint16_t*>(bodyFlowNodeCopy);
-                u16Arr[1] = bodyCustomInfIdx;
-            }
-
-            const uint16_t optionsCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, true);
-            if (optionsCustomInfIdx != 0xFFFF)
-            {
-                uint16_t* u16Arr = reinterpret_cast<uint16_t*>(optionsFlowNodeCopy);
-                u16Arr[1] = optionsCustomInfIdx;
-            }
+        const uint16_t optionsCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, true);
+        if (optionsCustomInfIdx != 0xFFFF)
+        {
+            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(optionsFlowNodeCopy);
+            u16Arr[1] = optionsCustomInfIdx;
         }
 
         return gReturn_setSelectMsg(msgFlow, bodyFlowNodeCopy, optionsFlowNodeCopy, actrPtr);
@@ -1528,148 +1348,19 @@ namespace mod
     {
         using mod::rando::EntryInfo;
 
-        // We need to be able to map a hint sign to an FLI value.
-
-        // We need to be able to map a FLI value to a start node. (and this
-        // includes 0x5670, 0x5671, 0x5672, etc.). 0xbb8 however does NOT remap
-        // the start value. So maybe we include a byte in the data that says
-        // whether or not to remap the start node.
-
-        // Function call: getCustomInitNodeIndex(FLI value); returns u16, -1 if nothing found.
-        // Internally each entry has a bool which defines if it remaps the initNode.
-
-        // We need to be able to map a FLI value + a FLW index => 0x136d
-
         uint8_t flowNodeCopy[8];
         memcpy(&flowNodeCopy, flowNode, 8);
 
-        // uint8_t i = flowNodeCopy[1] + 1;
-        // uint32_t* a = game_patch::customEventFunctions[i];
-        // if (i > 0)
-        // {
-        //     flowNodeCopy[1] = a[2] & 0xFF;
-        //     // a(NULL, NULL, NULL);
-        // }
-
-        // uint16_t customINFIndex = rando::gRandomizer->getCustomINFIndex(msgFlow);
         const uint16_t customINFIndex =
             rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow, false);
         if (customINFIndex != 0xFFFF)
         {
-            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
-            u16Arr[1] = customINFIndex;
-            // rando::gRandomizer->setLatestCustomINFIndex(customINFIndex);
+            uint16_t* flowNodeCopyAsU16s = reinterpret_cast<uint16_t*>(flowNodeCopy);
+            flowNodeCopyAsU16s[1] = customINFIndex;
         }
 
-        // uint16_t customInitNode = rando::gRandomizer->getSeedPtr()->getCustomInitNodeIndex(flowNode);
-        // if (customInitNode != 0xFFFF)
-        // {
-
-        // }
-
-        // const EntryInfo* msgRemapInfoPtr = rando::gRandomizer->getSeedPtr()->getHeaderPtr()->getMsgRemapInfoPtr();
-        // const uint32_t numEntries = msgRemapInfoPtr->getNumEntries();
-        // const uint32_t gciOffset = msgRemapInfoPtr->getDataOffset();
-
-        // if (msgFlow->mFlow == 0xbb8)
-        // {
-        //     uint16_t* u16Arr = reinterpret_cast<uint16_t*>(flowNodeCopy);
-        //     u16Arr[1] = 0x136d;
-
-        //     // TODO: currently this shows "No hints were placed here" (or the
-        //     // hints depending on the room) for each text box. Shows 5 text
-        //     // boxes since we are replacing the start position to the first of
-        //     // the 5 msg nodes.
-
-        //     // TODO: the exact start node is dynamic based on how many text
-        //     // boxes we need (9 hint would require 3 total FLW msg nodes for
-        //     // example).
-
-        //     // TODO: need to take input which says "map this FLI + this msgNode
-        //     // from offset 0x10 of r3 this and use this replacement 0x136d value
-        //     // instead.
-        // }
-
-        // the first param (the flowNode) is a pointer to the FLWMsgEntry.
-
-        // We can use our custom FLI u16 value (0x7fff or others) + the
-        // flowNode's index (which is available on the dMsgFlow object) in order
-        // to generate a custom MID1 index (instead of using a hard-coded
-        // 0x1360). We can read what this should translate to by using a lookup
-        // table in the seed data. Can be an array of [u16 FLI val (ex:0x5670,
-        // 0x5671, 0x5672, 0x5673, 0x5680, 0x5681, 0x5682, 0x5683, 0xbb8(?)),
-        // u16 FLW index we are abusing, (ex: 36 for "The yellow arrow..."), u16
-        // new val to use as offset 0x2 in our custom flowNode (ex: 0x1369);
-        // this is the INF1 entry index!!! (not the 0x1360 val which we might
-        // not need in general?), u16 padding]
-
-        // TODO: in the event that we have hints on Midna, we need to patch the
-        // Midna code in case 9 of eventNodeProc to always go to 0xbb8
-        // regardless of what is returned based on the stayNo. If Midna does not
-        // have hints, then we should not apply this change there so we do not
-        // impact the vanilla text. So we would use the `flagsBitfieldArray` in
-        // the CPP code probably to have a bit for this. And we would also have
-        // a patch to the FLI section which updates 0xbb8 to instead point
-        // toward the correct new FLW entry index (ex: "The yellow arrow...").
-        // With that in place, we do not have to do anything for Midna in doFlow
-        // since it will be functioning normally. We will however need to still
-        // handle flow_0xbb8+flowNodeIndex to map to a different 0x1369 value.
-
-        // if (msgFlow->mFlow == 0x7FFF) // Check if it equals our custom flow value
-        // {
-        //     // Maybe the not super hacky way of doing this is to pass a local
-        //     // flowNode to the function when we need it to lead to a custom INF1
-        //     // index. We copy the bytes from the param flowNode into our local
-        //     // flowNode, then overwrite the u16 at offset 0x2 for the INF1 index.
-
-        //     // For Midna, maybe what we should do to avoid crazy CPP changes is
-        //     // in the event that there are hints on Midna, we tell it if that
-        //     // the 0xbb8 FLI starts not on FLW entry 143 (0xDF), but on 36, 37,
-        //     // 38, 39, or 40 which are in subgraph 19.
-
-        //     // Then if the mFlow is 0xbb8 and the FLW entry index is between 36
-        //     // and 40, we instead make a temp FLW entry and give it a custom
-        //     // INF1 index.
-
-        //     // We also need to be able to remap the CoO fairy one given specific
-        //     // FLI values. For example, if the mFlow is 0x7890 and the current
-
-        //     // Scratch that. Instead, what if instead we make the u16 flowId
-        //     // that we put on the sign indicate also which node to start on? For
-        //     // example, 0x7802 would match our special value of starting with
-        //     // 0x78, and then the 0x02 (0x01/0x03, etc.) would tell us which FLW
-        //     // entry to start on. When we are spawning in the sign actor, it
-        //     // should be able to say "I am this sign, and I see that I am
-        //     // supposed to start here, so I will generate my FLI as such". In
-        //     // fact, we should just store an array of u16s for the FLI values
-        //     // for the signs, and each sign should know its index in that array
-        //     // to look for, and it should use that value for its param.
-
-        //     // Then once we are in this file, we can
-
-        //     // Set the msg id in the node to that of our specified message.
-        //     // const uint32_t msg = libtp::tp::f_op_msg_mng::fopMsgM_messageSet(0x1360, 1000);
-        //     const uint32_t msg = libtp::tp::f_op_msg_mng::fopMsgM_messageSet(0x1364, 1000);
-
-        //     msgFlow->mMsg = msg;
-        //     return 1;
-        // }
-
-        // return gReturn_setNormalMsg(msgFlow, flowNode, actrPtr);
+        // Note we always pass our flowNodeCopy to the function.
         return gReturn_setNormalMsg(msgFlow, flowNodeCopy, actrPtr);
-    }
-
-    KEEP_FUNC int32_t handle_messageNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
-                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2)
-    {
-        // rando::gRandomizer->setLatestCustomINFIndex(msgFlow->mFlow);
-
-        int32_t ret = gReturn_messageNodeProc(msgFlow, actrPtr_1, actrPtr_2);
-
-        // rando::gRandomizer->setLatestCustomINFIndex(0xFFFF);
-
-        return ret;
     }
 
     KEEP_FUNC int32_t handle_branchNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,

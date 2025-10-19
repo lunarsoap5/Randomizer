@@ -412,11 +412,9 @@
 8024c2a0:query049
 8024a2d8:doFlow
 8024a528:getEventId
-8024a6ec:getMsgDataBlock
 8024a7cc:setNodeIndex
 8024a95c:setSelectMsg
 8024aa50:setNormalMsg
-8024ab30:messageNodeProc
 8024ad54:branchNodeProc
 8024adec:eventNodeProc
 

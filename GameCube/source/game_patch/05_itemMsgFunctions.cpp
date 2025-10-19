@@ -890,10 +890,8 @@ namespace mod::game_patch
     // Return 0 if can change ToD, else 1 if cannot
     int _05_customQuery055_canChangeTod()
     {
-        // This function is based on query044 which is used to determine whether
-        // to show the Midna menu which includes "Warp" or not. We also add a
-        // check to ensure the current environment is not twilight. "R_SP161" is
-        // the STAR tent.
+        // This function is based on query044 which is used to determine whether to show the Midna menu which includes
+        // "Warp" or not. We also add a check to ensure the current environment is not twilight. "R_SP161" is STAR tent.
         if (!libtp::tp::d_kankyo::dKy_darkworld_check() && !libtp::tp::d_a_alink::checkForestOldCentury() &&
             (libtp::tp::d_a_alink::checkField() || libtp::tp::d_a_alink::checkCastleTown()) &&
             !libtp::tp::d_a_alink::checkStageName("R_SP161"))
@@ -903,17 +901,12 @@ namespace mod::game_patch
         return 1;
     }
 
-    // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-    //                                  void* flowNode,
-    //                                  libtp::tp::f_op_actor::fopAc_ac_c* actorPtr)
     int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
     {
-        // Check if player is wolf the same way query002 does. If player is
-        // wolf, we should queue the ToD change so it runs once the conversation
-        // ends (to avoid any weirdness where the Midna flow restarts after it
-        // ends). If we are a human, go ahead and queue the event so we do not
-        // have to wait for the shadow Midna to fully disappear (mainly relevant
-        // for when time does not flow and the room will immediately reload).
+        // Check if player is wolf the same way query002 does. If player is wolf, we should queue the ToD change so it
+        // runs once the conversation ends (to avoid Midna flow restarting after it ends). If we are a human, go ahead
+        // and queue the event so we do not have to wait for the shadow Midna to fully disappear (mainly relevant for
+        // when time does not flow and the room will immediately reload).
         libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
         if (linkMapPtr->mNoResetFlg1 & 0x2000000)
             rando::gRandomizer->setHasPendingTodChange(true);

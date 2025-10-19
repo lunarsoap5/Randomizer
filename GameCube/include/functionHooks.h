@@ -264,16 +264,6 @@ namespace mod
     int32_t handle_event017(void* messageFlow, void* nodeEvent, void* actrPtr);
     extern int32_t (*gReturn_event017)(void* messageFlow, void* nodeEvent, void* actrPtr);
 
-    int32_t handle_doFlow(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                          libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                          libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                          int32_t i_flow);
-
-    extern int32_t (*gReturn_doFlow)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                     libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                     libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                     int32_t i_flow);
-
     void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                              uint16_t flwIndex,
                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
@@ -299,14 +289,6 @@ namespace mod
     extern int32_t (*gReturn_setNormalMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                            void* flowNode,
                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
-
-    int32_t handle_messageNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                   libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
-                                   libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
-
-    extern int32_t (*gReturn_messageNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
-                                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
 
     int32_t handle_branchNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                   libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
