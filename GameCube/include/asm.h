@@ -123,8 +123,8 @@ namespace mod::assembly
 
         void asmGetFlowQueryFnPtr();
         void* handleGetFlowQueryFnPtr(uint16_t queryListIndex);
-        void asmGetEventNodeFnPtr();
-        void* handleGetEventNodeFnPtr(uint8_t eventListIndex);
+        void asmGetFlowEventFnPtr();
+        void* handleGetFlowEventFnPtr(uint8_t eventListIndex);
 
         // d_msg_object.o
         void asmAdjustSelectMsg();

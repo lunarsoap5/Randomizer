@@ -208,7 +208,7 @@ namespace mod::assembly
         return nullptr;
     }
 
-    void* handleGetEventNodeFnPtr(uint8_t eventListIndex)
+    void* handleGetFlowEventFnPtr(uint8_t eventListIndex)
     {
         if (eventListIndex >= 43)
         {

@@ -220,7 +220,7 @@ namespace mod
                                     assembly::asmGetFlowQueryFnPtr);
         // Branch to a handling of event indexes (including custom ones)
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x48,
-                                    assembly::asmGetEventNodeFnPtr);
+                                    assembly::asmGetFlowEventFnPtr);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x2C,
                                     assembly::asmGetFlowEventNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x74,
