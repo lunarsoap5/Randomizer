@@ -1,10 +1,10 @@
 .global asmAdjustFlowBranchNextNode
+# asmAdjustFlowBranchNextNode needs to be used in at least one subrel, so it cannot be set to hidden
+
 .hidden asmAdjustFlowBranchNextNodeSetCustomIndex
 .hidden asmAdjustFlowBranchNextNodeDone
 
-# asmAdjustFlowBranchNextNode needs to be used in at least one subrel, so it cannot be set to hidden
-
-# Checks if the branch's next node should be custom or not. If custom, updates r4 to be the custom next node index.
+# Checks if the branch's next node should be custom or not. If custom, updates r4 to be the custom next FLW index.
 # Otherwise keeps r4 at its current value (the vanilla next node index).
 
 asmAdjustFlowBranchNextNode:
