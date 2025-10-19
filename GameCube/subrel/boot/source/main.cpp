@@ -226,7 +226,7 @@ namespace mod
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x74,
                                     assembly::asmAdjustFlowBranchNextNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x1E8,
-                                    assembly::asmAdjustMsgEventResultNode);
+                                    assembly::asmAdjustFlowEventNextNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x2C,
                                     assembly::asmGetFlowBranchNode);
         libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex) + 0x11C,

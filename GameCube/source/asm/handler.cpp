@@ -172,7 +172,7 @@ namespace mod::assembly
             queryResult);
     }
 
-    const uint16_t* handleAdjustMsgEventResultNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    const uint16_t* handleAdjustFlowEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
     {
         return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomEventNextNode(
             msgFlow,
