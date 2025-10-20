@@ -15,6 +15,7 @@
 #include "tp/resource.h"
 #include "tp/d_msg_flow.h"
 #include "tp/d_msg_object.h"
+#include "tp/d_event.h"
 #include "tp/d_a_npc.h"
 #include "tp/d_menu_window.h"
 #include "Z2AudioLib/Z2AudioMgr.h"
@@ -207,32 +208,14 @@ namespace mod
         gReturn_query042 = patch::hookFunction(libtp::tp::d_msg_flow::query042, handle_query042);
         // gReturn_event000 = patch::hookFunction( libtp::tp::d_msg_flow::event000, handle_event000 );
         gReturn_event017 = patch::hookFunction(libtp::tp::d_msg_flow::event017, handle_event017);
+
+        // MsgFlow and related functions
         gReturn_setNodeIndex = patch::hookFunction(libtp::tp::d_msg_flow::setNodeIndex, handle_setNodeIndex);
         gReturn_setSelectMsg = patch::hookFunction(libtp::tp::d_msg_flow::setSelectMsg, handle_setSelectMsg);
         gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
         gReturn_branchNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::branchNodeProc, handle_branchNodeProc);
         gReturn_eventNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::eventNodeProc, handle_eventNodeProc);
-
-        // TODO: all the "+ 0xABC" ones should be in asmOverrides
-        // Handle custom query functions
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x4C,
-                                    assembly::asmGetFlowQueryFnPtr);
-        // Branch to a handling of event indexes (including custom ones)
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x48,
-                                    assembly::asmGetFlowEventFnPtr);
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x2C,
-                                    assembly::asmGetFlowEventNode);
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x74,
-                                    assembly::asmAdjustFlowBranchNextNode);
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc) + 0x1E8,
-                                    assembly::asmAdjustFlowEventNextNode);
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc) + 0x2C,
-                                    assembly::asmGetFlowBranchNode);
-        libtp::patch::writeBranchBL(reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex) + 0x11C,
-                                    assembly::asmAdjustSelectMsg);
         gReturn_endFlowGroup = patch::hookFunction(libtp::tp::d_msg_object::endFlowGroup, handle_endFlowGroup);
-
-        // Event functions
         gReturn_talkEnd = patch::hookFunction(libtp::tp::d_event::talkEnd, handle_talkEnd);
 
         // Save flag functions
