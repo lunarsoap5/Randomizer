@@ -141,12 +141,6 @@ namespace mod::game_patch
         const uint32_t checkGroundAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkGroundSpecialMode);
         libtp::patch::writeBranchBL(checkGroundAddress + 0x4C, events::checkValidGroundTransform);
 
-        // Modify eventNodeProc case 9 (Talk to Midna) to use the normal 0xbb8
-        // FLI value regardless of the current room when talking to Midna with
-        // no special overrides.
-        const uint32_t eventNodeProcAddress = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc);
-        *reinterpret_cast<uint32_t*>(eventNodeProcAddress + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
-
         // Modify d_s_play::phase1 to not give the horse call during the cutscene and instead give our custom item.
         const uint32_t dScnPlayPhase1Addr = reinterpret_cast<uint32_t>(libtp::tp::d_s_play::dScnPlay_phase_1);
         *reinterpret_cast<uint32_t*>(dScnPlayPhase1Addr + 0x234) = ASM_NOP;
@@ -183,6 +177,9 @@ namespace mod::game_patch
         libtp::patch::writeBranchBL(eventNodeProcAddr + 0x48, assembly::asmGetFlowEventFnPtr);
         // Allow for dynamic next nodes for event nodes.
         libtp::patch::writeBranchBL(eventNodeProcAddr + 0x1E8, assembly::asmAdjustFlowEventNextNode);
+        // Modify eventNodeProc case 9 (Talk to Midna) to use the normal 0xbb8 FLI value regardless of the current room
+        // when talking to Midna with no special overrides.
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
 
         // Allow for custom strings for the options text in a msgFlow menu.
         const uint32_t setMessageIndexAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex);
