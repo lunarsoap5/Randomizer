@@ -95,8 +95,7 @@ namespace mod::events
                                              -2088.f,
                                              0.8535f,
                                              7535.77f,
-                                             //  static_cast<int16_t>(0x7FFF), // Flow Node ID
-                                             static_cast<int16_t>(0x7702), // Flow Node ID
+                                             static_cast<int16_t>(0xFFFE), // Flow Node ID
                                              static_cast<int16_t>(0xD556),
                                              0,
                                              0xFFFF};

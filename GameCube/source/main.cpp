@@ -411,8 +411,8 @@ namespace mod
                 // getConsole() << "Applying volatile patches:\n";
                 randoPtr->getSeedPtr()->applyVolatilePatches();
 
-                // Until we implement passwords using a racetime bot, simply
-                // handle decrypting hint text here.
+                // Until we implement passwords using a racetime bot, simply handle
+                // decrypting hint text here. Does nothing if already decrypted.
                 randoPtr->getSeedPtr()->getBMG0SectionPtr()->init();
             }
         }
@@ -1313,17 +1313,18 @@ namespace mod
         const uint16_t bodyCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, false);
         if (bodyCustomInfIdx != 0xFFFF)
         {
-            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(bodyFlowNodeCopy);
-            u16Arr[1] = bodyCustomInfIdx;
+            uint16_t* bodyNodeCopyAsU16s = reinterpret_cast<uint16_t*>(bodyFlowNodeCopy);
+            bodyNodeCopyAsU16s[1] = bodyCustomInfIdx;
         }
 
         const uint16_t optionsCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, true);
         if (optionsCustomInfIdx != 0xFFFF)
         {
-            uint16_t* u16Arr = reinterpret_cast<uint16_t*>(optionsFlowNodeCopy);
-            u16Arr[1] = optionsCustomInfIdx;
+            uint16_t* optionsNodeCopyAsU16s = reinterpret_cast<uint16_t*>(optionsFlowNodeCopy);
+            optionsNodeCopyAsU16s[1] = optionsCustomInfIdx;
         }
 
+        // Note we always pass our own flowNode copies to the function.
         return gReturn_setSelectMsg(msgFlow, bodyFlowNodeCopy, optionsFlowNodeCopy, actrPtr);
     }
 
@@ -1336,6 +1337,7 @@ namespace mod
         uint8_t flowNodeCopy[8];
         memcpy(&flowNodeCopy, flowNode, 8);
 
+        // Note: custom INF indexes here are only used for custom signs for now.
         const uint16_t customINFIndex =
             rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow, false);
         if (customINFIndex != 0xFFFF)
@@ -1408,9 +1410,9 @@ namespace mod
         // Call original function
         gReturn_talkEnd(eventPtr);
 
-        // We handle a pending ToD change from talking to Midna once this function has run after the conversation ends
-        // so that the Midna actor has been updated to know the conversation has ended. This avoids having the Midna
-        // conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
+        // We handle any pending ToD changes from talking to Midna once this function has run after the conversation
+        // ends so that the Midna actor has been updated to know the conversation has ended. This avoids having the
+        // Midna conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
         if (rando::gRandomizer->getHasPendingTodChange())
         {
             rando::gRandomizer->setHasPendingTodChange(false);

@@ -261,6 +261,7 @@ namespace mod
     int32_t handle_event017(void* messageFlow, void* nodeEvent, void* actrPtr);
     extern int32_t (*gReturn_event017)(void* messageFlow, void* nodeEvent, void* actrPtr);
 
+    // MsgFlow and related functions
     void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                              uint16_t flwIndex,
                              libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
@@ -304,12 +305,9 @@ namespace mod
                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
 
     void handle_endFlowGroup();
-
     extern void (*gReturn_endFlowGroup)();
 
-    // Event functions
     void handle_talkEnd(void* eventPtr);
-
     extern void (*gReturn_talkEnd)(void* eventPtr);
 
     // Save flag functions

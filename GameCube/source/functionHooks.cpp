@@ -146,6 +146,7 @@ namespace mod
     KEEP_VAR int32_t (*gReturn_event017)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;
     KEEP_VAR int32_t (*gReturn_event003)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;
 
+    // MsgFlow and related functions
     KEEP_VAR void (*gReturn_setNodeIndex)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                           uint16_t flwIndex,
                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
@@ -168,8 +169,6 @@ namespace mod
                                               libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2) = nullptr;
 
     KEEP_VAR void (*gReturn_endFlowGroup)() = nullptr;
-
-    // Event functions
     KEEP_VAR void (*gReturn_talkEnd)(void* eventPtr) = nullptr;
 
     // Save flag functions
