@@ -141,7 +141,6 @@ namespace mod
     KEEP_VAR uint8_t (*gReturn_checkEmptyBottle)(libtp::tp::d_save::dSv_player_item_c* playerItem) = nullptr;
     KEEP_VAR int32_t (*gReturn_query042)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR int32_t (*gReturn_query004)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*gReturn_query037)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR int32_t (*gReturn_query049)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     // KEEP_VAR int32_t ( *gReturn_event000 )( void* messageFlow, void* nodeEvent, void* actrPtr ) = nullptr;
     KEEP_VAR int32_t (*gReturn_event017)(void* messageFlow, void* nodeEvent, void* actrPtr) = nullptr;

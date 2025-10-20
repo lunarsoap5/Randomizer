@@ -203,7 +203,6 @@ namespace mod
         gReturn_query023 = patch::hookFunction(libtp::tp::d_msg_flow::query023, handle_query023);
         gReturn_query025 = patch::hookFunction(libtp::tp::d_msg_flow::query025, handle_query025);
         gReturn_checkEmptyBottle = patch::hookFunction(libtp::tp::d_save::checkEmptyBottle, handle_checkEmptyBottle);
-        gReturn_query037 = patch::hookFunction(libtp::tp::d_msg_flow::query037, handle_query037);
         gReturn_query049 = patch::hookFunction(libtp::tp::d_msg_flow::query049, handle_query049);
         gReturn_query042 = patch::hookFunction(libtp::tp::d_msg_flow::query042, handle_query042);
         // gReturn_event000 = patch::hookFunction( libtp::tp::d_msg_flow::event000, handle_event000 );

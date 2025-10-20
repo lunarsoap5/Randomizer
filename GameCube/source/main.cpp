@@ -1221,21 +1221,6 @@ namespace mod
         return gReturn_checkEmptyBottle(playerItem);
     }
 
-    KEEP_FUNC int32_t handle_query037(void* unk1, void* unk2, int32_t unk3)
-    {
-        // Call the original function immediately as we need its output
-        const int32_t menuType = gReturn_query037(unk1, unk2, unk3);
-
-        // TODO: disabling this time of day change
-        // if ((menuType == 0x2) && (reinterpret_cast<int32_t>(libtp::tp::d_a_player::m_midnaActor) ==
-        //                           libtp::tp::f_op_actor_mng::fopAcM_getTalkEventPartner(nullptr)))
-        // {
-        //     events::handleTimeOfDayChange();
-        // }
-
-        return menuType;
-    }
-
     KEEP_FUNC int32_t handle_query049(void* unk1, void* unk2, int32_t unk3)
     {
         const int32_t poeFlag = gReturn_query049(unk1, unk2, unk3);

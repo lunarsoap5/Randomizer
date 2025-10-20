@@ -667,7 +667,6 @@ namespace mod::game_patch
             rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
                                                                                      rando::gRandomizer->getFlowContext(),
                                                                                      msgId);
-
         if (remappedStr != nullptr)
         {
             setMessageText(remappedStr);
@@ -677,21 +676,7 @@ namespace mod::game_patch
         // Most text replacements are for zel_00.bmg, so check that first
         if (isZel00BmgInf)
         {
-            const char* newMessage;
-            if (msgId >= 0x1369) // The custom message ID used for hints on custom signs
-            {
-                // TODO: ^ can set a range on these. Maybe don't really need
-                // this split between _05_getSpecialMsgById and
-                // getCustomMessage, but it might be better to leave it alone
-                // for now until we know the new implementation is not causing
-                // issues, and then see about refactoring if it makes sense.
-                newMessage = _05_getSpecialMsgById(msgId);
-            }
-            else
-            {
-                newMessage = getCustomMessage(msgId);
-            }
-
+            const char* newMessage = getCustomMessage(msgId);
             setMessageText(newMessage);
             return;
         }
