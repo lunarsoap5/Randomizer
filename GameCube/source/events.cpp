@@ -990,34 +990,6 @@ namespace mod::events
         return gReturn_query022(unk1, unk2, unk3);
     }
 
-    int32_t proc_query023(void* unk1, void* unk2, int32_t unk3)
-    {
-        // Call the original function immediately as we need its value
-        const int32_t numBombs = gReturn_query023(unk1, unk2, unk3);
-        return numBombs;
-
-        // // Check to see if currently in one of the Kakariko interiors
-        // if (libtp::tools::playerIsInRoomStage(
-        //         1,
-        //         libtp::data::stage::allStages[libtp::data::stage::StageIDs::Kakariko_Village_Interiors]))
-        // {
-        //     // If player has not bought Barnes' Bomb Bag, we want to allow them to be able to get the check.
-        //     if ((!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::BOUGHT_BARNES_BOMB_BAG)))
-        //     {
-        //         return 0;
-        //     }
-
-        //     // If the player has bought the bomb bag check, we won't allow them to get the check, regardless of if they
-        //     // have bombs or not
-        //     else if (numBombs == 0)
-        //     {
-        //         return 1;
-        //     }
-        // }
-
-        // return numBombs;
-    }
-
     int32_t proc_query025(void* unk1, void* unk2, int32_t unk3)
     {
         using namespace libtp::data::stage;

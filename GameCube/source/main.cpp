@@ -1200,11 +1200,6 @@ namespace mod
         return events::proc_query022(unk1, unk2, unk3);
     }
 
-    KEEP_FUNC int32_t handle_query023(void* unk1, void* unk2, int32_t unk3)
-    {
-        return events::proc_query023(unk1, unk2, unk3);
-    }
-
     KEEP_FUNC int32_t handle_query025(void* unk1, void* unk2, int32_t unk3)
     {
         return events::proc_query025(unk1, unk2, unk3);

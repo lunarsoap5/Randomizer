@@ -240,9 +240,6 @@ namespace mod
     int32_t handle_query022(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*gReturn_query022)(void* unk1, void* unk2, int32_t unk3);
 
-    int32_t handle_query023(void* unk1, void* unk2, int32_t unk3);
-    extern int32_t (*gReturn_query023)(void* unk1, void* unk2, int32_t unk3);
-
     int32_t handle_query025(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*gReturn_query025)(void* unk1, void* unk2, int32_t unk3);
 

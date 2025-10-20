@@ -136,7 +136,6 @@ namespace mod
     // Query/Event functions.
     KEEP_VAR int32_t (*gReturn_query001)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR int32_t (*gReturn_query022)(void* unk1, void* unk2, int32_t unk3) = nullptr;
-    KEEP_VAR int32_t (*gReturn_query023)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR int32_t (*gReturn_query025)(void* unk1, void* unk2, int32_t unk3) = nullptr;
     KEEP_VAR uint8_t (*gReturn_checkEmptyBottle)(libtp::tp::d_save::dSv_player_item_c* playerItem) = nullptr;
     KEEP_VAR int32_t (*gReturn_query042)(void* unk1, void* unk2, int32_t unk3) = nullptr;
