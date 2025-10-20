@@ -196,22 +196,8 @@ namespace mod::game_patch
     const char* _05_getSpecialMsgById(uint32_t msgId);
     const char** _05_replaceMessageString(const char** text);
 
-    // int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-    //                        void* flowNode,
-    //                        libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
-    int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                           void* flowNode,
-                           libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
-    int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                           void* flowNode,
-                           libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
-
-    // extern int (*customEventFunctions[])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-    //                                      void* flowNode,
-    //                                      libtp::tp::f_op_actor::fopAc_ac_c* actorPtr);
-
-    extern uint32_t customQueryFunctions[2][3];
-    extern uint32_t customEventFunctions[4][3];
+    extern uint32_t _05_customQueryList[2][3];
+    extern uint32_t _05_customEventList[2][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();

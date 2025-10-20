@@ -202,7 +202,7 @@ namespace mod::assembly
         if (queryListIndex >= 53)
         {
             uint8_t newIndex = queryListIndex - 53;
-            uint32_t* ptmf = game_patch::customQueryFunctions[newIndex];
+            uint32_t* ptmf = game_patch::_05_customQueryList[newIndex];
             return reinterpret_cast<void*>(ptmf);
         }
         return nullptr;
@@ -213,7 +213,7 @@ namespace mod::assembly
         if (eventListIndex >= 43)
         {
             uint8_t newIndex = eventListIndex - 43;
-            uint32_t* ptmf = game_patch::customEventFunctions[newIndex];
+            uint32_t* ptmf = game_patch::_05_customEventList[newIndex];
             return reinterpret_cast<void*>(ptmf);
         }
         return nullptr;

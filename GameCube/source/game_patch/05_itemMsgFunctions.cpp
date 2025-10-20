@@ -866,14 +866,15 @@ namespace mod::game_patch
         return nullptr;
     }
 
-    int _05_customQuery054_returnParams(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    // Convenience query fn for returning static value.
+    int customQuery053_returnParams(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
     {
         uint16_t params = reinterpret_cast<uint16_t*>(flowNode)[2];
         return params;
     }
 
-    // Return 0 if can change ToD, else 1 if cannot
-    int _05_customQuery055_canChangeTod()
+    // Return 0 if can change ToD, else 1 if cannot.
+    int customQuery054_canChangeTod()
     {
         // This function is based on query044 which is used to determine whether to show the Midna menu which includes
         // "Warp" or not. We also add a check to ensure the current environment is not twilight. "R_SP161" is STAR tent.
@@ -886,7 +887,13 @@ namespace mod::game_patch
         return 1;
     }
 
-    int _05_customEvent067(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
+    // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
+    int customEvent043_nop()
+    {
+        return 1;
+    }
+
+    int customEvent044_changeTimeOfDay(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
     {
         // Check if player is wolf the same way query002 does. If player is wolf, we should queue the ToD change so it
         // runs once the conversation ends (to avoid Midna flow restarting after it ends). If we are a human, go ahead
@@ -901,60 +908,11 @@ namespace mod::game_patch
         return 1;
     }
 
-    // Give item
-    int _05_customEvent068(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode, libtp::tp::f_op_actor::fopAc_ac_c*)
-    {
-        const uint32_t params = reinterpret_cast<const uint32_t*>(flowNode)[1];
-        rando::gRandomizer->addItemToEventQueue(params);
-        return 1;
-    }
+    // These are arrays of PTMFs (pointer to member function).
+    // A function's number matches the index which points to it.
+    uint32_t _05_customQueryList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)}};
 
-    // Does nothing. This provides an easy way to patch existing event nodes to
-    // simply do nothing rather than their vanilla behavior.
-    int _05_customEvent069_nop()
-    {
-        return 1;
-    }
-
-    int _05_customEvent70_warp()
-    {
-        using namespace libtp::data;
-        using namespace libtp::tp;
-
-        // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
-        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
-
-        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
-
-        strncpy(nextStagePtr->mStage,
-                libtp::data::stage::allStages[libtp::data::stage::StageIDs::Lake_Hylia],
-                sizeof(nextStagePtr->mStage) - 1);
-
-        nextStagePtr->mRoomNo = 0; // Main LH room
-        nextStagePtr->mPoint = 13;
-        savePtr->mRestart.mStartPoint = 13;
-        // nextStagePtr->mPoint = 0;
-        // savePtr->mRestart.mStartPoint = 0;
-        nextStagePtr->mLayer = -1;
-
-        // nextStagePtr->wipe = 13;
-        savePtr->mRestart.mLastMode = 0;
-        nextStagePtr->enabled |= 0x1;
-
-        return 1;
-    }
-
-    // int (*customEventFunctions[1])(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-    //                                void* flowNode,
-    //                                libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
-
-    uint32_t customQueryFunctions[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery054_returnParams)},
-                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customQuery055_canChangeTod)}};
-
-    uint32_t customEventFunctions[4][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent067)},
-                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent068)},
-                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent069_nop)},
-                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(_05_customEvent70_warp)}};
-    //    libtp::tp::f_op_actor::fopAc_ac_c* actorPtr) = {_05_customEvent067};
+    uint32_t _05_customEventList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)}};
 } // namespace mod::game_patch
