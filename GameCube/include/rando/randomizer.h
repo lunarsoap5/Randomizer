@@ -106,6 +106,10 @@ namespace mod::rando
         uint8_t getDungeonItemAreaColorIndex() const { return this->m_DungeonItemAreaColorIndex; }
         TimeChange getTimeChange() const { return this->m_TimeChange; }
 
+        uint16_t getFlowContext() { return this->m_flowContext; }
+        uint8_t* getMutFlowNodePtr() { return this->m_mutFlowNodePtr; }
+        bool getHasPendingTodChange() { return this->m_hasPendingTodChange; }
+
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages getCurrentLanguage() const { return this->m_CurrentLanguage; }
 #endif
@@ -154,7 +158,7 @@ namespace mod::rando
         uint8_t getSkyCharacter();
         uint8_t getBossItem();
         uint8_t getEventItem(uint8_t flag);
-        void overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo, uint8_t specialStageIdx);
+        void overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo);
         void overrideObjectARC(libtp::tp::d_resource::dRes_info_c* resourcePtr, const char* fileName);
         void overrideEventARC();
         uint8_t overrideBugReward(uint8_t bugID);
@@ -165,13 +169,8 @@ namespace mod::rando
         void checkSetHCBkFlag(CastleBkRequirements req, uint8_t currentCount);
         void recolorArchiveTextures(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive);
         uint8_t getFoolishItemModelId(uint8_t originalItem);
-        uint16_t getFlowContext();
         void setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext);
         void checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
-        uint8_t* getMutFlowNodePtr();
-        bool getHasPendingTodChange();
-        // uint16_t getCustomInitNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flwIndex);
-        // uint16_t getCustomINFIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
         // NOTE: This function returns dynamic memory
         BMDEntry* generateBmdEntries(DvdEntryNumId arcIndex, uint32_t numEntries);
@@ -202,7 +201,7 @@ namespace mod::rando
         EventItemStatus m_GiveItemToPlayerStatus;
         TimeChange m_TimeChange;
 
-        uint16_t m_latestFLIVal = 0xFFFF;
+        uint16_t m_latestFlowID = 0xFFFF;
         uint16_t m_flowContext = 0;
         uint8_t* m_mutFlowNodePtr = nullptr;
         bool m_hasPendingTodChange = false;

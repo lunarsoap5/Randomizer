@@ -341,12 +341,10 @@ namespace mod::rando
         return flag;
     }
 
-    void Randomizer::overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo, uint8_t specialStageIdx)
+    void Randomizer::overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo)
     {
         Seed* seedPtr = this->m_Seed;
-
-        const uint8_t stageIdx = specialStageIdx > 0 ? specialStageIdx : seedPtr->getStageIDX();
-        // const uint8_t stageIdx = seedPtr->getStageIDX();
+        const uint8_t stageIdx = seedPtr->getStageIDX();
         seedPtr->LoadARCChecks(stageIdx, fileDirectory, roomNo);
 
         // Loop through all ArcChecks and replace the item at an offset given the fileIndex.
@@ -464,15 +462,12 @@ namespace mod::rando
 
     void Randomizer::overrideEventARC()
     {
-        const uint32_t zel00bmgHeaderLocation =
-            reinterpret_cast<uint32_t>(libtp::tp::d_meter2_info::g_meter2_info.stringDataTable);
-        this->overrideARC(zel00bmgHeaderLocation, rando::FileDirectory::Message, 0xFF, 0xFE);
-
         const uint32_t bmgHeaderLocation =
             reinterpret_cast<uint32_t>(libtp::tp::d_meter2_info::g_meter2_info.mStageMsgResource);
+
         const uint32_t messageFlowOffset = bmgHeaderLocation + *reinterpret_cast<uint32_t*>(bmgHeaderLocation + 0x8);
 
-        this->overrideARC(messageFlowOffset, rando::FileDirectory::Message, 0xFF, 0);
+        this->overrideARC(messageFlowOffset, rando::FileDirectory::Message, 0xFF);
     }
 
     uint8_t Randomizer::overrideBugReward(uint8_t bugID)
@@ -700,14 +695,9 @@ namespace mod::rando
         }
     }
 
-    uint16_t Randomizer::getFlowContext()
-    {
-        return this->m_flowContext;
-    }
-
     void Randomizer::setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext)
     {
-        if (msgFlow != nullptr && msgFlow->mFlow == this->m_latestFLIVal)
+        if (msgFlow != nullptr && msgFlow->mFlow == this->m_latestFlowID)
         {
             this->m_flowContext = flowContext;
         }
@@ -717,24 +707,14 @@ namespace mod::rando
     {
         if (msgFlow == nullptr)
         {
-            this->m_latestFLIVal = 0xFFFF;
+            this->m_latestFlowID = 0xFFFF;
             this->m_flowContext = 0;
         }
-        else if (msgFlow->mFlow != this->m_latestFLIVal)
+        else if (msgFlow->mFlow != this->m_latestFlowID)
         {
-            this->m_latestFLIVal = msgFlow->mFlow;
+            this->m_latestFlowID = msgFlow->mFlow;
             this->m_flowContext = 0;
         }
-    }
-
-    uint8_t* Randomizer::getMutFlowNodePtr()
-    {
-        return m_mutFlowNodePtr;
-    }
-
-    bool Randomizer::getHasPendingTodChange()
-    {
-        return m_hasPendingTodChange;
     }
 
     void Randomizer::checkSetHCBarrierFlag(CastleEntryRequirements req, uint8_t currentCount)

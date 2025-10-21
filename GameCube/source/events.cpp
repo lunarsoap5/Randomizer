@@ -803,7 +803,7 @@ namespace mod::events
 
     void onARC(rando::Randomizer* randomizer, void* data, int32_t roomNo, rando::FileDirectory fileDirectory)
     {
-        randomizer->overrideARC(reinterpret_cast<uint32_t>(data), fileDirectory, roomNo, 0);
+        randomizer->overrideARC(reinterpret_cast<uint32_t>(data), fileDirectory, roomNo);
     }
 
     void onBugReward(rando::Randomizer* randomizer, uint32_t msgEventAddress, uint8_t bugID)
@@ -1226,9 +1226,8 @@ namespace mod::events
         const uint8_t stageIDX = randomizer->getSeedPtr()->getStageIDX();
         const int32_t roomIDX = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mEvtManager.mRoomNo;
 
-        // Set base FLI on custom sign actor based on stage. Currently any FLI
-        // in the 0x7000's is reserved for custom signs, but this range could be
-        // decreased if needed (unlikely).
+        // Set base FLI on custom sign actor based on stage (this pattern allows for 16 custom signs per stage).
+        // Currently any FLI in the 0x7000's is reserved for custom signs, but this can change as needed.
         localSignActor.rot[0] = 0x7000 | ((uint16_t)stageIDX << 4);
 
         switch (stageIDX)
