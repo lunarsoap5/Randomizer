@@ -13,46 +13,6 @@
 
 namespace mod::rando
 {
-
-    // class InfRemap
-    // {
-    //    public:
-    //     InfRemap() {}
-    //     ~InfRemap() {}
-
-    //     uint16_t getBitMask() const { return this->bitMask; }
-    //     uint16_t getFLIValue() const { return this->fliValue; }
-    //     uint16_t getFLWIndex() const { return this->flwIndex; }
-    //     uint16_t getNewINFIndex() const { return this->newInfIndex; }
-
-    //    private:
-    //     uint16_t bitMask;
-    //     uint16_t fliValue;
-    //     uint16_t flwIndex;
-    //     uint16_t newInfIndex;
-    // } __attribute__((__packed__));
-
-    class EntityInfo
-    {
-       public:
-        EntityInfo() {}
-        ~EntityInfo() {}
-
-        /* 0x00 */ int16_t idxAdjustment;
-        /* 0x02 */ uint16_t bmgLookup; // 7 bits + 9-bit bitfield
-    } __attribute__((__packed__));
-
-    class TableSliceInfo
-    {
-       public:
-        TableSliceInfo() {}
-        ~TableSliceInfo() {}
-
-       public:
-        /* 0x00 */ uint16_t startIdx;
-        /* 0x02 */ uint16_t len;
-    } __attribute__((__packed__));
-
     class BMG0Section
     {
        public:
@@ -84,7 +44,6 @@ namespace mod::rando
         };
 
         void decryptStrings();
-        const TableSliceInfo* getTableSliceInfo(const EntityInfo* entityInfo, uint8_t bmgNumber) const;
         int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t idxInBlock, EntityInfoIdx entityInfoIdx) const;
         int doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t fliValue) const;
         void tryPatchFlowNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
