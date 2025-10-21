@@ -183,8 +183,7 @@ namespace mod::rando
                                           uint16_t idxInBlock,
                                           EntityInfoIdx entityInfoIdx) const
     {
-        // Note: param `idxInBlock` is either a FLW index or an INF index
-        // depending on the entity type.
+        // Note: param `idxInBlock` is either a FLW index or an INF index depending on the entity type.
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const TableSliceInfo* tableSliceInfoTable =
             reinterpret_cast<const TableSliceInfo*>(headerPtr + this->tableSliceInfosOffset);
@@ -212,7 +211,7 @@ namespace mod::rando
         return idx; // Returns index or -1 if not found
     }
 
-    int BMG0Section::doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t fliValue) const
+    int BMG0Section::doNodeRemapEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t flwIndex, uint16_t flowId) const
     {
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->magic);
         const TableSliceInfo* tableSliceInfoTable =
@@ -238,10 +237,9 @@ namespace mod::rando
             entityInfo += 1; // Point to next entry for basic lookup
             const TableSliceInfo* tableSliceInfoBasic = getTableSliceInfo(tableSliceInfoTable, entityInfo, bmgNumber);
 
-            // Only allow remapping 0xFFFF using an FLI value when we do not
-            // have a flowContext. This is to help avoid infinite loops caused
-            // by developer error.
-            const uint32_t basicLookupVal = (fliValue << 0x10) + flwIndex;
+            // Only allow remapping 0xFFFF using an FLI value when we do not have a flowContext. This is to help avoid
+            // infinite loops caused by developer error.
+            const uint32_t basicLookupVal = (flowId << 0x10) + flwIndex;
             int idx = searchCompTable(tableSliceInfoBasic, wordCompTable, basicLookupVal, entityInfo->idxAdjustment);
             if (idx >= 0)
                 return idx;
@@ -287,9 +285,8 @@ namespace mod::rando
                 return &(strTable[strOffset]);
             else
             {
-                // If result is a string which has not been decrypted, point to
-                // fallback msg which is always at the start of the stringTable.
-                // This is never expected to run.
+                // If result is a string which has not been decrypted, point to fallback msg which is always at the
+                // start of the stringTable. Only expected to ever see this if there is a bug in the code.
                 return strTable;
             }
         }
