@@ -13,33 +13,24 @@
 
 namespace mod::rando
 {
-    enum EntityInfoIdx : uint8_t
-    {
-        NODE_REMAP = 0,
-        BRANCH_PATCH = 1,
-        BRANCH_NEXT_NODE = 2,
-        EVENT_PATCH = 3,
-        EVENT_NEXT_NODE = 4,
-        STRING_REPLACEMENT = 5,
-    };
 
-    class InfRemap
-    {
-       public:
-        InfRemap() {}
-        ~InfRemap() {}
+    // class InfRemap
+    // {
+    //    public:
+    //     InfRemap() {}
+    //     ~InfRemap() {}
 
-        uint16_t getBitMask() const { return this->bitMask; }
-        uint16_t getFLIValue() const { return this->fliValue; }
-        uint16_t getFLWIndex() const { return this->flwIndex; }
-        uint16_t getNewINFIndex() const { return this->newInfIndex; }
+    //     uint16_t getBitMask() const { return this->bitMask; }
+    //     uint16_t getFLIValue() const { return this->fliValue; }
+    //     uint16_t getFLWIndex() const { return this->flwIndex; }
+    //     uint16_t getNewINFIndex() const { return this->newInfIndex; }
 
-       private:
-        uint16_t bitMask;
-        uint16_t fliValue;
-        uint16_t flwIndex;
-        uint16_t newInfIndex;
-    } __attribute__((__packed__));
+    //    private:
+    //     uint16_t bitMask;
+    //     uint16_t fliValue;
+    //     uint16_t flwIndex;
+    //     uint16_t newInfIndex;
+    // } __attribute__((__packed__));
 
     class EntityInfo
     {
@@ -82,6 +73,16 @@ namespace mod::rando
         void tryPatchEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t context, uint8_t* mutFlowNode) const;
 
        private:
+        enum EntityInfoIdx : uint8_t
+        {
+            NODE_REMAP = 0,
+            BRANCH_PATCH = 1,
+            BRANCH_NEXT_NODE = 2,
+            EVENT_PATCH = 3,
+            EVENT_NEXT_NODE = 4,
+            STRING_REPLACEMENT = 5,
+        };
+
         void decryptStrings();
         const TableSliceInfo* getTableSliceInfo(const EntityInfo* entityInfo, uint8_t bmgNumber) const;
         int doNormalEntitySearch(uint8_t bmgNumber, uint16_t context, uint16_t idxInBlock, EntityInfoIdx entityInfoIdx) const;
@@ -92,7 +93,7 @@ namespace mod::rando
                               const uint8_t* patchTable,
                               EntityInfoIdx entityInfoIdx) const;
 
-        /* 0x00 */ char magic[4];
+        /* 0x00 */ char magic[4]; // "BMG0"
         /* 0x04 */ uint16_t entityInfoTableOffset;
         /* 0x06 */ uint16_t tableSliceInfosOffset;
         /* 0x08 */ uint16_t wordCompValsOffset;
