@@ -859,22 +859,6 @@ namespace mod::customMessages
         //soffia.. 
         "\x73\x6f\x66\x66\x69\x61\x2e\x2e\x2e"
     MSG_END();
-    MSG_BEGIN_ARRAY(talkToMidnaIt)
-        //Cosa vuoi,  
-        "\x43\x6f\x73\x61\x20\x76\x75\x6f\x69\x2c\x20"
-        MSG_PLYR_NAME
-        //? 
-        "\x3f"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        //Trasformare 
-        "\x54\x72\x61\x73\x66\x6f\x72\x6d\x61\x72\x65\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        //Teletrasportare 
-        "\x54\x65\x6c\x65\x74\x72\x61\x73\x70\x6f\x72\x74\x61\x72\x65\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        //Cambiare il tempo del giorno 
-        "\x43\x61\x6d\x62\x69\x61\x72\x65\x20\x69\x6c\x20\x74\x65\x6d\x70\x6f\x20\x64\x65\x6c\x20\x67\x69\x6f\x72\x6e\x6f"
-    MSG_END();
     MSG_BEGIN_ARRAY(bigWalletIt)
         MSG_SPEED(MSG_SPEED_FAST)
         //Ora hai un  
@@ -1074,11 +1058,6 @@ namespace mod::customMessages
         foolishItemIt,
         sizeof(foolishItemIt),
         0x0077,
-
-        // Talking to Midna
-        talkToMidnaIt,
-        sizeof(talkToMidnaIt),
-        0x0BBB,
 
         // Big Wallet
         bigWalletIt,

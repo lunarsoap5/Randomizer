@@ -272,22 +272,6 @@ namespace mod::customMessages
         // 感じがする...
         "\x8A\xB4\x82\xB6\x82\xAA\x82\xB7\x82\xE9\x2e\x2e\x2e"
     MSG_END();
-    MSG_BEGIN_ARRAY(talkToMidnaJp)
-        // どうした、
-        "\x82\xC7\x82\xA4\x82\xB5\x82\xBD\x81\x41"
-        MSG_PLYR_NAME
-        // "?"
-        "\x81\x48"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        // 獣になる
-        "\x8F\x62\x82\xC9\x82\xC8\x82\xE9\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        // ワープ
-        "\x83\x8F\x81\x5B\x83\x76\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        // 時間を変更する
-        "\x8E\x9E\x8A\xD4\x82\xF0\x95\xCF\x8D\x58\x82\xB7\x82\xE9"
-    MSG_END();
     MSG_BEGIN_ARRAY(bigWalletJp)
         MSG_SPEED(MSG_SPEED_FAST)
         MSG_COLOR(MSG_COLOR_RED)
@@ -484,11 +468,6 @@ namespace mod::customMessages
         foolishItemJp,
         sizeof(foolishItemJp),
         0x0077,
-
-        // Talking to Midna
-        talkToMidnaJp,
-        sizeof(talkToMidnaJp),
-        0x0BBB,
 
         // Big Wallet
         bigWalletJp,
