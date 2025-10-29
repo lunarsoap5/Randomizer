@@ -232,7 +232,8 @@ namespace mod::rando
         }
 
         // FLI compare
-        if (flwIndex != 0xFFFF || context == 0)
+        // Only allow FLI remap when context is 0. Helps avoid infinite loops
+        if (context == 0)
         {
             entityInfo += 1; // Point to next entry for basic lookup
             const TableSliceInfo* tableSliceInfoBasic = getTableSliceInfo(tableSliceInfoTable, entityInfo, bmgNumber);
