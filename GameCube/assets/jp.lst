@@ -66,6 +66,7 @@
 80035200:onSwitch_dSv_info
 800352b0:offSwitch_dSv_info
 80034838:offSwitch_dSv_memBit
+80034be8:isSwitch_dSv_danBit
 80034dac:onOneSwitch
 803a13e8:saveBitLabels
 80032bb0:isDarkClearLV

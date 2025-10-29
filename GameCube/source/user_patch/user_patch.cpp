@@ -13,7 +13,7 @@
 namespace mod::user_patch
 {
 
-    KEEP_VAR uint16_t walletValues[4][3] = {{99, 500, 1000}, {300, 500, 1000}, {500, 1000, 5000}, {1000, 5000, 9999}};
+    KEEP_VAR uint16_t walletValues[4][3] = {{99, 500, 1000}, {300, 600, 1000}, {500, 1000, 2000}, {1000, 5000, 9999}};
     GamePatch volatilePatches[6] =
         {clearFaronTwilight, clearEldinTwilight, clearLanayruTwilight, setMinorCutsceneValues, clearMDH, setMapRegionBits};
 } // namespace mod::user_patch

@@ -937,6 +937,12 @@ namespace mod::events
             case Arrows_10:
             case Arrows_20:
             case Arrows_30:
+            case Green_Rupee:
+            case Blue_Rupee:
+            case Red_Rupee:
+            case Yellow_Rupee:
+            case Orange_Rupee:
+            case Silver_Rupee:
             {
                 newScale.setall(1.0f); // scale
                 break;
@@ -1010,10 +1016,14 @@ namespace mod::events
     {
         if (checkValidTransformAnywhere())
         {
-            // Return false to allow transforming infront of NPCs using Midna's transform option
-            return 0;
+            // Even with transform anywhere enabled, we still need to do the PoT dark fog comparison.
+            if (libtp::tp::d_kankyo::env_light.mEvilPacketEnabled & 0x80)
+            {
+                return 3;
+            }
+            return 0; // Nothing preventing transforming
         }
-
+        // If transform anywhere is not enabled, do the vanilla comparisons.
         return gReturn_query042(unk1, unk2, unk3);
     }
 
@@ -1791,6 +1801,12 @@ namespace mod::events
             return;
         }
 
+        // Check that the player is not in PoT dark fog.
+        if (libtp::tp::d_kankyo::env_light.mEvilPacketEnabled & 0x80)
+        {
+            return;
+        }
+
         if (!checkValidTransformAnywhere())
         {
             if (daMidna_c__checkMetamorphoseEnableBase)
@@ -1802,10 +1818,23 @@ namespace mod::events
                 }
             }
 
-            // Check if the player has scared someone in the current area in wolf form
-            if ((libtp::tp::d_kankyo::env_light.mEvilPacketEnabled & 0x80) != 0)
+            // The following checks are from the query042:
+            // If the player is in Castle Town and has scared NPCs, they cannot transform.
+            if (!strcmp(dComIfG_gameInfo.play.mStartStage.mStage,
+                        libtp::data::stage::allStages[libtp::data::stage::StageIDs::Castle_Town]) &&
+                libtp::tp::d_save::isSwitch_dSv_danBit(&dComIfG_gameInfo.save.mDan, 0x3C))
             {
                 return;
+            }
+
+            if (libtp::tp::d_a_player::m_midnaActor != nullptr)
+            {
+                // Check against NpcNear and NpcFar
+                uint32_t midnaStateFlg0 = libtp::tp::d_a_player::m_midnaActor->mStateFlg0;
+                if ((midnaStateFlg0 & 0x100000) || (midnaStateFlg0 & 0x40000))
+                {
+                    return;
+                }
             }
         }
 
