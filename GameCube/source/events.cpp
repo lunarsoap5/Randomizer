@@ -1180,6 +1180,11 @@ namespace mod::events
         tp::dzx::ACTR localSignActor;
         memcpy(&localSignActor, &gSignActor, sizeof(tp::dzx::ACTR));
 
+        // Set base FLI on custom sign actor based on stage (this pattern allows for 16 custom signs per stage).
+        // Currently any FLI in the 0x7000's is reserved for custom signs, but this can change as needed.
+        const uint8_t stageIDX = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        localSignActor.rot[0] = 0x7000 | ((uint16_t)stageIDX << 4);
+
         if (tp::d_a_alink::checkStageName(stagesPtr[StageIDs::Faron_Woods]))
         {
             tools::spawnActor(0, gEponaActr);
