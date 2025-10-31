@@ -22,6 +22,7 @@ namespace mod::rando
 #include "tp/d_resource.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "tp/d_a_alink.h"
+#include "tp/d_msg_flow.h"
 #include "rando/customItems.h"
 #include "tp/J2DPicture.h"
 #include "item_wheel_menu.h"
@@ -105,6 +106,10 @@ namespace mod::rando
         uint8_t getDungeonItemAreaColorIndex() const { return this->m_DungeonItemAreaColorIndex; }
         TimeChange getTimeChange() const { return this->m_TimeChange; }
 
+        uint16_t getFlowContext() { return this->m_flowContext; }
+        uint8_t* getMutFlowNodePtr() { return this->m_mutFlowNodePtr; }
+        bool getHasPendingTodChange() { return this->m_hasPendingTodChange; }
+
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages getCurrentLanguage() const { return this->m_CurrentLanguage; }
 #endif
@@ -129,6 +134,8 @@ namespace mod::rando
         void setGiveItemToPlayerStatus(EventItemStatus status) { this->m_GiveItemToPlayerStatus = status; }
         void setDungeonItemAreaColorIndex(uint8_t index) { this->m_DungeonItemAreaColorIndex = index; }
         void setTimeChange(TimeChange time) { this->m_TimeChange = time; }
+        void setMutFlowNodePtr(uint8_t* ptr) { this->m_mutFlowNodePtr = ptr; }
+        void setHasPendingTodChange(bool hasPending) { this->m_hasPendingTodChange = hasPending; }
 
 #if defined TP_EU || defined TP_WUS2
         void setCurrentLanguage(libtp::tp::d_s_logo::Languages language) { this->m_CurrentLanguage = language; }
@@ -162,6 +169,8 @@ namespace mod::rando
         void checkSetHCBkFlag(CastleBkRequirements req, uint8_t currentCount);
         void recolorArchiveTextures(libtp::tp::m_Do_dvd_thread::mDoDvdThd_mountArchive_c* mountArchive);
         uint8_t getFoolishItemModelId(uint8_t originalItem);
+        void setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext);
+        void checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
 
         // NOTE: This function returns dynamic memory
         BMDEntry* generateBmdEntries(DvdEntryNumId arcIndex, uint32_t numEntries);
@@ -191,6 +200,11 @@ namespace mod::rando
         uint8_t m_DungeonItemAreaColorIndex;
         EventItemStatus m_GiveItemToPlayerStatus;
         TimeChange m_TimeChange;
+
+        uint16_t m_latestFlowID = 0xFFFF;
+        uint16_t m_flowContext = 0;
+        uint8_t* m_mutFlowNodePtr = nullptr;
+        bool m_hasPendingTodChange = false;
 
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages m_CurrentLanguage;

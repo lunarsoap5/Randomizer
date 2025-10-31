@@ -14,6 +14,8 @@
 #include "tp/d_msg_class.h"
 #include "tp/resource.h"
 #include "tp/d_msg_flow.h"
+#include "tp/d_msg_object.h"
+#include "tp/d_event.h"
 #include "tp/d_a_npc.h"
 #include "tp/d_menu_window.h"
 #include "Z2AudioLib/Z2AudioMgr.h"
@@ -199,16 +201,21 @@ namespace mod
         // Query/EventFunctions
         gReturn_query001 = patch::hookFunction(libtp::tp::d_msg_flow::query001, handle_query001);
         gReturn_query022 = patch::hookFunction(libtp::tp::d_msg_flow::query022, handle_query022);
-        gReturn_query023 = patch::hookFunction(libtp::tp::d_msg_flow::query023, handle_query023);
         gReturn_query025 = patch::hookFunction(libtp::tp::d_msg_flow::query025, handle_query025);
         gReturn_checkEmptyBottle = patch::hookFunction(libtp::tp::d_save::checkEmptyBottle, handle_checkEmptyBottle);
-        gReturn_query037 = patch::hookFunction(libtp::tp::d_msg_flow::query037, handle_query037);
         gReturn_query049 = patch::hookFunction(libtp::tp::d_msg_flow::query049, handle_query049);
         gReturn_query042 = patch::hookFunction(libtp::tp::d_msg_flow::query042, handle_query042);
         // gReturn_event000 = patch::hookFunction( libtp::tp::d_msg_flow::event000, handle_event000 );
         gReturn_event017 = patch::hookFunction(libtp::tp::d_msg_flow::event017, handle_event017);
-        gReturn_doFlow = patch::hookFunction(libtp::tp::d_msg_flow::doFlow, handle_doFlow);
+
+        // MsgFlow and related functions
+        gReturn_setNodeIndex = patch::hookFunction(libtp::tp::d_msg_flow::setNodeIndex, handle_setNodeIndex);
+        gReturn_setSelectMsg = patch::hookFunction(libtp::tp::d_msg_flow::setSelectMsg, handle_setSelectMsg);
         gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
+        gReturn_branchNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::branchNodeProc, handle_branchNodeProc);
+        gReturn_eventNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::eventNodeProc, handle_eventNodeProc);
+        gReturn_endFlowGroup = patch::hookFunction(libtp::tp::d_msg_object::endFlowGroup, handle_endFlowGroup);
+        gReturn_talkEnd = patch::hookFunction(libtp::tp::d_event::talkEnd, handle_talkEnd);
 
         // Save flag functions
         gReturn_isDungeonItem = patch::hookFunction(tp::d_save::isDungeonItem, handle_isDungeonItem);

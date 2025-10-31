@@ -46,6 +46,7 @@
 #include "tp/JKRMemArchive.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "util/texture_utils.h"
+#include "rando/bmg0.h"
 #include "gc_wii/OSInterrupt.h"
 #include "tp/d_kankyo.h"
 #include "rando/customItems.h"
@@ -409,6 +410,10 @@ namespace mod
                 // Volatile patches need to be applied whenever a file is loaded
                 // getConsole() << "Applying volatile patches:\n";
                 randoPtr->getSeedPtr()->applyVolatilePatches();
+
+                // Until we implement passwords using a racetime bot, simply handle
+                // decrypting hint text here. Does nothing if already decrypted.
+                randoPtr->getSeedPtr()->getBMG0SectionPtr()->init();
             }
         }
         else if (randoPtr->randomizerIsEnabled())
@@ -1195,11 +1200,6 @@ namespace mod
         return events::proc_query022(unk1, unk2, unk3);
     }
 
-    KEEP_FUNC int32_t handle_query023(void* unk1, void* unk2, int32_t unk3)
-    {
-        return events::proc_query023(unk1, unk2, unk3);
-    }
-
     KEEP_FUNC int32_t handle_query025(void* unk1, void* unk2, int32_t unk3)
     {
         return events::proc_query025(unk1, unk2, unk3);
@@ -1214,20 +1214,6 @@ namespace mod
             return 1;
         }
         return gReturn_checkEmptyBottle(playerItem);
-    }
-
-    KEEP_FUNC int32_t handle_query037(void* unk1, void* unk2, int32_t unk3)
-    {
-        // Call the original function immediately as we need its output
-        const int32_t menuType = gReturn_query037(unk1, unk2, unk3);
-
-        if ((menuType == 0x2) && (reinterpret_cast<int32_t>(libtp::tp::d_a_player::m_midnaActor) ==
-                                  libtp::tp::f_op_actor_mng::fopAcM_getTalkEventPartner(nullptr)))
-        {
-            events::handleTimeOfDayChange();
-        }
-
-        return menuType;
     }
 
     KEEP_FUNC int32_t handle_query049(void* unk1, void* unk2, int32_t unk3)
@@ -1273,68 +1259,160 @@ namespace mod
         return gReturn_event017(messageFlow, nodeEvent, actrPtr);
     }
 
-    KEEP_FUNC int32_t handle_doFlow(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                    libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                    libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                    int32_t i_flow)
+    KEEP_FUNC void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                       uint16_t flwIndex,
+                                       libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
     {
-        using namespace libtp::data::stage;
-        if (msgFlow->mFlow == 0xFFFE) // Check if it equals our custom flow value
+        rando::gRandomizer->checkResetFlowContext(msgFlow);
+
+        if (msgFlow != nullptr)
         {
-            if (msgFlow->mMsg == 0xFFFFFFFF)
+            uint16_t flowContext = rando::gRandomizer->getFlowContext();
+
+            const uint16_t* remapEntry =
+                rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getNodeRemapData(msgFlow, flwIndex, flowContext);
+            if (remapEntry != nullptr)
             {
-                // Clear the invalid msg value since it will be set by the game once our text is loaded.
-                msgFlow->mMsg = 0;
-
-                // When this byte is set, the current event is aborted. With unused nodes, it is set to 1 by default so we
-                // need to unset it.
-                msgFlow->field_0x26 = 0;
-
-                if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Hyrule_Field]) ||
-                    libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Outside_Castle_Town]) ||
-                    libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Lake_Hylia]))
-                {
-                    // Hyrule Field and outside Lake Hylia do not have a valid flow node for node 0 so we want it to use its
-                    // native node (8)
-                    msgFlow->field_0x10 = 0x8;
-                }
-                else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Castle_Town]))
-                {
-                    // For Castle Town, both 1 and 2 seem to work at the very
-                    // least. If you use 4, you will also get shiny shoes.
-                    msgFlow->field_0x10 = 0x2;
-                }
-                else if (libtp::tp::d_a_alink::checkStageName(allStages[StageIDs::Death_Mountain]))
-                {
-                    // Death Mountain does not have a valid flow node for node 0 so we want it to use its
-                    // native node (4)
-                    msgFlow->field_0x10 = 0x4;
-                }
-                else
-                {
-                    // Sets the flow to use the same flow grouping as the standard flow that getItem text uses.
-                    msgFlow->field_0x10 = 0;
-                }
+                flwIndex = remapEntry[0];
+                const uint16_t newContext = remapEntry[1];
+                rando::gRandomizer->setFlowContext(msgFlow, newContext);
+            }
+            else if (flowContext == 0 && msgFlow->mFlow >= 0x7000)
+            {
+                // If we do not find a starting node for an FLI in the 0x7000's (meaning a custom sign), then handle
+                // showing "No hints were placed here." text. Set to any msg node with nextNodeIdx of 0xFFFF (we use
+                // 0x28 here) with reserved context value 1. Check that flowContext is 0 to avoid infinite msg loops.
+                // Note that the replacement string comes from the custom INF value used for all custom signs.
+                flwIndex = 0x28;
+                rando::gRandomizer->setFlowContext(msgFlow, 1);
             }
         }
 
-        return gReturn_doFlow(msgFlow, actrPtr, actrValue, i_flow);
+        gReturn_setNodeIndex(msgFlow, flwIndex, actrPtr);
+    }
+
+    KEEP_FUNC int32_t handle_setSelectMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                          void* bodyMsgFlowNode,
+                                          void* optionsMsgFlowNode,
+                                          libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
+    {
+        uint8_t bodyFlowNodeCopy[8];
+        uint8_t optionsFlowNodeCopy[8];
+
+        memcpy(&bodyFlowNodeCopy, bodyMsgFlowNode, 8);
+        memcpy(&optionsFlowNodeCopy, optionsMsgFlowNode, 8);
+
+        const rando::BMG0Section* bmgSection = rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr();
+
+        // Note: custom INF indexes here are only used for custom signs for now.
+        const uint16_t bodyCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, false);
+        if (bodyCustomInfIdx != 0xFFFF)
+        {
+            uint16_t* bodyNodeCopyAsU16s = reinterpret_cast<uint16_t*>(bodyFlowNodeCopy);
+            bodyNodeCopyAsU16s[1] = bodyCustomInfIdx;
+        }
+
+        const uint16_t optionsCustomInfIdx = bmgSection->getCustomINFIndex(msgFlow, true);
+        if (optionsCustomInfIdx != 0xFFFF)
+        {
+            uint16_t* optionsNodeCopyAsU16s = reinterpret_cast<uint16_t*>(optionsFlowNodeCopy);
+            optionsNodeCopyAsU16s[1] = optionsCustomInfIdx;
+        }
+
+        // Note we always pass our own flowNode copies to the function.
+        return gReturn_setSelectMsg(msgFlow, bodyFlowNodeCopy, optionsFlowNodeCopy, actrPtr);
     }
 
     KEEP_FUNC int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                           void* flowNode,
                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)
     {
-        if (msgFlow->mFlow == 0xFFFE) // Check if it equals our custom flow value
-        {
-            // Set the msg id in the node to that of our specified message.
-            const uint32_t msg = libtp::tp::f_op_msg_mng::fopMsgM_messageSet(0x1360, 1000);
+        using mod::rando::EntryInfo;
 
-            msgFlow->mMsg = msg;
-            return 1;
+        uint8_t flowNodeCopy[8];
+        memcpy(&flowNodeCopy, flowNode, 8);
+
+        // Note: custom INF indexes here are only used for custom signs for now.
+        const uint16_t customINFIndex =
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomINFIndex(msgFlow, false);
+        if (customINFIndex != 0xFFFF)
+        {
+            uint16_t* flowNodeCopyAsU16s = reinterpret_cast<uint16_t*>(flowNodeCopy);
+            flowNodeCopyAsU16s[1] = customINFIndex;
         }
 
-        return gReturn_setNormalMsg(msgFlow, flowNode, actrPtr);
+        // Note we always pass our flowNodeCopy to the function.
+        return gReturn_setNormalMsg(msgFlow, flowNodeCopy, actrPtr);
+    }
+
+    KEEP_FUNC int32_t handle_branchNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2)
+    {
+        uint8_t mutNodeCopy[8];
+
+        uint8_t* flowNodeTable = reinterpret_cast<uint8_t*>(msgFlow->mFlowNodeTBL);
+        uint16_t flowNodeIdx = msgFlow->field_0x10;
+        uint8_t* nodeSrc = flowNodeTable + flowNodeIdx * 8;
+
+        memcpy(mutNodeCopy, nodeSrc, 8);
+
+        // Store a mutable copy of the node. Our ASM patch to the proc function will possibly mutate this copy before
+        // passing it to the vanilla proc code.
+        rando::gRandomizer->setMutFlowNodePtr(mutNodeCopy);
+        // Call original function
+        int32_t procStatus = gReturn_branchNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+        // Clear pointer
+        rando::gRandomizer->setMutFlowNodePtr(nullptr);
+
+        return procStatus; // Always 1 for branch nodes
+    }
+
+    KEEP_FUNC int32_t handle_eventNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2)
+    {
+        uint8_t mutNodeCopy[8];
+
+        uint8_t* flowNodeTable = reinterpret_cast<uint8_t*>(msgFlow->mFlowNodeTBL);
+        uint16_t flowNodeIdx = msgFlow->field_0x10;
+        uint8_t* nodeSrc = flowNodeTable + flowNodeIdx * 8;
+
+        memcpy(mutNodeCopy, nodeSrc, 8);
+
+        // Store a mutable copy of the node. Our ASM patch to the proc function will possibly mutate this copy before
+        // passing it to the vanilla proc code.
+        rando::gRandomizer->setMutFlowNodePtr(mutNodeCopy);
+        // Call original function
+        int32_t procStatus = gReturn_eventNodeProc(msgFlow, actrPtr_1, actrPtr_2);
+        // Clear pointer
+        rando::gRandomizer->setMutFlowNodePtr(nullptr);
+
+        return procStatus; // Either 0 or 1 for event nodes
+    }
+
+    KEEP_FUNC void handle_endFlowGroup()
+    {
+        // Force reset flowContext info when flow group ends to be safe.
+        rando::gRandomizer->checkResetFlowContext(nullptr);
+
+        // Call original function
+        gReturn_endFlowGroup();
+    }
+
+    KEEP_FUNC void handle_talkEnd(void* eventPtr)
+    {
+        // Call original function
+        gReturn_talkEnd(eventPtr);
+
+        // We handle any pending ToD changes from talking to Midna once this function has run after the conversation
+        // ends so that the Midna actor has been updated to know the conversation has ended. This avoids having the
+        // Midna conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
+        if (rando::gRandomizer->getHasPendingTodChange())
+        {
+            rando::gRandomizer->setHasPendingTodChange(false);
+            events::handleTimeOfDayChange();
+        }
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)

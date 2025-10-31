@@ -240,9 +240,6 @@ namespace mod
     int32_t handle_query022(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*gReturn_query022)(void* unk1, void* unk2, int32_t unk3);
 
-    int32_t handle_query023(void* unk1, void* unk2, int32_t unk3);
-    extern int32_t (*gReturn_query023)(void* unk1, void* unk2, int32_t unk3);
-
     int32_t handle_query025(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*gReturn_query025)(void* unk1, void* unk2, int32_t unk3);
 
@@ -251,9 +248,6 @@ namespace mod
 
     int32_t handle_query042(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*gReturn_query042)(void* unk1, void* unk2, int32_t unk3);
-
-    int32_t handle_query037(void* unk1, void* unk2, int32_t unk3);
-    extern int32_t (*gReturn_query037)(void* unk1, void* unk2, int32_t unk3);
 
     int32_t handle_query049(void* unk1, void* unk2, int32_t unk3);
     extern int32_t (*gReturn_query049)(void* unk1, void* unk2, int32_t unk3);
@@ -264,15 +258,24 @@ namespace mod
     int32_t handle_event017(void* messageFlow, void* nodeEvent, void* actrPtr);
     extern int32_t (*gReturn_event017)(void* messageFlow, void* nodeEvent, void* actrPtr);
 
-    int32_t handle_doFlow(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                          libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                          libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                          int32_t i_flow);
+    // MsgFlow and related functions
+    void handle_setNodeIndex(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                             uint16_t flwIndex,
+                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
 
-    extern int32_t (*gReturn_doFlow)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
-                                     libtp::tp::f_op_actor::fopAc_ac_c* actrPtr,
-                                     libtp::tp::f_op_actor::fopAc_ac_c** actrValue,
-                                     int32_t i_flow);
+    extern void (*gReturn_setNodeIndex)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                        uint16_t flwIndex,
+                                        libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
+    int32_t handle_setSelectMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                void* bodyMsgFlowNode,
+                                void* optionsMsgFlowNode,
+                                libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
+    extern int32_t (*gReturn_setSelectMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                           void* bodyMsgFlowNode,
+                                           void* optionsMsgFlowNode,
+                                           libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
 
     int32_t handle_setNormalMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                 void* flowNode,
@@ -281,6 +284,28 @@ namespace mod
     extern int32_t (*gReturn_setNormalMsg)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
                                            void* flowNode,
                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr);
+
+    int32_t handle_branchNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                  libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                  libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    extern int32_t (*gReturn_branchNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    int32_t handle_eventNodeProc(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                 libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                 libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    extern int32_t (*gReturn_eventNodeProc)(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
+                                            libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
+
+    void handle_endFlowGroup();
+    extern void (*gReturn_endFlowGroup)();
+
+    void handle_talkEnd(void* eventPtr);
+    extern void (*gReturn_talkEnd)(void* eventPtr);
 
     // Save flag functions
     bool handle_isDungeonItem(libtp::tp::d_save::dSv_memBit_c* memBitPtr, const int32_t memBit);

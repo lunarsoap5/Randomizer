@@ -16,6 +16,7 @@
 #include "tp/dynamic_link.h"
 #include "tp/f_op_actor.h"
 #include "tp/d_a_alink.h"
+#include "tp/d_msg_flow.h"
 #include "tp/d_menu_fmap.h"
 
 // Original: li 0xE0
@@ -108,6 +109,26 @@ namespace mod::assembly
         // d_meter.o
         void asmManageEquippedItemsAsWolf();
         int32_t handleManageEquippedItemsAsWolf(int32_t status);
+
+        // d_msg_flow.o
+        void asmGetFlowBranchNode();
+        const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        void asmAdjustFlowBranchNextNode();
+        const uint16_t* handleAdjustFlowBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t queryResult);
+
+        void asmGetFlowEventNode();
+        const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        void asmAdjustFlowEventNextNode();
+        const uint16_t* handleAdjustFlowEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+
+        void asmGetFlowQueryFnPtr();
+        void* handleGetFlowQueryFnPtr(uint16_t queryListIndex);
+        void asmGetFlowEventFnPtr();
+        void* handleGetFlowEventFnPtr(uint8_t eventListIndex);
+
+        // d_msg_object.o
+        void asmAdjustSelectMsg();
+        const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr);
 
         // d_menu_fmap.o
         void asmFmapPreventPortalsRegion();

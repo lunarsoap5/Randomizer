@@ -72,7 +72,7 @@ namespace mod::game_patch
 
     // Most checks will use zel_00.bmg, so use a dedicated function for it that specifies the archive, so less code runs per
     // check
-    void* getZel00BmgInf()
+    void* _05_getZel00BmgInf()
     {
         uint32_t infPtrRaw = reinterpret_cast<uint32_t>(libtp::tp::JKRArchivePub::JKRArchivePub_getGlbResource(
             0x524F4F54, // ROOT
@@ -655,19 +655,28 @@ namespace mod::game_patch
         }
         const void* currentInf1 = *reinterpret_cast<void**>(reinterpret_cast<uint32_t>(unk) + 0xC);
 
-        // Most text replacements are for zel_00.bmg, so check that first
-        if (currentInf1 == getZel00BmgInf())
-        {
-            const char* newMessage;
-            if (msgId == 0x1369) // The custom message ID used for hints on custom signs
-            {
-                newMessage = _05_getSpecialMsgById(msgId);
-            }
-            else
-            {
-                newMessage = getCustomMessage(msgId);
-            }
+        bool isZel00BmgInf = currentInf1 == _05_getZel00BmgInf();
 
+        uint8_t bmgNumber = 0;
+        if (!isZel00BmgInf)
+        {
+            bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
+
+        const char* remappedStr =
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
+                                                                                     rando::gRandomizer->getFlowContext(),
+                                                                                     msgId);
+        if (remappedStr != nullptr)
+        {
+            setMessageText(remappedStr);
+            return;
+        }
+
+        // Most text replacements are for zel_00.bmg, so check that first
+        if (isZel00BmgInf)
+        {
+            const char* newMessage = getCustomMessage(msgId);
             setMessageText(newMessage);
             return;
         }
@@ -856,4 +865,54 @@ namespace mod::game_patch
         // Didn't find msgId
         return nullptr;
     }
+
+    // Convenience query fn for returning static value.
+    int customQuery053_returnParams(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    {
+        uint16_t params = reinterpret_cast<uint16_t*>(flowNode)[2];
+        return params;
+    }
+
+    // Return 0 if can change ToD, else 1 if cannot.
+    int customQuery054_canChangeTod()
+    {
+        // This function is based on query044 which is used to determine whether to show the Midna menu which includes
+        // "Warp" or not. We also add a check to ensure the current environment is not twilight. "R_SP161" is STAR tent.
+        if (!libtp::tp::d_kankyo::dKy_darkworld_check() && !libtp::tp::d_a_alink::checkForestOldCentury() &&
+            (libtp::tp::d_a_alink::checkField() || libtp::tp::d_a_alink::checkCastleTown()) &&
+            !libtp::tp::d_a_alink::checkStageName("R_SP161"))
+        {
+            return 0;
+        }
+        return 1;
+    }
+
+    // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
+    int customEvent043_nop()
+    {
+        return 1;
+    }
+
+    int customEvent044_changeTimeOfDay(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
+    {
+        // Check if player is wolf the same way query002 does. If player is wolf, we should queue the ToD change so it
+        // runs once the conversation ends (to avoid Midna flow restarting after it ends). If we are a human, go ahead
+        // and queue the event so we do not have to wait for the shadow Midna to fully disappear (mainly relevant for
+        // when time does not flow and the room will immediately reload).
+        libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
+        if (linkMapPtr->mNoResetFlg1 & 0x2000000)
+            rando::gRandomizer->setHasPendingTodChange(true);
+        else
+            events::handleTimeOfDayChange();
+
+        return 1;
+    }
+
+    // These are arrays of PTMFs (pointer to member function).
+    // A function's number matches the index which points to it.
+    uint32_t _05_customQueryList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)}};
+
+    uint32_t _05_customEventList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)}};
 } // namespace mod::game_patch

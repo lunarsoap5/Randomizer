@@ -164,6 +164,74 @@ namespace mod::assembly
         return status;
     }
 
+    const uint16_t* handleAdjustFlowBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t queryResult)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomBranchNextNode(
+            msgFlow,
+            rando::gRandomizer->getFlowContext(),
+            queryResult);
+    }
+
+    const uint16_t* handleAdjustFlowEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomEventNextNode(
+            msgFlow,
+            rando::gRandomizer->getFlowContext());
+    }
+
+    const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
+        rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchEventNode(msgFlow,
+                                                                                 rando::gRandomizer->getFlowContext(),
+                                                                                 mutFlowNodePtr);
+        return mutFlowNodePtr;
+    }
+
+    const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
+        rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchBranchNode(msgFlow,
+                                                                                  rando::gRandomizer->getFlowContext(),
+                                                                                  mutFlowNodePtr);
+        return mutFlowNodePtr;
+    }
+
+    void* handleGetFlowQueryFnPtr(uint16_t queryListIndex)
+    {
+        if (queryListIndex >= 53)
+        {
+            uint8_t newIndex = queryListIndex - 53;
+            uint32_t* ptmf = game_patch::_05_customQueryList[newIndex];
+            return reinterpret_cast<void*>(ptmf);
+        }
+        return nullptr;
+    }
+
+    void* handleGetFlowEventFnPtr(uint8_t eventListIndex)
+    {
+        if (eventListIndex >= 43)
+        {
+            uint8_t newIndex = eventListIndex - 43;
+            uint32_t* ptmf = game_patch::_05_customEventList[newIndex];
+            return reinterpret_cast<void*>(ptmf);
+        }
+        return nullptr;
+    }
+
+    const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
+    {
+        uint8_t bmgNumber = 0;
+        if (infDataBlockPtr != mod::game_patch::_05_getZel00BmgInf())
+        {
+            bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
+
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
+                                                                                        rando::gRandomizer->getFlowContext(),
+                                                                                        infIndex);
+    }
+
     bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap)
     {
         // Checks if the region the map is currently zoomed in on is unlocked.

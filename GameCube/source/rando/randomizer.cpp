@@ -694,6 +694,28 @@ namespace mod::rando
         }
     }
 
+    void Randomizer::setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext)
+    {
+        if (msgFlow != nullptr && msgFlow->mFlow == this->m_latestFlowID)
+        {
+            this->m_flowContext = flowContext;
+        }
+    }
+
+    void Randomizer::checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        if (msgFlow == nullptr)
+        {
+            this->m_latestFlowID = 0xFFFF;
+            this->m_flowContext = 0;
+        }
+        else if (msgFlow->mFlow != this->m_latestFlowID)
+        {
+            this->m_latestFlowID = msgFlow->mFlow;
+            this->m_flowContext = 0;
+        }
+    }
+
     void Randomizer::checkSetHCBarrierFlag(CastleEntryRequirements req, uint8_t currentCount)
     {
         using namespace libtp;

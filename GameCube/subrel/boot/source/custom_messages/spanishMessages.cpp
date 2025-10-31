@@ -287,22 +287,6 @@ namespace mod::customMessages
         // ..
         "\x2E\x2E\x2E"
     MSG_END();
-    MSG_BEGIN_ARRAY( talkToMidnaSp )
-        // ¿Qué quieres, 
-        "\xBF\x51\x75\xE9\x20\x71\x75\x69\x65\x72\x65\x73\x2C\x20"
-        MSG_PLYR_NAME
-        // ?
-        "\x3F"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        // Transformarse
-        "\x54\x72\x61\x6E\x73\x66\x6F\x72\x6D\x61\x72\x73\x65\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        // Teletransportar
-        "\x54\x65\x6C\x65\x74\x72\x61\x6E\x73\x70\x6F\x72\x74\x61\x72\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        // Cambiar la hora del día 
-        "\x43\x61\x6D\x62\x69\x61\x72\x20\x6C\x61\x20\x68\x6F\x72\x61\x20\x64\x65\x6C\x20\x64\xED\x61\x20"
-    MSG_END();
     MSG_BEGIN_ARRAY( bigWalletSp )
         MSG_SPEED(MSG_SPEED_FAST)
         // ¡Has obtenido la 
@@ -501,11 +485,6 @@ namespace mod::customMessages
         foolishItemSp,
         sizeof(foolishItemSp),
         0x0077,
-
-        // Talking to Midna
-        talkToMidnaSp,
-        sizeof(talkToMidnaSp),
-        0x0BBB,
 
         // Big Wallet
         bigWalletSp,

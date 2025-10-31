@@ -12,6 +12,7 @@
 
 #include "rando/randomizer.h"
 #include "tp/control.h"
+#include "tp/d_msg_flow.h"
 #include "data/stages.h"
 #include "data/items.h"
 #include "gc_wii/OSCache.h"
@@ -188,11 +189,15 @@ namespace mod::game_patch
     // 05 - Function definitions related to custom messages
     void _05_setCustomItemMessage(libtp::tp::control::TControl* control, const void* TProcessor, uint16_t unk3, uint16_t msgId);
 
+    void* _05_getZel00BmgInf();
     uint32_t _05_getCustomMsgColor(uint8_t colorId);
     const char* _05_getMsgById(uint32_t msgId);
     const char* _05_getMsgById(uint32_t msgId, uint16_t* msgSizeOut);
     const char* _05_getSpecialMsgById(uint32_t msgId);
     const char** _05_replaceMessageString(const char** text);
+
+    extern uint32_t _05_customQueryList[2][3];
+    extern uint32_t _05_customEventList[2][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();

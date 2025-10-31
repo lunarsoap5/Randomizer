@@ -160,6 +160,31 @@ namespace mod::game_patch
         const uint32_t spotMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::spot_map_proc);
         libtp::patch::writeBranchBL(spotMapProcAddr + 0xD8, assembly::asmFmapPreventPortalsSpot);
 
+        // Modifications to dMsgFlow_c::branchNodeProc
+        const uint32_t branchNodeProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc);
+        // Allow for dynamic branch node patching.
+        libtp::patch::writeBranchBL(branchNodeProcAddr + 0x2C, assembly::asmGetFlowBranchNode);
+        // Allow for custom query functions.
+        libtp::patch::writeBranchBL(branchNodeProcAddr + 0x4C, assembly::asmGetFlowQueryFnPtr);
+        // Allow for dynamic next nodes for branch nodes.
+        libtp::patch::writeBranchBL(branchNodeProcAddr + 0x74, assembly::asmAdjustFlowBranchNextNode);
+
+        // Modifications to dMsgFlow_c::eventNodeProc
+        const uint32_t eventNodeProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc);
+        // Allow for dynamic event node patching.
+        libtp::patch::writeBranchBL(eventNodeProcAddr + 0x2C, assembly::asmGetFlowEventNode);
+        // Allow for custom event functions.
+        libtp::patch::writeBranchBL(eventNodeProcAddr + 0x48, assembly::asmGetFlowEventFnPtr);
+        // Allow for dynamic next nodes for event nodes.
+        libtp::patch::writeBranchBL(eventNodeProcAddr + 0x1E8, assembly::asmAdjustFlowEventNextNode);
+        // Modify eventNodeProc case 9 (Talk to Midna) to use the normal 0xbb8 FLI value regardless of the current room
+        // when talking to Midna with no special overrides.
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
+
+        // Allow for custom strings for the options text in a msgFlow menu.
+        const uint32_t setMessageIndexAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex);
+        libtp::patch::writeBranchBL(setMessageIndexAddr + 0x11C, assembly::asmAdjustSelectMsg);
+
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
 

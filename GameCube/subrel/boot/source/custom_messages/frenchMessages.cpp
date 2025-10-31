@@ -275,22 +275,6 @@ namespace mod::customMessages
         //souffle..
         "\x73\x6f\x75\x66\x66\x6c\x65\x2e\x2e\x2e"
     MSG_END();
-    MSG_BEGIN_ARRAY(talkToMidnaFr)
-        //Qu'est-ce qu'il y a, 
-        "\x51\x75\x27\x65\x73\x74\x2d\x63\x65\x20\x71\x75\x27\x69\x6c\x20\x79\x20\x61\x2c\x20"
-        MSG_PLYR_NAME
-        //?
-        "\x3f"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        //Je veux me transformer
-        "\x4a\x65\x20\x76\x65\x75\x78\x20\x6d\x65\x20\x74\x72\x61\x6e\x73\x66\x6f\x72\x6d\x65\x72\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        //Je veux me téléporter
-        "\x4a\x65\x20\x76\x65\x75\x78\x20\x6d\x65\x20\x74\xe9\x6c\xe9\x70\x6f\x72\x74\x65\x72\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        //Changer l'heure de la journée
-        "\x43\x68\x61\x6e\x67\x65\x72\x20\x6c\x27\x68\x65\x75\x72\x65\x20\x64\x65\x20\x6c\x61\x20\x6a\x6f\x75\x72\x6e\xe9\x65"
-    MSG_END();
     MSG_BEGIN_ARRAY(bigWalletFr)
         MSG_SPEED(MSG_SPEED_FAST)
         //Vous obtenez la 
@@ -490,11 +474,6 @@ namespace mod::customMessages
         foolishItemFr,
         sizeof(foolishItemFr),
         0x0077,
-
-        // Talking to Midna
-        talkToMidnaFr,
-        sizeof(talkToMidnaFr),
-        0x0BBB,
 
         // Big Wallet
         bigWalletFr,

@@ -81,6 +81,7 @@
 80032e78:isRegionBit
 
 // d_event.o
+80041D34:talkEnd
 80042778:defaultSkipStb
 800429D4:skipper
 
@@ -163,7 +164,10 @@
 800b52bc:decideDoStatus
 800b9f88:checkGroundSpecialMode
 800c0348:checkDungeon
+800c02bc:checkField
 800c0300:checkBossRoom
+800c0390:checkCastleTown
+800e1440:checkForestOldCentury
 
 // data
 80388C0C:climbVars
@@ -308,6 +312,7 @@
 801ac6cc:dKy_darkworld_stage_check
 8019f740:GetTimePass
 8019fa78:dKy_daynight_check
+801ac53c:dKy_darkworld_check
 
 // data
 80426B94:env_light
@@ -378,7 +383,9 @@
 8022bdfc:jmessage_tSequenceProcessor__do_begin
 
 // d_msg_object.o
+80234618:setMessageIndex
 802372EC:isSend
+802389AC:endFlowGroup
 
 // processor.o
 802AA094:getResource_groupID
@@ -401,7 +408,11 @@
 8024f130:event035
 8024dc08:query049
 8024bc40:doFlow
+8024c134:setNodeIndex
+8024c2c4:setSelectMsg
 8024c3b8:setNormalMsg
+8024c6bc:branchNodeProc
+8024c754:eventNodeProc
 
 // d_a_npc.o
 8014ca78:daNpcT_onEvtBit

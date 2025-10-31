@@ -281,22 +281,6 @@ namespace mod::customMessages
         // wind weht..
         "\x20\x77\x69\x6e\x64\x20\x77\x65\x68\x74\x2e\x2e\x2e"
     MSG_END();
-    MSG_BEGIN_ARRAY(talkToMidnaDe)
-        //Was ist los, 
-        "\x57\x61\x73\x20\x69\x73\x74\x20\x6c\x6f\x73\x2c\x20"
-        MSG_PLYR_NAME
-        //?
-        "\x3f"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        //Verwandeln
-        "\x56\x65\x72\x77\x61\x6e\x64\x65\x6c\x6e\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        //Teleportieren
-        "\x54\x65\x6c\x65\x70\x6f\x72\x74\x69\x65\x72\x65\x6e\x0A"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        //Tageszeit ändern
-        "\x54\x61\x67\x65\x73\x7a\x65\x69\x74\x20\xe4\x6e\x64\x65\x72\x6e"
-    MSG_END();
     MSG_BEGIN_ARRAY(bigWalletDe)
         MSG_COLOR(MSG_COLOR_RED)
         "\x47\x72\x6f\xdf\x65\x20\x47\x65\x6c\x64\x62\xf6\x72\x73\x65\x20"
@@ -484,11 +468,6 @@ namespace mod::customMessages
         foolishItemDe,
         sizeof(foolishItemDe),
         0x0077,
-
-        // Talking to Midna
-        talkToMidnaDe,
-        sizeof(talkToMidnaDe),
-        0x0BBB,
 
         // Big Wallet
         bigWalletDe,
