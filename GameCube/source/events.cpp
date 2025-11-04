@@ -189,56 +189,11 @@ namespace mod::events
 
         switch (modulePtr->id)
         {
-            // Door - Shutter
-            case D_A_DOOR_SHUTTER:
-            {
-                if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Snowpeak_Ruins]))
-                {
-                    // Set the call to checkOpenDoor to always return true when in SPR
-                    performStaticASMReplacement(relPtrRaw + 0xD68, ASM_LOAD_IMMEDIATE(3, 1));
-                }
-
-                break;
-            }
-
-            // Treasure Chests
-            case D_A_TBOX:
-            {
-                // Nop out the bne- that causes chests to play the cutscene for big items.
-                performStaticASMReplacement(relPtrRaw + 0xA58, ASM_NOP);
-                break;
-            }
-
-            // d_kankyo tag 11
-            case D_A_KYTAG11:
-            {
-                if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Hyrule_Field]))
-                {
-                    // Nop out the instruction that causes the time flow to not consider the mTimeSpeed variable in Field.
-                    performStaticASMReplacement(relPtrRaw + 0x2CC, ASM_NOP);
-                }
-
-                break;
-            }
-
             // Generic Poe
             case D_A_E_HP:
             {
-                // Force the poe to be despawned immediately without playing the get item animation
-                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_beqOffset, ASM_NOP);
-
                 // Initialize giving the proper item rather than the poe soul
                 libtp::patch::writeBranchBL(relPtrRaw + e_hp_ExecDead_incOffset, assembly::asmAdjustPoeItem);
-
-                // Disable Poe increment (handled through item_get_func; see game_patches)
-                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_incOffset + 0x4, ASM_BRANCH(0x18));
-
-                // Skip checking for setting the flag for having obtained 20 poe souls
-
-                // This cannot be combined with the previous branch due to a value being stored in a class in the middle of the
-                // branches
-                performStaticASMReplacement(relPtrRaw + e_hp_ExecDead_incOffset + 0x24, ASM_BRANCH(0x28));
-
                 break;
             }
 
@@ -248,10 +203,6 @@ namespace mod::events
                 libtp::patch::writeStandardBranches(relPtrRaw + e_po_ExecDead_liOffset,
                                                     assembly::asmAdjustAGPoeItemStart,
                                                     assembly::asmAdjustAGPoeItemEnd);
-
-                // Disable Poe increment (handled through item_get_func; see game_patches) and skip checking for setting the
-                // flag for having obtained 20 poe souls
-                performStaticASMReplacement(relPtrRaw + e_po_ExecDead_incOffset, ASM_BRANCH(0x44));
                 break;
             }
 
@@ -264,18 +215,6 @@ namespace mod::events
                 {
                     performStaticASMReplacement(relPtrRaw + 0x1198, ASM_NOP); // Previous: subi r0,r3,1
                 }
-                break;
-            }
-
-            // Puppet Zelda
-            case D_A_E_HZELDA:
-            {
-                // nop out the greater than branch so that Zelda will always throw a Ball if she is able to
-                performStaticASMReplacement(relPtrRaw + 0xA94, ASM_NOP); // Previous: bge
-
-                // nop out the addition of f1 (the random number of frames) to f0 (the base number of frames) so that there is
-                // always only 100 frames between each of Zelda's attacks.
-                performStaticASMReplacement(relPtrRaw + 0x8EC, ASM_NOP); // Previous: bfadds f0,f0,f1
                 break;
             }
 
@@ -295,9 +234,6 @@ namespace mod::events
             case D_A_MG_ROD:
             {
                 libtp::patch::writeBranchBL(relPtrRaw + 0xB2B0, libtp::tp::d_item::execItemGet);
-
-                // Branch over rng check instructions from uki_main for 100% bottle guarantee
-                performStaticASMReplacement(relPtrRaw + 0xBFAC, ASM_BRANCH(0x18));
                 break;
             }
 
@@ -305,8 +241,6 @@ namespace mod::events
             case D_A_TAG_STATUE_EVT:
             {
                 // Replace sky character
-                performStaticASMReplacement(relPtrRaw + 0xB7C, ASM_BRANCH(0x20));
-
                 libtp::patch::writeStandardBranches(relPtrRaw + 0xB9C,
                                                     assembly::asmAdjustSkyCharacterStart,
                                                     assembly::asmAdjustSkyCharacterEnd);
@@ -503,15 +437,6 @@ namespace mod::events
             {
                 // Replace dungeon reward that is given after beating a boss and show the appropriate text.
                 libtp::patch::writeBranchBL(relPtrRaw + 0x1884, libtp::tp::d_item::execItemGet);
-                performStaticASMReplacement(relPtrRaw + 0x1888, ASM_BRANCH(0xA8));
-                break;
-            }
-
-            // Bo - Sumo
-            case D_A_NPC_BOUS:
-            {
-                // Prevent Bo from talking after the chest has been opened
-                performStaticASMReplacement(relPtrRaw + 0x1A44, ASM_BRANCH(0x28));
                 break;
             }
 
@@ -523,65 +448,11 @@ namespace mod::events
                 break;
             }
 
-            // Yeto
-            case D_A_NPC_YKM:
-            {
-                // Prevent Yeto from leaving the dungeon if the player has the boss key
-                performStaticASMReplacement(relPtrRaw + 0x1524, ASM_LOAD_IMMEDIATE(3, 0));
-                break;
-            }
-
-            // Yeta
-            case D_A_NPC_YKW:
-            {
-                // Prevent Yeta from leaving the dungeon if the player has the boss key
-                performStaticASMReplacement(relPtrRaw + 0x1038, ASM_LOAD_IMMEDIATE(3, 0)); // li r3,0
-                break;
-            }
-
-            // SPR Suit of Armor
-            case D_A_E_MD:
-            {
-                if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Snowpeak_Ruins]))
-                {
-                    // Branch to code to create actor if we are in snowpeak ruins, regardless of BossFlags value.
-                    performStaticASMReplacement(relPtrRaw + 0x14B8, ASM_BRANCH(0x1C));
-                }
-
-                break;
-            }
-
             // Ook
             case D_A_E_MK:
             {
                 // Transform back into link if you are wolf when defeating Ook
                 libtp::patch::writeBranchBL(relPtrRaw + 0x4A88, assembly::asmTransformOokWolf);
-                break;
-            }
-
-            // Light Sword Cutscene
-            case D_A_OBJ_SWBALLC:
-            {
-                // The cutscene gives link the MS during the cutscene by default, so we just nop out the link to the function.
-                performStaticASMReplacement(relPtrRaw + 0xB50, ASM_NOP);
-                break;
-            }
-
-            // Auru
-            case D_A_NPC_RAFREL:
-            {
-                performStaticASMReplacement(
-                    relPtrRaw + 0x6C4,
-                    ASM_LOAD_IMMEDIATE(3, 0x131)); // set auru to check for whether he gave the player the item to spawn.
-                break;
-            }
-
-            // Freestanding Small Keys
-            case D_A_OBJ_SMALLKEY:
-            {
-                performStaticASMReplacement(
-                    relPtrRaw + 0xC88,
-                    ASM_BRANCH(0x58)); // patch instruction to prevent game from removing bulblin camp key.
                 break;
             }
 
@@ -681,18 +552,6 @@ namespace mod::events
                 break;
             }
 
-            // Tear of Light
-            case D_A_OBJ_DROP:
-            {
-                // set wait timer to 1
-                performStaticASMReplacement(relPtrRaw + 0x0FCC, ASM_LOAD_IMMEDIATE(0, 1));
-                performStaticASMReplacement(relPtrRaw + 0x1038, ASM_LOAD_IMMEDIATE(0, 1));
-
-                // set y_pos of drop to be at ground level
-                performStaticASMReplacement(relPtrRaw + 0x2474, 0x00000000);
-                break;
-            }
-
             case D_A_KYTAG03:
             {
                 // Modify draw function to draw the Reekfish path so long as we have smelled the fish once.
@@ -700,34 +559,14 @@ namespace mod::events
                 break;
             }
 
-            // Red Bow Monkey
-            case D_A_NPC_KS:
-            {
-                // Prevent the game from triggering the 4 monkeys cutscene in the lobby.
-                performStaticASMReplacement(relPtrRaw + 0x9CE8, ASM_COMPARE_WORD_IMMEDIATE(3, 1));
-                break;
-            }
-
             // d_a_npc_gwolf.rel
             // Golden Wolf
             case D_A_NPC_GWOLF:
             {
-                // Change the flag that the faron wolf checks for when it spawns. The original value, is structured like this:
-                // XXXXYYYY  where XXXX is the flag for the Ending Blow and YYYY is for having howled at the DMT stone. Since we
-                // don't want the wolf to disappear once we have the ending blow, it was changed to use an unused flag in the
-                // event bit list.
-                performStaticASMReplacement(relPtrRaw + 0x5B80,
-                                            0x01EB01EC); // static values. 0x01EB for faron wolf and 0x01EC for ordon wolf
-
                 // Apply an ASM patch to d_a_npc_GWolf::isDelete that checks for if the wolf should spawn and spawn a
                 // freestanding item in it's place.
                 libtp::patch::writeBranchBL(relPtrRaw + 0x20AC, assembly::asmReplaceGWolfWithItem);
 
-                // Remove the instruction after the asm patch, as it is no longer needed
-                performStaticASMReplacement(relPtrRaw + 0x20B0, ASM_NOP);
-
-                // Branch to have isDelete return if the return value condition listed in asmReplaceGWolfWithItem is not met
-                performStaticASMReplacement(relPtrRaw + 0x20B8, ASM_BRANCH_EQUAL_MINUS(0x38));
                 break;
             }
 
@@ -741,12 +580,6 @@ namespace mod::events
                                                     assembly::asmGiveMasterSwordItemsStart,
                                                     assembly::asmGiveMasterSwordItemsEnd);
 
-                // Branch over the code that gives Link the master sword if it has been pulled
-                performStaticASMReplacement(relPtrRaw + 0xCA0, ASM_BRANCH(0x80));
-
-                // Nop out the function call to d_meter2_info::setCloth that causes a crash if you are wearing anything other
-                // than magic armor
-                performStaticASMReplacement(relPtrRaw + 0x25C, ASM_NOP);
                 break;
             }
         }
