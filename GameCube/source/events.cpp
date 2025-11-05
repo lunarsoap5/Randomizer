@@ -1208,10 +1208,10 @@ namespace mod::events
             {
                 case StageIDs::Palace_of_Twilight:
                 {
-                    localSignActor.pos.x = 1808.76245f;
-                    localSignActor.pos.y = -208.901459f;
-                    localSignActor.pos.z = 11813.2744f;
-                    localSignActor.rot[1] = static_cast<int16_t>(0xA971);
+                    localSignActor.pos.x = 679.f;
+                    localSignActor.pos.y = -200.f;
+                    localSignActor.pos.z = 9311.f;
+                    localSignActor.rot[1] = static_cast<int16_t>(0x0000);
                     tools::spawnActor(0, localSignActor);
                     break;
                 }
@@ -1344,30 +1344,30 @@ namespace mod::events
                 if (roomIDX == 3) // Kakariko Gorge
                 {
                     localSignActor.rot[0] |= 2;
-                    localSignActor.pos.x = -11394.7832f;
-                    localSignActor.pos.y = -3258.73096f;
-                    localSignActor.pos.z = 39702.91995f;
-                    localSignActor.rot[1] = static_cast<int16_t>(0xAC70);
+                    localSignActor.pos.x = -10116.0215f;
+                    localSignActor.pos.y = -4923.46191f;
+                    localSignActor.pos.z = 43064.4375f;
+                    localSignActor.rot[1] = static_cast<int16_t>(0x0789);
                     tools::spawnActor(3, localSignActor);
                 }
 
                 if (roomIDX == 7) // North Eldin Hint Sign
                 {
                     localSignActor.rot[0] |= 3;
-                    localSignActor.pos.x = 29691.0742f;
-                    localSignActor.pos.y = 661.668;
-                    localSignActor.pos.z = -53367.16f;
-                    localSignActor.rot[1] = static_cast<int16_t>(0x742B);
+                    localSignActor.pos.x = 18468.8418f;
+                    localSignActor.pos.y = 1580.f;
+                    localSignActor.pos.z = -63560.9531f;
+                    localSignActor.rot[1] = static_cast<int16_t>(0xCDC6);
                     tools::spawnActor(7, localSignActor);
                 }
 
                 if (roomIDX == 10) // Lanayru Field
                 {
                     localSignActor.rot[0] |= 4;
-                    localSignActor.pos.x = -46711.957f;
-                    localSignActor.pos.y = 268.4848f;
-                    localSignActor.pos.z = -55505.5508f;
-                    localSignActor.rot[1] = static_cast<int16_t>(0x85B9);
+                    localSignActor.pos.x = -64943.7422f;
+                    localSignActor.pos.y = -1359.66711f;
+                    localSignActor.pos.z = -31897.8828f;
+                    localSignActor.rot[1] = static_cast<int16_t>(0xE223);
                     tools::spawnActor(10, localSignActor);
                 }
 
@@ -1442,10 +1442,10 @@ namespace mod::events
 
             case StageIDs::Kakariko_Village:
             {
-                localSignActor.pos.x = -6277.372f;
-                localSignActor.pos.y = 2850.f;
-                localSignActor.pos.z = -2197.14331f;
-                localSignActor.rot[1] = static_cast<int16_t>(0x4000);
+                localSignActor.pos.x = -3347.52734f;
+                localSignActor.pos.y = 2999.16138f;
+                localSignActor.pos.z = -2865.99341f;
+                localSignActor.rot[1] = static_cast<int16_t>(0x0000);
                 tools::spawnActor(0, localSignActor);
                 break;
             }
@@ -1514,10 +1514,10 @@ namespace mod::events
             {
                 if (roomIDX == 8) // Beside Castle Town
                 {
-                    localSignActor.pos.x = -68194.2109f;
-                    localSignActor.pos.y = -1050.f;
-                    localSignActor.pos.z = 5603.60645f;
-                    localSignActor.rot[1] = static_cast<int16_t>(0xC000);
+                    localSignActor.pos.x = -80699.5f;
+                    localSignActor.pos.y = -765.58374f;
+                    localSignActor.pos.z = 1903.61462f;
+                    localSignActor.rot[1] = static_cast<int16_t>(0x25B7);
                     tools::spawnActor(8, localSignActor);
                 }
                 else if (roomIDX == 16) // South of CT
