@@ -1323,6 +1323,17 @@ namespace mod::events
                 break;
             }
 
+            case StageIDs::Kakariko_Graveyard_Interiors:
+            {
+                // Helper sign for how to make the cannon appear at Lake Hylia
+                localSignActor.pos.x = 440.f;
+                localSignActor.pos.y = -770.f;
+                localSignActor.pos.z = -3250.f;
+                localSignActor.rot[1] = static_cast<int16_t>(0xE000);
+                tools::spawnActor(7, localSignActor);
+                break;
+            }
+
             case StageIDs::Death_Mountain:
             {
                 localSignActor.pos.x = 920.583069f;
@@ -1519,6 +1530,16 @@ namespace mod::events
                 localSignActor.pos.z = -12709.0352f;
                 localSignActor.rot[1] = static_cast<int16_t>(0xC846);
                 tools::spawnActor(2, localSignActor);
+
+                // Helper sign at entrance for exiting without Clawshot
+                tp::dzx::ACTR localSignActor2;
+                memcpy(&localSignActor2, &gSignActor, sizeof(tp::dzx::ACTR));
+                localSignActor2.rot[0] = 0x70C1; // FLI for StageIdx 0xC for CitS | 1;
+                localSignActor2.pos.x = 0.f;
+                localSignActor2.pos.y = -200.f;
+                localSignActor2.pos.z = 11915.f;
+                localSignActor2.rot[1] = static_cast<int16_t>(0x8000);
+                tools::spawnActor(0, localSignActor2);
                 break;
             }
 
