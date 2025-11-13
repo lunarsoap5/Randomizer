@@ -2370,14 +2370,14 @@ namespace mod
             if (!d_save::isDarkClearLV(static_cast<void*>(playerStatusBPtr), i))
             {
                 playerStatusBPtr->transform_level_flag &= ~(1 << i);
-
-                if (i == 0x3) // MDH
-                {
-                    // Unset the flag that starts MDH
-                    *memoryFlagsPtr &= ~0x40;
-                    d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
-                }
             }
+        }
+
+        if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(flags::MIDNAS_DESPERATE_HOUR_COMPLETED)) // MDH
+        {
+            // Unset the flag that starts MDH
+            *memoryFlagsPtr &= ~0x40;
+            d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
         }
 
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
