@@ -589,25 +589,18 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Hyrule_Field:
                     {
-                        if (libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_b
-                                .dark_clear_level_flag >= 0x7)
+                        // First 3 twilights are cleared
+                        if ((libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_b
+                                 .dark_clear_level_flag &
+                             0x7) == 0x7)
                         {
-                            condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                MIDNAS_DESPERATE_HOUR_STARTED); // MDH State Activated
-
-                            if (condition)
+                            if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_COMPLETED))
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                    MIDNAS_DESPERATE_HOUR_COMPLETED); // MDH Completed
-
-                                if (condition)
-                                {
-                                    chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Completed;
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Started;
-                                }
+                                chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Completed;
+                            }
+                            else if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_STARTED))
+                            {
+                                chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Started;
                             }
                             else
                             {
