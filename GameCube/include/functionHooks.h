@@ -301,9 +301,6 @@ namespace mod
                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_1,
                                             libtp::tp::f_op_actor::fopAc_ac_c* actrPtr_2);
 
-    void handle_endFlowGroup();
-    extern void (*gReturn_endFlowGroup)();
-
     void handle_talkEnd(void* eventPtr);
     extern void (*gReturn_talkEnd)(void* eventPtr);
 

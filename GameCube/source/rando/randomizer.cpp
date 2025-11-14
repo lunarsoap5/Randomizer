@@ -51,6 +51,9 @@ namespace mod::rando
 
     void Randomizer::onStageLoad()
     {
+        // Reset msgFlow context to ensure clean slate for new stage
+        checkResetFlowContext(nullptr);
+
         const char* stage = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mNextStage.mStage;
         Seed* seedPtr = this->m_Seed;
         seedPtr->LoadChecks(stage);
@@ -709,10 +712,9 @@ namespace mod::rando
             this->m_latestFlowID = 0xFFFF;
             this->m_flowContext = 0;
         }
-        else if (msgFlow->mFlow != this->m_latestFlowID)
+        else if (this->m_flowContext == 0)
         {
             this->m_latestFlowID = msgFlow->mFlow;
-            this->m_flowContext = 0;
         }
     }
 
