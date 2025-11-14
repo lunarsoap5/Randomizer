@@ -214,7 +214,6 @@ namespace mod
         gReturn_setNormalMsg = patch::hookFunction(libtp::tp::d_msg_flow::setNormalMsg, handle_setNormalMsg);
         gReturn_branchNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::branchNodeProc, handle_branchNodeProc);
         gReturn_eventNodeProc = patch::hookFunction(libtp::tp::d_msg_flow::eventNodeProc, handle_eventNodeProc);
-        gReturn_endFlowGroup = patch::hookFunction(libtp::tp::d_msg_object::endFlowGroup, handle_endFlowGroup);
         gReturn_talkEnd = patch::hookFunction(libtp::tp::d_event::talkEnd, handle_talkEnd);
 
         // Save flag functions

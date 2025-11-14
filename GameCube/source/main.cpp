@@ -1289,6 +1289,12 @@ namespace mod
         }
 
         gReturn_setNodeIndex(msgFlow, flwIndex, actrPtr);
+
+        if (msgFlow != nullptr && msgFlow->field_0x10 == 0xFFFF)
+        {
+            // Reset flow context when ending
+            rando::gRandomizer->checkResetFlowContext(nullptr);
+        }
     }
 
     KEEP_FUNC int32_t handle_setSelectMsg(libtp::tp::d_msg_flow::dMsgFlow* msgFlow,
@@ -1389,15 +1395,6 @@ namespace mod
         rando::gRandomizer->setMutFlowNodePtr(nullptr);
 
         return procStatus; // Either 0 or 1 for event nodes
-    }
-
-    KEEP_FUNC void handle_endFlowGroup()
-    {
-        // Force reset flowContext info when flow group ends to be safe.
-        rando::gRandomizer->checkResetFlowContext(nullptr);
-
-        // Call original function
-        gReturn_endFlowGroup();
     }
 
     KEEP_FUNC void handle_talkEnd(void* eventPtr)
