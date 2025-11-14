@@ -2377,6 +2377,9 @@ namespace mod
             d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
         }
 
+        // Turn the player back into Link if they are currently wolf
+        saveFilePtr->player.player_status_a.currentForm == 0;
+
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
 
