@@ -2378,7 +2378,7 @@ namespace mod
         }
 
         // Turn the player back into Link if they are currently wolf
-        saveFilePtr->player.player_status_a.currentForm == 0;
+        saveFilePtr->player.player_status_a.currentForm = 0;
 
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
         const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
