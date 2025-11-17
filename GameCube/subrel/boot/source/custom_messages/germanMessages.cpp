@@ -350,6 +350,17 @@ namespace mod::customMessages
         // gesammelt.
         "\x20\x67\x65\x73\x61\x6d\x6d\x65\x6c\x74\x2e"
     MSG_END();
+    MSG_BEGIN_ARRAY(apItemDe)
+        MSG_SPEED(MSG_SPEED_FAST)
+        // Du erhältst eine
+        "\x44\x75\x20\x65\x72\x68\xe4\x6c\x74\x73\x74\x20\x65\x69\x6e\x65\x0A"
+        MSG_COLOR(MSG_COLOR_RED)
+        // Archipelago-Gericht
+        "\x41\x72\x63\x68\x69\x70\x65\x6C\x61\x67\x6F\x2D\x47\x65\x72\x69\x63\x68\x74"
+        MSG_COLOR(MSG_COLOR_WHITE)
+        //!\nDu hast bisher
+        "\x21"
+    MSG_END();
     MSG_BEGIN_ARRAY(skyBookDescriptionDe)
         MSG_SPEED(MSG_SPEED_FAST)
         // Text, der in altem Kumulanisch ver-\nfasst ist. Leider fehlen einige Buchstaben.\nEr enthält wichtige Hinweise 
@@ -528,6 +539,11 @@ namespace mod::customMessages
         poeSoulDe,
         sizeof(poeSoulDe),
         0x0144,
+
+        // AP Item
+        apItemDe,
+        sizeof(apItemDe),
+        0x00F3,
 
         // Sky Book Item Wheel Description
         skyBookDescriptionDe,

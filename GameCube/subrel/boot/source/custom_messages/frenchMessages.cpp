@@ -357,6 +357,17 @@ namespace mod::customMessages
         // pour l'instant.
         "\x20\x70\x6F\x75\x72\x20\x6C\x27\x69\x6E\x73\x74\x61\x6E\x74\x2e"
     MSG_END();
+    MSG_BEGIN_ARRAY(apItemFr)
+        MSG_SPEED(MSG_SPEED_FAST)
+        // Vous obtenez une
+        "\x56\x6F\x75\x73\x20\x6F\x62\x74\x65\x6E\x65\x7A\x20\x75\x6E\x65\x20"
+        MSG_COLOR(MSG_COLOR_RED)
+        // article de\archipelago
+        "\x61\x72\x74\x69\x63\x6C\x65\x20\x64\x65\x0A\x41\x72\x63\x68\x69\x70\x65\x6C\x61\x67\x6F"
+        MSG_COLOR(MSG_COLOR_WHITE)
+        //!
+        "\x21"
+    MSG_END();
     MSG_BEGIN_ARRAY(skyBookDescriptionFr)
         MSG_SPEED(MSG_SPEED_FAST)
         // Des écrits très anciens en célestien.\nIl manque des mots ici et là.\n\nVous en avez collecté 
@@ -499,6 +510,11 @@ namespace mod::customMessages
         foolishItemFr,
         sizeof(foolishItemFr),
         0x0077,
+
+        // AP Item
+        apItemFr,
+        sizeof(apItemFr),
+        0x00F3,
 
         // Talking to Midna
         talkToMidnaFr,

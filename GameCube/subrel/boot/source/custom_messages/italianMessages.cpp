@@ -941,6 +941,17 @@ namespace mod::customMessages
         // finora.
         "\x20\x66\x69\x6e\x6f\x72\x61\x2e"
     MSG_END();
+    MSG_BEGIN_ARRAY(apItemIt)
+        MSG_SPEED(MSG_SPEED_FAST)
+        // Ora hai un'
+        "\x4f\x72\x61\x20\x68\x61\x69\x20\x75\x6e\x27\x0A"
+        MSG_COLOR(MSG_COLOR_RED)
+        // articolo Archipelago
+        "\x61\x72\x74\x69\x63\x6F\x6C\x6F\x20\x41\x72\x63\x68\x69\x70\x65\x6C\x61\x67\x6F"
+        MSG_COLOR(MSG_COLOR_WHITE)
+        //!
+        "\x21"
+    MSG_END();
     MSG_BEGIN_ARRAY(skyBookDescriptionIt)
         MSG_SPEED(MSG_SPEED_FAST)
         // Documento stilato nell'antica scrittura\ndegli Eterei. Alcune Lettere sono\nilleggibili...\n\nHai raccolto
@@ -1119,6 +1130,11 @@ namespace mod::customMessages
         poeSoulIt,
         sizeof(poeSoulIt),
         0x0144,
+
+        // AP Item
+        apItemIt,
+        sizeof(apItemIt),
+        0x00F3,
 
         // Sky Book Item Wheel Description
         skyBookDescriptionIt,

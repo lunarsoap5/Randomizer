@@ -73,6 +73,7 @@ namespace mod::rando::customItems
         Mortal_Draw = 0xE5,                       // Custom Item added for the Randomizer.
         Jump_Strike = 0xE6,                       // Custom Item added for the Randomizer.
         Great_Spin = 0xE7,                        // Custom Item added for the Randomizer.
+        Archipelago_Item = 0x8F,
     };
 
     struct FoolishItems

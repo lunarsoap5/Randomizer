@@ -369,6 +369,17 @@ namespace mod::customMessages
         // hasta ahora.
         "\x20\x68\x61\x73\x74\x61\x20\x61\x68\x6f\x72\x61\x2e"
     MSG_END();
+    MSG_BEGIN_ARRAY( apItemSp )
+        MSG_SPEED( MSG_SPEED_FAST )
+        // Es un
+        "\x45\x73\x20\x75\x6e\x20"
+        MSG_COLOR(MSG_COLOR_RED)
+        // articulo de Archipelago
+        "\x61\x72\x74\x69\x63\x75\x6C\x6F\x20\x64\x65\x0A\x41\x72\x63\x68\x69\x70\x65\x6C\x61\x67\x6F"
+        MSG_COLOR(MSG_COLOR_WHITE)
+        // !\nHas conseguido
+        "\x21"
+    MSG_END();
     MSG_BEGIN_ARRAY( skyBookDescriptionSp )
         MSG_SPEED(MSG_SPEED_FAST)
         // Libro escrito en la antigua lengua Uca.\nParecen faltarle letras.\n\n
@@ -545,6 +556,11 @@ namespace mod::customMessages
         poeSoulSp,
         sizeof(poeSoulSp),
         0x0144,
+
+        // AP Item
+        apItemSp,
+        sizeof(apItemSp),
+        0x00F3,
 
         // Sky Book Item Wheel Description
         skyBookDescriptionSp,

@@ -348,6 +348,15 @@ namespace mod::customMessages
         // 個集まりました。
         "\x8C\xC2\x8F\x57\x82\xDC\x82\xE8\x82\xDC\x82\xB5\x82\xBD\x81\x42"
     MSG_END();
+    MSG_BEGIN_ARRAY(apItemJp)
+        MSG_SPEED(MSG_SPEED_FAST)
+        MSG_COLOR(MSG_COLOR_RED)
+        // ゴーストの魂
+        "\x8C\x51\x93\x97\x83\x41\x83\x43\x83\x65\x83\x80"
+        MSG_COLOR(MSG_COLOR_WHITE)
+        // を手に入れた！
+        "\x82\xF0\x8E\xE8\x82\xC9\x93\xFC\x82\xEA\x82\xBD\x81\x49"
+    MSG_END();
     MSG_BEGIN_ARRAY(skyBookDescriptionJp)
         MSG_SPEED(MSG_SPEED_FAST)
         // 古の天空語で 記された書物\nところどころ 言葉がか欠けている\n\n
@@ -528,6 +537,11 @@ namespace mod::customMessages
         poeSoulJp,
         sizeof(poeSoulJp),
         0x0144,
+
+        // AP Item
+        apItemJp,
+        sizeof(apItemJp),
+        0x00F3,
 
         // Sky Book Item Wheel Description
         skyBookDescriptionJp,

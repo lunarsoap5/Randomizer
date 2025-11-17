@@ -171,7 +171,8 @@ namespace mod::game_patch
                                                     libtp::data::items::Mirror_Piece_4,
                                                     rando::customItems::Fused_Shadow_1,
                                                     rando::customItems::Fused_Shadow_2,
-                                                    rando::customItems::Fused_Shadow_3};
+                                                    rando::customItems::Fused_Shadow_3,
+                                                    rando::customItems::Archipelago_Item};
 
     void modifyItemModels()
     {
@@ -208,6 +209,10 @@ namespace mod::game_patch
 
         memcpy(&itemResourcePtr[items::Purple_Rupee_Links_House],
                &itemResourcePtr[items::Purple_Rupee],
+               sizeof(d_item_data::ItemResource));
+
+        memcpy(&itemResourcePtr[rando::customItems::Archipelago_Item],
+               &itemResourcePtr[items::Invoice],
                sizeof(d_item_data::ItemResource));
 
         constexpr uint32_t loopCount = sizeof(itemsWithNoFieldModel) / sizeof(itemsWithNoFieldModel[0]);
@@ -249,6 +254,7 @@ namespace mod::game_patch
         getSeTypePtr[items::Shadow_Crystal] = getSeTypePtr[items::Clawshot];
         getSeTypePtr[items::Bomb_Bag_Regular_Bombs] = getSeTypePtr[items::Goron_Bomb_Bag];
         getSeTypePtr[items::Horse_Call] = getSeTypePtr[items::Clawshot];
+        getSeTypePtr[rando::customItems::Archipelago_Item] = getSeTypePtr[items::Piece_of_Heart];
     }
 
     void setCustomItemResourceData()
