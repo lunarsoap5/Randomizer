@@ -181,5 +181,7 @@ namespace mod::events
     uint8_t* getNodeMemoryFlags(const libtp::data::stage::AreaNodesID nodeId,
                                 const libtp::data::stage::AreaNodesID currentAreaNodeId);
     void handleTimeSpeed();
+    void setNextWarashibeItem();
+    void offWarashibeItem(uint8_t item);
 } // namespace mod::events
 #endif

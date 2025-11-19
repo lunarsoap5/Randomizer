@@ -582,6 +582,17 @@ namespace mod::events
 
                 break;
             }
+
+            // d_a_npc_yelia.rel
+            // Ilia
+            case D_A_NPC_YELIA:
+            {
+                // Replace the call to setWarashibeItem to offWarashibeItem because we want to unset the statue item flag
+                // without clearing the item slot unless there are absolutely no items.
+                libtp::patch::writeBranchBL(relPtrRaw + 0x28F0, events::offWarashibeItem);
+
+                break;
+            }
         }
     }
 
@@ -2126,6 +2137,7 @@ namespace mod::events
         rando::Randomizer* randoPtr = rando::gRandomizer;
         uint32_t itemToGive = randoPtr->getEventItem(items::Horse_Call);
         libtp::tp::d_item::execItemGet(itemToGive);
+        events::offWarashibeItem(libtp::data::items::Ilias_Charm);
     }
 
     KEEP_FUNC void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value)
@@ -2135,6 +2147,55 @@ namespace mod::events
         // Clear the cache for the modified value
         // Assembly instructions need to clear the instruction cache as well
         libtp::memory::clear_DC_IC_Cache(reinterpret_cast<uint32_t*>(memoryOffset), sizeof(uint32_t));
+    }
+
+    KEEP_FUNC void setNextWarashibeItem()
+    {
+        using namespace libtp::data::items;
+        using namespace libtp::tp::d_save;
+        using namespace libtp::tp::d_com_inf_game;
+
+        dSv_player_c* playerPtr = &dComIfG_gameInfo.save.save_file.player;
+
+        static const uint8_t questItemsList[] = {Renardos_Letter, Invoice, Wooden_Statue, Ilias_Charm, Horse_Call};
+
+        constexpr uint32_t listLength = sizeof(questItemsList) / sizeof(questItemsList[0]);
+
+        for (uint32_t i = 0; i < listLength; i++)
+        {
+            const uint32_t item = questItemsList[i];
+            const uint8_t slotItem = playerPtr->player_item.item[21];
+            if (item == slotItem)
+            {
+                uint8_t newItem = item;
+                uint32_t j = i;
+                do
+                {
+                    j = (j + 1) % listLength; // Move to next index, wrapping around if needed.
+                    if (events::haveItem(questItemsList[j]))
+                    {
+                        newItem = questItemsList[j];
+                        break;
+                    }
+                } while (j != i);
+
+                // If the item to switch to is the same as the current item and we don't have the item anymore, null the slot
+                if ((newItem == item) && !events::haveItem(item))
+                {
+                    newItem = 0xFF;
+                }
+                setItem(&dComIfG_gameInfo.save.save_file.player.player_item, 21, newItem);
+
+                break;
+            }
+        }
+    }
+
+    KEEP_FUNC void offWarashibeItem(uint8_t item)
+    {
+        libtp::tp::d_save::offFirstBit(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_get_item,
+                                       item);
+        setNextWarashibeItem();
     }
 
 } // namespace mod::events

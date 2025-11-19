@@ -79,6 +79,7 @@
 80033c2c:setWarashibeItem
 80032e4c:onRegionBit
 80032e78:isRegionBit
+80033e94:offFirstBit
 
 // d_event.o
 80041d34:talkEnd

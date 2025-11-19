@@ -67,6 +67,10 @@ namespace mod::game_patch
         *reinterpret_cast<uint32_t*>(event035MemoAddress + 0x40) =
             ASM_COMPARE_WORD_IMMEDIATE(4, libtp::data::items::Asheis_Sketch); // Previous 0x2c040090
 
+        // Modify event035 to unset the item flag for the item wheel item instead of nullifying the slot
+        *reinterpret_cast<uint32_t*>(event035MemoAddress + 0x8C) = 0x7c832378; // Previous 0x388000ff
+        libtp::patch::writeBranchBL(event035MemoAddress + 0x90, events::offWarashibeItem);
+
         // Modify procCoGetItem to display the 20 and 60 poe messages when the player currently has 19 and 59 respectively, as
         // this project changes the poe count to increment after the message is displayed instead of before
         uint32_t procCoGetItemAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::procCoGetItem);

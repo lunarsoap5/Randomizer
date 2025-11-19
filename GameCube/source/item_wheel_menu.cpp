@@ -144,32 +144,7 @@ namespace mod::item_wheel_menu
         {
             using namespace libtp::data::items;
             itemWheelMenuPtr->changeQuestItem(!questStatus);
-            static const uint8_t questItemsList[] = {Renardos_Letter, Invoice, Wooden_Statue, Ilias_Charm, Horse_Call};
-
-            constexpr uint32_t listLength = sizeof(questItemsList) / sizeof(questItemsList[0]);
-
-            for (uint32_t i = 0; i < listLength; i++)
-            {
-                const uint32_t item = questItemsList[i];
-                const uint8_t slotItem = playerPtr->player_item.item[21];
-                if (item == slotItem)
-                {
-                    uint32_t j = i;
-                    do
-                    {
-                        j = (j + 1) % listLength; // Move to next index, wrapping around if needed.
-                        if (events::haveItem(questItemsList[j]))
-                        {
-                            libtp::tp::d_save::setItem(
-                                &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item,
-                                21,
-                                questItemsList[j]);
-                            break;
-                        }
-                    } while (j != i);
-                    break;
-                }
-            }
+            events::setNextWarashibeItem();
         }
 
         // Everything after this point is only drawn in the menu

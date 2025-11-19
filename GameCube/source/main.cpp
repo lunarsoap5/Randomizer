@@ -1753,6 +1753,12 @@ namespace mod
                     break;
                 }
 
+                case GAVE_TELMA_RENADOS_LETTER:
+                {
+                    events::offWarashibeItem(libtp::data::items::Renardos_Letter);
+                    break;
+                }
+
                 default:
                 {
                     break;
@@ -1901,14 +1907,6 @@ namespace mod
 
     KEEP_FUNC void handle_setWarashibeItem(libtp::tp::d_save::dSv_player_item_c* playerItemPtr, uint8_t itemID)
     {
-        // If the trade item slot would be emptied (such as after showing the
-        // Invoice) and the player already has the HorseCall, update the trade
-        // item slot to be the HorseCall instead of removing the slot.
-        if (itemID == libtp::data::items::NullItem &&
-            libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Horse_Call))
-        {
-            itemID = libtp::data::items::Horse_Call;
-        }
         gReturn_setWarashibeItem(playerItemPtr, itemID);
     }
 
