@@ -13,6 +13,7 @@
 #include "gc_wii/OSCache.h"
 #include "rando/customItems.h"
 #include "events.h"
+#include "user_patch/00_wallet.h"
 
 #if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
@@ -202,6 +203,47 @@ namespace mod::game_patch
         // This project changes the poe count to increment after the message is displayed, so add one to get the new count
         uint32_t poeCount = libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect.poe_count + 1;
         return createString(format, msgSize, poeCount);
+    };
+
+    const char* getWalletMessage(rando::Randomizer* randoPtr, uint32_t msgId)
+    {
+        using namespace libtp::data::items;
+
+        uint16_t msgSize;
+        uint8_t walletSize = randoPtr->getSeedPtr()->getHeaderPtr()->getWalletSize();
+        uint16_t walletCount = 0;
+        const char* format = _05_getMsgById(msgId, &msgSize);
+
+        if (!format)
+        {
+            return nullptr;
+        }
+
+        switch (msgId)
+        {
+            case ITEM_TO_ID(Big_Wallet):
+            case 0x299:
+            {
+                walletCount = mod::user_patch::walletValues[walletSize][1];
+                break;
+            }
+
+            case ITEM_TO_ID(Giant_Wallet):
+            case 0x29a:
+            {
+                walletCount = mod::user_patch::walletValues[walletSize][2];
+                break;
+            }
+
+            // Small Wallet Menu Text
+            case 0x298:
+            {
+                walletCount = mod::user_patch::walletValues[walletSize][0];
+                break;
+            }
+        }
+
+        return createString(format, msgSize, walletCount);
     };
 
     // The following function is set up to be used in the function getDungeonItemMessage
@@ -621,6 +663,14 @@ namespace mod::game_patch
             {
                 return getSkyBookMessage(msgId);
             }
+            case 0x299:
+            case 0x298:
+            case 0x29a:
+            case ITEM_TO_ID(Big_Wallet):
+            case ITEM_TO_ID(Giant_Wallet):
+            {
+                return getWalletMessage(rando::gRandomizer, msgId);
+            }
             default:
             {
                 break;
@@ -730,18 +780,6 @@ namespace mod::game_patch
         // If there are any special message IDs that require additional logic, we handle them here.
         switch (msgId)
         {
-            case ITEM_TO_ID(Big_Wallet):   // Big Wallet Item Get Text
-            case ITEM_TO_ID(Giant_Wallet): // Giant Wallet Item Get Text
-            case 0x298:                    // Small Wallet Pause Menu Text
-            case 0x299:                    // Big Wallet Pause Menu Text
-            case 0x29A:                    // Giant Wallet Pause Menu Text
-            {
-                if (seedPtr->getHeaderPtr()->getWalletSize() == 1)
-                {
-                    return nullptr;
-                }
-                break;
-            }
             case 0x42:
             {
                 // This is the `Choose a Quest Log` text on the file select screen

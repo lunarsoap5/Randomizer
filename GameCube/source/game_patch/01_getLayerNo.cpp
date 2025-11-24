@@ -157,31 +157,10 @@ namespace mod::game_patch
 
                             if (condition == false)
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                    WATCHED_CUTSCENE_AFTER_GORON_MINES); // Cutscene after GM Watched
+                                chosenLayer = stage::KakarikoStateIDs::Kakariko_KB1_Completed;
 
-                                if (condition == false)
-                                {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        GORON_MINES_CLEARED); // Goron Mines Completed
-
-                                    if (condition == false)
-                                    {
-                                        chosenLayer = stage::KakarikoStateIDs::Kakariko_KB1_Completed;
-
-                                        // If it is night, the layer is different.
-                                        libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::KakarikoStateIDs::Kakariko_Goron_Mines_Completed;
-                                    }
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::KakarikoStateIDs::Kakariko_KB1_Completed;
-                                    libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
-                                }
+                                // If it is night, the layer is different.
+                                libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
                             }
                             else
                             {

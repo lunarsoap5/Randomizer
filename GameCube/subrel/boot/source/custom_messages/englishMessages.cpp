@@ -216,7 +216,7 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         "!\nYou can now hold\n"
         MSG_COLOR(MSG_COLOR_RED)
-        "5,000 Rupees"
+        "%" PRIu32 " Rupees"
         MSG_COLOR(MSG_COLOR_WHITE)
         "!"
     MSG_END();
@@ -228,21 +228,21 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         "!\nYou can now hold\n"
         MSG_COLOR(MSG_COLOR_PURPLE)
-        "9,999 Rupees"
+        "%" PRIu32 " Rupees"
         MSG_COLOR(MSG_COLOR_WHITE)
         "!"
     MSG_END();
     MSG_BEGIN_ARRAY(smallWalletPauseEn)
         MSG_SPEED(MSG_SPEED_FAST)
-        "A wallet from your childhood.\nIt holds up to 1,000 Rupees."
+        "A wallet from your childhood.\nIt holds up to " "%" PRIu32 " Rupees"
     MSG_END();
     MSG_BEGIN_ARRAY(bigWalletPauseEn)
         MSG_SPEED(MSG_SPEED_FAST)
-        "The wallet given to you by Agitha,\nprincess of the insect kingdom.\nIt can hold 5,000 Rupees."
+        "The wallet given to you by Agitha,\nprincess of the insect kingdom.\nIt can hold " "%" PRIu32 " Rupees"
     MSG_END();
     MSG_BEGIN_ARRAY(giantWalletPauseEn)
         MSG_SPEED(MSG_SPEED_FAST)
-        "The wallet given by Agitha to\nbenefactors of the insect kingdom.\nIt can hold up to 9,999 Rupees."
+        "The wallet given by Agitha to\nbenefactors of the insect kingdom.\nIt can hold up to " "%" PRIu32 " Rupees"
     MSG_END();
     MSG_BEGIN_ARRAY(poeSoulEn)
         MSG_SPEED(MSG_SPEED_FAST)
