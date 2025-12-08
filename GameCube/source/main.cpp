@@ -2212,10 +2212,17 @@ namespace mod
                 void* bg = libtp::tp::JKRArchive::JKRArchive_getResource2(main2DArchive,
                                                                           0x54494D47, // TIMG
                                                                           "tt_block_grade.bti");
+                void* bg2 = libtp::tp::JKRArchive::JKRArchive_getResource2(main2DArchive,
+                                                                           0x54494D47, // TIMG
+                                                                           "font_51.bti");
 
                 if (bg)
                 {
                     randoPtr->setBgWindowPtr(new libtp::tp::J2DPicture::J2DPicture(bg));
+                }
+                if (bg2)
+                {
+                    randoPtr->setDpadIconPtr(new libtp::tp::J2DPicture::J2DPicture(bg2));
                 }
             }
         }
@@ -2436,6 +2443,36 @@ namespace mod
         }
 
         return false;
+    }
+
+    KEEP_FUNC uint8_t handle_getItemNum(libtp::tp::d_menu_ring::dMenu_Ring_c* menuRing, uint8_t slotNo)
+    {
+        switch (slotNo)
+        {
+            case 0x16: // Skybook Slot
+            {
+                return libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item_record.unk5_ammo[0];
+            }
+            default:
+            {
+                return gReturn_getItemMaxNum(menuRing, slotNo);
+            }
+        }
+    }
+
+    KEEP_FUNC uint8_t handle_getItemMaxNum(libtp::tp::d_menu_ring::dMenu_Ring_c* menuRing, uint8_t slotNo)
+    {
+        switch (slotNo)
+        {
+            case 0x16: // Skybook Slot
+            {
+                return 6;
+            }
+            default:
+            {
+                return gReturn_getItemMaxNum(menuRing, slotNo);
+            }
+        }
     }
 
     KEEP_FUNC void adjustMidnaHairColor()

@@ -18,6 +18,10 @@
 #include "data/flags.h"
 #include "functionHooks.h"
 #include "tp/d_menu_Ring.h"
+#include "tp/d_meter2_draw.h"
+#include "tp/d_menu_window.h"
+#include "tp/d_item_data.h"
+#include "game_patch/game_patch.h"
 
 namespace mod::item_wheel_menu
 {
@@ -38,7 +42,7 @@ namespace mod::item_wheel_menu
         }
     }
 
-    KEEP_FUNC void handle_dMenuRing__create(void* dMenuRing)
+    KEEP_FUNC void handle_dMenuRing__create(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing)
     {
         // Set the value that checks the ring status
         ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
@@ -51,7 +55,7 @@ namespace mod::item_wheel_menu
         gReturn_dMenuRing__create(dMenuRing);
     }
 
-    KEEP_FUNC void handle_dMenuRing__delete(void* dMenuRing)
+    KEEP_FUNC void handle_dMenuRing__delete(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing)
     {
         (void)dMenuRing;
 
@@ -68,10 +72,14 @@ namespace mod::item_wheel_menu
         itemWheelMenuPtr->dontDisplayMenu();
     }
 
-    KEEP_FUNC void handle_dMenuRing__draw(void* dMenuRing)
+    KEEP_FUNC void handle_dMenuRing__draw(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing)
     {
         using namespace libtp::tp::m_do_controller_pad;
         using namespace libtp::data::items;
+        using namespace libtp::tp::d_meter2_info;
+        using namespace libtp::tp::J2DPicture;
+        using namespace libtp::tp::J2DPane;
+        using namespace libtp::tp::d_item_data;
 
         rando::Randomizer* randoPtr = rando::gRandomizer;
         ItemWheelMenu* itemWheelMenuPtr = randoPtr->getItemWheelMenuPtr();
@@ -140,11 +148,50 @@ namespace mod::item_wheel_menu
         libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
 
         bool questStatus = itemWheelMenuPtr->shouldChangeQuestItem();
-        if (checkButtonsPressedThisFrame(PadInputs::Button_DPad_Right) && questStatus)
+        uint8_t currentSlot = dMenuRing->mItemSlots[dMenuRing->mCurrentSlot];
+
+        if (currentSlot == 0x15)
         {
-            using namespace libtp::data::items;
-            itemWheelMenuPtr->changeQuestItem(!questStatus);
-            events::setNextWarashibeItem();
+            if (game_patch::_04_getWarashibeItemCount() >= 0x2)
+            {
+                events::drawDpadIcon(ringPosX + 335, ringPosY + 194, 30, 30);
+            }
+            if (checkButtonsPressedThisFrame(PadInputs::Button_DPad_Right) && questStatus)
+            {
+                itemWheelMenuPtr->changeQuestItem(!questStatus);
+                uint8_t warashibeItem = events::setNextWarashibeItem();
+
+                for (int32_t i = 0; i < dMenuRing->mTotalItemTexToAlloc; i++)
+                {
+                    if (dMenuRing->mItemSlots[i] == currentSlot)
+                    {
+                        int32_t i_textureNum = readItemTexture(&g_meter2_info,
+                                                               warashibeItem,
+                                                               dMenuRing->mpItemBuf[i][0],
+                                                               NULL,
+                                                               dMenuRing->mpItemBuf[i][1],
+                                                               NULL,
+                                                               dMenuRing->mpItemBuf[i][2],
+                                                               NULL,
+                                                               NULL,
+                                                               NULL,
+                                                               -1);
+
+                        for (int32_t k = 0; k < i_textureNum; k++)
+                        {
+                            dMenuRing->mpItemTex[i][k] = new J2DPicture(dMenuRing->mpItemBuf[i][k]);
+                            setBasePosition(dMenuRing->mpItemTex[i][k], J2DBasePosition_4);
+                        }
+
+                        uint8_t texScale = item_resource[warashibeItem].mTexScale;
+                        float fVar1 = (texScale / 100.0f);
+                        float fVar2 = (dMenuRing->mpItemBuf[i][0]->width / 48.0f);
+                        fVar1 = fVar2 * fVar1;
+                        dMenuRing->mItemSlotParam1[i] = fVar1;
+                        dMenuRing->mItemSlotParam2[i] = (dMenuRing->mpItemBuf[i][0]->height / 48.0f * (texScale / 100.0f));
+                    }
+                }
+            }
         }
 
         // Everything after this point is only drawn in the menu

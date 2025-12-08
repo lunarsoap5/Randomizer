@@ -257,10 +257,13 @@ namespace mod
     KEEP_VAR void (*gReturn_dMenuOption__tv_open1_move)(void* thisPtr) = nullptr;
 
     // Item Wheel menu
+
+    KEEP_VAR uint8_t (*gReturn_getItemMaxNum)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo) = nullptr;
+    KEEP_VAR uint8_t (*gReturn_getItemNum)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo) = nullptr;
     namespace item_wheel_menu
     {
-        KEEP_VAR void (*gReturn_dMenuRing__create)(void* dMenuRing) = nullptr;
-        KEEP_VAR void (*gReturn_dMenuRing__delete)(void* dMenuRing) = nullptr;
-        KEEP_VAR void (*gReturn_dMenuRing__draw)(void* dMenuRing) = nullptr;
+        KEEP_VAR void (*gReturn_dMenuRing__create)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing) = nullptr;
+        KEEP_VAR void (*gReturn_dMenuRing__delete)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing) = nullptr;
+        KEEP_VAR void (*gReturn_dMenuRing__draw)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing) = nullptr;
     } // namespace item_wheel_menu
 } // namespace mod

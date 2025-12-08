@@ -373,6 +373,8 @@
 801eb2d8:dMenuRing__create
 801eb344:dMenuRing__delete
 801e9854:dMenuRing_ct
+801ee7b4:getItemNum
+801ee8b8:getItemMaxNum
 
 // control.o
 802a9e60:setMessageCode_inSequence
@@ -439,6 +441,7 @@
 // d_meter2_info.o
 8042a2c8:g_meter2_info
 8021e81c:resetMiniGameItem
+8021d660:readItemTexture
 
 //d_meter2_draw.o
 80215584:drawKanteraScreen
@@ -529,3 +532,6 @@
 
 // math 
 8036ee84:sinf
+
+// J2DPane.o
+802f9b94:setBasePosition

@@ -90,6 +90,7 @@ namespace mod::rando
         const uint8_t* getMsgTableInfoPtr() const { return this->m_MsgTableInfo; }
         const uint8_t* getHintMsgTableInfoPtr() const { return this->m_HintMsgTableInfo; }
         libtp::tp::J2DPicture::J2DPicture* getBgWindowPtr() const { return this->m_BgWindow; }
+        libtp::tp::J2DPicture::J2DPicture* getDpadIconWindowPtr() const { return this->m_DpadIconWindow; }
         void* getZ2ScenePtr() const { return this->m_Z2ScenePtr; }
         uint32_t* getRandStatePtr() { return &this->m_RandState; }
 
@@ -119,6 +120,7 @@ namespace mod::rando
         void setMsgTableInfoPtr(const uint8_t* ptr) { this->m_MsgTableInfo = ptr; }
         void setHintMsgTableInfoPtr(const uint8_t* ptr) { this->m_HintMsgTableInfo = ptr; }
         void setBgWindowPtr(libtp::tp::J2DPicture::J2DPicture* ptr) { this->m_BgWindow = ptr; }
+        void setDpadIconPtr(libtp::tp::J2DPicture::J2DPicture* ptr) { this->m_DpadIconWindow = ptr; }
         void setZ2ScenePtr(void* ptr) { this->m_Z2ScenePtr = ptr; }
         void setRandState(uint32_t state) { this->m_RandState = state; }
 
@@ -185,6 +187,7 @@ namespace mod::rando
         const uint8_t* m_MsgTableInfo;     // Custom message string data
         const uint8_t* m_HintMsgTableInfo; // Custom message string data
         libtp::tp::J2DPicture::J2DPicture* m_BgWindow;
+        libtp::tp::J2DPicture::J2DPicture* m_DpadIconWindow;
         void* m_Z2ScenePtr;
         uint32_t m_RandState;
 

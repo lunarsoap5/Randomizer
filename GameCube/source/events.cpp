@@ -1882,6 +1882,38 @@ namespace mod::events
                                                false);
     }
 
+    void drawDpadIcon(int32_t x, int32_t y, int32_t width, int32_t height)
+    {
+        // Make sure the background window exists
+        libtp::tp::J2DPicture::J2DPicture* iconWindowPtr = rando::gRandomizer->getDpadIconWindowPtr();
+        if (!iconWindowPtr)
+        {
+            return;
+        }
+
+        // Set the window color
+
+        // Convert x, y, width, and height to floats
+        constexpr int32_t numValues = 4;
+        const int32_t values[numValues] = {x, y, width, height};
+        float valuesOut[numValues];
+
+        for (int32_t i = 0; i < numValues; i++)
+        {
+            valuesOut[i] = intToFloat(values[i]);
+        }
+
+        // Draw the window
+        libtp::tp::J2DPicture::J2DPicture_draw(iconWindowPtr,
+                                               valuesOut[0],
+                                               valuesOut[1],
+                                               valuesOut[2],
+                                               valuesOut[3],
+                                               false,
+                                               false,
+                                               false);
+    }
+
     void drawText(const char* text, int32_t x, int32_t y, uint32_t color, bool drawBorder, float textSize)
     {
         // The font takes a bit to load, so it won't be loaded immediately at boot
@@ -2149,7 +2181,7 @@ namespace mod::events
         libtp::memory::clear_DC_IC_Cache(reinterpret_cast<uint32_t*>(memoryOffset), sizeof(uint32_t));
     }
 
-    KEEP_FUNC void setNextWarashibeItem()
+    KEEP_FUNC uint8_t setNextWarashibeItem()
     {
         using namespace libtp::data::items;
         using namespace libtp::tp::d_save;
@@ -2161,13 +2193,15 @@ namespace mod::events
 
         constexpr uint32_t listLength = sizeof(questItemsList) / sizeof(questItemsList[0]);
 
+        uint8_t newItem = 0xFF; // null by default
+
         for (uint32_t i = 0; i < listLength; i++)
         {
             const uint32_t item = questItemsList[i];
             const uint8_t slotItem = playerPtr->player_item.item[21];
             if (item == slotItem)
             {
-                uint8_t newItem = item;
+                newItem = item;
                 uint32_t j = i;
                 do
                 {
@@ -2189,6 +2223,7 @@ namespace mod::events
                 break;
             }
         }
+        return newItem;
     }
 
     KEEP_FUNC void offWarashibeItem(uint8_t item)

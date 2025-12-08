@@ -175,13 +175,14 @@ namespace mod::events
     libtp::tp::d_resource::dRes_info_c* getObjectResInfo(const char* arcName);
     bool haveItem(uint32_t item);
     void drawWindow(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color);
+    void drawDpadIcon(int32_t x, int32_t y, int32_t width, int32_t height);
     void drawText(const char* text, int32_t x, int32_t y, uint32_t color, bool drawBorder, float textSize);
     void drawText(const char* text, int32_t x, int32_t y, uint32_t color, float textSize);
     int32_t getCurrentAreaNodeId();
     uint8_t* getNodeMemoryFlags(const libtp::data::stage::AreaNodesID nodeId,
                                 const libtp::data::stage::AreaNodesID currentAreaNodeId);
     void handleTimeSpeed();
-    void setNextWarashibeItem();
+    uint8_t setNextWarashibeItem();
     void offWarashibeItem(uint8_t item);
 } // namespace mod::events
 #endif

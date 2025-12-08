@@ -180,6 +180,9 @@ namespace mod
         item_wheel_menu::gReturn_dMenuRing__draw =
             patch::hookFunction(libtp::tp::d_menu_ring::dMenuRing__draw, item_wheel_menu::handle_dMenuRing__draw);
 
+        gReturn_getItemMaxNum = patch::hookFunction(libtp::tp::d_menu_ring::getItemMaxNum, handle_getItemMaxNum);
+        gReturn_getItemNum = patch::hookFunction(libtp::tp::d_menu_ring::getItemNum, handle_getItemNum);
+
         // ItemGet functions
         gReturn_execItemGet = patch::hookFunction(libtp::tp::d_item::execItemGet, handle_execItemGet);
         gReturn_checkItemGet = patch::hookFunction(libtp::tp::d_item::checkItemGet, handle_checkItemGet);

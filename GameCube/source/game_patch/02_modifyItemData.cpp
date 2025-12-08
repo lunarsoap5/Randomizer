@@ -497,6 +497,9 @@ namespace mod::game_patch
         libtp::tp::d_save::setItem(&libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item,
                                    22,
                                    libtp::data::items::Ancient_Sky_Book_Completed); // Add Skybook to the Item Wheel
+
+        libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item_record.unk5_ammo[0] =
+            6; // Set the char count to prevent an overflow if more books are gotten in a plentiful setting.
     }
 
     KEEP_FUNC void _02_bigWalletItemFunc()

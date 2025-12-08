@@ -151,6 +151,26 @@ namespace mod::game_patch
         return static_cast<uint32_t>(Fused_Shadow_3);
     };
 
+    uint8_t _04_getWarashibeItemCount()
+    {
+        using namespace libtp::data::items;
+        uint8_t count = 0;
+
+        static const uint8_t warashibeList[] {Renardos_Letter, Invoice, Wooden_Statue, Ilias_Charm, Horse_Call};
+
+        constexpr uint32_t listLength = sizeof(warashibeList) / sizeof(warashibeList[0]);
+        for (uint32_t i = 0; i < listLength; i++)
+        {
+            const uint32_t item = warashibeList[i];
+            if (events::haveItem(item))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    };
+
     KEEP_FUNC uint32_t _04_verifyProgressiveItem(rando::Randomizer* randomizer, uint32_t itemID)
     {
         using namespace libtp::data::items;

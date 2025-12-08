@@ -17,6 +17,7 @@
 #include "tp/d_gameover.h"
 #include "tp/d_shop_system.h"
 #include "tp/d_file_select.h"
+#include "tp/d_menu_ring.h"
 
 #include <cstdint>
 
@@ -454,17 +455,23 @@ namespace mod
     extern void (*gReturn_dMenuOption__tv_open1_move)(void* thisPtr);
 
     // Item Wheel menu
+
+    uint8_t handle_getItemNum(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo);
+    extern uint8_t (*gReturn_getItemNum)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo);
+    uint8_t handle_getItemMaxNum(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo);
+    extern uint8_t (*gReturn_getItemMaxNum)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo);
+
     namespace item_wheel_menu
     {
-        void handle_dMenuRing__create(void* dMenuRing);
-        extern void (*gReturn_dMenuRing__create)(void* dMenuRing);
+        void handle_dMenuRing__create(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing);
+        extern void (*gReturn_dMenuRing__create)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing);
 
         // dMenuRing__delete is an empty function, so the original function does not need to be called, so a return function is
         // not needed
-        void handle_dMenuRing__delete(void* dMenuRing);
+        void handle_dMenuRing__delete(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing);
 
-        void handle_dMenuRing__draw(void* dMenuRing);
-        extern void (*gReturn_dMenuRing__draw)(void* dMenuRing);
+        void handle_dMenuRing__draw(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing);
+        extern void (*gReturn_dMenuRing__draw)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing);
     } // namespace item_wheel_menu
 } // namespace mod
 

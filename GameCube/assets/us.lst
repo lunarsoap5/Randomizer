@@ -373,6 +373,7 @@
 //d_meter2_info.o
 80430188:g_meter2_info
 8021e0c4:resetMiniGameItem
+8021cf08:readItemTexture
 
 //d_meter2_draw.o
 80214eb4:drawKanteraScreen
@@ -459,6 +460,8 @@
 801eabe8:dMenuRing__delete
 801eacc8:dMenuRing__draw
 801e9118:dMenuRing_ct
+801ee15c:getItemMaxNum
+801ee058:getItemNum
 
 // JKRArchive.o
 802D5C64:JKRArchive_getResource2
@@ -545,3 +548,6 @@
 
 // math
 8036c9e8:sinf
+
+// J2DPane.o
+802f76f8:setBasePosition
