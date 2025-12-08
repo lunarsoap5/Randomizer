@@ -154,7 +154,7 @@ namespace mod::item_wheel_menu
         {
             if (game_patch::_04_getWarashibeItemCount() >= 0x2)
             {
-                events::drawDpadIcon(ringPosX + 335, ringPosY + 194, 30, 30);
+                events::drawDpadIcon(ringPosX + 330, ringPosY + 194, 30, 30);
             }
             if (checkButtonsPressedThisFrame(PadInputs::Button_DPad_Right) && questStatus)
             {
