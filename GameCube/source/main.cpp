@@ -2455,7 +2455,7 @@ namespace mod
             }
             default:
             {
-                return gReturn_getItemMaxNum(menuRing, slotNo);
+                return gReturn_getItemNum(menuRing, slotNo);
             }
         }
     }
