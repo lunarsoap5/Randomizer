@@ -672,6 +672,8 @@ namespace mod
                                                 int32_t param_9,
                                                 int32_t wipSpeedT)
     {
+        using namespace libtp::tp;
+        using namespace libtp::data;
         const int32_t stageIDX = libtp::tools::getStageIndex(stage);
 
         rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
@@ -680,10 +682,9 @@ namespace mod
 
         // getConsole() << stageIDX << "," << roomNo << "," << point << "," << layer << "\n";
 
-        if (!libtp::tp::d_a_alink::checkStageName(
-                libtp::data::stage::allStages
-                    [libtp::data::stage::StageIDs::Title_Screen])) // We won't want to shuffle if we are loading a save since
-                                                                   // some stages use their default spawn for their entrances.
+        if (!d_a_alink::checkStageName(
+                stage::allStages[stage::StageIDs::Title_Screen])) // We won't want to shuffle if we are loading a save since
+                                                                  // some stages use their default spawn for their entrances.
         {
             for (uint32_t i = 0; i < numShuffledEntrances; i++)
             {
@@ -699,10 +700,34 @@ namespace mod
                     // potentially add more logic here once more entrance types
                     // are randomized (especially as it relates to riding on
                     // Epona, etc.)
-                    return gReturn_dComIfGp_setNextStage(libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
-                                                         currentEntrance->getNewSpawn(),
-                                                         currentEntrance->getNewRoomIDX(),
-                                                         currentEntrance->getNewState(),
+
+                    uint8_t newSpawn = currentEntrance->getNewSpawn();
+                    uint8_t newStage = currentEntrance->getNewStageIDX();
+                    uint8_t newRoom = currentEntrance->getNewRoomIDX();
+                    uint8_t newState = currentEntrance->getNewState();
+
+                    uint32_t entranceParams = newStage << 24 | newRoom << 16 | newSpawn << 8 | newState;
+                    switch (entranceParams)
+                    {
+                        case 0x350301FF: // Telma's Bar -> SCT
+                        {
+                            if (!d_com_inf_game::dComIfGs_isEventBit(flags::CLEARED_LANAYRU_TWILIGHT))
+                            {
+                                newSpawn = 30;
+                            }
+
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+
+                    return gReturn_dComIfGp_setNextStage(stage::allStages[newStage],
+                                                         newSpawn,
+                                                         newRoom,
+                                                         newState,
                                                          lastSpeed,
                                                          lastMode == 0xC ? 0 : lastMode,
                                                          setPoint,
