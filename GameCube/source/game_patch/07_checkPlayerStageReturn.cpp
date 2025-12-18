@@ -57,6 +57,7 @@ namespace mod::game_patch
                     sizeof(playerReturnPlacePtr->link_current_stage) - 1);
 
             playerReturnPlacePtr->link_room_id = startStgPtr->mRoomNo;
+            playerReturnPlacePtr->unk10 = startStgPtr->mLayer;
         }
     }
 } // namespace mod::game_patch
