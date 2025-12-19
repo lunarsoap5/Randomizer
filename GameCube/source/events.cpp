@@ -1615,6 +1615,11 @@ namespace mod::events
             return;
         }
 
+        if (libtp::tp::d_a_alink::checkMagneBootsOn(linkMapPtr))
+        {
+            return;
+        }
+
         // Make sure Link is not underwater or talking to someone.
         switch (linkMapPtr->mProcID)
         {

@@ -177,6 +177,7 @@
 800c02c8:checkBossRoom
 800c0358:checkCastleTown
 800e1408:checkForestOldCentury
+801414cc:checkMagneBootsOn
 
 // data
 8038EB8C:climbVars
