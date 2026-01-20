@@ -343,6 +343,26 @@ namespace mod::rando
         return flag;
     }
 
+    uint8_t Randomizer::getFlagItem(uint16_t flag, uint8_t nodeID)
+    {
+        Seed* seedPtr = this->m_Seed;
+        const uint32_t numLoadedFlagChecks = seedPtr->getNumLoadedFlagChecks();
+        const FlagItem* flagChecks = seedPtr->getFlagChecksPtr();
+
+        for (uint32_t i = 0; i < numLoadedFlagChecks; i++)
+        {
+            const FlagItem* currentFlagCheck = &flagChecks[i];
+            if (flag == currentFlagCheck->getFlag() && (nodeID == currentFlagCheck->getNodeIDX()))
+            {
+                // Return new item
+                return currentFlagCheck->getItemID();
+            }
+        }
+
+        // If no replacement is found, just return 0;
+        return 0x0;
+    }
+
     void Randomizer::overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo)
     {
         Seed* seedPtr = this->m_Seed;

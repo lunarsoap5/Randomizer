@@ -214,6 +214,7 @@ namespace mod::rando
             this->LoadSkyCharacter(stageIDX);
             this->LoadHiddenSkill();
             this->LoadEventChecks(stageIDX);
+            this->LoadFlagChecks(libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.mDan.mStageNo);
 
             // Save current stageIDX for next time
             this->m_StageIDX = stageIDX;
@@ -231,6 +232,7 @@ namespace mod::rando
         this->m_NumSkyBookChecks = 0;
         this->m_NumHiddenSkillChecks = 0;
         this->m_NumLoadedEventChecks = 0;
+        this->m_NumLoadedFlagChecks = 0;
 
         if (this->m_DZXChecks)
         {
@@ -270,6 +272,11 @@ namespace mod::rando
         if (this->m_EventChecks)
         {
             delete[] this->m_EventChecks;
+        }
+
+        if (this->m_FlagChecks)
+        {
+            delete[] this->m_FlagChecks;
         }
     }
 
@@ -556,6 +563,38 @@ namespace mod::rando
                 j++;
             }
             this->m_NumLoadedEventChecks = static_cast<uint16_t>(numEventChecks);
+        }
+    }
+
+    void Seed::LoadFlagChecks(uint8_t nodeIDX)
+    {
+        using namespace libtp;
+
+        const EntryInfo* flagItemCheckInfoPtr = this->m_Header->getFlagItemCheckInfoPtr();
+        const uint32_t num_flagChecks = flagItemCheckInfoPtr->getNumEntries();
+        const uint32_t gci_offset = flagItemCheckInfoPtr->getDataOffset();
+
+        // Set the pointer as offset into our buffer
+        FlagItem* flagChecksPtr = new FlagItem[num_flagChecks];
+        this->m_FlagChecks = flagChecksPtr;
+        const FlagItem* allFlag = reinterpret_cast<const FlagItem*>(&this->m_GCIData[gci_offset]);
+
+        // offset into m_FlagChecks
+        uint32_t j = 0;
+
+        for (uint32_t i = 0; i < num_flagChecks; i++)
+        {
+            const FlagItem* currentFlagCheck = &allFlag[i];
+            FlagItem* globalFlagCheck = &flagChecksPtr[j];
+
+            uint32_t numFlagChecks = this->m_NumLoadedFlagChecks;
+            if ((currentFlagCheck->getNodeIDX() == nodeIDX) || (currentFlagCheck->getNodeIDX() == 0xFF))
+            {
+                memcpy(globalFlagCheck, currentFlagCheck, sizeof(FlagItem));
+                numFlagChecks++;
+                j++;
+            }
+            this->m_NumLoadedFlagChecks = static_cast<uint16_t>(numFlagChecks);
         }
     }
 
