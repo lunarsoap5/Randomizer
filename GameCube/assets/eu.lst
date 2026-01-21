@@ -323,6 +323,7 @@
 8002d3a4:dComIfGp_setNextStage
 8002d878:dComIfGs_onStageBossEnemy
 8002d6d0:dComIfGs_onStageSwitch
+8002d7e8:dComIfGs_isStageSwitch
 8002ea1c:dComIfGs_gameStart
 
 // d_kankyo.o

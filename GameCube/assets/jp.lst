@@ -306,6 +306,7 @@
 8002d2fc:dComIfGp_setNextStage
 8002d7d0:dComIfGs_onStageBossEnemy
 8002d628:dComIfGs_onStageSwitch
+8002d740:dComIfGs_isStageSwitch
 8002e974:dComIfGs_gameStart
 
 // data

@@ -463,7 +463,23 @@ namespace mod::item_wheel_menu
                 const uint8_t* memoryFlags =
                     events::getNodeMemoryFlags(smallKeyAreaNodesPtr[i], static_cast<AreaNodesID>(currentAreaNodeId));
 
-                const uint32_t smallKeyCount = memoryFlags[0x1C];
+                uint32_t smallKeyCount = 0;
+                if (i == TrackedAreas::FARON_WOODS)
+                {
+                    // Faron Keys use flags instead of the standard byte
+                    static const uint8_t faronKeyFlags[] = {0xC, 0x14};
+                    for (uint32_t j = 0; j < 2; j++)
+                    {
+                        if (libtp::tp::d_com_inf_game::dComIfGs_isStageSwitch(0x2, faronKeyFlags[j]))
+                        {
+                            smallKeyCount++;
+                        }
+                    }
+                }
+                else
+                {
+                    smallKeyCount = memoryFlags[0x1C];
+                }
                 const uint32_t dungeonBits = memoryFlags[0x1D];
 
                 snprintf(buf, sizeof(buf), "%" PRIu32, smallKeyCount);
