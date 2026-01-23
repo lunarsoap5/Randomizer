@@ -139,6 +139,7 @@ namespace mod::events
     void modifyLanternMeterColor(libtp::tp::d_pane_class::CPaneMgr* panePtr,
                                  libtp::tp::JUtility::TColor* color1,
                                  libtp::tp::JUtility::TColor* color2);
+    GXColor getRainbowRGB(float amplitude);
 
     void onAdjustFieldItemParams(libtp::tp::f_op_actor::fopAc_ac_c* fopAC, void* daObjLife);
 

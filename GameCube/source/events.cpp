@@ -2114,41 +2114,52 @@ namespace mod::events
             }
             else
             {
-                float angleIncrement = 1.0f; // Degrees per frame (Adjust for speed)
-                rainbowPhaseAngle += angleIncrement;
-                if (rainbowPhaseAngle >= 360.0f)
-                {
-                    rainbowPhaseAngle -= 360.0f;
-                }
-                float phase_rad = rainbowPhaseAngle * M_PI / 180.0f;
-
-                uint16_t r_val = static_cast<uint16_t>(127.5f * (sinf(phase_rad) + 1.0f) + 0.5f);
-                uint16_t g_val = static_cast<uint16_t>(127.5f * (sinf(phase_rad + 2.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
-                uint16_t b_val = static_cast<uint16_t>(127.5f * (sinf(phase_rad + 4.0f * M_PI / 3.0f) + 1.0f));
+                GXColor rgbColor = getRainbowRGB(127.5f);
 
                 // Apply to lantern HIO variables
                 libtp::tp::d_a_alink::daAlinkHIO_kandelaar_c0* lv = &libtp::tp::d_a_alink::lanternVars;
                 libtp::tp::d_a_alink::daAlinkHIO_huLight_c0* hlv = &libtp::tp::d_a_alink::huLightVars;
 
-                lv->innerSphereR = r_val / 2;
-                lv->innerSphereG = g_val / 2;
-                lv->innerSphereB = b_val / 2;
-                lv->outerSphereR = r_val / 2;
-                lv->outerSphereG = g_val / 2;
-                lv->outerSphereB = b_val / 2;
-                hlv->lanternAmbienceR = r_val / 2;
-                hlv->lanternAmbienceG = g_val / 2;
-                hlv->lanternAmbienceB = b_val / 2;
-                color1->r = r_val / 2;
-                color1->g = g_val / 2;
-                color1->b = b_val / 2;
-                color2->r = r_val / 2;
-                color2->g = g_val / 2;
-                color2->b = b_val / 2;
+                lv->innerSphereR = rgbColor.r / 2;
+                lv->innerSphereG = rgbColor.g / 2;
+                lv->innerSphereB = rgbColor.b / 2;
+                lv->outerSphereR = rgbColor.r / 2;
+                lv->outerSphereG = rgbColor.g / 2;
+                lv->outerSphereB = rgbColor.b / 2;
+                hlv->lanternAmbienceR = rgbColor.r / 2;
+                hlv->lanternAmbienceG = rgbColor.g / 2;
+                hlv->lanternAmbienceB = rgbColor.b / 2;
+                color1->r = rgbColor.r / 2;
+                color1->g = rgbColor.g / 2;
+                color1->b = rgbColor.b / 2;
+                color2->r = rgbColor.r / 2;
+                color2->g = rgbColor.g / 2;
+                color2->b = rgbColor.b / 2;
             }
         }
 
         libtp::tp::d_pane_class::setBlackWhite(panePtr, color1, color2);
+    }
+
+    KEEP_FUNC GXColor getRainbowRGB(float amplitude)
+    {
+        float angleIncrement = 1.0f; // Degrees per frame (Adjust for speed)
+        rainbowPhaseAngle += angleIncrement;
+        if (rainbowPhaseAngle >= 360.0f)
+        {
+            rainbowPhaseAngle -= 360.0f;
+        }
+        float phase_rad = rainbowPhaseAngle * M_PI / 180.0f;
+
+        uint8_t r_val = static_cast<uint8_t>(amplitude * (sinf(phase_rad) + 1.0f) + 0.5f);
+        uint8_t g_val = static_cast<uint8_t>(amplitude * (sinf(phase_rad + 2.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
+        uint8_t b_val = static_cast<uint8_t>(amplitude * (sinf(phase_rad + 4.0f * M_PI / 3.0f) + 1.0f));
+        GXColor rgbColor;
+        rgbColor.r = r_val;
+        rgbColor.g = g_val;
+        rgbColor.b = b_val;
+        rgbColor.a = 0xff;
+        return rgbColor;
     }
 
     KEEP_FUNC bool checkValidGroundTransform(libtp::tp::d_a_alink::daAlink* linkMapPtr)

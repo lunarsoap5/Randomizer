@@ -11,6 +11,7 @@
 
 #include "gc_wii/card.h"
 #include "data/items.h"
+#include "dolphin/gx/GXStruct.h"
 #include <cstdint>
 
 namespace mod::rando
@@ -405,6 +406,7 @@ namespace mod::rando
     enum RawRGBId : uint8_t
     {
         LanternGlow,
+        LightSwordGlow,
         Hearts,
         ABtn,
         BBtn,
@@ -464,6 +466,7 @@ namespace mod::rando
         }
 
         uint32_t getLanternColor() const { return this->lanternColor; }
+        GXColor getLightSwordColor() const { return this->lightSwordColor; }
         uint32_t getHeartColor() const { return this->heartColor; }
         uint32_t getAButtonColor() const { return this->aButtonColor; }
         uint32_t getBButtonColor() const { return this->bButtonColor; }
@@ -474,6 +477,7 @@ namespace mod::rando
 
        private:
         uint32_t lanternColor;
+        GXColor lightSwordColor;
         uint32_t heartColor;
         uint32_t aButtonColor;
         uint32_t bButtonColor;

@@ -11,6 +11,7 @@
 #include "tp/d_msg_object.h"
 #include "events.h"
 #include "tp/d_camera.h"
+#include "asm.h"
 
 namespace mod::user_patch
 {
@@ -54,5 +55,21 @@ namespace mod::user_patch
             reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(libtp::tp::d_camera::updatePad) + 0xF8);
         *updatePadAddress = 0xfc200850; // Previous ec01002b.
         libtp::memory::clear_DC_IC_Cache(updatePadAddress, sizeof(uint32_t));
+    }
+
+    void makeLightSwordGlow(rando::Randomizer* randomizer)
+    {
+        (void)randomizer;
+        const uint32_t setLightningSwordEffect_address =
+            reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::setLightningSwordEffect);
+        libtp::patch::writeBranchBL(setLightningSwordEffect_address + 0x8C, assembly::asmAdjustLightSwordGlow);
+
+        uint32_t* setLightningSwordEffectAddress =
+            reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::setLightningSwordEffect) + 0x90);
+        *setLightningSwordEffectAddress = ASM_COMPARE_LOGICAL_WORD_IMMEDIATE(0, 0x49);
+
+        setLightningSwordEffectAddress =
+            reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::setLightningSwordEffect) + 0x94);
+        *setLightningSwordEffectAddress = 0x40820080;
     }
 } // namespace mod::user_patch

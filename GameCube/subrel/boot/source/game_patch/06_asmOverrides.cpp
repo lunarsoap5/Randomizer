@@ -192,6 +192,10 @@ namespace mod::game_patch
         const uint32_t gameStartAddr = reinterpret_cast<uint32_t>(libtp::tp::d_com_inf_game::dComIfGs_gameStart);
         *reinterpret_cast<uint32_t*>(gameStartAddr + 0x34) = 0x88c3000a; // Previous li r6, -1
 
+        const uint32_t setLightningSwordEffect_address =
+            reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::setLightningSwordEffect);
+        libtp::patch::writeBranchBL(setLightningSwordEffect_address + 0xFC, assembly::asmAdjustLightSwordColor);
+
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
 

@@ -170,6 +170,7 @@
 800c0564:checkCastleTown
 800e1614:checkForestOldCentury
 801416d8:checkMagneBootsOn
+801239b4:setLightningSwordEffect
 
 // data
 8039038C:climbVars

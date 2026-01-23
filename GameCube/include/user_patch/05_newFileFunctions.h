@@ -25,6 +25,7 @@ namespace mod::user_patch
     void setMapRegionBits(rando::Randomizer* randomizer);
     void skipMajorCutscenes(rando::Randomizer* randomizer);
     void invertCameraAxis(rando::Randomizer* randomizer);
+    void makeLightSwordGlow(rando::Randomizer* randomizer);
 } // namespace mod::user_patch
 
 #endif

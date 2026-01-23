@@ -47,6 +47,12 @@ namespace mod::assembly
         void asmDoLinkHookEnd();
         void handleDoLinkHook(libtp::tp::dynamic_link::DynamicModuleControl* dmc);
 
+        void asmAdjustLightSwordColor();
+        void handleAdjustLightSwordColor(uint32_t emitterPtr);
+
+        void asmAdjustLightSwordGlow();
+        uint8_t handleAdjustLightSwordGlow();
+
         // d_e_hp.rel
         void asmAdjustPoeItem();
         void handleAdjustPoeItem(void*);

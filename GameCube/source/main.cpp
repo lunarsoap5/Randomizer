@@ -2502,17 +2502,7 @@ namespace mod
 
     KEEP_FUNC void adjustMidnaHairColor()
     {
-        // Rainbow Calculations
-        float angleIncrement = 1.0f;
-        rainbowPhaseAngle += angleIncrement;
-        if (rainbowPhaseAngle >= 360.0f)
-            rainbowPhaseAngle -= 360.0f;
-        float phase_rad = rainbowPhaseAngle * (float)(M_PI / 180.0);
-
-        const float amplitude = 127.5f;
-        uint16_t r_val = static_cast<uint16_t>(amplitude * (sinf(phase_rad) + 1.0f) + 0.5f);
-        uint16_t g_val = static_cast<uint16_t>(amplitude * (sinf(phase_rad + 2.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
-        uint16_t b_val = static_cast<uint16_t>(amplitude * (sinf(phase_rad + 4.0f * M_PI / 3.0f) + 1.0f) + 0.5f);
+        GXColor rgbColor = events::getRainbowRGB(127.5f);
 
         // Apply to Midna's Hair
         libtp::tp::d_a_player::daMidna_c* midnaPtr = libtp::tp::d_a_player::m_midnaActor;
@@ -2521,14 +2511,14 @@ namespace mod
         {
             const uint8_t tip_color = 200;
 
-            midnaPtr->field_0x6e0.r = static_cast<int16_t>(r_val);
-            midnaPtr->field_0x6e0.g = static_cast<int16_t>(g_val);
-            midnaPtr->field_0x6e0.b = static_cast<int16_t>(b_val);
+            midnaPtr->field_0x6e0.r = rgbColor.r;
+            midnaPtr->field_0x6e0.g = rgbColor.g;
+            midnaPtr->field_0x6e0.b = rgbColor.b;
             midnaPtr->field_0x6e0.a = 0;
 
-            midnaPtr->field_0x6e8.r = static_cast<int8_t>(r_val / 10.0f);
-            midnaPtr->field_0x6e8.g = static_cast<int8_t>(g_val / 10.0f);
-            midnaPtr->field_0x6e8.b = static_cast<int8_t>(b_val / 10.0f);
+            midnaPtr->field_0x6e8.r = static_cast<int8_t>(rgbColor.r / 10.0f);
+            midnaPtr->field_0x6e8.g = static_cast<int8_t>(rgbColor.g / 10.0f);
+            midnaPtr->field_0x6e8.b = static_cast<int8_t>(rgbColor.b / 10.0f);
             midnaPtr->field_0x6e8.a = 0;
 
             midnaPtr->field_0x6ec.r = tip_color;

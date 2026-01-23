@@ -243,6 +243,27 @@ namespace mod::assembly
             regionCursor + 1);
     }
 
+    void handleAdjustLightSwordColor(uint32_t emitterPtr)
+    {
+        GXColor lsColor;
+        if (rando::gRandomizer->getSeedPtr()->isLightSwordRainbow())
+        {
+            lsColor = events::getRainbowRGB(127.5f);
+        }
+        else
+        {
+            lsColor = static_cast<GXColor>(rando::gRandomizer->getSeedPtr()->getRawRGBTablePtr()->getLightSwordColor());
+        }
+        *reinterpret_cast<GXColor*>((emitterPtr + 0x50)) = lsColor;
+        *reinterpret_cast<GXColor*>((emitterPtr + 0x55)) = lsColor;
+        return;
+    }
+
+    uint8_t handleAdjustLightSwordGlow()
+    {
+        return libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.equipment[1];
+    }
+
 #ifdef TP_JP
     void unpatchMapGlitch(libtp::tp::d_a_alink::daAlink* d_a_alink)
     {
