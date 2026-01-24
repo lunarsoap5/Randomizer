@@ -38,6 +38,11 @@ namespace mod::game_patch
                         playerReturnPlacePtr->link_spawn_point_id = 5; // Snowpeak doesn't have a valid spawn 0 on the mountain.
                         break;
                     }
+                    case StageIDs::Lake_Hylia:
+                    {
+                        playerReturnPlacePtr->link_spawn_point_id = 133; // Outside Lanayru Spring (vanilla)
+                        break;
+                    }
                     default:
                     {
                         playerReturnPlacePtr->link_spawn_point_id =
