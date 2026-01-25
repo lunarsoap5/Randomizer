@@ -28,6 +28,7 @@ namespace mod::game_patch
             d_save::dSv_player_return_place_c* playerReturnPlacePtr = &savePtr->save_file.player.player_return_place;
             d_stage::dStage_startStage* startStgPtr = &gameInfoPtr->play.mStartStage;
             const int32_t startPoint = static_cast<int32_t>(savePtr->mRestart.mStartPoint);
+            uint8_t spawnPoint = static_cast<uint8_t>(startPoint);
 
             if (startPoint == -0x4) // Portal
             {
@@ -37,55 +38,52 @@ namespace mod::game_patch
                     case StageIDs::Death_Mountain:
                     case StageIDs::Kakariko_Village:
                     case StageIDs::Snowpeak:
-                        playerReturnPlacePtr->link_spawn_point_id = 5;
+                        spawnPoint = 5;
                         break;
                     case StageIDs::Mirror_Chamber:
-                        playerReturnPlacePtr->link_spawn_point_id =
-                            2; // Position without save prompt to avoid any potential ER impacts
+                        spawnPoint = 2; // Position without save prompt to avoid any potential ER impacts
                         break;
                     case StageIDs::Outside_Castle_Town:
-                        playerReturnPlacePtr->link_spawn_point_id = 7;
+                        spawnPoint = 7;
                         break;
                     case StageIDs::Gerudo_Desert:
-                        playerReturnPlacePtr->link_spawn_point_id = 0xB;
+                        spawnPoint = 0xB;
                         break;
                     case StageIDs::Ordon_Spring:
-                        playerReturnPlacePtr->link_spawn_point_id = 0x1E;
+                        spawnPoint = 0x1E;
                         break;
                     case StageIDs::Upper_Zoras_River:
-                        playerReturnPlacePtr->link_spawn_point_id = 0x63;
+                        spawnPoint = 0x63;
                         break;
                     case StageIDs::Lake_Hylia:
-                        playerReturnPlacePtr->link_spawn_point_id = 0x85;
+                        spawnPoint = 0x85;
                         break;
                     case StageIDs::Sacred_Grove:
-                        playerReturnPlacePtr->link_spawn_point_id = 0xFE;
+                        spawnPoint = 0xFE;
                         break;
                     case StageIDs::Faron_Woods:
                     {
                         if (playerReturnPlacePtr->link_room_id == 0)
-                            playerReturnPlacePtr->link_spawn_point_id = 0; // S FW
+                            spawnPoint = 0; // S FW
                         else
-                            playerReturnPlacePtr->link_spawn_point_id = 0xFE; // N FW
+                            spawnPoint = 0xFE; // N FW
                         break;
                     }
                     case StageIDs::Hyrule_Field:
                     {
                         if (playerReturnPlacePtr->link_room_id == 0)
-                            playerReturnPlacePtr->link_spawn_point_id = 0xF; // Bridge of Eldin
+                            spawnPoint = 0xF; // Bridge of Eldin
                         else
-                            playerReturnPlacePtr->link_spawn_point_id = 6; // KG
+                            spawnPoint = 6; // KG
                         break;
                     }
                     default:
-                        playerReturnPlacePtr->link_spawn_point_id = 0; // Other portals use 0.
+                        spawnPoint = 0; // Other portals use 0.
                         break;
                 }
             }
-            else
-            {
-                playerReturnPlacePtr->link_spawn_point_id = static_cast<uint8_t>(startPoint);
-            }
+
+            playerReturnPlacePtr->link_spawn_point_id = spawnPoint;
 
             strncpy(playerReturnPlacePtr->link_current_stage,
                     startStgPtr->mStage,
