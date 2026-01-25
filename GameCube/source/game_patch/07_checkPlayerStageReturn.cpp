@@ -31,25 +31,55 @@ namespace mod::game_patch
 
             if (startPoint == -0x4) // Portal
             {
+                // Since you can't load a save from a portal spawn, use the vanilla spawns.
                 switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
                 {
+                    case StageIDs::Death_Mountain:
+                    case StageIDs::Kakariko_Village:
                     case StageIDs::Snowpeak:
+                        playerReturnPlacePtr->link_spawn_point_id = 5;
+                        break;
+                    case StageIDs::Mirror_Chamber:
+                        playerReturnPlacePtr->link_spawn_point_id =
+                            2; // Position without save prompt to avoid any potential ER impacts
+                        break;
+                    case StageIDs::Outside_Castle_Town:
+                        playerReturnPlacePtr->link_spawn_point_id = 7;
+                        break;
+                    case StageIDs::Gerudo_Desert:
+                        playerReturnPlacePtr->link_spawn_point_id = 0xB;
+                        break;
+                    case StageIDs::Ordon_Spring:
+                        playerReturnPlacePtr->link_spawn_point_id = 0x1E;
+                        break;
+                    case StageIDs::Upper_Zoras_River:
+                        playerReturnPlacePtr->link_spawn_point_id = 0x63;
+                        break;
+                    case StageIDs::Lake_Hylia:
+                        playerReturnPlacePtr->link_spawn_point_id = 0x85;
+                        break;
+                    case StageIDs::Sacred_Grove:
+                        playerReturnPlacePtr->link_spawn_point_id = 0xFE;
+                        break;
+                    case StageIDs::Faron_Woods:
                     {
-                        playerReturnPlacePtr->link_spawn_point_id = 5; // Snowpeak doesn't have a valid spawn 0 on the mountain.
+                        if (playerReturnPlacePtr->link_room_id == 0)
+                            playerReturnPlacePtr->link_spawn_point_id = 0; // S FW
+                        else
+                            playerReturnPlacePtr->link_spawn_point_id = 0xFE; // N FW
                         break;
                     }
-                    case StageIDs::Lake_Hylia:
+                    case StageIDs::Hyrule_Field:
                     {
-                        playerReturnPlacePtr->link_spawn_point_id = 133; // Outside Lanayru Spring (vanilla)
+                        if (playerReturnPlacePtr->link_room_id == 0)
+                            playerReturnPlacePtr->link_spawn_point_id = 0xF; // Bridge of Eldin
+                        else
+                            playerReturnPlacePtr->link_spawn_point_id = 6; // KG
                         break;
                     }
                     default:
-                    {
-                        playerReturnPlacePtr->link_spawn_point_id =
-                            0; // Just set the spawn to 0 so that the player has a valid spawn
-                        // location since you can't load a save from a portal spawn.
+                        playerReturnPlacePtr->link_spawn_point_id = 0; // Other portals use 0.
                         break;
-                    }
                 }
             }
             else
