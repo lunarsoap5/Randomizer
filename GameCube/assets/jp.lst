@@ -454,6 +454,7 @@
 802567d0:setBlackWhite
 
 // d_a_player.o
+8015f6ac:checkRoomRestartStart
 8044b158:m_midnaActor
 
 // J2DPicture.o

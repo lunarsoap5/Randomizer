@@ -250,6 +250,9 @@ namespace mod
                                                libtp::tp::f_op_actor::fopAc_ac_c* actor,
                                                void* msgFlow) = nullptr;
 
+    // ScnPly functions
+    KEEP_VAR int32_t (*gReturn_dScnPlay_phase_1)(void* scnPlyPtr);
+
     // Title Screen functions
     KEEP_VAR void (*gReturn_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr) = nullptr;
 

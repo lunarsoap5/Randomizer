@@ -38,6 +38,7 @@
 #include "functionHooks.h"
 #include "tp/d_a_obj_item.h"
 #include "tp/JAISe.h"
+#include "tp/d_s_play.h"
 
 #include <cstdint>
 #include <cstring>
@@ -308,6 +309,9 @@ namespace mod
         // Title Screen functions
         gReturn_dFile_select_c___create =
             patch::hookFunction(libtp::tp::d_file_select::dFile_select_c___create, resetQueueOnFileSelectScreen);
+
+        // ScnPly functions
+        gReturn_dScnPlay_phase_1 = patch::hookFunction(libtp::tp::d_s_play::dScnPlay_phase_1, handle_dScnPlay_phase_1);
 
         // Pause Menu functions
         gReturn_dMenuOption__tv_open1_move =

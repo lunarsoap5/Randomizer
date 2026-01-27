@@ -25,6 +25,7 @@ namespace mod::rando
 #include "tp/d_msg_flow.h"
 #include "rando/customItems.h"
 #include "tp/J2DPicture.h"
+#include "tp/d_stage.h"
 #include "item_wheel_menu.h"
 #include "main.h"
 
@@ -111,6 +112,8 @@ namespace mod::rando
         uint8_t* getMutFlowNodePtr() { return this->m_mutFlowNodePtr; }
         bool getHasPendingTodChange() { return this->m_hasPendingTodChange; }
 
+        libtp::tp::d_stage::dStage_startStage* getLastSavableStart() { return &this->lastSavableStart; }
+
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages getCurrentLanguage() const { return this->m_CurrentLanguage; }
 #endif
@@ -138,6 +141,7 @@ namespace mod::rando
         void setTimeChange(TimeChange time) { this->m_TimeChange = time; }
         void setMutFlowNodePtr(uint8_t* ptr) { this->m_mutFlowNodePtr = ptr; }
         void setHasPendingTodChange(bool hasPending) { this->m_hasPendingTodChange = hasPending; }
+        void setLastSavableStart(libtp::tp::d_stage::dStage_startStage startStage) { this->lastSavableStart = startStage; }
 
 #if defined TP_EU || defined TP_WUS2
         void setCurrentLanguage(libtp::tp::d_s_logo::Languages language) { this->m_CurrentLanguage = language; }
@@ -208,6 +212,8 @@ namespace mod::rando
         uint16_t m_flowContext = 0;
         uint8_t* m_mutFlowNodePtr = nullptr;
         bool m_hasPendingTodChange = false;
+
+        libtp::tp::d_stage::dStage_startStage lastSavableStart;
 
 #if defined TP_EU || defined TP_WUS2
         libtp::tp::d_s_logo::Languages m_CurrentLanguage;

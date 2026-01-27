@@ -438,6 +438,7 @@
 802a9490:parseCharacter_1Byte
 
 //d_a_player.o
+8015f660:checkRoomRestartStart
 80451018:m_midnaActor
 
 //d_camera.o

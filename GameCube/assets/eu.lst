@@ -437,6 +437,7 @@
 801619bc:updatePad
 
 //d_a_player.o
+8015f86c:checkRoomRestartStart
 80452fd8:m_midnaActor
 
 //d_resource.o
