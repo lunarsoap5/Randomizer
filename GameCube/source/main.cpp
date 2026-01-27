@@ -2209,6 +2209,130 @@ namespace mod
         return gReturn_seq_decide_yes(shopPtr, actor, msgFlow);
     }
 
+    KEEP_FUNC int32_t handle_dScnPlay_phase_1(void* scnPlyPtr)
+    {
+        using namespace libtp::tp;
+        using namespace libtp::tp::d_a_alink;
+        using namespace libtp::data::stage;
+        using namespace libtp::tp::d_com_inf_game;
+
+        // Call the original function immediately, as certain values need to be set first
+        int32_t ret = gReturn_dScnPlay_phase_1(scnPlyPtr);
+
+        // Here we are loading into a stage, so keep track of the latest spawn info. If the spawn should be ignored or
+        // is invalid, then we do nothing and maintain the latest valid value.
+        d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
+        uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        bool canStore = true;
+
+        if (d_a_player::checkRoomRestartStart())
+        {
+            // Ignore if loading in after void or game over.
+            canStore = false;
+        }
+        else
+        {
+            // Make sure we do not store certain invalid entrances.
+            switch (stageIdx)
+            {
+                case StageIDs::Ordon_Ranch:
+                {
+                    // Check not starting goats minigame to avoid softlock.
+                    if (startStgPtr->mPoint == 3 && startStgPtr->mLayer == 4)
+                        canStore = false;
+                    break;
+                }
+                case StageIDs::Zoras_River:
+                {
+                    // Check not starting Plumm minigame to avoid loading in on the OoB ledge.
+                    if (startStgPtr->mPoint == 0 && startStgPtr->mLayer == 4)
+                        canStore = false;
+                    break;
+                }
+                case StageIDs::Fishing_Pond:
+                {
+                    // Check not canoe fishing to avoid unearned Fishing Hole access for interiors ER.
+                    if (startStgPtr->mPoint == 4)
+                        canStore = false;
+                    break;
+                }
+                case StageIDs::Lake_Hylia:
+                {
+                    // Check not entering on canoe to avoid jank when S+Q and retry back to top. Instead you can S+Q
+                    // back to top with in a more convenient and less jank way.
+                    if (startStgPtr->mPoint == 2)
+                        canStore = false;
+                    break;
+                }
+            }
+        }
+
+        if (canStore)
+        {
+            // Keep track of where we are loading in so it can possibly be saved to the quest log later.
+            rando::gRandomizer->setLastSavableStart(*startStgPtr);
+
+            d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
+
+            if (startStgPtr->mPoint == -4)
+            {
+                // Since you can't load a save from a portal spawn, change to the vanilla spawn.
+                int16_t spawnPoint;
+                switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
+                {
+                    case StageIDs::Death_Mountain:
+                    case StageIDs::Kakariko_Village:
+                    case StageIDs::Snowpeak:
+                        spawnPoint = 5;
+                        break;
+                    case StageIDs::Mirror_Chamber:
+                        spawnPoint = 2; // Position without save prompt to avoid jank / ER impacts.
+                        break;
+                    case StageIDs::Outside_Castle_Town:
+                        spawnPoint = 7;
+                        break;
+                    case StageIDs::Gerudo_Desert:
+                        spawnPoint = 0xB;
+                        break;
+                    case StageIDs::Ordon_Spring:
+                        spawnPoint = 0x1E;
+                        break;
+                    case StageIDs::Upper_Zoras_River:
+                        spawnPoint = 0x63;
+                        break;
+                    case StageIDs::Lake_Hylia:
+                        spawnPoint = 0x85;
+                        break;
+                    case StageIDs::Sacred_Grove:
+                        spawnPoint = 0xFE;
+                        break;
+                    case StageIDs::Faron_Woods:
+                    {
+                        if (lastSavableStartPtr->mRoomNo == 0)
+                            spawnPoint = 0; // S FW
+                        else
+                            spawnPoint = 0xFE; // N FW
+                        break;
+                    }
+                    case StageIDs::Hyrule_Field:
+                    {
+                        if (lastSavableStartPtr->mRoomNo == 0)
+                            spawnPoint = 0xF; // Bridge of Eldin
+                        else
+                            spawnPoint = 6; // KG
+                        break;
+                    }
+                    default:
+                        spawnPoint = 0; // Other portals use 0.
+                        break;
+                }
+                lastSavableStartPtr->mPoint = spawnPoint;
+            }
+        }
+
+        return ret;
+    } // namespace mod
+
     KEEP_FUNC int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
         // If we are giving a custom item, we want to set mParam0 to 0x100 so that instead of trying to search for an item

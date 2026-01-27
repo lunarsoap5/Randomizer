@@ -446,6 +446,10 @@ namespace mod
                                              libtp::tp::f_op_actor::fopAc_ac_c* actor,
                                              void* msgFlow);
 
+    // ScnPly functions
+    int32_t handle_dScnPlay_phase_1(void* scnPlyPtr);
+    extern int32_t (*gReturn_dScnPlay_phase_1)(void* scnPlyPtr);
+
     // Title Screen functions
     void resetQueueOnFileSelectScreen(libtp::tp::d_file_select::dFile_select_c* thisPtr);
     extern void (*gReturn_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr);
