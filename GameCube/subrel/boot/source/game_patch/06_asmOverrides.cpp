@@ -127,10 +127,11 @@ namespace mod::game_patch
 
         // give all items that have an item ID of 0x13 or higher
         const uint32_t itemGetAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::itemGet);
-        *reinterpret_cast<uint32_t*>(itemGetAddr + 0x54) = ASM_NOP;
+        *reinterpret_cast<uint32_t*>(itemGetAddr + 0x54) = ASM_BRANCH(0x224);
 
         // All non rupee/ammo items use procInitSimpleDemo and itemGet
         const uint32_t itemGetNextExecuteAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::itemGetNextExecute);
+        *reinterpret_cast<uint32_t*>(itemGetNextExecuteAddr + 0x6C) = ASM_BRANCH(0x10);
         *reinterpret_cast<uint32_t*>(itemGetNextExecuteAddr + 0x74) = ASM_BRANCH(0x70);
 
         // prevent boomerang from being given on room load
