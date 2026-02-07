@@ -186,6 +186,9 @@ namespace mod::game_patch
         // when talking to Midna with no special overrides.
         *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
 
+        // TODO: testing skip isMidona check result in jmessage_tSequenceProcessor::do_end
+        *reinterpret_cast<uint32_t*>(0x8022badc) = ASM_NOP;
+
         // Allow for custom strings for the options text in a msgFlow menu.
         const uint32_t setMessageIndexAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex);
         libtp::patch::writeBranchBL(setMessageIndexAddr + 0x11C, assembly::asmAdjustSelectMsg);

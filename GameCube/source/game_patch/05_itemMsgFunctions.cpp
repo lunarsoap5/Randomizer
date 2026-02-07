@@ -1,4 +1,5 @@
 #include "game_patch/game_patch.h"
+#include "data/flags.h"
 #include "data/items.h"
 #include "data/stages.h"
 #include "tp/bmgres.h"
@@ -70,6 +71,77 @@ namespace mod::game_patch
         return -1;
     }
     */
+
+    struct Testing
+    {
+        libtp::data::stage::StageIDs stageId;
+        int8_t mPoint;
+        int8_t roomNo;
+        int8_t mLayer;
+    };
+
+    // TODO: add S+Q spawns for the rest of the dungeons
+    static Testing mTestList[10] = {{libtp::data::stage::StageIDs::Forest_Temple, 0, 0x16, -1},
+                                    {libtp::data::stage::StageIDs::Goron_Mines, 0, 0x1, -1},
+                                    {libtp::data::stage::StageIDs::Lakebed_Temple, 0, 0, -1},
+                                    {libtp::data::stage::StageIDs::Lakebed_Temple, 0x2, 0, -1},
+                                    {libtp::data::stage::StageIDs::Arbiters_Grounds, 0, 0, -1},
+                                    {libtp::data::stage::StageIDs::Snowpeak_Ruins, 0, 0, -1},
+                                    {libtp::data::stage::StageIDs::Temple_of_Time, 0, 0, -1},
+                                    {libtp::data::stage::StageIDs::City_in_the_Sky, 3, 0, -1},
+                                    {libtp::data::stage::StageIDs::Palace_of_Twilight, 0, 0, -1},
+                                    {libtp::data::stage::StageIDs::Hyrule_Castle, 0, 0xB, -1}};
+
+    enum DungeonEntranceSpawnId : uint8_t
+    {
+        Forest_Temple = 0x0,
+        Goron_Mines = 0x1,
+        Lakebed_Temple = 0x2,
+        Lakebed_Temple_On_Land = 0x3,
+        Arbiters_Grounds = 0x4,
+        Snowpeak_Ruins = 0x5,
+        Temple_of_Time = 0x6,
+        City_in_the_Sky = 0x7,
+        Palace_of_Twilight = 0x8,
+        Hyrule_Castle = 0x9,
+    };
+
+    struct Testing2
+    {
+        libtp::data::stage::StageIDs stageId;
+        DungeonEntranceSpawnId dungeonEntranceSpawnId;
+    };
+
+    static Testing2 arr[29] = {{libtp::data::stage::StageIDs::Forest_Temple, DungeonEntranceSpawnId::Forest_Temple},
+                               {libtp::data::stage::StageIDs::Ook, DungeonEntranceSpawnId::Forest_Temple},
+                               //    {libtp::data::stage::StageIDs::Diababa, DungeonEntranceSpawnId::Forest_Temple},
+                               {libtp::data::stage::StageIDs::Diababa, DungeonEntranceSpawnId::Goron_Mines},
+                               {libtp::data::stage::StageIDs::Goron_Mines, DungeonEntranceSpawnId::Goron_Mines},
+                               {libtp::data::stage::StageIDs::Dangoro, DungeonEntranceSpawnId::Goron_Mines},
+                               {libtp::data::stage::StageIDs::Fyrus, DungeonEntranceSpawnId::Goron_Mines},
+                               {libtp::data::stage::StageIDs::Lakebed_Temple, DungeonEntranceSpawnId::Lakebed_Temple},
+                               {libtp::data::stage::StageIDs::Deku_Toad, DungeonEntranceSpawnId::Lakebed_Temple},
+                               {libtp::data::stage::StageIDs::Morpheel, DungeonEntranceSpawnId::Lakebed_Temple},
+                               {libtp::data::stage::StageIDs::Arbiters_Grounds, DungeonEntranceSpawnId::Arbiters_Grounds},
+                               {libtp::data::stage::StageIDs::Death_Sword, DungeonEntranceSpawnId::Arbiters_Grounds},
+                               {libtp::data::stage::StageIDs::Stallord, DungeonEntranceSpawnId::Arbiters_Grounds},
+                               {libtp::data::stage::StageIDs::Snowpeak_Ruins, DungeonEntranceSpawnId::Snowpeak_Ruins},
+                               {libtp::data::stage::StageIDs::Darkhammer, DungeonEntranceSpawnId::Snowpeak_Ruins},
+                               {libtp::data::stage::StageIDs::Blizzeta, DungeonEntranceSpawnId::Snowpeak_Ruins},
+                               {libtp::data::stage::StageIDs::Temple_of_Time, DungeonEntranceSpawnId::Temple_of_Time},
+                               {libtp::data::stage::StageIDs::Darknut, DungeonEntranceSpawnId::Temple_of_Time},
+                               {libtp::data::stage::StageIDs::Armogohma, DungeonEntranceSpawnId::Temple_of_Time},
+                               {libtp::data::stage::StageIDs::City_in_the_Sky, DungeonEntranceSpawnId::City_in_the_Sky},
+                               {libtp::data::stage::StageIDs::Aeralfos, DungeonEntranceSpawnId::City_in_the_Sky},
+                               {libtp::data::stage::StageIDs::Argorok, DungeonEntranceSpawnId::City_in_the_Sky},
+                               {libtp::data::stage::StageIDs::Palace_of_Twilight, DungeonEntranceSpawnId::Palace_of_Twilight},
+                               {libtp::data::stage::StageIDs::Phantom_Zant_1, DungeonEntranceSpawnId::Palace_of_Twilight},
+                               {libtp::data::stage::StageIDs::Phantom_Zant_2, DungeonEntranceSpawnId::Palace_of_Twilight},
+                               {libtp::data::stage::StageIDs::Zant_Main_Room, DungeonEntranceSpawnId::Palace_of_Twilight},
+                               {libtp::data::stage::StageIDs::Zant_Fight, DungeonEntranceSpawnId::Palace_of_Twilight},
+                               {libtp::data::stage::StageIDs::Hyrule_Castle, DungeonEntranceSpawnId::Hyrule_Castle},
+                               {libtp::data::stage::StageIDs::Ganondorf_Castle, DungeonEntranceSpawnId::Hyrule_Castle},
+                               {libtp::data::stage::StageIDs::Ganondorf_Field, DungeonEntranceSpawnId::Hyrule_Castle}};
 
     // Most checks will use zel_00.bmg, so use a dedicated function for it that specifies the archive, so less code runs per
     // check
@@ -925,6 +997,29 @@ namespace mod::game_patch
         return 1;
     }
 
+    Testing2* getTesting2()
+    {
+        const uint8_t stageIDX = rando::gRandomizer->getSeedPtr()->getStageIDX();
+
+        constexpr uint32_t totalEntries = sizeof(arr) / sizeof(arr[0]);
+        for (uint32_t i = 0; i < totalEntries; i++)
+        {
+            if (arr[i].stageId == stageIDX)
+            {
+                return &arr[i];
+            }
+        }
+        return nullptr;
+    }
+
+    // Return 0 if can return to dungeon entrance, else 1 if cannot.
+    int customQuery055_canReturnToDungeonEntrance()
+    {
+        if (getTesting2() == nullptr)
+            return 1;
+        return 0;
+    }
+
     // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
     int customEvent043_nop()
     {
@@ -946,11 +1041,85 @@ namespace mod::game_patch
         return 1;
     }
 
+    int customEvent045_warp(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    {
+        using namespace libtp::data::stage;
+        using namespace libtp::tp;
+
+        uint32_t params = reinterpret_cast<uint32_t*>(flowNode)[1];
+
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
+        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
+
+        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
+
+        if (params == 0)
+        {
+            rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+            const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
+            const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
+
+            strncpy(nextStagePtr->mStage,
+                    libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
+                    sizeof(nextStagePtr->mStage) - 1);
+
+            nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
+            nextStagePtr->mPoint = currentEntrance->getNewSpawn();
+            savePtr->mRestart.mStartPoint = currentEntrance->getNewSpawn();
+            nextStagePtr->mLayer = currentEntrance->getNewState();
+            nextStagePtr->enabled |= 0x1;
+
+            return 1;
+        }
+
+        Testing2* entry = getTesting2();
+
+        if (entry == nullptr)
+            return 1;
+
+        uint32_t index = entry->dungeonEntranceSpawnId;
+        if (index == DungeonEntranceSpawnId::Lakebed_Temple &&
+            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
+        {
+            index = DungeonEntranceSpawnId::Lakebed_Temple_On_Land;
+        }
+
+        constexpr uint32_t totalEntrances = sizeof(mTestList) / sizeof(mTestList[0]);
+        if (index >= totalEntrances)
+            return 1;
+
+        // Note: the event should have a param (yes/no) which indicates if it should return to spawn or try to return to
+        // dungeon entrance. If return to spawn, easy enough. If wants to return to dungeon entrance, then should get
+        // the current stageIdx and compare that against the bmg data to see what is says. If it matches and finds an
+        // enum, then get the enum value. If the enum value is within range, then check if LBT. If LBT, check if should
+        // be in water or not. Else if out of range, then do nothing.
+
+        // The queryFn for "canReturnToDungeonEntrance" should check if there is a match and allow it if there is.
+
+        Testing* abc = &mTestList[index];
+
+        strncpy(nextStagePtr->mStage, libtp::data::stage::allStages[abc->stageId], sizeof(nextStagePtr->mStage) - 1);
+
+        nextStagePtr->mRoomNo = abc->roomNo;
+        nextStagePtr->mPoint = abc->mPoint;
+        savePtr->mRestart.mStartPoint = abc->mPoint;
+        nextStagePtr->mLayer = abc->mLayer;
+
+        savePtr->mRestart.mLastMode = 0;
+        nextStagePtr->enabled |= 0x1;
+
+        return 1;
+    }
+
     // These are arrays of PTMFs (pointer to member function).
     // A function's number matches the index which points to it.
-    uint32_t _05_customQueryList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
-                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)}};
+    uint32_t _05_customQueryList[3][3] = {
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)},
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery055_canReturnToDungeonEntrance)}};
 
-    uint32_t _05_customEventList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
-                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)}};
+    uint32_t _05_customEventList[3][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent045_warp)}};
 } // namespace mod::game_patch
