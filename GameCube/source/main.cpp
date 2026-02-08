@@ -47,6 +47,7 @@
 #include "tp/m_Do_dvd_thread.h"
 #include "util/texture_utils.h"
 #include "rando/bmg0.h"
+#include "rando/returnPlaces.h"
 #include "gc_wii/OSInterrupt.h"
 #include "tp/d_kankyo.h"
 #include "rando/customItems.h"
@@ -2223,115 +2224,61 @@ namespace mod
         // is invalid, then we do nothing and maintain the latest valid value.
         d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
         uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
-        bool canStore = true;
+        d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
+
+        // First check if we are loading in to where our returnToSpawn goes. This is ALWAYS considered a valid S+Q.
+        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+        const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
+        const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
+
+        if (stageIdx == currentEntrance->getNewStageIDX() && startStgPtr->mRoomNo == currentEntrance->getNewRoomIDX() &&
+            startStgPtr->mPoint == currentEntrance->getNewSpawn() && startStgPtr->mLayer == currentEntrance->getNewState())
+        {
+            rando::gRandomizer->setLastSavableStart(*startStgPtr);
+            return ret;
+        }
 
         if (d_a_player::checkRoomRestartStart())
         {
             // Ignore if loading in after void or game over.
-            canStore = false;
+            return ret;
         }
-        else
+
+        // Check if where we are loading in has a mapping specified in the seedData. For example, mapping bosses to
+        // dungeons, handling warp portals, disabling ones which are invalid or lead to crashes/softlocks, etc.
+        const rando::ReturnPlaceSection* returnPlaceSection = rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr();
+        const uint8_t* matchIndex = returnPlaceSection->getMatchIndex(stageIdx, startStgPtr);
+        if (matchIndex != nullptr)
         {
-            // Make sure we do not store certain invalid entrances.
-            switch (stageIdx)
+            const rando::ReturnPlace* returnPlace = returnPlaceSection->getReturnPlace(matchIndex);
+            if (returnPlace != nullptr)
             {
-                case StageIDs::Ordon_Ranch:
-                {
-                    // Check not starting goats minigame to avoid softlock.
-                    if (startStgPtr->mPoint == 3 && startStgPtr->mLayer == 4)
-                        canStore = false;
-                    break;
-                }
-                case StageIDs::Zoras_River:
-                {
-                    // Check not starting Plumm minigame to avoid loading in on the OoB ledge.
-                    if (startStgPtr->mPoint == 0 && startStgPtr->mLayer == 4)
-                        canStore = false;
-                    break;
-                }
-                case StageIDs::Fishing_Pond:
-                {
-                    // Check not canoe fishing to avoid unearned Fishing Hole access for interiors ER.
-                    if (startStgPtr->mPoint == 4)
-                        canStore = false;
-                    break;
-                }
-                case StageIDs::Lake_Hylia:
-                {
-                    // Check not entering on canoe to avoid jank when S+Q and retry back to top. Instead you can S+Q
-                    // back to top with in a more convenient and less jank way.
-                    if (startStgPtr->mPoint == 2)
-                        canStore = false;
-                    break;
-                }
+                uint8_t roomNo = returnPlace->getRoomNo();
+                // Get point as u16 so overwrites both bytes in struct's point when it was previously negative.
+                uint16_t point = static_cast<uint16_t>(returnPlace->getPoint());
+
+                // If return is LBT entrance, then put us on land if transforming is unlocked like vanilla.
+                if (stageIdx == StageIDs::Lakebed_Temple && roomNo == 0 &&
+                    libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
+                    point = 2;
+
+                strncpy(lastSavableStartPtr->mStage,
+                        libtp::data::stage::allStages[returnPlace->getStageIDX()],
+                        sizeof(lastSavableStartPtr->mStage) - 1);
+                lastSavableStartPtr->mPoint = point;
+                lastSavableStartPtr->mRoomNo = roomNo;
+                lastSavableStartPtr->mLayer = returnPlace->getLayer();
             }
+
+            return ret;
         }
 
-        if (canStore)
-        {
-            // Keep track of where we are loading in so it can possibly be saved to the quest log later.
-            rando::gRandomizer->setLastSavableStart(*startStgPtr);
-
-            d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
-
-            if (startStgPtr->mPoint == -4)
-            {
-                // Since you can't load a save from a portal spawn, change to the vanilla spawn.
-                int16_t spawnPoint;
-                switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
-                {
-                    case StageIDs::Death_Mountain:
-                    case StageIDs::Kakariko_Village:
-                    case StageIDs::Snowpeak:
-                        spawnPoint = 5;
-                        break;
-                    case StageIDs::Mirror_Chamber:
-                        spawnPoint = 2; // Position without save prompt to avoid jank / ER impacts.
-                        break;
-                    case StageIDs::Outside_Castle_Town:
-                        spawnPoint = 7;
-                        break;
-                    case StageIDs::Gerudo_Desert:
-                        spawnPoint = 0xB;
-                        break;
-                    case StageIDs::Ordon_Spring:
-                        spawnPoint = 0x1E;
-                        break;
-                    case StageIDs::Upper_Zoras_River:
-                        spawnPoint = 0x63;
-                        break;
-                    case StageIDs::Lake_Hylia:
-                        spawnPoint = 0x85;
-                        break;
-                    case StageIDs::Sacred_Grove:
-                        spawnPoint = 0xFE;
-                        break;
-                    case StageIDs::Faron_Woods:
-                    {
-                        if (lastSavableStartPtr->mRoomNo == 0)
-                            spawnPoint = 0; // S FW
-                        else
-                            spawnPoint = 0xFE; // N FW
-                        break;
-                    }
-                    case StageIDs::Hyrule_Field:
-                    {
-                        if (lastSavableStartPtr->mRoomNo == 0)
-                            spawnPoint = 0xF; // Bridge of Eldin
-                        else
-                            spawnPoint = 6; // KG
-                        break;
-                    }
-                    default:
-                        spawnPoint = 0; // Other portals use 0.
-                        break;
-                }
-                lastSavableStartPtr->mPoint = spawnPoint;
-            }
-        }
+        // If no special handling, then simply keep track of where we are loading in so it can possibly be saved to the
+        // quest log later.
+        rando::gRandomizer->setLastSavableStart(*startStgPtr);
 
         return ret;
-    } // namespace mod
+    }
 
     KEEP_FUNC int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
