@@ -377,8 +377,9 @@
 //d_msg_class.o
 80228bc0:getFontCCColorTable
 80228c6c:getFontGCColorTable
-8022c66c:jmessage_tSequenceProcessor__do_tag
 8022bb24:jmessage_tSequenceProcessor__do_begin
+8022bf08:jmessage_tSequenceProcessor__do_end
+8022c66c:jmessage_tSequenceProcessor__do_tag
 
 // d_msg_object.o
 802342B8:setMessageIndex

@@ -4,6 +4,7 @@
 #include "game_patch/game_patch.h"
 #include "asm_templates.h"
 #include "tp/d_item.h"
+#include "tp/d_msg_class.h"
 #include "tp/d_msg_flow.h"
 #include "tp/d_a_alink.h"
 #include "data/items.h"
@@ -188,8 +189,10 @@ namespace mod::game_patch
         // with no special overrides.
         *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
 
-        // TODO: testing skip isMidona check result in jmessage_tSequenceProcessor::do_end
-        *reinterpret_cast<uint32_t*>(0x8022badc) = ASM_NOP;
+        // Skip isMidona check result in tSequenceProcessor do_end so 3-option Midna menus work past the initial one.
+        const uint32_t tSeqProcDoEndAddr =
+            reinterpret_cast<uint32_t>(libtp::tp::d_msg_class::jmessage_tSequenceProcessor__do_end);
+        *reinterpret_cast<uint32_t*>(tSeqProcDoEndAddr + 0xA0) = ASM_NOP;
 
         // Allow for custom strings for the options text in a msgFlow menu.
         const uint32_t setMessageIndexAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex);
