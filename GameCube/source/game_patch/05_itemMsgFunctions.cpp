@@ -967,8 +967,8 @@ namespace mod::game_patch
         // Note: we intentionally let the Midna flow restart when talking as wolf so the game stays paused while the
         // exit happens. This avoids edge cases such as using a bomb to defeat Ook right as you are exiting which sets
         // Ook to defeated but does not give you the item.
-        uint32_t params = reinterpret_cast<uint32_t*>(flowNode)[1];
-        events::handleReturnToLocation(params);
+        bool isReturnToDungeonEntrance = reinterpret_cast<uint32_t*>(flowNode)[1] != 0;
+        events::handleReturnToLocation(isReturnToDungeonEntrance);
 
         return 1;
     }

@@ -1763,17 +1763,14 @@ namespace mod::events
         }
     }
 
-    void handleReturnToLocation(uint32_t params)
+    void handleReturnToLocation(bool isReturnToDungeonEntrance)
     {
-        using namespace libtp::data::stage;
-        using namespace libtp::tp;
-
         uint8_t newStageIdx;
         int8_t newRoomNo;
         int16_t newPoint;
         int8_t newLayer;
 
-        if (params == 0)
+        if (!isReturnToDungeonEntrance)
         {
             // Return to spawn
             rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
@@ -1792,9 +1789,9 @@ namespace mod::events
             uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
             const rando::ReturnPlace* returnPlace =
                 rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIdx, -1, -1, -1);
-            if (returnPlace == nullptr)
+            if (returnPlace == nullptr || returnPlace->getStageIDX() == 0xFF)
             {
-                // If failed to find mapping for some reason, return without doing anything.
+                // If failed to find valid mapping for some reason, return without doing anything.
                 return;
             }
 
@@ -1805,13 +1802,13 @@ namespace mod::events
             newPoint = static_cast<uint16_t>(returnPlace->getPoint());
 
             // If return is LBT entrance, then put us on land if transforming is unlocked like vanilla.
-            if (newStageIdx == StageIDs::Lakebed_Temple && newRoomNo == 0 &&
+            if (newStageIdx == libtp::data::stage::StageIDs::Lakebed_Temple && newRoomNo == 0 &&
                 libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
                 newPoint = 2;
         }
 
         // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
+        libtp::tp::d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo;
         libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
         savePtr->mRestart.mLastMode = 0;
         savePtr->mRestart.mStartPoint = newPoint;

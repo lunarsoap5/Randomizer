@@ -17,11 +17,8 @@ namespace mod::game_patch
         using namespace libtp::tp;
         using namespace libtp::data;
 
-        // If we are not in a dungeon, we want to set our save warp to be our last valid entrance.
-        // As we randomize Boss/midboss rooms and caves, this will have to be adjusted accordingly.
-        // if ((rando::gRandomizer->getSeedPtr()->getStageIDX() > 29) &&
-        //     !checkStageName(stage::allStages[stage::StageIDs::Cave_of_Ordeals]))
-        // {
+        // Update our save warp to be our latest valid entrance.
+
         libtp::tp::d_save::dSv_info_c* savePtr = &d_com_inf_game::dComIfG_gameInfo.save;
         d_save::dSv_player_return_place_c* playerReturnPlacePtr = &savePtr->save_file.player.player_return_place;
 
@@ -34,6 +31,5 @@ namespace mod::game_patch
         playerReturnPlacePtr->link_spawn_point_id = lastSavableStartPtr->mPoint;
         playerReturnPlacePtr->link_room_id = lastSavableStartPtr->mRoomNo;
         playerReturnPlacePtr->unk10 = lastSavableStartPtr->mLayer;
-        // }
     }
 } // namespace mod::game_patch

@@ -37,7 +37,6 @@ namespace mod::rando
         ReturnPlaceSection() {}
         ~ReturnPlaceSection() {}
 
-        // const ReturnPlace* getReturnPlace(uint8_t stageIDX, libtp::tp::d_stage::dStage_startStage* startStgPtr) const;
         const ReturnPlace* getReturnPlace(uint8_t stageIDX, int8_t roomNo, int8_t point, int8_t layer) const;
 
        private:

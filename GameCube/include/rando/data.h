@@ -553,29 +553,5 @@ namespace mod::rando
         uint8_t newSpawn;
         int8_t newState;
     } __attribute__((__packed__));
-
-    class StageReturnPlace
-    {
-       public:
-        StageReturnPlace() {}
-        ~StageReturnPlace() {}
-
-        uint8_t getCurrentStageIDX() const { return this->currentStageIDX; }
-        bool getStageReturnDisabled() const { return this->stageReturnDisabled; }
-        int16_t getCurrentPoint() const { return this->currentPoint; }
-        uint8_t getReturnStageIDX() const { return this->returnStageIDX; }
-        int8_t getReturnPoint() const { return this->returnPoint; }
-        int8_t getReturnRoomNo() const { return this->returnRoomNo; }
-        int8_t getReturnLayer() const { return this->returnLayer; }
-
-       private:
-        uint8_t currentStageIDX;
-        bool stageReturnDisabled;
-        int16_t currentPoint;
-        uint8_t returnStageIDX;
-        int8_t returnPoint;
-        int8_t returnRoomNo;
-        int8_t returnLayer;
-    } __attribute__((__packed__));
 } // namespace mod::rando
 #endif
