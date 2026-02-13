@@ -718,20 +718,6 @@ namespace mod::rando
         }
     }
 
-    void Randomizer::updateMidnaFlowEvent(void* flowNodeEvent)
-    {
-        if (flowNodeEvent == nullptr)
-        {
-            m_midnaFlowEventIdx = 0;
-            m_midnaFlowEventParams = 0;
-        }
-        else
-        {
-            m_midnaFlowEventIdx = static_cast<const uint8_t*>(flowNodeEvent)[1];
-            m_midnaFlowEventParams = static_cast<const uint32_t*>(flowNodeEvent)[1];
-        }
-    }
-
     void Randomizer::checkSetHCBarrierFlag(CastleEntryRequirements req, uint8_t currentCount)
     {
         using namespace libtp;

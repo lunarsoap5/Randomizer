@@ -929,10 +929,16 @@ namespace mod::game_patch
     // Return 0 if can return to dungeon entrance, else 1 if cannot.
     int customQuery055_canReturnToDungeonEntrance()
     {
-        return 0;
-        // if (getTesting2() == nullptr)
-        //     return 1;
-        // return 0;
+        uint8_t stageIDX = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        if (stageIDX <= 29)
+        {
+            // In a Dungeon or (mini)boss room. Must have a general mapping defined which returns to a valid stage.
+            const rando::ReturnPlace* returnPlace =
+                rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIDX, -1, -1, -1);
+            if (returnPlace != nullptr && returnPlace->getStageIDX() != 0xFF)
+                return 0;
+        }
+        return 1;
     }
 
     // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
@@ -941,7 +947,7 @@ namespace mod::game_patch
         return 1;
     }
 
-    int customEvent044_changeTimeOfDay(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode, libtp::tp::f_op_actor::fopAc_ac_c*)
+    int customEvent044_changeTimeOfDay(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
     {
         // Check if player is wolf the same way query002 does. If player is wolf, we should queue the ToD change so it
         // runs once the conversation ends (to avoid Midna flow restarting after it ends). If we are a human, go ahead
@@ -949,26 +955,20 @@ namespace mod::game_patch
         // when time does not flow and the room will immediately reload).
         libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
         if (linkMapPtr->mNoResetFlg1 & 0x2000000)
-            rando::gRandomizer->updateMidnaFlowEvent(flowNode);
+            rando::gRandomizer->setHasPendingTodChange(true);
         else
             events::handleTimeOfDayChange();
 
         return 1;
     }
 
-    int customEvent045_warp(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    int customEvent045_returnToLocation(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
     {
-        using namespace libtp::data::stage;
-        using namespace libtp::tp;
-
-        libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
-        if (linkMapPtr->mNoResetFlg1 & 0x2000000)
-            rando::gRandomizer->updateMidnaFlowEvent(flowNode);
-        else
-        {
-            uint32_t params = reinterpret_cast<uint32_t*>(flowNode)[1];
-            events::handleReturnToLocation(params);
-        }
+        // Note: we intentionally let the Midna flow restart when talking as wolf so the game stays paused while the
+        // exit happens. This avoids edge cases such as using a bomb to defeat Ook right as you are exiting which sets
+        // Ook to defeated but does not give you the item.
+        uint32_t params = reinterpret_cast<uint32_t*>(flowNode)[1];
+        events::handleReturnToLocation(params);
 
         return 1;
     }
@@ -982,5 +982,5 @@ namespace mod::game_patch
 
     uint32_t _05_customEventList[3][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
                                           {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)},
-                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent045_warp)}};
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent045_returnToLocation)}};
 } // namespace mod::game_patch

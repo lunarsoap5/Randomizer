@@ -1427,29 +1427,14 @@ namespace mod
         // Call original function
         gReturn_talkEnd(eventPtr);
 
-        uint8_t eventIdx = rando::gRandomizer->getMidnaFlowEventIdx();
-        uint32_t eventParams = rando::gRandomizer->getMidnaFlowEventParams();
-
-        // Clear out the pending event if it exists.
-        rando::gRandomizer->updateMidnaFlowEvent(nullptr);
-
-        switch (eventIdx)
+        // We handle any pending ToD changes from talking to Midna once this function has run after the conversation
+        // ends so that the Midna actor has been updated to know the conversation has ended. This avoids having the
+        // Midna conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
+        if (rando::gRandomizer->getHasPendingTodChange())
         {
-            case game_patch::CustomEventIdx::CHANGE_TIME_OF_DAY:
-                events::handleTimeOfDayChange();
-                break;
-            case game_patch::CustomEventIdx::WARP:
-                events::handleReturnToLocation(eventParams);
-                break;
+            rando::gRandomizer->setHasPendingTodChange(false);
+            events::handleTimeOfDayChange();
         }
-
-        // // We handle any pending ToD changes from talking to Midna once this function has run after the conversation
-        // // ends so that the Midna actor has been updated to know the conversation has ended. This avoids having the
-        // // Midna conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
-        // if (rando::gRandomizer->getHasPendingTodChange())
-        // {
-        //     rando::gRandomizer->setHasPendingTodChange(false);
-        // }
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)
