@@ -2433,61 +2433,6 @@ namespace mod
         return resourcePtr;
     }
 
-    KEEP_FUNC void handle_dMenuOption__tv_open1_move(void* thisPtr)
-    {
-        using namespace libtp::data;
-        using namespace libtp::tp;
-
-        // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
-        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
-        savePtr->mRestart.mLastMode = 0;
-
-        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they aren't forced to be wolf
-        // un-necessarily.
-        libtp::tp::d_save::dSv_save_c* saveFilePtr = &savePtr->save_file;
-        libtp::tp::d_save::dSv_player_status_b_c* playerStatusBPtr = &saveFilePtr->player.player_status_b;
-        uint8_t* memoryFlagsPtr = &saveFilePtr->mSave[4].temp_flags.memoryFlags[0xA];
-
-        for (int32_t i = 0; i < 4; i++)
-        {
-            if (!d_save::isDarkClearLV(static_cast<void*>(playerStatusBPtr), i))
-            {
-                playerStatusBPtr->transform_level_flag &= ~(1 << i);
-            }
-        }
-
-        if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(flags::MIDNAS_DESPERATE_HOUR_COMPLETED)) // MDH
-        {
-            // Unset the flag that starts MDH
-            *memoryFlagsPtr &= ~0x40;
-            d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
-        }
-
-        // Turn the player back into Link if they are currently wolf
-        saveFilePtr->player.player_status_a.currentForm = 0;
-
-        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
-        const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
-
-        // The very first entry of the shuffledEntrances table is always the spawn entrance.
-        const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
-
-        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
-
-        strncpy(nextStagePtr->mStage,
-                libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
-                sizeof(nextStagePtr->mStage) - 1);
-
-        nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
-        nextStagePtr->mPoint = currentEntrance->getNewSpawn();
-        savePtr->mRestart.mStartPoint = currentEntrance->getNewSpawn();
-        nextStagePtr->mLayer = currentEntrance->getNewState();
-        nextStagePtr->enabled |= 0x1;
-
-        return gReturn_dMenuOption__tv_open1_move(thisPtr);
-    }
-
     KEEP_FUNC bool handleAdjustToTSwordReq()
     {
         using namespace libtp::data;

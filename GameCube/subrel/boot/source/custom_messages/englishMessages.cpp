@@ -264,10 +264,6 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         " character(s) so far."
     MSG_END();
-    MSG_BEGIN_ARRAY(spawnTextEn)
-        "Return to Spawn"
-        MSG_ICON(MSG_ICON_Z)
-    MSG_END();
     MSG_BEGIN_ARRAY(recognitionMsg)
         MSG_SPEED(MSG_SPEED_FAST)
         "The Randomizer Team would like\nto thank our amazing testers.\nWithout you, this project would\nnot be what it is today: Taka\nAnorakkis, Archer, Br00ty, Chris\nChrono, clabrus, Demon, EmperorP\nElinadrian, Empty, Fennec, Zushi\nFleakee, Foxhole Gaming, Luzagar\nHeartPiece, Hornlitz, IceStorm\nJanWegh, JD, jdflyer, Jeez, Oxy\nJustRyland, Lance H., link1183\nLinkman124, Luneyes, GameWyrm\nMattStrats, MultFij, NesmaN88\nXenoWars, Papy_Grant, Simikins\npokemongenius, Psi-Hate, Lars P\nRaziel_Stratton, Redriel, Revven\nSparky7198, Zach, SwiftIke, j_im\nZenith, Prince, The., TheBruce\nTreZc0_, Wameslo, WickedGligar\nDGod63 and Sushi."
@@ -427,11 +423,6 @@ namespace mod::customMessages
         recognitionMsg,
         sizeof(recognitionMsg),
         0x0b44,
-
-        // Spawn text
-        spawnTextEn,
-        sizeof(spawnTextEn),
-        0x555,
 
         // Special invalid-id texts
         // for

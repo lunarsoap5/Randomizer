@@ -256,9 +256,6 @@ namespace mod
     // Title Screen functions
     KEEP_VAR void (*gReturn_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr) = nullptr;
 
-    // Pause Menu functions
-    KEEP_VAR void (*gReturn_dMenuOption__tv_open1_move)(void* thisPtr) = nullptr;
-
     // Item Wheel menu
 
     KEEP_VAR uint8_t (*gReturn_getItemMaxNum)(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo) = nullptr;
