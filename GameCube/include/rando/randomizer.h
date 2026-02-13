@@ -111,6 +111,8 @@ namespace mod::rando
         uint16_t getFlowContext() { return this->m_flowContext; }
         uint8_t* getMutFlowNodePtr() { return this->m_mutFlowNodePtr; }
         bool getHasPendingTodChange() { return this->m_hasPendingTodChange; }
+        uint8_t getMidnaFlowEventIdx() { return this->m_midnaFlowEventIdx; }
+        uint32_t getMidnaFlowEventParams() { return this->m_midnaFlowEventParams; }
 
         libtp::tp::d_stage::dStage_startStage* getLastSavableStart() { return &this->lastSavableStart; }
 
@@ -177,6 +179,7 @@ namespace mod::rando
         uint8_t getFoolishItemModelId(uint8_t originalItem);
         void setFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, uint16_t flowContext);
         void checkResetFlowContext(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        void updateMidnaFlowEvent(void* flowNodeEvent);
 
         // NOTE: This function returns dynamic memory
         BMDEntry* generateBmdEntries(DvdEntryNumId arcIndex, uint32_t numEntries);
@@ -212,6 +215,8 @@ namespace mod::rando
         uint16_t m_flowContext = 0;
         uint8_t* m_mutFlowNodePtr = nullptr;
         bool m_hasPendingTodChange = false;
+        uint8_t m_midnaFlowEventIdx = 0;
+        uint32_t m_midnaFlowEventParams = 0;
 
         libtp::tp::d_stage::dStage_startStage lastSavableStart;
 

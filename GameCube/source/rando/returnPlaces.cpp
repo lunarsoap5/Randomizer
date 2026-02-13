@@ -11,14 +11,12 @@
 
 namespace mod::rando
 {
-    const uint8_t* ReturnPlaceSection::getMatchIndex(uint8_t stageIDX, libtp::tp::d_stage::dStage_startStage* startStgPtr) const
+    const ReturnPlace* ReturnPlaceSection::getReturnPlace(uint8_t stageIDX, int8_t roomNo, int8_t point, int8_t layer) const
     {
         using namespace libtp::tp;
         using namespace libtp::tp::d_com_inf_game;
 
-        // Check if there is any special handling for our S+Q location based on where we are loading into. Returns a
-        // pointer to an index. If we return nullptr, then there is no special handling. Otherwise, the returned pointer
-        // should be passed in to the `getReturnPlace` function below.
+        const uint8_t* matchIndexPtr = nullptr;
 
         const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->numComparisons);
         const Comparison* comparisonsTable = reinterpret_cast<const Comparison*>(headerPtr + this->comparisonsOffset);
@@ -27,38 +25,31 @@ namespace mod::rando
         for (uint32_t i = 0; i < totalEntries; i++)
         {
             const Comparison* comparison = &comparisonsTable[i];
-
             if (comparison->stageIDX == stageIDX)
             {
-                int8_t roomNo = comparison->roomNo;
-                int8_t point = comparison->point;
-                int8_t layer = comparison->layer;
+                int8_t compRoomNo = comparison->roomNo;
+                int8_t compPoint = comparison->point;
+                int8_t compLayer = comparison->layer;
 
-                if ((roomNo == -1 || roomNo == startStgPtr->mRoomNo) && (point == -1 || point == startStgPtr->mPoint) &&
-                    (layer == -1 || layer == startStgPtr->mLayer))
+                if ((compRoomNo == -1 || compRoomNo == roomNo) && (compPoint == -1 || compPoint == point) &&
+                    (compLayer == -1 || compLayer == layer))
                 {
                     const uint8_t* matchIndexTable = headerPtr + this->matchIndexOffset;
-                    return &matchIndexTable[i];
+                    matchIndexPtr = &matchIndexTable[i];
+                    break;
                 }
             }
         }
-        return nullptr;
-    }
 
-    const ReturnPlace* ReturnPlaceSection::getReturnPlace(const uint8_t* matchIndex) const
-    {
-        // Returns nullptr if the place we are loading into is not valid to store. Else returns the new place to store.
-        // This function should only be called using a non-null return value from the above `getMatchIndex` function
-        if (matchIndex != nullptr)
+        // Returns nullptr if no mapping was found, else returns a pointer to the new place to store. A stageIdx of 0xFF
+        // in the returned pointer represents that there is no valid returnPlace.
+        if (matchIndexPtr != nullptr)
         {
-            uint8_t index = *matchIndex;
-
+            uint8_t index = *matchIndexPtr;
             if (index < this->numReturnPlaces)
             {
-                const uint8_t* headerPtr = reinterpret_cast<const uint8_t*>(&this->numComparisons);
                 const ReturnPlace* returnPlacesTable =
                     reinterpret_cast<const ReturnPlace*>(headerPtr + this->returnPlacesOffset);
-
                 return &returnPlacesTable[index];
             }
         }

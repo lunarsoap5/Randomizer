@@ -162,6 +162,7 @@ namespace mod::events
     void loadCustomRoomSCOBs();
     void handleQuickTransform(rando::Randomizer* randomizer);
     void handleTimeOfDayChange();
+    void handleReturnToLocation(uint32_t params);
     bool checkFoolItemFreeze();
 
     uint16_t getPauseRupeeMax(libtp::tp::d_save::dSv_player_status_a_c* plyrStatus);

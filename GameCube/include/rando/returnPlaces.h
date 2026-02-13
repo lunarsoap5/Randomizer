@@ -37,8 +37,8 @@ namespace mod::rando
         ReturnPlaceSection() {}
         ~ReturnPlaceSection() {}
 
-        const uint8_t* getMatchIndex(uint8_t stageIDX, libtp::tp::d_stage::dStage_startStage* startStgPtr) const;
-        const ReturnPlace* getReturnPlace(const uint8_t* matchIndex) const;
+        // const ReturnPlace* getReturnPlace(uint8_t stageIDX, libtp::tp::d_stage::dStage_startStage* startStgPtr) const;
+        const ReturnPlace* getReturnPlace(uint8_t stageIDX, int8_t roomNo, int8_t point, int8_t layer) const;
 
        private:
         class Comparison

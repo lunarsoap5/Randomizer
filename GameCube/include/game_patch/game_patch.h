@@ -40,6 +40,12 @@ namespace mod::game_patch
         BULBLIN_CAMP,
     };
 
+    enum CustomEventIdx : uint8_t
+    {
+        CHANGE_TIME_OF_DAY = 44,
+        WARP = 45,
+    };
+
     // 00 - Function definitions used to patch how Poes operate
     /**
      * @brief Patches the unused itemFunc corresponding to the poe itemID

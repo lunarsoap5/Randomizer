@@ -47,7 +47,6 @@
 #include "tp/m_Do_dvd_thread.h"
 #include "util/texture_utils.h"
 #include "rando/bmg0.h"
-#include "rando/returnPlaces.h"
 #include "gc_wii/OSInterrupt.h"
 #include "tp/d_kankyo.h"
 #include "rando/customItems.h"
@@ -1428,14 +1427,29 @@ namespace mod
         // Call original function
         gReturn_talkEnd(eventPtr);
 
-        // We handle any pending ToD changes from talking to Midna once this function has run after the conversation
-        // ends so that the Midna actor has been updated to know the conversation has ended. This avoids having the
-        // Midna conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
-        if (rando::gRandomizer->getHasPendingTodChange())
+        uint8_t eventIdx = rando::gRandomizer->getMidnaFlowEventIdx();
+        uint32_t eventParams = rando::gRandomizer->getMidnaFlowEventParams();
+
+        // Clear out the pending event if it exists.
+        rando::gRandomizer->updateMidnaFlowEvent(nullptr);
+
+        switch (eventIdx)
         {
-            rando::gRandomizer->setHasPendingTodChange(false);
-            events::handleTimeOfDayChange();
+            case game_patch::CustomEventIdx::CHANGE_TIME_OF_DAY:
+                events::handleTimeOfDayChange();
+                break;
+            case game_patch::CustomEventIdx::WARP:
+                events::handleReturnToLocation(eventParams);
+                break;
         }
+
+        // // We handle any pending ToD changes from talking to Midna once this function has run after the conversation
+        // // ends so that the Midna actor has been updated to know the conversation has ended. This avoids having the
+        // // Midna conversation pop back up after selecting "Change ToD" when talking to Midna as wolf.
+        // if (rando::gRandomizer->getHasPendingTodChange())
+        // {
+        //     rando::gRandomizer->setHasPendingTodChange(false);
+        // }
     }
 
     KEEP_FUNC void handle_jmessage_tSequenceProcessor__do_begin(void* seqProcessor, const void* unk2, const char* text)
@@ -2220,24 +2234,7 @@ namespace mod
         // Call the original function immediately, as certain values need to be set first
         int32_t ret = gReturn_dScnPlay_phase_1(scnPlyPtr);
 
-        // Here we are loading into a stage, so keep track of the latest spawn info. If the spawn should be ignored or
-        // is invalid, then we do nothing and maintain the latest valid value.
-        d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
-        uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
-        d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
-
-        // First check if we are loading in to where our returnToSpawn goes. This is ALWAYS considered a valid S+Q.
-        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
-        const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
-        const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
-
-        if (stageIdx == currentEntrance->getNewStageIDX() && startStgPtr->mRoomNo == currentEntrance->getNewRoomIDX() &&
-            startStgPtr->mPoint == currentEntrance->getNewSpawn() && startStgPtr->mLayer == currentEntrance->getNewState())
-        {
-            rando::gRandomizer->setLastSavableStart(*startStgPtr);
-            return ret;
-        }
-
+        // Here we are loading into a stage, so keep track of where S+Q should put us.
         if (d_a_player::checkRoomRestartStart())
         {
             // Ignore if loading in after void or game over.
@@ -2246,36 +2243,40 @@ namespace mod
 
         // Check if where we are loading in has a mapping specified in the seedData. For example, mapping bosses to
         // dungeons, handling warp portals, disabling ones which are invalid or lead to crashes/softlocks, etc.
-        const rando::ReturnPlaceSection* returnPlaceSection = rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr();
-        const uint8_t* matchIndex = returnPlaceSection->getMatchIndex(stageIdx, startStgPtr);
-        if (matchIndex != nullptr)
+        uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
+        const rando::ReturnPlace* returnPlace =
+            rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIdx,
+                                                                                         startStgPtr->mRoomNo,
+                                                                                         startStgPtr->mPoint,
+                                                                                         startStgPtr->mPoint);
+
+        if (returnPlace == nullptr)
         {
-            const rando::ReturnPlace* returnPlace = returnPlaceSection->getReturnPlace(matchIndex);
-            if (returnPlace != nullptr)
-            {
-                uint8_t roomNo = returnPlace->getRoomNo();
-                // Get point as u16 so overwrites both bytes in struct's point when it was previously negative.
-                uint16_t point = static_cast<uint16_t>(returnPlace->getPoint());
-
-                // If return is LBT entrance, then put us on land if transforming is unlocked like vanilla.
-                if (stageIdx == StageIDs::Lakebed_Temple && roomNo == 0 &&
-                    libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
-                    point = 2;
-
-                strncpy(lastSavableStartPtr->mStage,
-                        libtp::data::stage::allStages[returnPlace->getStageIDX()],
-                        sizeof(lastSavableStartPtr->mStage) - 1);
-                lastSavableStartPtr->mPoint = point;
-                lastSavableStartPtr->mRoomNo = roomNo;
-                lastSavableStartPtr->mLayer = returnPlace->getLayer();
-            }
-
-            return ret;
+            // If no special handling, then simply keep track of where we are loading in.
+            rando::gRandomizer->setLastSavableStart(*startStgPtr);
         }
+        else if (returnPlace->getStageIDX() != 0xFF)
+        {
+            // If stage is 0xFF, then we skip updating the lastSavableStart.
+            uint8_t roomNo = returnPlace->getRoomNo();
+            // Get point as u16 so we overwrite both bytes in struct's point when it was previously negative.
+            uint16_t point = static_cast<uint16_t>(returnPlace->getPoint());
 
-        // If no special handling, then simply keep track of where we are loading in so it can possibly be saved to the
-        // quest log later.
-        rando::gRandomizer->setLastSavableStart(*startStgPtr);
+            // If return is LBT entrance, then put us on land if transforming is unlocked like vanilla.
+            if (stageIdx == StageIDs::Lakebed_Temple && roomNo == 0 &&
+                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
+                point = 2;
+
+            d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
+
+            strncpy(lastSavableStartPtr->mStage,
+                    libtp::data::stage::allStages[returnPlace->getStageIDX()],
+                    sizeof(lastSavableStartPtr->mStage) - 1);
+            lastSavableStartPtr->mPoint = point;
+            lastSavableStartPtr->mRoomNo = roomNo;
+            lastSavableStartPtr->mLayer = returnPlace->getLayer();
+        }
 
         return ret;
     }
