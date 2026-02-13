@@ -182,8 +182,10 @@ namespace mod::game_patch
         libtp::patch::writeBranchBL(eventNodeProcAddr + 0x48, assembly::asmGetFlowEventFnPtr);
         // Allow for dynamic next nodes for event nodes.
         libtp::patch::writeBranchBL(eventNodeProcAddr + 0x1E8, assembly::asmAdjustFlowEventNextNode);
-        // Modify eventNodeProc case 9 (Talk to Midna) to use the normal 0xbb8 FLI value regardless of the current room
-        // when talking to Midna with no special overrides.
+        // Modify Talk to Midna to ignore `getMidnaMsgNum` so that it always goes to our custom menu.
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x114) = ASM_NOP;
+        // Modify Talk to Midna to use the normal 0xbb8 FLI value regardless of the current room when talking to Midna
+        // with no special overrides.
         *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
 
         // TODO: testing skip isMidona check result in jmessage_tSequenceProcessor::do_end
