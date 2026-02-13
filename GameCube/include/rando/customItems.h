@@ -20,7 +20,7 @@ namespace mod::rando::customItems
     enum CustomItemIDs : uint8_t
     {
         Foolish_Item = 0x13,                   // Custom Item added for the Randomizer.
-        Mirror_Piece_1 = 0x53,                 // Custom Item added for the Randomizer
+        Mirror_Piece_1 = 0xDB,                 // Custom Item added for the Randomizer
         Forest_Temple_Small_Key = 0x85,        // Custom Item added for the Randomizer.
         Goron_Mines_Small_Key = 0x86,          // Custom Item added for the Randomizer.
         Lakebed_Temple_Small_Key = 0x87,       // Custom Item added for the Randomizer.
@@ -72,7 +72,7 @@ namespace mod::rando::customItems
         Kakariko_Gorge_Portal = 0x4D,
         Kakariko_Village_Portal = 0x4E,
         Death_Mountain_Portal = 0x52,
-        Castle_Town_Portal = 0xB1,
+        Castle_Town_Portal = 0x3A,
         Zoras_Domain_Portal = 0x57,
         Lake_Hylia_Portal = 0x8F,
         Gerudo_Desert_Portal = 0x3B,
@@ -80,7 +80,7 @@ namespace mod::rando::customItems
         Snowpeak_Portal = 0xAF,
         Sacred_Grove_Portal = 0xBF,
         Bridge_of_Eldin_Portal = 0xE8,
-        Upper_Zoras_River_Portal = 0xF7,
+        Upper_Zoras_River_Portal = 0x39,
     };
 
     class FoolishItems

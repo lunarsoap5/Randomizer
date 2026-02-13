@@ -453,7 +453,7 @@ namespace mod::customMessages
         // First Mirror Shard
         firstMirrorShardFr,
         sizeof(firstMirrorShardFr),
-        0x0B7,
+        0x13F,
 
         // Second Mirror Shard
         secondMirrorShardFr,

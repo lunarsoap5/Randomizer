@@ -787,6 +787,7 @@ namespace mod::events
             case Yellow_Rupee:
             case Orange_Rupee:
             case Silver_Rupee:
+            case Recovery_Heart:
             {
                 newScale.setall(1.0f); // scale
                 break;
