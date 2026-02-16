@@ -2243,23 +2243,15 @@ namespace mod
         }
         else if (returnPlace->getStageIDX() != 0xFF)
         {
-            // If stage is 0xFF, then we skip updating the lastSavableStart.
-            uint8_t roomNo = returnPlace->getRoomNo();
-            // Get point as u16 so we overwrite both bytes in struct's point when it was previously negative.
-            uint16_t point = static_cast<uint16_t>(returnPlace->getPoint());
-
-            // If return is LBT entrance, then put us on land if transforming is unlocked like vanilla.
-            if (stageIdx == StageIDs::Lakebed_Temple && roomNo == 0 &&
-                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
-                point = 2;
-
+            // If returnPlace's stage is 0xFF, then we skip updating the lastSavableStart. Else update it here.
             d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
 
             strncpy(lastSavableStartPtr->mStage,
                     libtp::data::stage::allStages[returnPlace->getStageIDX()],
                     sizeof(lastSavableStartPtr->mStage) - 1);
-            lastSavableStartPtr->mPoint = point;
-            lastSavableStartPtr->mRoomNo = roomNo;
+            lastSavableStartPtr->mRoomNo = returnPlace->getRoomNo();
+            // Get point as u16 so we overwrite both bytes in struct's point when it was previously negative.
+            lastSavableStartPtr->mPoint = static_cast<uint16_t>(returnPlace->getPoint());
             lastSavableStartPtr->mLayer = returnPlace->getLayer();
         }
 

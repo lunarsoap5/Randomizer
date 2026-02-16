@@ -926,19 +926,24 @@ namespace mod::game_patch
         return 1;
     }
 
-    // Return 0 if can return to dungeon entrance, else 1 if cannot.
+    // Return 0 if can return to dungeon entrance, 1 if in dungeon but can only return to spawn, or 2 if not in dungeon.
     int customQuery055_canReturnToDungeonEntrance()
     {
         uint8_t stageIDX = rando::gRandomizer->getSeedPtr()->getStageIDX();
         if (stageIDX <= 29)
         {
-            // In a Dungeon or (mini)boss room. Must have a general mapping defined which returns to a valid stage.
+            // In a Dungeon or (mini)boss room.
             const rando::ReturnPlace* returnPlace =
                 rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIDX, -1, -1, -1);
-            if (returnPlace != nullptr && returnPlace->getStageIDX() != 0xFF)
-                return 0;
+            if (returnPlace != nullptr)
+            {
+                if (returnPlace->getStageIDX() != 0xFF)
+                    return 0;
+                else
+                    return 1;
+            }
         }
-        return 1;
+        return 2;
     }
 
     // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
