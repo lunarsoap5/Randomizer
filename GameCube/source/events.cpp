@@ -785,6 +785,7 @@ namespace mod::events
             case Blue_Rupee:
             case Red_Rupee:
             case Yellow_Rupee:
+            case Purple_Rupee:
             case Orange_Rupee:
             case Silver_Rupee:
             case Recovery_Heart:
