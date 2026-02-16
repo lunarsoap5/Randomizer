@@ -155,6 +155,26 @@ namespace mod::game_patch
         return static_cast<uint32_t>(Fused_Shadow_3);
     };
 
+    uint32_t _04_getProgressiveBottle()
+    {
+        using namespace libtp::data::items;
+
+        static const uint8_t progressiveBottlesList[] {Coro_Bottle, Sera_Bottle, Empty_Bottle, Jovani_Bottle};
+
+        constexpr uint32_t listLength = sizeof(progressiveBottlesList) / sizeof(progressiveBottlesList[0]);
+        for (uint32_t i = 0; i < listLength; i++)
+        {
+            const uint32_t item = progressiveBottlesList[i];
+            if (!events::haveItem(item))
+            {
+                return item;
+            }
+        }
+
+        // All previous obtained, so return last upgrade
+        return Jovani_Bottle;
+    };
+
     KEEP_FUNC uint32_t _04_verifyProgressiveItem(rando::Randomizer* randomizer, uint32_t itemID)
     {
         using namespace libtp::data::items;
@@ -283,6 +303,15 @@ namespace mod::game_patch
                 case Fused_Shadow_3:
                 {
                     itemID = _04_getProgressiveFusedShadow();
+                    break;
+                }
+
+                case Coro_Bottle:
+                case Sera_Bottle:
+                case Empty_Bottle:
+                case Jovani_Bottle:
+                {
+                    itemID = _04_getProgressiveBottle();
                     break;
                 }
 

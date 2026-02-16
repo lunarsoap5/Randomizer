@@ -167,6 +167,7 @@ namespace mod::game_patch
     uint32_t _04_getProgressiveKeyShard();
     uint32_t _04_getProgressiveMirrorShard();
     uint32_t _04_getProgressiveFusedShadow();
+    uint32_t _04_getProgressiveBottle();
 
     // 05 - Function definitions related to custom messages
     void _05_setCustomItemMessage(libtp::tp::control::TControl* control, const void* TProcessor, uint16_t unk3, uint16_t msgId);
