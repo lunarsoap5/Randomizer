@@ -935,13 +935,10 @@ namespace mod::game_patch
             // In a Dungeon or (mini)boss room.
             const rando::ReturnPlace* returnPlace =
                 rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIDX, -1, -1, -1);
-            if (returnPlace != nullptr)
-            {
-                if (returnPlace->getStageIDX() != 0xFF)
-                    return 0;
-                else
-                    return 1;
-            }
+            if (returnPlace != nullptr && returnPlace->getStageIDX() != 0xFF)
+                return 0;
+            else
+                return 1;
         }
         return 2;
     }
