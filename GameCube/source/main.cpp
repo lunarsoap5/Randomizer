@@ -2234,7 +2234,7 @@ namespace mod
             rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIdx,
                                                                                          startStgPtr->mRoomNo,
                                                                                          startStgPtr->mPoint,
-                                                                                         startStgPtr->mPoint);
+                                                                                         startStgPtr->mLayer);
 
         if (returnPlace == nullptr)
         {
