@@ -1837,15 +1837,7 @@ namespace mod
 
         if (memoryBit == &savePtr->memory.temp_flags)
         {
-            if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Forest_Temple]))
-            {
-                if (flag == 0x52)
-                {
-                    // Don't set the flag for all monkeys freed in the lobby of Forest Temple
-                    return;
-                }
-            }
-            else if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Arbiters_Grounds]))
+            if (libtp::tp::d_a_alink::checkStageName(stagesPtr[libtp::data::stage::StageIDs::Arbiters_Grounds]))
             {
                 if (flag == 0x26) // Poe flame CS trigger
                 {
