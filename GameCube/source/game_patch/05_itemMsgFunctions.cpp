@@ -1,4 +1,5 @@
 #include "game_patch/game_patch.h"
+#include "data/flags.h"
 #include "data/items.h"
 #include "data/stages.h"
 #include "tp/bmgres.h"
@@ -925,6 +926,23 @@ namespace mod::game_patch
         return 1;
     }
 
+    // Return 0 if can return to dungeon entrance, 1 if in dungeon but can only return to spawn, or 2 if not in dungeon.
+    int customQuery055_canReturnToDungeonEntrance()
+    {
+        uint8_t stageIDX = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        if (stageIDX <= 29)
+        {
+            // In a Dungeon or (mini)boss room.
+            const rando::ReturnPlace* returnPlace =
+                rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIDX, -1, -1, -1);
+            if (returnPlace != nullptr && returnPlace->getStageIDX() != 0xFF)
+                return 0;
+            else
+                return 1;
+        }
+        return 2;
+    }
+
     // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
     int customEvent043_nop()
     {
@@ -946,11 +964,25 @@ namespace mod::game_patch
         return 1;
     }
 
+    int customEvent045_returnToLocation(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    {
+        // Note: we intentionally let the Midna flow restart when talking as wolf so the game stays paused while the
+        // exit happens. This avoids edge cases such as using a bomb to defeat Ook right as you are exiting which sets
+        // Ook to defeated but does not give you the item.
+        bool isReturnToDungeonEntrance = reinterpret_cast<uint32_t*>(flowNode)[1] != 0;
+        events::handleReturnToLocation(isReturnToDungeonEntrance);
+
+        return 1;
+    }
+
     // These are arrays of PTMFs (pointer to member function).
     // A function's number matches the index which points to it.
-    uint32_t _05_customQueryList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
-                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)}};
+    uint32_t _05_customQueryList[3][3] = {
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)},
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery055_canReturnToDungeonEntrance)}};
 
-    uint32_t _05_customEventList[2][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
-                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)}};
+    uint32_t _05_customEventList[3][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent045_returnToLocation)}};
 } // namespace mod::game_patch

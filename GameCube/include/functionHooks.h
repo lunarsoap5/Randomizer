@@ -454,10 +454,6 @@ namespace mod
     void resetQueueOnFileSelectScreen(libtp::tp::d_file_select::dFile_select_c* thisPtr);
     extern void (*gReturn_dFile_select_c___create)(libtp::tp::d_file_select::dFile_select_c* thisPtr);
 
-    // Pause Menu functions
-    void handle_dMenuOption__tv_open1_move(void* thisPtr);
-    extern void (*gReturn_dMenuOption__tv_open1_move)(void* thisPtr);
-
     // Item Wheel menu
 
     uint8_t handle_getItemNum(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing, uint8_t slotNo);

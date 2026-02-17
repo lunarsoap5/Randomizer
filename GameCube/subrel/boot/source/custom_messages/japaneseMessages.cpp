@@ -343,10 +343,6 @@ namespace mod::customMessages
         // 個集まりました。
         "\x8C\xC2\x8F\x57\x82\xDC\x82\xE8\x82\xDC\x82\xB5\x82\xBD\x81\x42"
     MSG_END();
-    MSG_BEGIN_ARRAY(spawnTextJp)
-        "Return to Spawn"
-        MSG_ICON(MSG_ICON_Z)
-    MSG_END();
     MSG_BEGIN_ARRAY(recognitionJp)
         MSG_SPEED(MSG_SPEED_FAST)
         // ベータテスターの皆様に感謝します。本当にありがとうございました
@@ -503,11 +499,6 @@ namespace mod::customMessages
         skyBookDescriptionJp,
         sizeof(skyBookDescriptionJp),
         0x34d,
-
-        // Spawn text
-        spawnTextJp,
-        sizeof(spawnTextJp),
-        0x555,
 
         // Recognition text
         recognitionJp,

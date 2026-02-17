@@ -1764,6 +1764,94 @@ namespace mod::events
         }
     }
 
+    void handleReturnToLocation(bool isReturnToDungeonEntrance)
+    {
+        using namespace libtp::data;
+        using namespace libtp::tp;
+
+        uint8_t newStageIdx;
+        int8_t newRoomNo;
+        int16_t newPoint;
+        int8_t newLayer;
+
+        libtp::tp::d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo;
+        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
+
+        if (!isReturnToDungeonEntrance)
+        {
+            // Return to spawn
+            rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
+            const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
+            const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
+
+            newStageIdx = currentEntrance->getNewStageIDX();
+            newRoomNo = currentEntrance->getNewRoomIDX();
+            // Get point as u16 so we overwrite both bytes in struct's point when it was previously negative.
+            newPoint = static_cast<uint16_t>(currentEntrance->getNewSpawn());
+            newLayer = currentEntrance->getNewState();
+
+            // If returning to spawn, then do some additional steps:
+
+            // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they aren't forced to be wolf
+            // un-necessarily.
+            libtp::tp::d_save::dSv_save_c* saveFilePtr = &savePtr->save_file;
+            libtp::tp::d_save::dSv_player_status_b_c* playerStatusBPtr = &saveFilePtr->player.player_status_b;
+            uint8_t* memoryFlagsPtr = &saveFilePtr->mSave[4].temp_flags.memoryFlags[0xA];
+
+            for (int32_t i = 0; i < 4; i++)
+            {
+                if (!d_save::isDarkClearLV(static_cast<void*>(playerStatusBPtr), i))
+                {
+                    playerStatusBPtr->transform_level_flag &= ~(1 << i);
+                }
+            }
+
+            if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(flags::MIDNAS_DESPERATE_HOUR_COMPLETED)) // MDH
+            {
+                // Unset the flag that starts MDH
+                *memoryFlagsPtr &= ~0x40;
+                d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
+            }
+
+            // Turn the player back into Link if they are currently wolf
+            saveFilePtr->player.player_status_a.currentForm = 0;
+        }
+        else
+        {
+            // Return to dungeon entrance
+            uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
+            const rando::ReturnPlace* returnPlace =
+                rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIdx, -1, -1, -1);
+            if (returnPlace == nullptr || returnPlace->getStageIDX() == 0xFF)
+            {
+                // If failed to find valid mapping for some reason, return without doing anything.
+                return;
+            }
+
+            newStageIdx = returnPlace->getStageIDX();
+            newRoomNo = returnPlace->getRoomNo();
+            newLayer = returnPlace->getLayer();
+            // Get point as u16 so we overwrite both bytes in struct's point when it was previously negative.
+            newPoint = static_cast<uint16_t>(returnPlace->getPoint());
+
+            // If return is LBT entrance, then put us on land if transforming is unlocked like vanilla.
+            if (newStageIdx == libtp::data::stage::StageIDs::Lakebed_Temple && newRoomNo == 0 &&
+                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::TRANSFORMING_UNLOCKED))
+                newPoint = 2;
+        }
+
+        // Clear the lastMode value in case the player was previously riding Epona or swimming.
+        savePtr->mRestart.mLastMode = 0;
+        savePtr->mRestart.mStartPoint = newPoint;
+
+        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
+        strncpy(nextStagePtr->mStage, libtp::data::stage::allStages[newStageIdx], sizeof(nextStagePtr->mStage) - 1);
+        nextStagePtr->mRoomNo = newRoomNo;
+        nextStagePtr->mPoint = newPoint;
+        nextStagePtr->mLayer = newLayer;
+        nextStagePtr->enabled |= 0x1;
+    }
+
     void handleTimeSpeed()
     {
         using namespace libtp::tp::d_com_inf_game;

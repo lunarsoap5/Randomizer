@@ -4,6 +4,7 @@
 #include "game_patch/game_patch.h"
 #include "asm_templates.h"
 #include "tp/d_item.h"
+#include "tp/d_msg_class.h"
 #include "tp/d_msg_flow.h"
 #include "tp/d_a_alink.h"
 #include "data/items.h"
@@ -182,9 +183,16 @@ namespace mod::game_patch
         libtp::patch::writeBranchBL(eventNodeProcAddr + 0x48, assembly::asmGetFlowEventFnPtr);
         // Allow for dynamic next nodes for event nodes.
         libtp::patch::writeBranchBL(eventNodeProcAddr + 0x1E8, assembly::asmAdjustFlowEventNextNode);
-        // Modify eventNodeProc case 9 (Talk to Midna) to use the normal 0xbb8 FLI value regardless of the current room
-        // when talking to Midna with no special overrides.
+        // Modify Talk to Midna to ignore `getMidnaMsgNum` so that it always goes to our custom menu.
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x114) = ASM_NOP;
+        // Modify Talk to Midna to use the normal 0xbb8 FLI value regardless of the current room when talking to Midna
+        // with no special overrides.
         *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
+
+        // Skip isMidona check result in tSequenceProcessor do_end so 3-option Midna menus work past the initial one.
+        const uint32_t tSeqProcDoEndAddr =
+            reinterpret_cast<uint32_t>(libtp::tp::d_msg_class::jmessage_tSequenceProcessor__do_end);
+        *reinterpret_cast<uint32_t*>(tSeqProcDoEndAddr + 0xA0) = ASM_NOP;
 
         // Allow for custom strings for the options text in a msgFlow menu.
         const uint32_t setMessageIndexAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex);

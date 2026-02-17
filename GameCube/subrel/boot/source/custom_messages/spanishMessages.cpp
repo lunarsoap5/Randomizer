@@ -364,10 +364,6 @@ namespace mod::customMessages
         // hasta ahora.
         "\x20\x68\x61\x73\x74\x61\x20\x61\x68\x6f\x72\x61\x2e"
     MSG_END();
-    MSG_BEGIN_ARRAY(spawnTextSp)
-        "Return to Spawn"
-        MSG_ICON(MSG_ICON_Z)
-    MSG_END();
     MSG_BEGIN_ARRAY( recognitionSp )
         MSG_SPEED(MSG_SPEED_FAST)
         //Queremos agradecer a nuestros increíbles Testers de parte del Equipo Randomizer. Sin ustedes, éste proyecto no sería lo que es el día de hoy
@@ -520,11 +516,6 @@ namespace mod::customMessages
         skyBookDescriptionSp,
         sizeof(skyBookDescriptionSp),
         0x34d,
-
-        // Spawn text
-        spawnTextSp,
-        sizeof(spawnTextSp),
-        0x555,
 
         // Recognition text
         recognitionSp,

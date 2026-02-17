@@ -392,6 +392,7 @@
 802288fc:getFontCCColorTable
 802289a8:getFontGCColorTable
 8022b658:jmessage_tSequenceProcessor__do_begin
+8022ba3c:jmessage_tSequenceProcessor__do_end
 8022c1a0:jmessage_tSequenceProcessor__do_tag
 
 // d_msg_object.o

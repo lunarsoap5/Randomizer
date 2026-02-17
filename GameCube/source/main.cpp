@@ -2211,119 +2211,44 @@ namespace mod
         // Call the original function immediately, as certain values need to be set first
         int32_t ret = gReturn_dScnPlay_phase_1(scnPlyPtr);
 
-        // Here we are loading into a stage, so keep track of the latest spawn info. If the spawn should be ignored or
-        // is invalid, then we do nothing and maintain the latest valid value.
-        d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
-        uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
-        bool canStore = true;
-
+        // Here we are loading into a stage, so keep track of where S+Q should put us.
         if (d_a_player::checkRoomRestartStart())
         {
             // Ignore if loading in after void or game over.
-            canStore = false;
-        }
-        else
-        {
-            // Make sure we do not store certain invalid entrances.
-            switch (stageIdx)
-            {
-                case StageIDs::Ordon_Ranch:
-                {
-                    // Check not starting goats minigame to avoid softlock.
-                    if (startStgPtr->mPoint == 3 && startStgPtr->mLayer == 4)
-                        canStore = false;
-                    break;
-                }
-                case StageIDs::Zoras_River:
-                {
-                    // Check not starting Plumm minigame to avoid loading in on the OoB ledge.
-                    if (startStgPtr->mPoint == 0 && startStgPtr->mLayer == 4)
-                        canStore = false;
-                    break;
-                }
-                case StageIDs::Fishing_Pond:
-                {
-                    // Check not canoe fishing to avoid unearned Fishing Hole access for interiors ER.
-                    if (startStgPtr->mPoint == 4)
-                        canStore = false;
-                    break;
-                }
-                case StageIDs::Lake_Hylia:
-                {
-                    // Check not entering on canoe to avoid jank when S+Q and retry back to top. Instead you can S+Q
-                    // back to top with in a more convenient and less jank way.
-                    if (startStgPtr->mPoint == 2)
-                        canStore = false;
-                    break;
-                }
-            }
+            return ret;
         }
 
-        if (canStore)
+        // Check if where we are loading in has a mapping specified in the seedData. For example, mapping bosses to
+        // dungeons, handling warp portals, disabling ones which are invalid or lead to crashes/softlocks, etc.
+        uint8_t stageIdx = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        d_stage::dStage_startStage* startStgPtr = &d_com_inf_game::dComIfG_gameInfo.play.mStartStage;
+        const rando::ReturnPlace* returnPlace =
+            rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIdx,
+                                                                                         startStgPtr->mRoomNo,
+                                                                                         startStgPtr->mPoint,
+                                                                                         startStgPtr->mLayer);
+
+        if (returnPlace == nullptr)
         {
-            // Keep track of where we are loading in so it can possibly be saved to the quest log later.
+            // If no special handling, then simply keep track of where we are loading in.
             rando::gRandomizer->setLastSavableStart(*startStgPtr);
-
+        }
+        else if (returnPlace->getStageIDX() != 0xFF)
+        {
+            // If returnPlace's stage is 0xFF, then we skip updating the lastSavableStart. Else update it here.
             d_stage::dStage_startStage* lastSavableStartPtr = rando::gRandomizer->getLastSavableStart();
 
-            if (startStgPtr->mPoint == -4)
-            {
-                // Since you can't load a save from a portal spawn, change to the vanilla spawn.
-                int16_t spawnPoint;
-                switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
-                {
-                    case StageIDs::Death_Mountain:
-                    case StageIDs::Kakariko_Village:
-                    case StageIDs::Snowpeak:
-                        spawnPoint = 5;
-                        break;
-                    case StageIDs::Mirror_Chamber:
-                        spawnPoint = 2; // Position without save prompt to avoid jank / ER impacts.
-                        break;
-                    case StageIDs::Outside_Castle_Town:
-                        spawnPoint = 7;
-                        break;
-                    case StageIDs::Gerudo_Desert:
-                        spawnPoint = 0xB;
-                        break;
-                    case StageIDs::Ordon_Spring:
-                        spawnPoint = 0x1E;
-                        break;
-                    case StageIDs::Upper_Zoras_River:
-                        spawnPoint = 0x63;
-                        break;
-                    case StageIDs::Lake_Hylia:
-                        spawnPoint = 0x85;
-                        break;
-                    case StageIDs::Sacred_Grove:
-                        spawnPoint = 0xFE;
-                        break;
-                    case StageIDs::Faron_Woods:
-                    {
-                        if (lastSavableStartPtr->mRoomNo == 0)
-                            spawnPoint = 0; // S FW
-                        else
-                            spawnPoint = 0xFE; // N FW
-                        break;
-                    }
-                    case StageIDs::Hyrule_Field:
-                    {
-                        if (lastSavableStartPtr->mRoomNo == 0)
-                            spawnPoint = 0xF; // Bridge of Eldin
-                        else
-                            spawnPoint = 6; // KG
-                        break;
-                    }
-                    default:
-                        spawnPoint = 0; // Other portals use 0.
-                        break;
-                }
-                lastSavableStartPtr->mPoint = spawnPoint;
-            }
+            strncpy(lastSavableStartPtr->mStage,
+                    libtp::data::stage::allStages[returnPlace->getStageIDX()],
+                    sizeof(lastSavableStartPtr->mStage) - 1);
+            lastSavableStartPtr->mRoomNo = returnPlace->getRoomNo();
+            // Get point as u16 so we overwrite both bytes in struct's point when it was previously negative.
+            lastSavableStartPtr->mPoint = static_cast<uint16_t>(returnPlace->getPoint());
+            lastSavableStartPtr->mLayer = returnPlace->getLayer();
         }
 
         return ret;
-    } // namespace mod
+    }
 
     KEEP_FUNC int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
@@ -2490,61 +2415,6 @@ namespace mod
         }
 
         return resourcePtr;
-    }
-
-    KEEP_FUNC void handle_dMenuOption__tv_open1_move(void* thisPtr)
-    {
-        using namespace libtp::data;
-        using namespace libtp::tp;
-
-        // Clear the lastMode value in case the player was previously riding Epona or swimming.
-        d_com_inf_game::dComIfG_inf_c* gameInfoPtr = &d_com_inf_game::dComIfG_gameInfo;
-        libtp::tp::d_save::dSv_info_c* savePtr = &gameInfoPtr->save;
-        savePtr->mRestart.mLastMode = 0;
-
-        // If a player hasn't completed a twilight/MDH, we want to unset the transform flag so they aren't forced to be wolf
-        // un-necessarily.
-        libtp::tp::d_save::dSv_save_c* saveFilePtr = &savePtr->save_file;
-        libtp::tp::d_save::dSv_player_status_b_c* playerStatusBPtr = &saveFilePtr->player.player_status_b;
-        uint8_t* memoryFlagsPtr = &saveFilePtr->mSave[4].temp_flags.memoryFlags[0xA];
-
-        for (int32_t i = 0; i < 4; i++)
-        {
-            if (!d_save::isDarkClearLV(static_cast<void*>(playerStatusBPtr), i))
-            {
-                playerStatusBPtr->transform_level_flag &= ~(1 << i);
-            }
-        }
-
-        if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(flags::MIDNAS_DESPERATE_HOUR_COMPLETED)) // MDH
-        {
-            // Unset the flag that starts MDH
-            *memoryFlagsPtr &= ~0x40;
-            d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
-        }
-
-        // Turn the player back into Link if they are currently wolf
-        saveFilePtr->player.player_status_a.currentForm = 0;
-
-        rando::Seed* seedPtr = rando::gRandomizer->getSeedPtr();
-        const rando::ShuffledEntrance* shuffledEntrances = seedPtr->getShuffledEntrancesPtr();
-
-        // The very first entry of the shuffledEntrances table is always the spawn entrance.
-        const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[0];
-
-        libtp::tp::d_stage::dStage_nextStage* nextStagePtr = &gameInfoPtr->play.mNextStage;
-
-        strncpy(nextStagePtr->mStage,
-                libtp::data::stage::allStages[currentEntrance->getNewStageIDX()],
-                sizeof(nextStagePtr->mStage) - 1);
-
-        nextStagePtr->mRoomNo = currentEntrance->getNewRoomIDX();
-        nextStagePtr->mPoint = currentEntrance->getNewSpawn();
-        savePtr->mRestart.mStartPoint = currentEntrance->getNewSpawn();
-        nextStagePtr->mLayer = currentEntrance->getNewState();
-        nextStagePtr->enabled |= 0x1;
-
-        return gReturn_dMenuOption__tv_open1_move(thisPtr);
     }
 
     KEEP_FUNC bool handleAdjustToTSwordReq()

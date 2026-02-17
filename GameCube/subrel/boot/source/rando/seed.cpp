@@ -105,6 +105,11 @@ namespace mod::rando
         BMG0Section* bmg0Ptr = reinterpret_cast<BMG0Section*>(gciDataPtr + bmg0Offset);
         this->m_BMG0 = bmg0Ptr;
 
+        const uint32_t returnPlaceSectionOffset = headerPtr->getReturnPlaceSectionOffset();
+        const ReturnPlaceSection* returnPlaceSectionPtr =
+            reinterpret_cast<const ReturnPlaceSection*>(gciDataPtr + returnPlaceSectionOffset);
+        this->m_ReturnPlaceSection = returnPlaceSectionPtr;
+
         // Load the custom text data
         this->loadCustomText(data);
 

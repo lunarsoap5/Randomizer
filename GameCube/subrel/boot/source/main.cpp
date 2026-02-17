@@ -312,10 +312,6 @@ namespace mod
 
         // ScnPly functions
         gReturn_dScnPlay_phase_1 = patch::hookFunction(libtp::tp::d_s_play::dScnPlay_phase_1, handle_dScnPlay_phase_1);
-
-        // Pause Menu functions
-        gReturn_dMenuOption__tv_open1_move =
-            patch::hookFunction(libtp::tp::d_menu_option::dMenuOption__tv_open1_move, handle_dMenuOption__tv_open1_move);
     }
 
     void initArcLookupTable(rando::Randomizer* randoPtr)

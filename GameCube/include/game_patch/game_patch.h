@@ -197,8 +197,8 @@ namespace mod::game_patch
     const char* _05_getSpecialMsgById(uint32_t msgId);
     const char** _05_replaceMessageString(const char** text);
 
-    extern uint32_t _05_customQueryList[2][3];
-    extern uint32_t _05_customEventList[2][3];
+    extern uint32_t _05_customQueryList[3][3];
+    extern uint32_t _05_customEventList[3][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();
