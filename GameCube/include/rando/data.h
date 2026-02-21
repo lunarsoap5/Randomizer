@@ -71,6 +71,9 @@ namespace mod::rando
         /* 0x61 */ uint8_t damageMagnification;
         /* 0x62 */ uint8_t bonksDoDamage;
         /* 0x63 */ uint8_t startingTimeOfDay;
+        /* 0x64 */ uint8_t padding[0xC];
+        /* 0x70 */ char seedID[0x10];
+        /* 0x80 */ char slotName[0x10];
     } __attribute__((__packed__));
 
     // Minimum amount of data needed for keeping track of a seed

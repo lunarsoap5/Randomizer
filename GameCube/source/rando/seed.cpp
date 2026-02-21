@@ -42,6 +42,11 @@ namespace mod::rando
             this->applyRegionFlags();
 
             this->giveStartingItems();
+
+            // We want to force the player name to equal the slot name
+            strcpy(reinterpret_cast<char*>(
+                       &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_info.mPlayerName),
+                   this->m_Header->slotName);
             getConsole() << "Seed Applied Successfully.\n";
             return true;
         }
