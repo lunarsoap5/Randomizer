@@ -2230,8 +2230,13 @@ namespace mod
 
         if (returnPlace == nullptr)
         {
-            // If no special handling, then simply keep track of where we are loading in.
-            rando::gRandomizer->setLastSavableStart(*startStgPtr);
+            // If no special mapping, then keep track of where we are loading in as long as the point is non-negative.
+            // This catches certain cases which checkRoomRestartStart does not, such as after voiding during
+            // snowboarding with no Yeto/Yeta. We still want to handle point -4, so we wait until here to compare to 0.
+            if (startStgPtr->mPoint >= 0)
+            {
+                rando::gRandomizer->setLastSavableStart(*startStgPtr);
+            }
         }
         else if (returnPlace->getStageIDX() != 0xFF)
         {
