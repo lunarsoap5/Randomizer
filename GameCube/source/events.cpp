@@ -137,14 +137,14 @@ namespace mod::events
         if (!randomizer->seedAppliedToFile() && (strcmp(currentStage, "F_SP108") == 0) && (currentRoom == 1) &&
             (currentPoint == 0x15))
         {
-            randomizer->initSave();
-
-            // Auto fill the first wallet if the setting is enabled
+            // Fill small wallet if needed before giving starting items because if the player doesn't start with any wallets,
+            // we want to fill the wallet. However if they do then it will be filled anyways.
             if (seedPtr->walletsAreAutoFilled())
             {
                 savePtr->save_file.player.player_status_a.currentRupees =
                     mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][0];
             }
+            randomizer->initSave();
         }
 
         // Check to see if currently in City and our last visited stage was not City.
