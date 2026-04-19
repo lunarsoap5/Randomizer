@@ -54,6 +54,7 @@
 #include "tp/f_pc_executor.h"
 #include "tp/d_msg_flow.h"
 #include "tp/d_file_select.h"
+#include "tp/d_item.h"
 
 #ifdef TP_EU
 #include "tp/d_s_logo.h"
@@ -849,6 +850,13 @@ namespace mod
                 // if there is no item to give, break out of the case.
                 if (itemToGive == 0xFF)
                 {
+                    break;
+                }
+
+                // We don't want link to hold the item out in front of him if its ammo
+                if (itemToGive < 0x1f)
+                {
+                    libtp::tp::d_item::execItemGet(itemToGive);
                     break;
                 }
 
