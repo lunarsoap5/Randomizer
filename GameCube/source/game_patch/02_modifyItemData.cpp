@@ -512,13 +512,18 @@ namespace mod::game_patch
 
         plrStatusAPtr->currentWallet = libtp::data::items::BIG_WALLET;
 
-        libtp::tp::J2DWindow::J2DWindow* windowPtr =
-            libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
-
         if (seedPtr->walletsAreAutoFilled())
         {
             plrStatusAPtr->currentRupees = mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][1];
         }
+
+        if (!libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw)
+        {
+            return;
+        }
+
+        libtp::tp::J2DWindow::J2DWindow* windowPtr =
+            libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
 
         if (!windowPtr)
         {
@@ -541,13 +546,18 @@ namespace mod::game_patch
 
         plrStatusAPtr->currentWallet = libtp::data::items::GIANT_WALLET;
 
-        libtp::tp::J2DWindow::J2DWindow* windowPtr =
-            libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
-
         if (seedPtr->walletsAreAutoFilled())
         {
             plrStatusAPtr->currentRupees = mod::user_patch::walletValues[seedPtr->getHeaderPtr()->getWalletSize()][2];
         }
+
+        if (!libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw)
+        {
+            return;
+        }
+
+        libtp::tp::J2DWindow::J2DWindow* windowPtr =
+            libtp::tp::d_meter2_info::g_meter2_info.mMeterClass->mpMeterDraw->mpBigHeart->mWindow;
 
         if (!windowPtr)
         {
