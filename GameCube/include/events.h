@@ -23,6 +23,8 @@
 #include "tp/f_op_actor_iter.h"
 #include "tp/d_meter2_draw.h"
 
+#include <cstdint>
+
 namespace mod::events
 {
     typedef void (*daObjLv5Key_Wait_Def)(libtp::tp::rel::d_a_obj_Lv5Key::daObjLv5Key_c*);
@@ -31,19 +33,20 @@ namespace mod::events
     typedef bool (*daObjLifeContainer_initActionOrderGetDemo_Def)(void*);
     typedef bool (*daMidna_checkMetamorphoseEnableBase_Def)(void*);
 
-    extern libtp::tp::dzx::ACTR GanonBarrierActor;
-    extern libtp::tp::dzx::ACTR AuruActr;
-    extern libtp::tp::dzx::ACTR ItemActr;
-    extern libtp::tp::dzx::ACTR EponaActr;
-    extern libtp::tp::dzx::SCOB HorseJumpScob;
-    extern libtp::tp::dzx::ACTR ForestGWolfActr;
-    extern libtp::tp::dzx::ACTR ImpPoeActr;
-    extern libtp::tp::dzx::ACTR CampBoarActr;
-    extern libtp::tp::dzx::ACTR KakShopSlot2Actr;
-    extern libtp::tp::dzx::ACTR SignActr;
-    extern libtp::tp::dzx::ACTR MstrSrdActr;
-
-    extern uint8_t timeChange;
+    extern const libtp::tp::dzx::ACTR gGanonBarrierActor;
+    extern const libtp::tp::dzx::ACTR gAuruActr;
+    extern const libtp::tp::dzx::ACTR gItemActr;
+    extern const libtp::tp::dzx::ACTR gEponaActr;
+    extern const libtp::tp::dzx::SCOB gHorseJumpScob;
+    extern const libtp::tp::dzx::SCOB gScnChgScob;
+    extern const libtp::tp::dzx::ACTR gForestGWolfActr;
+    extern const libtp::tp::dzx::ACTR gImpPoeActr;
+    extern const libtp::tp::dzx::ACTR gCampBoarActr;
+    extern const libtp::tp::dzx::ACTR gKakShopSlot2Actr;
+    extern const libtp::tp::dzx::ACTR SignActr;
+    extern const libtp::tp::dzx::ACTR gMstrSrdActr;
+    extern const libtp::tp::dzx::ACTR gCoroActr;
+    extern const libtp::tp::dzx::ACTR gShadowBeastActr;
 
     /**
      * @brief Runs when loading just started
@@ -136,14 +139,15 @@ namespace mod::events
     void modifyLanternMeterColor(libtp::tp::d_pane_class::CPaneMgr* panePtr,
                                  libtp::tp::JUtility::TColor* color1,
                                  libtp::tp::JUtility::TColor* color2);
+    GXColor getRainbowRGB(float amplitude);
 
     void onAdjustFieldItemParams(libtp::tp::f_op_actor::fopAc_ac_c* fopAC, void* daObjLife);
 
     void onAdjustCreateItemParams(void* daDitem);
 
-    int32_t proc_query022(void* unk1, void* unk2, int32_t unk3);
+    void onAdjustCreateRupeeItemParams(void* daDitem);
 
-    int32_t proc_query023(void* unk1, void* unk2, int32_t unk3);
+    int32_t proc_query022(void* unk1, void* unk2, int32_t unk3);
 
     int32_t proc_query025(void* unk1, void* unk2, int32_t unk3);
 
@@ -156,25 +160,31 @@ namespace mod::events
     void loadCustomActors(void* mStatus_roomControl);
     void loadCustomRoomActors(rando::Randomizer* randomizer);
     void loadCustomRoomSCOBs();
-    void handleQuickTransform();
+    void handleQuickTransform(rando::Randomizer* randomizer);
     void handleTimeOfDayChange();
+    void handleReturnToLocation(bool isReturnToDungeonEntrance);
     bool checkFoolItemFreeze();
 
     uint16_t getPauseRupeeMax(libtp::tp::d_save::dSv_player_status_a_c* plyrStatus);
     uint32_t autoMashThroughText(libtp::tp::m_do_controller_pad::CPadInfo* padInfo);
     void* handleTransformAnywhere(libtp::tp::f_op_actor_iter::fopAcIt_JudgeFunc unk1, void* unk2);
     bool checkValidTransformAnywhere();
+    bool checkValidGroundTransform(libtp::tp::d_a_alink::daAlink* linkMapPtr);
+    void replaceHorseCallItem();
 
     void performStaticASMReplacement(uint32_t memoryOffset, uint32_t value);
 
     libtp::tp::d_resource::dRes_info_c* getObjectResInfo(const char* arcName);
     bool haveItem(uint32_t item);
     void drawWindow(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color);
+    void drawDpadIcon(int32_t x, int32_t y, int32_t width, int32_t height);
     void drawText(const char* text, int32_t x, int32_t y, uint32_t color, bool drawBorder, float textSize);
     void drawText(const char* text, int32_t x, int32_t y, uint32_t color, float textSize);
     int32_t getCurrentAreaNodeId();
     uint8_t* getNodeMemoryFlags(const libtp::data::stage::AreaNodesID nodeId,
                                 const libtp::data::stage::AreaNodesID currentAreaNodeId);
     void handleTimeSpeed();
+    uint8_t setNextWarashibeItem();
+    void offWarashibeItem(uint8_t item);
 } // namespace mod::events
 #endif

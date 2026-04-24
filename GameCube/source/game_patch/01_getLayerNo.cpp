@@ -157,31 +157,10 @@ namespace mod::game_patch
 
                             if (condition == false)
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                    WATCHED_CUTSCENE_AFTER_GORON_MINES); // Cutscene after GM Watched
+                                chosenLayer = stage::KakarikoStateIDs::Kakariko_KB1_Completed;
 
-                                if (condition == false)
-                                {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        GORON_MINES_CLEARED); // Goron Mines Completed
-
-                                    if (condition == false)
-                                    {
-                                        chosenLayer = stage::KakarikoStateIDs::Kakariko_KB1_Completed;
-
-                                        // If it is night, the layer is different.
-                                        libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::KakarikoStateIDs::Kakariko_Goron_Mines_Completed;
-                                    }
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::KakarikoStateIDs::Kakariko_KB1_Completed;
-                                    libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
-                                }
+                                // If it is night, the layer is different.
+                                libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
                             }
                             else
                             {
@@ -357,18 +336,22 @@ namespace mod::game_patch
                                 chosenLayer = stage::CastleTownStateIDs::Castle_Town_West_MDH_Clear;
                             }
                         }
+
+                        if (roomId == 0)
+                        {
+                            const int32_t startPoint =
+                                static_cast<int32_t>(libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.mRestart.mStartPoint);
+                            if (startPoint == 0xF)
+                            {
+                                chosenLayer = 5;
+                            }
+                        }
                         break;
                     }
 
                     case stage::StageIDs::Zoras_Domain:
                     {
-                        condition =
-                            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(SNOWPEAK_RUINS_CLEARED); // Snowpeak Ruins Completed
-
-                        if (condition != false)
-                        {
-                            chosenLayer = stage::ZorasDomainStateIDs::Domain_Snowpeak_Ruins_Completed;
-                        }
+                        chosenLayer = 0;
                         break;
                     }
 
@@ -422,51 +405,16 @@ namespace mod::game_patch
                     {
                         if (roomId == 0)
                         {
-                            condition =
-                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_1_FINISHED); // Ordon Day 1 done
-
-                            if (condition)
+                            if (!libtp::tp::d_kankyo::dKy_daynight_check())
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo Saved
-                                if (condition)
-                                {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        FINISHED_SEWERS); // First trip to Sewers done
-
-                                    if (condition)
-                                    {
-                                        darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                        if (darkIsClear == false)
-                                        {
-                                            chosenLayer = stage::OrdonVillageStateIDs::Ordon_Finished_Sewers;
-                                        }
-                                        else
-                                        {
-                                            if (!libtp::tp::d_kankyo::dKy_daynight_check())
-                                            {
-                                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
-                                            }
-                                            else
-                                            {
-                                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Epona_Tamed_Night;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::OrdonVillageStateIDs::Ordon_Talo_Rescued;
-                                    }
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
-                                }
+                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Goats_1_Completed;
                             }
                             else
                             {
-                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_New_Game;
+                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Epona_Tamed_Night;
                             }
                         }
+
                         else
                         {
                             if (roomId == 1)
@@ -479,25 +427,7 @@ namespace mod::game_patch
                                     condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo Saved
                                     if (condition)
                                     {
-                                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                            FINISHED_SEWERS); // First trip to Sewers done
-
-                                        if (condition)
-                                        {
-                                            darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                            if (darkIsClear == false)
-                                            {
-                                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Finished_Sewers;
-                                            }
-                                            else
-                                            {
-                                                chosenLayer = stage::OrdonVillageStateIDs::Ordon_Faron_Twilight_Cleared;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            chosenLayer = stage::OrdonVillageStateIDs::Ordon_Link_House_Talo_Rescued;
-                                        }
+                                        chosenLayer = stage::OrdonVillageStateIDs::Ordon_Faron_Twilight_Cleared;
                                     }
                                     else
                                     {
@@ -562,46 +492,44 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Ordon_Spring:
                     {
-                        if (roomId == 1)
+                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo saved
+
+                        if (condition)
                         {
-                            condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                TALO_CHASES_MONKEY); // Sword training done on Ordon Day 2
+                            condition =
+                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(FINISHED_SEWERS); // First trip to Sewers done
 
                             if (condition)
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo saved
-                                if (condition)
+                                darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
+                                if (darkIsClear != false)
                                 {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        FINISHED_SEWERS); // First trip to Sewers done
-
-                                    if (condition)
-                                    {
-                                        darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                        if (darkIsClear != false)
-                                        {
-                                            chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
-                                        }
-                                        else
-                                        {
-                                            chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Talo_Rescued;
-                                    }
+                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Faron_Twilight_Cleared;
                                 }
                                 else
                                 {
-                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Sword_Tutorial_Completed;
+                                    chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Finished_Sewers;
                                 }
+                            }
+                            else
+                            {
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Talo_Rescued;
+                            }
+                        }
+                        else
+                        {
+                            condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
+                                TALO_CHASES_MONKEY); // Sword training done on Ordon Day 2
+                            if (condition)
+                            {
+                                chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_Sword_Tutorial_Completed;
                             }
                             else
                             {
                                 chosenLayer = stage::OrdonSpringStateIDs::Ordon_Spring_New_Game;
                             }
                         }
+
                         break;
                     }
 
@@ -618,26 +546,8 @@ namespace mod::game_patch
 
                                 if (condition)
                                 {
-                                    condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                        FINISHED_SEWERS); // First trip to Sewers done
-
-                                    if (condition)
-                                    {
-                                        darkIsClear = libtp::tp::d_save::isDarkClearLV(playerStatusBPtr, 0);
-                                        if (darkIsClear == true)
-                                        {
-                                            chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Faron_Twilight_Cleared;
-                                            libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
-                                        }
-                                        else
-                                        {
-                                            chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Finished_Sewers;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Faron_Twilight_Cleared;
-                                    }
+                                    chosenLayer = stage::OrdonRanchStateIDs::Ordon_Ranch_Faron_Twilight_Cleared;
+                                    libtp::tp::d_com_inf_game::dComIfG_get_timelayer(&chosenLayer);
                                 }
                                 else
                                 {
@@ -658,25 +568,18 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Hyrule_Field:
                     {
-                        if (libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_b
-                                .dark_clear_level_flag >= 0x7)
+                        // First 3 twilights are cleared
+                        if ((libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_b
+                                 .dark_clear_level_flag &
+                             0x7) == 0x7)
                         {
-                            condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                MIDNAS_DESPERATE_HOUR_STARTED); // MDH State Activated
-
-                            if (condition)
+                            if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_COMPLETED))
                             {
-                                condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                                    MIDNAS_DESPERATE_HOUR_COMPLETED); // MDH Completed
-
-                                if (condition)
-                                {
-                                    chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Completed;
-                                }
-                                else
-                                {
-                                    chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Started;
-                                }
+                                chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Completed;
+                            }
+                            else if (libtp::tp::d_com_inf_game::dComIfGs_isEventBit(MIDNAS_DESPERATE_HOUR_STARTED))
+                            {
+                                chosenLayer = stage::HyruleFieldStateIDs::Hyrule_Field_MDH_Started;
                             }
                             else
                             {
@@ -789,13 +692,24 @@ namespace mod::game_patch
 
                     case stage::StageIDs::Hidden_Village:
                     {
-                        condition =
-                            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GAVE_ILIA_HER_CHARM); // Ilia shown Ilia's Charm
+                        condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
+                            GAVE_ILIA_THE_WOOD_STATUE); // Ilia shown the wooden statue
 
                         if (condition != false)
                         {
+                            condition =
+                                libtp::tp::d_com_inf_game::dComIfGs_isEventBit(GOT_ILIAS_CHARM); // Ilia shown Ilia's Charm
+
+                            if (condition != false)
+                            {
+                                chosenLayer = stage::HiddenVillageStateIDs::Hidden_Village_Showed_Ilia_Charm;
+                            }
+                        }
+                        else
+                        {
                             chosenLayer = stage::HiddenVillageStateIDs::Hidden_Village_Showed_Ilia_Charm;
                         }
+
                         break;
                     }
 

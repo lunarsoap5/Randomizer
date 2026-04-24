@@ -77,12 +77,7 @@ namespace mod::game_patch
                                                     rando::customItems::Palace_of_Twilight_Small_Key,
                                                     rando::customItems::Hyrule_Castle_Small_Key,
                                                     rando::customItems::Bulblin_Camp_Key,
-                                                    rando::customItems::Foolish_Item_1,
-                                                    rando::customItems::Foolish_Item_2,
-                                                    rando::customItems::Foolish_Item_3,
-                                                    rando::customItems::Foolish_Item_4,
-                                                    rando::customItems::Foolish_Item_5,
-                                                    rando::customItems::Foolish_Item_6,
+                                                    rando::customItems::Foolish_Item,
                                                     libtp::data::items::Aurus_Memo,
                                                     libtp::data::items::Asheis_Sketch,
                                                     rando::customItems::Forest_Temple_Big_Key,
@@ -148,11 +143,7 @@ namespace mod::game_patch
                                                     rando::customItems::Jump_Strike,
                                                     rando::customItems::Great_Spin,
                                                     libtp::data::items::Ancient_Sky_Book_Empty,
-                                                    rando::customItems::Ancient_Sky_Book_First_Character,
-                                                    rando::customItems::Ancient_Sky_Book_Second_Character,
-                                                    rando::customItems::Ancient_Sky_Book_Third_Character,
-                                                    rando::customItems::Ancient_Sky_Book_Fourth_Character,
-                                                    rando::customItems::Ancient_Sky_Book_Fifth_Character,
+                                                    libtp::data::items::Ancient_Sky_Book_Partly_Filled,
                                                     libtp::data::items::Ancient_Sky_Book_Completed,
                                                     libtp::data::items::Purple_Rupee_Links_House,
                                                     libtp::data::items::Small_Key_N_Faron_Gate,
@@ -219,9 +210,14 @@ namespace mod::game_patch
             switch (item)
             {
                 case items::Ordon_Shield:
-                case items::Boomerang:
                 {
                     itemInfoPtr[item].mShadowSize = 0xFF;
+                    break;
+                }
+                case items::Boomerang:
+                {
+                    itemInfoPtr[item].mFlags = yellowRupeeInfoPtr->mFlags;
+                    itemInfoPtr[item].mShadowSize = yellowRupeeInfoPtr->mShadowSize;
                     break;
                 }
                 default:
@@ -263,7 +259,6 @@ namespace mod::game_patch
         const d_item_data::ItemResource* bigKeyItemResourcePtr = &itemResourcePtr[items::Big_Key];
         const d_item_data::ItemResource* dungeonMapItemResourcePtr = &itemResourcePtr[items::Dungeon_Map];
         const d_item_data::ItemResource* compassItemResourcePtr = &itemResourcePtr[items::Compass];
-        const d_item_data::ItemResource* skybookItemResourcePtr = &itemResourcePtr[items::Ancient_Sky_Book_Empty];
         uint8_t* getSeTypePtr = &libtp::tp::d_a_alink::getSeType[0];
 
         uint32_t listLength = 0;
@@ -271,7 +266,6 @@ namespace mod::game_patch
         const uint8_t bigKeySeType = getSeTypePtr[items::Big_Key];
         const uint8_t dungeonMapSeType = getSeTypePtr[items::Dungeon_Map];
         const uint8_t compassSeType = getSeTypePtr[items::Compass];
-        const uint8_t skyBookSeType = getSeTypePtr[items::Ancient_Sky_Book_Empty];
 
         static const uint8_t customSmallKeyItemIDs[] = {customItems::Forest_Temple_Small_Key,
                                                         customItems::Goron_Mines_Small_Key,
@@ -319,12 +313,6 @@ namespace mod::game_patch
                                                            customItems::Mortal_Draw,
                                                            customItems::Jump_Strike,
                                                            customItems::Great_Spin};
-
-        static const uint8_t customSkyCharacterItemIDs[] = {customItems::Ancient_Sky_Book_First_Character,
-                                                            customItems::Ancient_Sky_Book_Second_Character,
-                                                            customItems::Ancient_Sky_Book_Third_Character,
-                                                            customItems::Ancient_Sky_Book_Fourth_Character,
-                                                            customItems::Ancient_Sky_Book_Fifth_Character};
 
         static const uint8_t customShardsIDs[] = {customItems::Mirror_Piece_1,
                                                   items::Mirror_Piece_2,
@@ -383,21 +371,6 @@ namespace mod::game_patch
             *reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(&itemInfoPtr[customCompassItemIDs[i]])) = compassItemInfo;
             getSeTypePtr[customCompassItemIDs[i]] = compassSeType;
             memcpy(&itemResourcePtr[customCompassItemIDs[i]], compassItemResourcePtr, sizeof(d_item_data::ItemResource));
-        }
-
-        // Set the item info for the custom skybook characters to that of the current Sky Book
-        listLength = (sizeof(customSkyCharacterItemIDs) / sizeof(customSkyCharacterItemIDs[0]));
-
-        const uint32_t skybookItemInfo =
-            *reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(&itemInfoPtr[items::Ancient_Sky_Book_Empty]));
-
-        for (uint32_t i = 0; i < listLength; i++)
-        {
-            *reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(&itemInfoPtr[customSkyCharacterItemIDs[i]])) =
-                skybookItemInfo;
-
-            getSeTypePtr[customSkyCharacterItemIDs[i]] = skyBookSeType;
-            memcpy(&itemResourcePtr[customSkyCharacterItemIDs[i]], skybookItemResourcePtr, sizeof(d_item_data::ItemResource));
         }
 
         // Set the item info for the custom hidden skill items
@@ -515,11 +488,13 @@ namespace mod::game_patch
         // Other Items
         itemFuncPtr[customItems::Bulblin_Camp_Key] = _02_campSmallKeyItemFunc;
         itemFuncPtr[items::Small_Key_N_Faron_Gate] = _02_faronSmallKeyItemFunc;
+        itemFuncPtr[items::Coro_Key] = _02_faronCoroKeyItemFunc;
         itemFuncPtr[items::Shadow_Crystal] = _02_shadowCrystalItemFunc;
         itemFuncPtr[items::Dominion_Rod] = _02_poweredDominionRodItemFunc;
         itemFuncPtr[items::Aurus_Memo] = _02_auruMemoItemFunc;
         itemFuncPtr[items::Ordon_Pumpkin] = _02_ordonPumpkinItemFunc;
         itemFuncPtr[items::Ordon_Goat_Cheese] = _02_ordonGoatCheeseItemFunc;
+        itemFuncPtr[items::Ancient_Sky_Book_Partly_Filled] = _02_partlyFilledSkybookItemFunc;
         itemFuncPtr[items::Ancient_Sky_Book_Completed] = _02_filledSkybookItemFunc;
         itemFuncPtr[items::Big_Wallet] = _02_bigWalletItemFunc;
         itemFuncPtr[items::Giant_Wallet] = _02_giantWalletItemFunc;
@@ -532,19 +507,28 @@ namespace mod::game_patch
         itemFuncPtr[customItems::Jump_Strike] = _02_jumpStrikeItemFunc;
         itemFuncPtr[customItems::Great_Spin] = _02_greatSpinItemFunc;
         itemFuncPtr[items::Vessel_Of_Light_Lanayru] = _02_lanayruVesselItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_1] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_2] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_3] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_4] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_5] = _02_foolishItemFunc;
-        itemFuncPtr[customItems::Foolish_Item_6] = _02_foolishItemFunc;
+        itemFuncPtr[customItems::Foolish_Item] = _02_foolishItemFunc;
+        itemFuncPtr[customItems::South_Faron_Portal] = _02_SFaronPortalItemFunc;
+        itemFuncPtr[customItems::North_Faron_Portal] = _02_NFaronPortalItemFunc;
+        itemFuncPtr[customItems::Kakariko_Gorge_Portal] = _02_GorgePortalItemFunc;
+        itemFuncPtr[customItems::Kakariko_Village_Portal] = _02_KakVillagePortalItemFunc;
+        itemFuncPtr[customItems::Death_Mountain_Portal] = _02_DeathMountainPortalItemFunc;
+        itemFuncPtr[customItems::Castle_Town_Portal] = _02_CastleTownPortalItemFunc;
+        itemFuncPtr[customItems::Zoras_Domain_Portal] = _02_ZorasDomainPortalItemFunc;
+        itemFuncPtr[customItems::Lake_Hylia_Portal] = _02_LakeHyliaPortalItemFunc;
+        itemFuncPtr[customItems::Gerudo_Desert_Portal] = _02_GerudoDesertPortalItemFunc;
+        itemFuncPtr[customItems::Mirror_Chamber_Portal] = _02_MirrorChamberPortalItemFunc;
+        itemFuncPtr[customItems::Snowpeak_Portal] = _02_SnowpeakPortalItemFunc;
+        itemFuncPtr[customItems::Sacred_Grove_Portal] = _02_SacredGrovePortalItemFunc;
+        itemFuncPtr[customItems::Bridge_of_Eldin_Portal] = _02_EldinBridgePortalItemFunc;
+        itemFuncPtr[customItems::Upper_Zoras_River_Portal] = _02_UpperZoraRiverPortalItemFunc;
+        itemFuncPtr[items::Renardos_Letter] = _02_renadosLetterItemFunc;
+        itemFuncPtr[items::Invoice] = _02_invoiceItemFunc;
+        itemFuncPtr[items::Wooden_Statue] = _02_woodenStatueItemFunc;
+        itemFuncPtr[items::Ilias_Charm] = _02_iliasCharmItemFunc;
+        itemFuncPtr[items::Horse_Call] = _02_horseCallItemFunc;
 
         // Some items need a valid getCheckFunc definition.
-        itemGetCheckFuncPtr[customItems::Ancient_Sky_Book_First_Character] = _02_firstSkybookItemGetCheck;
-        itemGetCheckFuncPtr[customItems::Ancient_Sky_Book_Second_Character] = _02_secondSkybookItemGetCheck;
-        itemGetCheckFuncPtr[customItems::Ancient_Sky_Book_Third_Character] = _02_thirdSkybookItemGetCheck;
-        itemGetCheckFuncPtr[customItems::Ancient_Sky_Book_Fourth_Character] = _02_fourthSkybookItemGetCheck;
-        itemGetCheckFuncPtr[customItems::Ancient_Sky_Book_Fifth_Character] = _02_fifthSkybookItemGetCheck;
         itemGetCheckFuncPtr[items::Big_Wallet] = _02_bigWalletItemGetCheck;
         itemGetCheckFuncPtr[items::Giant_Wallet] = _02_giantWalletItemGetCheck;
         itemGetCheckFuncPtr[customItems::Fused_Shadow_1] = _02_firstFusedShadowItemGetCheck;
@@ -563,6 +547,11 @@ namespace mod::game_patch
         itemGetCheckFuncPtr[customItems::Jump_Strike] = _02_jumpStrikeItemGetCheck;
         itemGetCheckFuncPtr[customItems::Bulblin_Camp_Key] = _02_campSmallKeyItemGetCheck;
         itemGetCheckFuncPtr[items::Gate_Keys] = _02_gateKeysItemGetCheck;
+        itemGetCheckFuncPtr[items::Renardos_Letter] = _02_letterItemGetCheck;
+        itemGetCheckFuncPtr[items::Invoice] = _02_invoiceItemGetCheck;
+        itemGetCheckFuncPtr[items::Wooden_Statue] = _02_statueItemGetCheck;
+        itemGetCheckFuncPtr[items::Ilias_Charm] = _02_charmItemGetCheck;
+        itemGetCheckFuncPtr[items::Horse_Call] = _02_horseCallItemGetCheck;
     }
 
     void _02_modifyItemData()
