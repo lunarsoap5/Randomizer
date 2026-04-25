@@ -22,7 +22,7 @@ export BUILDID:='"$(shell date +'%Y%m%d%H%M')"'
 
 # Version
 export _VERSION_MAJOR:=1
-export _VERSION_MINOR:=3
+export _VERSION_MINOR:=4
 export _VERSION_PATCH:=0
 export _VERSION:='"$(_VERSION_MAJOR).$(_VERSION_MINOR).$(_VERSION_PATCH)"'
 # Variant: i.e. Public, NoLogic, Race, etc.
