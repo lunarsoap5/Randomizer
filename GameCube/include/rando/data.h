@@ -300,6 +300,24 @@ namespace mod::rando
         uint8_t flag;     // The unique identifier used to disinguish between checks in the same room.
     } __attribute__((__packed__));
 
+    // These items are given when the specified flag is set
+    class FlagItem
+    {
+       public:
+        FlagItem() {}
+        ~FlagItem() {}
+
+        uint8_t getItemID() const { return this->itemID; }
+        uint8_t getNodeIDX() const { return this->nodeIDX; }
+        uint16_t getFlag() const { return this->flag; }
+
+       private:
+        uint16_t flag;   // The flag to be checked
+        uint8_t nodeIDX; // The stage that the event is in.
+        uint8_t itemID;  // The item to be given.
+        uint8_t padding;
+    } __attribute__((__packed__));
+
     class CustomMessageHeaderInfo
     {
        public:

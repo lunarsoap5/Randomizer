@@ -1676,6 +1676,13 @@ namespace mod
 
             const uint32_t darkClearLevelFlag = playerStatusBPtr->dark_clear_level_flag;
 
+            // Before setting any flags, we want to check and see if we need to give an item for the flag to be set
+            if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(flag))
+            {
+                const uint32_t flagItem = rando::gRandomizer->getFlagItem(flag, 0xFF);
+                rando::gRandomizer->addItemToEventQueue(flagItem);
+            }
+
             switch (flag)
             {
                 // Case block for Wolf -> Human crash patches/bug fixes. Some cutscenes/events either crash or act weird if

@@ -164,6 +164,7 @@ namespace mod::rando
         uint8_t getSkyCharacter();
         uint8_t getBossItem();
         uint8_t getEventItem(uint8_t flag);
+        uint8_t getFlagItem(uint16_t flag, uint8_t nodeID);
         void overrideARC(uint32_t fileAddr, FileDirectory fileDirectory, int32_t roomNo);
         void overrideObjectARC(libtp::tp::d_resource::dRes_info_c* resourcePtr, const char* fileName);
         void overrideEventARC();

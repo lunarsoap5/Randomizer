@@ -118,6 +118,7 @@ namespace mod::rando
         const EntryInfo* getSkyCharacterCheckInfoPtr() const { return &this->skyCharacterCheckInfo; }
         const EntryInfo* getShopItemCheckInfoPtr() const { return &this->shopItemCheckInfo; }
         const EntryInfo* getEventItemCheckInfoPtr() const { return &this->eventItemCheckInfo; }
+        const EntryInfo* getFlagItemCheckInfoPtr() const { return &this->flagItemCheckInfo; }
         const EntryInfo* getStartingItemCheckInfoPtr() const { return &this->startingItemInfo; }
         const EntryInfo* getEntranceTableCheckInfoPtr() const { return &this->entranceTableInfo; }
         const EntryInfo* getBgmTableInfoPtr() const { return &this->bgmTableInfo; }
@@ -160,6 +161,7 @@ namespace mod::rando
         /* 0x64 */ EntryInfo skyCharacterCheckInfo;
         /* 0x68 */ EntryInfo shopItemCheckInfo;
         /* 0x6C */ EntryInfo eventItemCheckInfo;
+        /* 0x6C */ EntryInfo flagItemCheckInfo;
         /* 0x70 */ EntryInfo startingItemInfo;
         /* 0x74 */ EntryInfo entranceTableInfo;
         /* 0x78 */ EntryInfo bgmTableInfo;
@@ -241,6 +243,7 @@ namespace mod::rando
         const SkyCharacter* getSkyBookChecksPtr() const { return this->m_SkyBookChecks; }
         const ObjectArchiveReplacement* getObjectArcReplacementsPtr() const { return this->m_ObjectArcReplacements; }
         const EventItem* getEventChecksPtr() const { return this->m_EventChecks; }
+        const FlagItem* getFlagChecksPtr() const { return this->m_FlagChecks; }
 
         const ShuffledEntrance* getShuffledEntrancesPtr() const { return this->m_ShuffledEntrances; }
         const BGMReplacement* getBgmTablePtr() const { return this->m_BgmTable; }
@@ -260,6 +263,7 @@ namespace mod::rando
         uint16_t getNumBugRewardChecks() const { return this->m_NumBugRewardChecks; }
         uint16_t getNumSkyBookChecks() const { return this->m_NumSkyBookChecks; }
         uint16_t getNumLoadedEventChecks() const { return this->m_NumLoadedEventChecks; }
+        uint16_t getNumLoadedFlagChecks() const { return this->m_NumLoadedFlagChecks; }
         uint16_t getNumLoadedObjectArcReplacements() const { return this->m_NumLoadedObjectArcReplacements; }
         uint16_t getNumShuffledEntrances() const { return this->m_NumShuffledEntrances; }
         uint16_t getNumShuffledBgmTracks() const { return this->m_BgmTableEntries; }
@@ -303,6 +307,7 @@ namespace mod::rando
         void LoadHiddenSkill();
         void LoadBugReward();
         void LoadEventChecks(uint8_t stageIDX);
+        void LoadFlagChecks(uint8_t stageIDX);
         void loadCustomText(const uint8_t* data);
 
         const Header* m_Header;
@@ -318,6 +323,7 @@ namespace mod::rando
         const SkyCharacter* m_SkyBookChecks;
         const ObjectArchiveReplacement* m_ObjectArcReplacements;
         const EventItem* m_EventChecks;
+        const FlagItem* m_FlagChecks;
 
         const BGMReplacement* m_BgmTable;     // Bgm replacement data
         const BGMReplacement* m_FanfareTable; // Fanfare replacement data
@@ -337,6 +343,7 @@ namespace mod::rando
         uint16_t m_NumBugRewardChecks;
         uint16_t m_NumSkyBookChecks;
         uint16_t m_NumLoadedEventChecks;
+        uint16_t m_NumLoadedFlagChecks;
         uint16_t m_NumLoadedObjectArcReplacements;
         uint16_t m_NumShuffledEntrances;
         uint16_t m_BgmTableEntries;
