@@ -12,17 +12,13 @@
 
 #include "rando/randomizer.h"
 #include "tp/control.h"
+#include "tp/d_msg_flow.h"
 #include "data/stages.h"
 #include "data/items.h"
 #include "gc_wii/OSCache.h"
 
 namespace mod::game_patch
 {
-#define TOTAL_FOOLISH_ITEM_MODELS 20
-    extern const uint8_t foolishModelItemList[TOTAL_FOOLISH_ITEM_MODELS];
-
-    extern uint8_t dungeonItemAreaColorIndex;
-
     // Special message ids that use values that are normally never used
     enum SpecialMessageIds
     {
@@ -48,7 +44,7 @@ namespace mod::game_patch
     /**
      * @brief Patches the unused itemFunc corresponding to the poe itemID
      */
-    void _00_poe(void);
+    void _00_poe();
     void _00_handle_poeItem();
 
     // 01 - Function definitions used for setting up the custom state function(s)
@@ -60,6 +56,7 @@ namespace mod::game_patch
     void _02_modifyFoolishShopModel(uint8_t* foolishModelIndexes, uint32_t loopCurrentCount, uint32_t shopID);
     void _02_modifyShopModelScale(uint32_t shopID, uint32_t itemID);
     void giveNodeDungeonItems(const libtp::data::stage::AreaNodesID nodeId, const libtp::data::items::NodeDungeonItemType type);
+    void handleTradeItemFunc();
 
     extern const char* _02_hiddenSkillArc;
     extern const char* _02_mirrorShardArc;
@@ -106,11 +103,13 @@ namespace mod::game_patch
     void _02_hyruleBigKeyItemFunc();
     void _02_campSmallKeyItemFunc();
     void _02_faronSmallKeyItemFunc();
+    void _02_faronCoroKeyItemFunc();
     void _02_shadowCrystalItemFunc();
     void _02_poweredDominionRodItemFunc();
     void _02_auruMemoItemFunc();
     void _02_ordonPumpkinItemFunc();
     void _02_ordonGoatCheeseItemFunc();
+    void _02_partlyFilledSkybookItemFunc();
     void _02_filledSkybookItemFunc();
     void _02_bigWalletItemFunc();
     void _02_giantWalletItemFunc();
@@ -131,11 +130,25 @@ namespace mod::game_patch
     void _02_greatSpinItemFunc();
     void _02_lanayruVesselItemFunc();
     void _02_foolishItemFunc();
-    int32_t _02_firstSkybookItemGetCheck();
-    int32_t _02_secondSkybookItemGetCheck();
-    int32_t _02_thirdSkybookItemGetCheck();
-    int32_t _02_fourthSkybookItemGetCheck();
-    int32_t _02_fifthSkybookItemGetCheck();
+    void _02_SFaronPortalItemFunc();
+    void _02_NFaronPortalItemFunc();
+    void _02_GorgePortalItemFunc();
+    void _02_KakVillagePortalItemFunc();
+    void _02_DeathMountainPortalItemFunc();
+    void _02_CastleTownPortalItemFunc();
+    void _02_ZorasDomainPortalItemFunc();
+    void _02_LakeHyliaPortalItemFunc();
+    void _02_GerudoDesertPortalItemFunc();
+    void _02_MirrorChamberPortalItemFunc();
+    void _02_SnowpeakPortalItemFunc();
+    void _02_SacredGrovePortalItemFunc();
+    void _02_EldinBridgePortalItemFunc();
+    void _02_UpperZoraRiverPortalItemFunc();
+    void _02_renadosLetterItemFunc();
+    void _02_invoiceItemFunc();
+    void _02_woodenStatueItemFunc();
+    void _02_iliasCharmItemFunc();
+    void _02_horseCallItemFunc();
     int32_t _02_bigWalletItemGetCheck();
     int32_t _02_giantWalletItemGetCheck();
     int32_t _02_firstFusedShadowItemGetCheck();
@@ -154,6 +167,11 @@ namespace mod::game_patch
     int32_t _02_jumpStrikeItemGetCheck();
     int32_t _02_campSmallKeyItemGetCheck();
     int32_t _02_gateKeysItemGetCheck();
+    int32_t _02_letterItemGetCheck();
+    int32_t _02_invoiceItemGetCheck();
+    int32_t _02_statueItemGetCheck();
+    int32_t _02_charmItemGetCheck();
+    int32_t _02_horseCallItemGetCheck();
 
     // 03 - Function definitions to modify different values for Link's actions
     void _03_increaseClimbSpeed();
@@ -167,15 +185,20 @@ namespace mod::game_patch
     uint32_t _04_getProgressiveKeyShard();
     uint32_t _04_getProgressiveMirrorShard();
     uint32_t _04_getProgressiveFusedShadow();
+    uint8_t _04_getWarashibeItemCount();
 
     // 05 - Function definitions related to custom messages
     void _05_setCustomItemMessage(libtp::tp::control::TControl* control, const void* TProcessor, uint16_t unk3, uint16_t msgId);
 
+    void* _05_getZel00BmgInf();
     uint32_t _05_getCustomMsgColor(uint8_t colorId);
     const char* _05_getMsgById(uint32_t msgId);
     const char* _05_getMsgById(uint32_t msgId, uint16_t* msgSizeOut);
     const char* _05_getSpecialMsgById(uint32_t msgId);
     const char** _05_replaceMessageString(const char** text);
+
+    extern uint32_t _05_customQueryList[3][3];
+    extern uint32_t _05_customEventList[3][3];
 
     // 06 - Function definitions for assembly patches
     void _06_writeASMPatches();

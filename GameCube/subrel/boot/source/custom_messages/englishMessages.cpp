@@ -208,17 +208,6 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         " wind blows..."
     MSG_END();
-    MSG_BEGIN_ARRAY(talkToMidnaEn)
-        "What is it, "
-        MSG_PLYR_NAME
-        "?"
-        MSG_OPTION_LIST(MSG_OPTION_1)
-        "Transform\n"
-        MSG_OPTION_LIST(MSG_OPTION_2)
-        "Warp\n"
-        MSG_OPTION_LIST(MSG_OPTION_3)
-        "Change time of day"
-    MSG_END();
     MSG_BEGIN_ARRAY(bigWalletEn)
         MSG_SPEED(MSG_SPEED_FAST)
         "You got the "
@@ -227,7 +216,7 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         "!\nYou can now hold\n"
         MSG_COLOR(MSG_COLOR_RED)
-        "5,000 Rupees"
+        "%" PRIu32 " Rupees"
         MSG_COLOR(MSG_COLOR_WHITE)
         "!"
     MSG_END();
@@ -239,21 +228,21 @@ namespace mod::customMessages
         MSG_COLOR(MSG_COLOR_WHITE)
         "!\nYou can now hold\n"
         MSG_COLOR(MSG_COLOR_PURPLE)
-        "9,999 Rupees"
+        "%" PRIu32 " Rupees"
         MSG_COLOR(MSG_COLOR_WHITE)
         "!"
     MSG_END();
     MSG_BEGIN_ARRAY(smallWalletPauseEn)
         MSG_SPEED(MSG_SPEED_FAST)
-        "A wallet from your childhood.\nIt holds up to 1,000 Rupees."
+        "A wallet from your childhood.\nIt holds up to " "%" PRIu32 " Rupees"
     MSG_END();
     MSG_BEGIN_ARRAY(bigWalletPauseEn)
         MSG_SPEED(MSG_SPEED_FAST)
-        "The wallet given to you by Agitha,\nprincess of the insect kingdom.\nIt can hold 5,000 Rupees."
+        "The wallet given to you by Agitha,\nprincess of the insect kingdom.\nIt can hold " "%" PRIu32 " Rupees"
     MSG_END();
     MSG_BEGIN_ARRAY(giantWalletPauseEn)
         MSG_SPEED(MSG_SPEED_FAST)
-        "The wallet given by Agitha to\nbenefactors of the insect kingdom.\nIt can hold up to 9,999 Rupees."
+        "The wallet given by Agitha to\nbenefactors of the insect kingdom.\nIt can hold up to " "%" PRIu32 " Rupees"
     MSG_END();
     MSG_BEGIN_ARRAY(poeSoulEn)
         MSG_SPEED(MSG_SPEED_FAST)
@@ -274,15 +263,6 @@ namespace mod::customMessages
         "%" PRIu32
         MSG_COLOR(MSG_COLOR_WHITE)
         " character(s) so far."
-    MSG_END();
-    MSG_BEGIN_ARRAY(charloDonationEn)
-        "For the sake of peace in Hyrule...\nWould you please make a donation?" 
-        MSG_OPTION_LIST(MSG_OPTION_1) 
-        "100 Rupees\n" 
-        MSG_OPTION_LIST(MSG_OPTION_2) 
-        "50 Rupees\n" 
-        MSG_OPTION_LIST(MSG_OPTION_3) 
-        "Sorry..."
     MSG_END();
     MSG_BEGIN_ARRAY(recognitionMsg)
         MSG_SPEED(MSG_SPEED_FAST)
@@ -362,7 +342,7 @@ namespace mod::customMessages
         // First Ancient Sky Book character
         skyBookCharacterEn,
         sizeof(skyBookCharacterEn),
-        0x013F,
+        0x014E,
 
         // First Fused Shadow
         firstFusedShadowEn,
@@ -382,7 +362,7 @@ namespace mod::customMessages
         // First Mirror Shard
         firstMirrorShardEn,
         sizeof(firstMirrorShardEn),
-        0x0B7,
+        0x13F,
 
         // Second Mirror Shard
         secondMirrorShardEn,
@@ -403,11 +383,6 @@ namespace mod::customMessages
         foolishItemEn,
         sizeof(foolishItemEn),
         0x0077,
-
-        // Talking to Midna
-        talkToMidnaEn,
-        sizeof(talkToMidnaEn),
-        0x0BBB,
 
         // Big Wallet
         bigWalletEn,
@@ -538,7 +513,6 @@ namespace mod::customMessages
     };
 
     const uint32_t totalCustomMessagesUs = sizeof(entriesUs) / sizeof(MsgEntry);
-    const MsgEntry charloDonationEntryUs = {charloDonationEn, sizeof(charloDonationEn), 0x0355};
 
     const ItemWheelMenuStrings itemWheelMenuStringsUs = {
         // areasBeingTracked
@@ -558,9 +532,6 @@ namespace mod::customMessages
 
         // seedIsLoaded
         "Seed",
-
-        // seedIsNotLoaded
-        "No seed is currently loaded",
 
         // yes/no
         "Yes",

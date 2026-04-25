@@ -7,7 +7,6 @@ namespace mod::game_patch
     {
         // Adjust Link's climbing speeds
         libtp::tp::d_a_alink::ClimbVars* ClimbVars = &libtp::tp::d_a_alink::climbVars;
-        libtp::tp::d_a_alink::WallMoveVars* WallMoveVars = &libtp::tp::d_a_alink::wallMoveVars;
         ClimbVars->ladderClimbInitSpeed = 1.8;
         ClimbVars->ladderReachTopClimbUpSpeed = 1.765;
         ClimbVars->ladderTopStartClimbDownSpeed = 1.8;
@@ -15,6 +14,8 @@ namespace mod::game_patch
         ClimbVars->ladderClimbSpeed = 1.575;
         ClimbVars->wallClimbHorizontalSpeed = 2.0;
         ClimbVars->wallClimbVerticalSpeed = 1.875;
+
+        libtp::tp::d_a_alink::WallMoveVars* WallMoveVars = &libtp::tp::d_a_alink::wallMoveVars;
         WallMoveVars->moveSidewaysStickNotHeld = 2.0;
         WallMoveVars->movesidewaysStickHeld = 2.0;
     }

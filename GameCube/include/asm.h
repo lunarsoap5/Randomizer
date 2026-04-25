@@ -16,6 +16,8 @@
 #include "tp/dynamic_link.h"
 #include "tp/f_op_actor.h"
 #include "tp/d_a_alink.h"
+#include "tp/d_msg_flow.h"
+#include "tp/d_menu_fmap.h"
 
 // Original: li 0xE0
 // Normally loads the poesoul item id into r4
@@ -41,17 +43,23 @@ namespace mod::assembly
         int32_t asm_handle_snprintf(char* buffer, std::size_t bufferSize, const char* format, ...);
         int32_t asm_handle_vsnprintf(char* buffer, std::size_t bufferSize, const char* format, va_list args);
 
-        void asmDoLinkHookStart(void);
-        void asmDoLinkHookEnd(void);
+        void asmDoLinkHookStart();
+        void asmDoLinkHookEnd();
         void handleDoLinkHook(libtp::tp::dynamic_link::DynamicModuleControl* dmc);
 
+        void asmAdjustLightSwordColor();
+        void handleAdjustLightSwordColor(uint32_t emitterPtr);
+
+        void asmAdjustLightSwordGlow();
+        uint8_t handleAdjustLightSwordGlow();
+
         // d_e_hp.rel
-        void asmAdjustPoeItem(void);
+        void asmAdjustPoeItem();
         void handleAdjustPoeItem(void*);
 
         // d_e_po.rel
-        void asmAdjustAGPoeItemStart(void);
-        void asmAdjustAGPoeItemEnd(void);
+        void asmAdjustAGPoeItemStart();
+        void asmAdjustAGPoeItemEnd();
         int32_t handleAdjustAGPoeItem(void*);
 
         // d_a_npc_ins.rel
@@ -93,7 +101,7 @@ namespace mod::assembly
         bool handleCheck60PoeReward(uint8_t poeCount);
 
         // d_a_npc_GWolf.o
-        void asmReplaceGWolfWithItem(void);
+        void asmReplaceGWolfWithItem();
         bool handleReplaceGWolfWithItem(const int16_t* l_delFlag, void* daNpcGWolf);
 
         // d_a_obj_master_sword.o
@@ -103,6 +111,35 @@ namespace mod::assembly
 
         // vi.o
         void asmCallCodehandler();
+
+        // d_meter.o
+        void asmManageEquippedItemsAsWolf();
+        int32_t handleManageEquippedItemsAsWolf(int32_t status);
+
+        // d_msg_flow.o
+        void asmGetFlowBranchNode();
+        const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        void asmAdjustFlowBranchNextNode();
+        const uint16_t* handleAdjustFlowBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t queryResult);
+
+        void asmGetFlowEventNode();
+        const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+        void asmAdjustFlowEventNextNode();
+        const uint16_t* handleAdjustFlowEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow);
+
+        void asmGetFlowQueryFnPtr();
+        void* handleGetFlowQueryFnPtr(uint16_t queryListIndex);
+        void asmGetFlowEventFnPtr();
+        void* handleGetFlowEventFnPtr(uint8_t eventListIndex);
+
+        // d_msg_object.o
+        void asmAdjustSelectMsg();
+        const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr);
+
+        // d_menu_fmap.o
+        void asmFmapPreventPortalsRegion();
+        void asmFmapPreventPortalsSpot();
+        bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap);
 
         // d_a_alink.o
 #ifdef TP_JP
