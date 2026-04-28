@@ -41,7 +41,6 @@ namespace mod::events
     extern const libtp::tp::dzx::SCOB gScnChgScob;
     extern const libtp::tp::dzx::ACTR gForestGWolfActr;
     extern const libtp::tp::dzx::ACTR gImpPoeActr;
-    extern const libtp::tp::dzx::ACTR gCampBoarActr;
     extern const libtp::tp::dzx::ACTR gKakShopSlot2Actr;
     extern const libtp::tp::dzx::ACTR SignActr;
     extern const libtp::tp::dzx::ACTR gMstrSrdActr;

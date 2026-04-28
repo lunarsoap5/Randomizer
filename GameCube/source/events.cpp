@@ -76,10 +76,6 @@ namespace mod::events
     // Poe actor template
     const libtp::tp::dzx::ACTR gImpPoeActr = {"E_hp", 0xFF031E00, 4531.19f, -30.f, 2631.961f, 0, 0, 0x0, 0xFFFF};
 
-    // Boar actor template
-    const libtp::tp::dzx::ACTR gCampBoarActr =
-        {"E_wb", 0xFFFFFFFF, 1650.f, 0.f, 1250.f, 0, static_cast<int16_t>(0xA000), 0x0, 0xFFFF};
-
     const libtp::tp::dzx::ACTR gCoroActr =
         {"Kkri", 0x174EFF01, -13505.f, 250.f, -14405.f, 0x65, static_cast<int16_t>(0xC889), 0x0, 0xFFFF};
 
@@ -1264,11 +1260,6 @@ namespace mod::events
 
             case StageIDs::Bulblin_Camp:
             {
-                if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::ESCAPED_BURNING_TENT_IN_BULBLIN_CAMP))
-                {
-                    tools::spawnActor(1, gCampBoarActr);
-                }
-
                 localSignActor.pos.x = -568.556152f;
                 localSignActor.pos.y = 260.f;
                 localSignActor.pos.z = -3969.31f;
