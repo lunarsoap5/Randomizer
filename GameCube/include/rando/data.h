@@ -169,6 +169,7 @@ namespace mod::rando
         Instruction = 0x3,     // Replaces a u32 instruction
         AlwaysLoaded = 0x4,    // Replaces values specifically in the bmgres archive which is always loaded.
         MessageResource = 0x5, // Replaces values in the MESG section of a bmgres archive file.
+        SingleByte = 0x6,      // Replaces a single byte
     };
 
     enum class MirrorChamberRequirement : uint8_t

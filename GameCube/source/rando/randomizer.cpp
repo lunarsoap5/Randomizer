@@ -392,6 +392,15 @@ namespace mod::rando
                     libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(replacementAddress), sizeof(uint8_t));
                     break;
                 }
+                case rando::ReplacementType::SingleByte:
+                {
+                    uint32_t replacementAddress = fileAddr + replacementOffset;
+                    *reinterpret_cast<uint8_t*>((replacementAddress)) = replacementValue;
+
+                    // Clear the cache for the modified value
+                    libtp::gc_wii::os_cache::DCFlushRange(reinterpret_cast<void*>(replacementAddress), sizeof(uint8_t));
+                    break;
+                }
                 case rando::ReplacementType::ItemMessage:
                 {
                     replacementValue = game_patch::_04_verifyProgressiveItem(this, replacementValue);
