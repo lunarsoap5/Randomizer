@@ -1031,6 +1031,10 @@ namespace mod::events
         {
             tools::spawnActor(0, gEponaActr);
         }
+        if (tp::d_a_alink::checkStageName(stagesPtr[StageIDs::Ordon_Spring]))
+        {
+            tools::spawnActor(0, gEponaActr);
+        }
         else if (libtp::tools::playerIsInRoomStage(0, stagesPtr[libtp::data::stage::StageIDs::Ordon_Village]))
         {
             tp::dzx::ACTR localEponaActor;
