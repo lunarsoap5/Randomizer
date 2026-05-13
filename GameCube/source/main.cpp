@@ -857,6 +857,7 @@ namespace mod
                 if (itemToGive < 0x1f)
                 {
                     libtp::tp::d_item::execItemGet(itemToGive);
+                    giveItemToPlayer = CLEAR_QUEUE;
                     break;
                 }
 
