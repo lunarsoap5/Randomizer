@@ -82,7 +82,7 @@ namespace mod::game_patch
                     case stage::StageIDs::Faron_Woods:
                     case stage::StageIDs::Faron_Woods_Interiors:
                     {
-                        if ((roomId == 5) || (roomId == 6)) // North Faron or Mist Area
+                        if ((roomId == 5) || (roomId == 6) || (roomId == 11)) // North Faron or Mist Area
                         {
                             condition = libtp::tp::d_com_inf_game::dComIfGs_isEventBit(ORDON_DAY_2_OVER); // Talo Saved
                             if (condition)
