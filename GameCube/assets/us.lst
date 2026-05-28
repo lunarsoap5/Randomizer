@@ -179,6 +179,7 @@
 800e1408:checkForestOldCentury
 801414cc:checkMagneBootsOn
 801237a8:setLightningSwordEffect
+801108b4:checkKandelaarSwing
 
 // data
 8038EB8C:climbVars

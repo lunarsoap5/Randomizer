@@ -1241,6 +1241,16 @@ namespace mod
         return gReturn_checkEmptyBottle(playerItem);
     }
 
+    KEEP_FUNC uint32_t handle_checkKandelaarSwing(libtp::tp::d_a_alink::daAlink* linkPtr, int32_t value)
+    {
+        if (libtp::tools::playerIsInRoomStage(5, libtp::data::stage::allStages[libtp::data::stage::StageIDs::Faron_Woods]))
+        {
+            // Return 1 to allow the player to run through the mist without needing to manually swing the lantern
+            return 1;
+        }
+        return gReturn_checkKandelaarSwing(linkPtr, value);
+    }
+
     KEEP_FUNC int32_t handle_query049(void* unk1, void* unk2, int32_t unk3)
     {
         const int32_t poeFlag = gReturn_query049(unk1, unk2, unk3);

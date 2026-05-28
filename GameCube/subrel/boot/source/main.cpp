@@ -268,6 +268,9 @@ namespace mod
 
         gReturn_procCoGetItemInit = patch::hookFunction(libtp::tp::d_a_alink::procCoGetItemInit, handle_procCoGetItemInit);
 
+        gReturn_checkKandelaarSwing =
+            patch::hookFunction(libtp::tp::d_a_alink::checkKandelaarSwing, handle_checkKandelaarSwing);
+
         // Audio functions
         // Only hook sceneChange if there is at least one replacement audio
         if (seedPtr->getNumShuffledBgmTracks() > 0)

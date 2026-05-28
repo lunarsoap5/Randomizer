@@ -194,6 +194,7 @@ namespace mod
     KEEP_VAR bool (*gReturn_procFrontRollCrashInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*gReturn_procWolfAttackReverseInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*gReturn_procWolfDashReverseInit)(libtp::tp::d_a_alink::daAlink* daALink, bool param_1) = nullptr;
+    KEEP_VAR uint32_t (*gReturn_checkKandelaarSwing)(libtp::tp::d_a_alink::daAlink* daALink, int32_t value) = nullptr;
     KEEP_VAR libtp::tp::f_op_actor::fopAc_ac_c* (*gReturn_searchBouDoor)(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
 
     KEEP_VAR float (*gReturn_damageMagnification)(libtp::tp::d_a_alink::daAlink* daALink,

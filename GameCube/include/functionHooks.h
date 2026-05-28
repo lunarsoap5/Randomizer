@@ -374,6 +374,9 @@ namespace mod
     int32_t handle_procCoGetItemInit(libtp::tp::d_a_alink::daAlink* linkActrPtr);
     extern int32_t (*gReturn_procCoGetItemInit)(libtp::tp::d_a_alink::daAlink* linkActrPtr);
 
+    uint32_t handle_checkKandelaarSwing(libtp::tp::d_a_alink::daAlink* d_a_alink, int32_t value);
+    extern uint32_t (*gReturn_checkKandelaarSwing)(libtp::tp::d_a_alink::daAlink* d_a_alink, int32_t value);
+
     // Audio functions
     void handle_loadSeWave(void* Z2SceneMgr, uint32_t waveID);
     extern void (*gReturn_loadSeWave)(void* Z2SceneMgr, uint32_t waveID);
