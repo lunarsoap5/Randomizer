@@ -807,11 +807,21 @@ namespace mod
 
                 case 0xD0:
                 {
-                    if (libtp::tp::d_a_alink::checkStageName(
-                            libtp::data::stage::allStages[libtp::data::stage::StageIDs::Lake_Hylia]) &&
-                        !libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::CLEARED_LANAYRU_TWILIGHT))
+                    if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::CLEARED_LANAYRU_TWILIGHT))
                     {
-                        *entranceType = 0x50;
+                        switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
+                        {
+                            case libtp::data::stage::StageIDs::Lake_Hylia:
+                            case libtp::data::stage::StageIDs::Hyrule_Field:
+                            {
+                                *entranceType = 0x50;
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                        }
                     }
                     break;
                 }
