@@ -948,24 +948,26 @@ namespace mod::events
             {
                 case BOSS_DEFEATED:
                 {
-                    // Start at 1 because the current stage has not had the boss flag value updated yet.
-                    uint32_t numDungeons = 1;
+                    uint32_t dungeonVal = 0;
+                    int8_t stageVal = tp::d_com_inf_game::dComIfG_gameInfo.save.mDan.mStageNo;
 
                     libtp::tp::d_save::dSv_memory_c* mSavePtr = savePtr->save_file.mSave;
 
-                    for (int32_t i = 0x10; i < 0x18; i++)
+                    for (int32_t i = 0x17, j = 7; i > 0xF; i++, j++)
                     {
-                        if (libtp::tp::d_save::isDungeonItem(&mSavePtr[i].temp_flags, 3))
+                        // Set the bit mask for the current dungeon because the current stage has not had the boss flag value
+                        // updated yet.
+                        if (libtp::tp::d_save::isDungeonItem(&mSavePtr[i].temp_flags, 3) || (stageVal == i))
                         {
-                            numDungeons++;
+                            dungeonVal |= 0x80 >> j;
                         }
                     }
 
                     // Check if we have completed enough dungeons to break the barrier.
-                    randoPtr->checkSetHCBarrierFlag(rando::HC_Dungeons, numDungeons);
+                    randoPtr->checkSetHCBarrierFlag(rando::HC_Dungeons, dungeonVal);
 
                     // Check if we have completed enough dungeons to unlock the BK check.
-                    randoPtr->checkSetHCBkFlag(rando::HC_BK_Dungeons, numDungeons);
+                    randoPtr->checkSetHCBkFlag(rando::HC_BK_Dungeons, dungeonVal);
 
                     switch (rando::gRandomizer->getSeedPtr()->getStageIDX())
                     {
