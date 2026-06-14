@@ -1808,6 +1808,12 @@ namespace mod::events
                 d_save::offEventBit(&saveFilePtr->mEvent, flags::MIDNAS_DESPERATE_HOUR_STARTED);
             }
 
+            // Remove Ooccoo from the player's inventory if they haven't used it.
+            if (saveFilePtr->player.player_item.item[18] != libtp::data::items::Ooccoo_Jr)
+            {
+                libtp::tp::d_save::setItem(&saveFilePtr->player.player_item, 18, 0xFF);
+            }
+
             // Turn the player back into Link if they are currently wolf
             saveFilePtr->player.player_status_a.currentForm = 0;
         }
