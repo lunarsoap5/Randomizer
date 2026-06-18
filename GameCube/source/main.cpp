@@ -686,6 +686,10 @@ namespace mod
                 stage::allStages[stage::StageIDs::Title_Screen])) // We won't want to shuffle if we are loading a save since
                                                                   // some stages use their default spawn for their entrances.
         {
+            if (seedPtr->isExteriorEREnabled())
+            {
+                lastMode = 0;
+            }
             for (uint32_t i = 0; i < numShuffledEntrances; i++)
             {
                 const rando::ShuffledEntrance* currentEntrance = &shuffledEntrances[i];

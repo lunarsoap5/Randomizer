@@ -37,7 +37,7 @@ namespace mod::rando
         RAINBOW_LANTERN,
         RAINBOW_MIDNA,
         RAINBOW_LIGHT_SWORD,
-        LIGHT_SWORD_ALWAYS_ON
+        EXTERIOR_ER_ENABLED
     };
 
     // Function for checking if specific bits in various bitfields are enabled. Currently used for volatilePatchInfo,
@@ -282,7 +282,7 @@ namespace mod::rando
         bool isLanternRainbow() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::RAINBOW_LANTERN); }
         bool isMidnaHairRainbow() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::RAINBOW_MIDNA); }
         bool isLightSwordRainbow() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::RAINBOW_LIGHT_SWORD); }
-        bool isLightSwordAlwaysOn() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::LIGHT_SWORD_ALWAYS_ON); }
+        bool isExteriorEREnabled() const { return this->flagBitfieldFlagIsEnabled(SeedEnabledFlag::EXTERIOR_ER_ENABLED); }
 
         bool spinnerSpeedIsIncreased() const
         {
