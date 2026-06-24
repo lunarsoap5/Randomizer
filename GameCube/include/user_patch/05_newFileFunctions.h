@@ -26,6 +26,7 @@ namespace mod::user_patch
     void skipMajorCutscenes(rando::Randomizer* randomizer);
     void invertCameraAxis(rando::Randomizer* randomizer);
     void makeLightSwordGlow(rando::Randomizer* randomizer);
+    void alwaysGreatSpin(rando::Randomizer* randomizer);
 } // namespace mod::user_patch
 
 #endif

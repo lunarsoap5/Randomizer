@@ -72,4 +72,13 @@ namespace mod::user_patch
             reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::setLightningSwordEffect) + 0x94);
         *setLightningSwordEffectAddress = 0x40820080;
     }
+
+    void alwaysGreatSpin(rando::Randomizer* randomizer)
+    {
+        (void)randomizer;
+        uint32_t* checkCutLargeTurnState_address =
+            reinterpret_cast<uint32_t*>(reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkCutLargeTurnState) + 0x74);
+
+        *checkCutLargeTurnState_address = ASM_NOP;
+    }
 } // namespace mod::user_patch

@@ -172,6 +172,7 @@
 80141518:checkMagneBootsOn
 801237f4:setLightningSwordEffect
 801417f4:checkKandelaarSwing
+800d2af4:checkCutLargeTurnState
 
 // data
 80388C0C:climbVars

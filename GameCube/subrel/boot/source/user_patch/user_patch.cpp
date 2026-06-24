@@ -14,6 +14,11 @@
 
 namespace mod::user_patch
 {
-    GamePatch oneTimePatches[6] =
-        {removeIBLimit, disableBattleMusic, setInstantText, skipMajorCutscenes, invertCameraAxis, makeLightSwordGlow};
+    GamePatch oneTimePatches[7] = {removeIBLimit,
+                                   disableBattleMusic,
+                                   setInstantText,
+                                   skipMajorCutscenes,
+                                   invertCameraAxis,
+                                   makeLightSwordGlow,
+                                   alwaysGreatSpin};
 }
