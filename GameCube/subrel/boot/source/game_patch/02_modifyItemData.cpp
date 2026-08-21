@@ -569,6 +569,7 @@ namespace mod::game_patch
         itemGetCheckFuncPtr[customItems::Jump_Strike] = _02_jumpStrikeItemGetCheck;
         itemGetCheckFuncPtr[customItems::Bulblin_Camp_Key] = _02_campSmallKeyItemGetCheck;
         itemGetCheckFuncPtr[items::Gate_Keys] = _02_gateKeysItemGetCheck;
+        itemGetCheckFuncPtr[items::Sera_Bottle] = _02_seraBottleItemGetCheck;
     }
 
     void _02_modifyItemData()

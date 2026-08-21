@@ -867,4 +867,10 @@ namespace mod::game_patch
         bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Gate_Keys);
         return static_cast<int32_t>(result);
     }
+
+    KEEP_FUNC int32_t _02_seraBottleItemGetCheck()
+    {
+        bool result = libtp::tp::d_com_inf_game::dComIfGs_isItemFirstBit(libtp::data::items::Sera_Bottle);
+        return static_cast<int32_t>(result);
+    }
 } // namespace mod::game_patch
