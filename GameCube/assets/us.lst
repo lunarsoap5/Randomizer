@@ -181,6 +181,7 @@
 801237a8:setLightningSwordEffect
 801108b4:checkKandelaarSwing
 800d2abc:checkCutLargeTurnState
+800cf284:checkHorseRide
 
 // data
 8038EB8C:climbVars

@@ -688,9 +688,13 @@ namespace mod
                                                                   // some stages use their default spawn for their entrances.
         {
             // If we are riding epona into a loading zone and exterior ER is enabled, clear the last mode so we dont softlock.
-            if (seedPtr->isExteriorEREnabled() && libtp::tp::d_a_alink::checkHorseRide(linkMapPtr))
+            // We check link's ptr to handle edge cases such as CS and title screen
+            if (seedPtr->isExteriorEREnabled() && linkMapPtr)
             {
-                lastMode = 0;
+                if (libtp::tp::d_a_alink::checkHorseRide(linkMapPtr))
+                {
+                    lastMode = 0;
+                }
             }
             for (uint32_t i = 0; i < numShuffledEntrances; i++)
             {
