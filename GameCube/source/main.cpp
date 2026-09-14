@@ -691,7 +691,15 @@ namespace mod
             // We check link's ptr to handle edge cases such as CS and title screen
             if (seedPtr->isExteriorEREnabled() && linkMapPtr)
             {
+                libtp::tp::d_save::dSv_player_status_a_c* playerStatusPtr =
+                    &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a;
                 if (libtp::tp::d_a_alink::checkHorseRide(linkMapPtr))
+                {
+                    lastMode = 0;
+                }
+                // If we are digging as a wolf, we want to spawn in normally since digging into a non-dig entrance spits the
+                // player back out.
+                else if ((playerStatusPtr->currentForm == 1) && (lastMode == 9))
                 {
                     lastMode = 0;
                 }
