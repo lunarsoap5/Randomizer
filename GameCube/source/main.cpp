@@ -534,6 +534,13 @@ namespace mod
 
                     if (storedItem)
                     {
+                        // If for some reason a null byte is inserted into the queue, clear it and continue
+                        // through the queue.
+                        if (storedItem == 0xFF)
+                        {
+                            reserveBytesPtr[i] = 0;
+                            continue;
+                        }
                         const EventItemStatus giveItemToPlayerStatus = randoPtr->getGiveItemToPlayerStatus();
 
                         // If we have the call to clear the queue, then we want to clear the item and break out.
@@ -1718,7 +1725,10 @@ namespace mod
             if (!libtp::tp::d_com_inf_game::dComIfGs_isEventBit(flag))
             {
                 const uint32_t flagItem = rando::gRandomizer->getFlagItem(flag, 0xFF);
-                rando::gRandomizer->addItemToEventQueue(flagItem);
+                if (flagItem != 0)
+                {
+                    rando::gRandomizer->addItemToEventQueue(flagItem);
+                }
             }
 
             switch (flag)
