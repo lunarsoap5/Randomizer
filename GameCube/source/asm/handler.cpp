@@ -13,6 +13,8 @@
 #include "data/flags.h"
 #include "tp/d_a_npc.h"
 #include "game_patch/game_patch.h"
+#include "tp/d_menu_fmap.h"
+#include "tp/d_menu_fmap2D.h"
 
 namespace mod::assembly
 {
@@ -20,16 +22,17 @@ namespace mod::assembly
     {
         if (dmc->mModule)
         {
-            events::onRELLink(randomizer, dmc);
+            events::onRELLink(rando::gRandomizer, dmc);
         }
     }
 
     void handleAdjustPoeItem(void* e_hp_class)
     {
         // Get the item and put it into the queue
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         const uint8_t flag = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(e_hp_class) + 0x77B);
-        const int32_t item = events::onPoe(randomizer, flag);
-        randomizer->addItemToEventQueue(static_cast<uint32_t>(item));
+        const int32_t item = events::onPoe(randoPtr, flag);
+        randoPtr->addItemToEventQueue(static_cast<uint32_t>(item));
 
         // Force wolf Link into the PROC_WOLF_ATN_AC_MOVE proc to skip the backflip and trigger the queue to give the item
         // immediately
@@ -39,17 +42,17 @@ namespace mod::assembly
     int32_t handleAdjustAGPoeItem(void* e_po_class)
     {
         uint8_t flag = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(e_po_class) + 0x5BD);
-        return events::onPoe(randomizer, flag);
+        return events::onPoe(rando::gRandomizer, flag);
     }
 
     void handleAdjustBugReward(uint32_t msgEventAddress, uint8_t bugID)
     {
-        events::onBugReward(randomizer, msgEventAddress, bugID);
+        events::onBugReward(rando::gRandomizer, msgEventAddress, bugID);
     }
 
     uint8_t handleAdjustSkyCharacter()
     {
-        return events::onSkyCharacter(randomizer);
+        return events::onSkyCharacter(rando::gRandomizer);
     }
 
     void handleAdjustFieldItemParams(libtp::tp::f_op_actor::fopAc_ac_c* fopAC, void* daObjLife)
@@ -82,10 +85,9 @@ namespace mod::assembly
 
     uint8_t handleShowReekfishPath(uint8_t scent)
     {
+        // If we are currently at Snowpeak and the flag for having smelled a Reekfish is set
         if ((libtp::tp::d_a_alink::checkStageName(libtp::data::stage::allStages[libtp::data::stage::StageIDs::Snowpeak])) &&
-            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(
-                libtp::data::flags::GOT_REEKFISH_SCENT)) // If we are currently at Snowpeak and the flag for having
-                                                         // smelled a Reekfish is set
+            libtp::tp::d_com_inf_game::dComIfGs_isEventBit(libtp::data::flags::GOT_REEKFISH_SCENT))
         {
             return libtp::data::items::Item::Reekfish_Scent;
         }
@@ -127,7 +129,7 @@ namespace mod::assembly
         if ((appearFlag == -1) || libtp::tp::d_a_npc::daNpcT_chkEvtBit(appearFlag))
         {
             const uint32_t markerFlag = *reinterpret_cast<uint8_t*>(reinterpret_cast<uint32_t>(daNpcGWolf) + 0xE1E);
-            events::onHiddenSkill(mod::randomizer, daNpcGWolf, delFlag, markerFlag);
+            events::onHiddenSkill(rando::gRandomizer, daNpcGWolf, delFlag, markerFlag);
         }
 
         return flagIsSet;
@@ -138,17 +140,128 @@ namespace mod::assembly
         using namespace libtp::data;
 
         // Give the player the Master Sword replacement
-        uint32_t itemToGive = randomizer->getEventItem(items::Master_Sword);
-        randomizer->addItemToEventQueue(itemToGive);
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        uint32_t itemToGive = randoPtr->getEventItem(items::Master_Sword);
+        randoPtr->addItemToEventQueue(itemToGive);
 
         // Give the player the Shadow Crystal replacement
-        itemToGive = randomizer->getEventItem(items::Shadow_Crystal);
-        randomizer->addItemToEventQueue(itemToGive);
+        itemToGive = randoPtr->getEventItem(items::Shadow_Crystal);
+        randoPtr->addItemToEventQueue(itemToGive);
 
         // Set the local event flag to make the sword de-spawn and set the save file event flag.
         libtp::tp::d_save::dSv_info_c* savePtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save;
         libtp::tp::d_save::onEventBit(&savePtr->mTmp, 0x820);
         libtp::tp::d_save::onEventBit(&savePtr->save_file.mEvent, 0x2120);
+    }
+
+    int32_t handleManageEquippedItemsAsWolf(int32_t status)
+    {
+        // If the item ring is open, we want to be able to manage our items at any time, even as wolf
+        if (rando::gRandomizer->getItemWheelMenuPtr()->ringIsOpen())
+        {
+            return 0;
+        }
+        return status;
+    }
+
+    const uint16_t* handleAdjustFlowBranchNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow, int32_t queryResult)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomBranchNextNode(
+            msgFlow,
+            rando::gRandomizer->getFlowContext(),
+            queryResult);
+    }
+
+    const uint16_t* handleAdjustFlowEventNextNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getCustomEventNextNode(
+            msgFlow,
+            rando::gRandomizer->getFlowContext());
+    }
+
+    const uint8_t* handleGetFlowEventNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
+        rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchEventNode(msgFlow,
+                                                                                 rando::gRandomizer->getFlowContext(),
+                                                                                 mutFlowNodePtr);
+        return mutFlowNodePtr;
+    }
+
+    const uint8_t* handleGetFlowBranchNode(libtp::tp::d_msg_flow::dMsgFlow* msgFlow)
+    {
+        uint8_t* mutFlowNodePtr = rando::gRandomizer->getMutFlowNodePtr();
+        rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->tryPatchBranchNode(msgFlow,
+                                                                                  rando::gRandomizer->getFlowContext(),
+                                                                                  mutFlowNodePtr);
+        return mutFlowNodePtr;
+    }
+
+    void* handleGetFlowQueryFnPtr(uint16_t queryListIndex)
+    {
+        if (queryListIndex >= 53)
+        {
+            uint8_t newIndex = queryListIndex - 53;
+            uint32_t* ptmf = game_patch::_05_customQueryList[newIndex];
+            return reinterpret_cast<void*>(ptmf);
+        }
+        return nullptr;
+    }
+
+    void* handleGetFlowEventFnPtr(uint8_t eventListIndex)
+    {
+        if (eventListIndex >= 43)
+        {
+            uint8_t newIndex = eventListIndex - 43;
+            uint32_t* ptmf = game_patch::_05_customEventList[newIndex];
+            return reinterpret_cast<void*>(ptmf);
+        }
+        return nullptr;
+    }
+
+    const char* handleAdjustSelectMsg(uint16_t infIndex, void* infDataBlockPtr)
+    {
+        uint8_t bmgNumber = 0;
+        if (infDataBlockPtr != mod::game_patch::_05_getZel00BmgInf())
+        {
+            bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
+
+        return rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
+                                                                                        rando::gRandomizer->getFlowContext(),
+                                                                                        infIndex);
+    }
+
+    bool handleFmapPreventPortals(libtp::tp::d_menu_fmap::dMenu_Fmap* dMenuFMap)
+    {
+        // Checks if the region the map is currently zoomed in on is unlocked.
+        // This is used to check whether or not to show portals on Z press.
+        uint8_t regionCursor = dMenuFMap->mpDraw2DBack->mRegionCursor;
+
+        return libtp::tp::d_save::isRegionBit(
+            &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_last_stay_info,
+            regionCursor + 1);
+    }
+
+    void handleAdjustLightSwordColor(uint32_t emitterPtr)
+    {
+        GXColor lsColor;
+        if (rando::gRandomizer->getSeedPtr()->isLightSwordRainbow())
+        {
+            lsColor = events::getRainbowRGB(127.5f);
+        }
+        else
+        {
+            lsColor = static_cast<GXColor>(rando::gRandomizer->getSeedPtr()->getRawRGBTablePtr()->getLightSwordColor());
+        }
+        *reinterpret_cast<GXColor*>((emitterPtr + 0x50)) = lsColor;
+        *reinterpret_cast<GXColor*>((emitterPtr + 0x55)) = lsColor;
+        return;
+    }
+
+    uint8_t handleAdjustLightSwordGlow()
+    {
+        return libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_status_a.equipment[1];
     }
 
 #ifdef TP_JP

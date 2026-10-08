@@ -5,6 +5,7 @@
 
 #include "item_wheel_menu.h"
 #include "main.h"
+#include "events.h"
 #include "tp/resource.h"
 #include "data/stages.h"
 #include "tp/d_meter_HIO.h"
@@ -15,44 +16,16 @@
 #include "tp/d_a_alink.h"
 #include "tp/d_msg_class.h"
 #include "data/flags.h"
+#include "functionHooks.h"
+#include "tp/d_menu_Ring.h"
+#include "tp/d_meter2_draw.h"
+#include "tp/d_menu_window.h"
+#include "tp/d_item_data.h"
+#include "game_patch/game_patch.h"
 
 namespace mod::item_wheel_menu
 {
     using namespace libtp::data::stage;
-
-    ItemWheelMenuData itemWheelMenuData;
-    bool ringDrawnThisFrame = false;
-    bool displayMenu = false;
-
-    KEEP_VAR void (*return_dMenuRing__create)(void* dMenuRing) = nullptr;
-    KEEP_VAR void (*return_dMenuRing__delete)(void* dMenuRing) = nullptr;
-    KEEP_VAR void (*return_dMenuRing__draw)(void* dMenuRing) = nullptr;
-
-    // Set up an array to hold each area's color id
-    const uint8_t areaColorIds[] = {MSG_COLOR_GREEN_HEX,
-                                    MSG_COLOR_RED_HEX,
-                                    CUSTOM_MSG_COLOR_BLUE_HEX,
-                                    MSG_COLOR_ORANGE_HEX,
-                                    MSG_COLOR_LIGHT_BLUE_HEX,
-                                    CUSTOM_MSG_COLOR_DARK_GREEN_HEX,
-                                    MSG_COLOR_YELLOW_HEX,
-                                    MSG_COLOR_PURPLE_HEX,
-                                    CUSTOM_MSG_COLOR_SILVER_HEX,
-                                    MSG_COLOR_GREEN_HEX,
-                                    MSG_COLOR_ORANGE_HEX};
-
-    // Set up an array with all of the area node ids that small keys are tracked
-    const AreaNodesID smallKeyAreaNodes[] = {AreaNodesID::Forest_Temple,
-                                             AreaNodesID::Goron_Mines,
-                                             AreaNodesID::Lakebed_Temple,
-                                             AreaNodesID::Arbiters_Grounds,
-                                             AreaNodesID::Snowpeak_Ruins,
-                                             AreaNodesID::Temple_of_Time,
-                                             AreaNodesID::City_in_the_Sky,
-                                             AreaNodesID::Palace_of_Twilight,
-                                             AreaNodesID::Hyrule_Castle,
-                                             AreaNodesID::Faron,
-                                             AreaNodesID::Gerudo_Desert};
 
     void setHUDButtonsAlpha(bool menuIsDisplayed)
     {
@@ -69,16 +42,20 @@ namespace mod::item_wheel_menu
         }
     }
 
-    KEEP_FUNC void handle_dMenuRing__create(void* dMenuRing)
+    KEEP_FUNC void handle_dMenuRing__create(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing)
     {
+        // Set the value that checks the ring status
+        ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
+        itemWheelMenuPtr->setRingOpen(true);
+
         // Handle whether the controller buttons should be displayed or not
-        setHUDButtonsAlpha(displayMenu);
+        setHUDButtonsAlpha(itemWheelMenuPtr->shouldDisplayMenu());
 
         // Call the original function
-        return_dMenuRing__create(dMenuRing);
+        gReturn_dMenuRing__create(dMenuRing);
     }
 
-    KEEP_FUNC void handle_dMenuRing__delete(void* dMenuRing)
+    KEEP_FUNC void handle_dMenuRing__delete(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing)
     {
         (void)dMenuRing;
 
@@ -86,47 +63,55 @@ namespace mod::item_wheel_menu
         // Hardcode false since the ring isn't being drawn anymore
         setHUDButtonsAlpha(false);
 
+        // Set the value that checks the ring status
+        ItemWheelMenu* itemWheelMenuPtr = rando::gRandomizer->getItemWheelMenuPtr();
+        itemWheelMenuPtr->setRingOpen(false);
+
         // If the item wheel is being closed, we also want to close the menu. This way, if the player forgets to close it or
         // cannot remember how, closing the item wheel will also close the menu.
-        displayMenu = false;
-
-        // dMenuRing__delete is an empty function, so don't need to call the original function
+        itemWheelMenuPtr->dontDisplayMenu();
     }
 
-    KEEP_FUNC void handle_dMenuRing__draw(void* dMenuRing)
+    KEEP_FUNC void handle_dMenuRing__draw(libtp::tp::d_menu_ring::dMenu_Ring_c* dMenuRing)
     {
         using namespace libtp::tp::m_do_controller_pad;
         using namespace libtp::data::items;
+        using namespace libtp::tp::d_meter2_info;
+        using namespace libtp::tp::J2DPicture;
+        using namespace libtp::tp::J2DPane;
+        using namespace libtp::tp::d_item_data;
 
-        const ItemWheelMenuData* data = &itemWheelMenuData;
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        ItemWheelMenu* itemWheelMenuPtr = randoPtr->getItemWheelMenuPtr();
+        ItemWheelMenuData* data = itemWheelMenuPtr->getDataPtr();
 
         // Failsafe: If textData is not defined, then none of the strings are loaded
-        if (!data->textData)
+        if (!data->getTextDataPtr())
         {
             // Call the original function before returning
-            return return_dMenuRing__draw(dMenuRing);
+            return gReturn_dMenuRing__draw(dMenuRing);
         }
 
         // Check if the menu should be drawn
-        bool shouldDisplayMenu = displayMenu;
+        bool shouldDisplayMenu = itemWheelMenuPtr->shouldDisplayMenu();
 
         // If the ring was already drawn this frame, then dont check the buttons
-        if (!ringDrawnThisFrame)
+        if (!itemWheelMenuPtr->shouldDrawRingThisFrame())
         {
             // Check if either Start or Z were pressed this frame
             if (checkButtonsPressedThisFrame(PadInputs::Button_Start | PadInputs::Button_Z))
             {
                 shouldDisplayMenu = !shouldDisplayMenu;
-                displayMenu = shouldDisplayMenu;
-                ringDrawnThisFrame = true;
+                itemWheelMenuPtr->setDisplayMenu(shouldDisplayMenu);
+                itemWheelMenuPtr->drawRingThisFrame();
 
                 // Handle whether the controller buttons should be displayed or not
                 setHUDButtonsAlpha(shouldDisplayMenu);
             }
         }
 
-        const ItemWheelMenuStrings* strings = &data->strings;
-        const ItemWheelMenuOffsets* offsets = &data->offsets;
+        const ItemWheelMenuStrings* strings = data->getStringsPtr();
+        const ItemWheelMenuOffsets* offsets = data->getOffsetsPtr();
 
         // Get the current position of the ring
         const float* ringPos = reinterpret_cast<float*>(reinterpret_cast<uint32_t>(dMenuRing) + 0x568);
@@ -158,7 +143,56 @@ namespace mod::item_wheel_menu
         }
 
         // Call the original function now, as everything else should be drawn on top of the vanilla stuff
-        return_dMenuRing__draw(dMenuRing);
+        gReturn_dMenuRing__draw(dMenuRing);
+
+        libtp::tp::d_save::dSv_player_c* playerPtr = &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player;
+
+        bool questStatus = itemWheelMenuPtr->shouldChangeQuestItem();
+        uint8_t currentSlot = dMenuRing->mItemSlots[dMenuRing->mCurrentSlot];
+
+        if (currentSlot == 0x15)
+        {
+            if (game_patch::_04_getWarashibeItemCount() >= 0x2)
+            {
+                events::drawDpadIcon(ringPosX + 330, ringPosY + 194, 30, 30);
+            }
+            if (checkButtonsPressedThisFrame(PadInputs::Button_DPad_Right) && questStatus)
+            {
+                itemWheelMenuPtr->changeQuestItem(!questStatus);
+                uint8_t warashibeItem = events::setNextWarashibeItem();
+
+                for (int32_t i = 0; i < dMenuRing->mTotalItemTexToAlloc; i++)
+                {
+                    if (dMenuRing->mItemSlots[i] == currentSlot)
+                    {
+                        int32_t i_textureNum = readItemTexture(&g_meter2_info,
+                                                               warashibeItem,
+                                                               dMenuRing->mpItemBuf[i][0],
+                                                               NULL,
+                                                               dMenuRing->mpItemBuf[i][1],
+                                                               NULL,
+                                                               dMenuRing->mpItemBuf[i][2],
+                                                               NULL,
+                                                               NULL,
+                                                               NULL,
+                                                               -1);
+
+                        for (int32_t k = 0; k < i_textureNum; k++)
+                        {
+                            dMenuRing->mpItemTex[i][k] = new J2DPicture(dMenuRing->mpItemBuf[i][k]);
+                            setBasePosition(dMenuRing->mpItemTex[i][k], J2DBasePosition_4);
+                        }
+
+                        uint8_t texScale = item_resource[warashibeItem].mTexScale;
+                        float fVar1 = (texScale / 100.0f);
+                        float fVar2 = (dMenuRing->mpItemBuf[i][0]->width / 48.0f);
+                        fVar1 = fVar2 * fVar1;
+                        dMenuRing->mItemSlotParam1[i] = fVar1;
+                        dMenuRing->mItemSlotParam2[i] = (dMenuRing->mpItemBuf[i][0]->height / 48.0f * (texScale / 100.0f));
+                    }
+                }
+            }
+        }
 
         // Everything after this point is only drawn in the menu
         if (!shouldDisplayMenu)
@@ -190,35 +224,14 @@ namespace mod::item_wheel_menu
             }
         };
 
-        // Get the current seed
-        bool seedIsLoaded = false;
-        rando::Randomizer* rando = randomizer;
+        // Get the current seed name
+        snprintf(buf, sizeof(buf), "%s: %s", strings->seedIsLoaded, randoPtr->getSeedPtr()->getHeaderPtr()->getSeedNamePtr());
 
-        if (randoIsEnabled(rando))
-        {
-            rando::MinSeedInfo* minSeedInfo = rando->m_SeedInfo.minSeedInfo;
-            if (minSeedInfo)
-            {
-                snprintf(buf, sizeof(buf), "%s: %s", strings->seedIsLoaded, minSeedInfo->fileName);
-                seedIsLoaded = true;
-            }
-        }
-
-        const char* seedText;
-        if (seedIsLoaded)
-        {
-            seedText = buf;
-        }
-        else
-        {
-            seedText = strings->seedIsNotLoaded;
-        }
-
-        // Draw the current seed
+        // Draw the current seed name
         constexpr int32_t currentSeedPosXOffset = windowPosXOffset + 7;
         constexpr int32_t currentSeedPosYOffset = windowPosYOffset + 20;
 
-        events::drawText(seedText, ringPosX + currentSeedPosXOffset, ringPosY + currentSeedPosYOffset, mainTextColor, textSize);
+        events::drawText(buf, ringPosX + currentSeedPosXOffset, ringPosY + currentSeedPosYOffset, mainTextColor, textSize);
 
         // Draw the main text for the fused shadows and mirror shards
         constexpr int32_t shadowsAndShardsMainPosXOffset = currentSeedPosXOffset;
@@ -231,8 +244,7 @@ namespace mod::item_wheel_menu
                          textSize);
 
         // Get the counts for the fused shadows and mirror shards
-        libtp::tp::d_save::dSv_player_collect_c* playerCollectPtr =
-            &libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_collect;
+        libtp::tp::d_save::dSv_player_collect_c* playerCollectPtr = &playerPtr->player_collect;
 
         uint32_t shadowsCount = 0;
         uint32_t shardsCount = 0;
@@ -434,7 +446,8 @@ namespace mod::item_wheel_menu
         int32_t tempPosY = ringPosY + areasPosYOffset;
 
         const char* const* areas = strings->areasBeingTracked;
-        const uint8_t* areaColorsPtr = &areaColorIds[0];
+        const uint8_t* areaColorsPtr = data->getAreaColorIdsPtr();
+        const AreaNodesID* smallKeyAreaNodesPtr = data->getSmallKeyAreaNodesPtr();
 
         for (uint32_t i = 0; i < TrackedAreas::TRACKED_AREAS_END; i++)
         {
@@ -448,9 +461,25 @@ namespace mod::item_wheel_menu
             {
                 // Get the small key count for the current area
                 const uint8_t* memoryFlags =
-                    events::getNodeMemoryFlags(smallKeyAreaNodes[i], static_cast<AreaNodesID>(currentAreaNodeId));
+                    events::getNodeMemoryFlags(smallKeyAreaNodesPtr[i], static_cast<AreaNodesID>(currentAreaNodeId));
 
-                const uint32_t smallKeyCount = memoryFlags[0x1C];
+                uint32_t smallKeyCount = 0;
+                if (i == TrackedAreas::FARON_WOODS)
+                {
+                    // Faron Keys use flags instead of the standard byte
+                    static const uint8_t faronKeyFlags[] = {0xC, 0x14};
+                    for (uint32_t j = 0; j < 2; j++)
+                    {
+                        if (libtp::tp::d_com_inf_game::dComIfGs_isStageSwitch(0x2, faronKeyFlags[j]))
+                        {
+                            smallKeyCount++;
+                        }
+                    }
+                }
+                else
+                {
+                    smallKeyCount = memoryFlags[0x1C];
+                }
                 const uint32_t dungeonBits = memoryFlags[0x1D];
 
                 snprintf(buf, sizeof(buf), "%" PRIu32, smallKeyCount);

@@ -6,7 +6,7 @@
 #include "tp/resource.h"
 #include "rando/customItems.h"
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
 #endif
 
@@ -16,7 +16,7 @@
 namespace mod::customMessages
 {
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
     using namespace libtp::tp::d_s_logo;
 #endif
 
@@ -25,26 +25,22 @@ namespace mod::customMessages
         // Get the MsgEntry to use
         const MsgEntry* entries;
         uint32_t totalCustomMessages;
-#ifdef TP_US
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+
+#if defined TP_US && !defined TP_WUS2
         entries = entriesUs;
         totalCustomMessages = totalCustomMessagesUs;
 #elif defined TP_JP
         entries = entriesJp;
         totalCustomMessages = totalCustomMessagesJp;
-#elif defined TP_EU
-        switch (currentLanguage)
+#elif defined TP_EU || defined TP_WUS2
+        switch (randoPtr->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
             {
                 entries = entriesUs;
                 totalCustomMessages = totalCustomMessagesUs;
-                break;
-            }
-            case Languages::de:
-            {
-                entries = entriesDe;
-                totalCustomMessages = totalCustomMessagesDe;
                 break;
             }
             case Languages::fr:
@@ -59,12 +55,20 @@ namespace mod::customMessages
                 totalCustomMessages = totalCustomMessagesSp;
                 break;
             }
+#ifndef TP_WUS2
+            case Languages::de:
+            {
+                entries = entriesDe;
+                totalCustomMessages = totalCustomMessagesDe;
+                break;
+            }
             case Languages::it:
             {
                 entries = entriesIt;
                 totalCustomMessages = totalCustomMessagesIt;
                 break;
             }
+#endif
         }
 #endif
         // Get the total size to allocate for the table
@@ -116,8 +120,8 @@ namespace mod::customMessages
         }
 
         // Assign the buffer and total entries
-        m_MsgTableInfo = buf;
-        m_TotalMsgEntries = static_cast<uint16_t>(totalCustomMessages);
+        randoPtr->setMsgTableInfoPtr(buf);
+        randoPtr->setTotalMsgEntries(static_cast<uint16_t>(totalCustomMessages));
     }
 
     void setDungeonItemAreaColorIndex()
@@ -125,26 +129,21 @@ namespace mod::customMessages
         // Get the MsgEntry to use
         const MsgEntry* entries;
         uint32_t totalCustomMessages;
-#ifdef TP_US
+
+#if defined TP_US && !defined TP_WUS2
         entries = entriesUs;
         totalCustomMessages = totalCustomMessagesUs;
 #elif defined TP_JP
         entries = entriesJp;
         totalCustomMessages = totalCustomMessagesJp;
-#elif defined TP_EU
-        switch (currentLanguage)
+#elif defined TP_EU || defined TP_WUS2
+        switch (rando::gRandomizer->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
             {
                 entries = entriesUs;
                 totalCustomMessages = totalCustomMessagesUs;
-                break;
-            }
-            case Languages::de:
-            {
-                entries = entriesDe;
-                totalCustomMessages = totalCustomMessagesDe;
                 break;
             }
             case Languages::fr:
@@ -159,12 +158,20 @@ namespace mod::customMessages
                 totalCustomMessages = totalCustomMessagesSp;
                 break;
             }
+#ifndef TP_WUS2
+            case Languages::de:
+            {
+                entries = entriesDe;
+                totalCustomMessages = totalCustomMessagesDe;
+                break;
+            }
             case Languages::it:
             {
                 entries = entriesIt;
                 totalCustomMessages = totalCustomMessagesIt;
                 break;
             }
+#endif
         }
 #endif
         // Find the Forest Temple small key text
@@ -211,8 +218,8 @@ namespace mod::customMessages
             if (memcmp(currentText, areaTextAndColor, areaTextAndColorSize - 1) == 0)
             {
                 // Set the index to where the color id is
-                game_patch::dungeonItemAreaColorIndex =
-                    static_cast<uint8_t>((currentText - smallKeyText) + areaTextAndColorSize - 2);
+                rando::gRandomizer->setDungeonItemAreaColorIndex(
+                    static_cast<uint8_t>((currentText - smallKeyText) + areaTextAndColorSize - 2));
 
                 return;
             }
@@ -224,28 +231,23 @@ namespace mod::customMessages
         using namespace item_wheel_menu;
 
         // Get the ItemWheelMenuData and itemWheeleStringsSize to use
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         const ItemWheelMenuStrings* stringsSrc;
         const ItemWheelMenuOffsets* offsetsSrc;
-#ifdef TP_US
+#if defined TP_US && !defined TP_WUS2
         stringsSrc = &itemWheelMenuStringsUs;
         offsetsSrc = &itemWheelMenuOffsetsUs;
 #elif defined TP_JP
         stringsSrc = &itemWheelMenuStringsJp;
         offsetsSrc = &itemWheelMenuOffsetsJp;
-#elif defined TP_EU
-        switch (currentLanguage)
+#elif defined TP_EU || defined TP_WUS2
+        switch (randoPtr->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
             {
                 stringsSrc = &itemWheelMenuStringsUs;
                 offsetsSrc = &itemWheelMenuOffsetsUs;
-                break;
-            }
-            case Languages::de:
-            {
-                stringsSrc = &itemWheelMenuStringsDe;
-                offsetsSrc = &itemWheelMenuOffsetsDe;
                 break;
             }
             case Languages::fr:
@@ -260,12 +262,20 @@ namespace mod::customMessages
                 offsetsSrc = &itemWheelMenuOffsetsSp;
                 break;
             }
+#ifndef TP_WUS2
+            case Languages::de:
+            {
+                stringsSrc = &itemWheelMenuStringsDe;
+                offsetsSrc = &itemWheelMenuOffsetsDe;
+                break;
+            }
             case Languages::it:
             {
                 stringsSrc = &itemWheelMenuStringsIt;
                 offsetsSrc = &itemWheelMenuOffsetsIt;
                 break;
             }
+#endif
         }
 #endif
         // Get the total length used for the strings
@@ -285,11 +295,11 @@ namespace mod::customMessages
         char* textData = new (sizeof(char)) char[totalStringsLength + menuStringsEntries];
 
         // Set up itemWheelMenuData variables
-        ItemWheelMenuData* dataDest = &itemWheelMenuData;
+        ItemWheelMenuData* dataDest = randoPtr->getItemWheelMenuPtr()->getDataPtr();
 
         // Set up the strings
         // The menu strings struct should only contain const char* pointers, so can just cast that to an array
-        const char** menuStringsDest = reinterpret_cast<const char**>(&dataDest->strings);
+        const char** menuStringsDest = reinterpret_cast<const char**>(dataDest->getStringsPtr());
 
         uint32_t writtenSize = 0;
         for (uint32_t i = 0; i < menuStringsEntries; i++)
@@ -312,9 +322,9 @@ namespace mod::customMessages
         }
 
         // Set up the offsets
-        memcpy(&dataDest->offsets, offsetsSrc, sizeof(dataDest->offsets));
+        dataDest->createOffsets(offsetsSrc);
 
         // Assign textData
-        dataDest->textData = textData;
+        dataDest->setTextDataPtr(textData);
     }
 } // namespace mod::customMessages

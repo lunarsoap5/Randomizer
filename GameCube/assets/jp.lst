@@ -47,6 +47,9 @@
 80026b58:stageLoader
 80025014:dStage_playerInit
 8044aea4:mStayNo
+8044aea5:mOldStayNo
+80026d38:dStage_Create
+804002d4:mDemoArcName
 
 // d_save.o
 80032AA8:getRupeeMax
@@ -60,8 +63,11 @@
 800349bc:isEventBit
 80034860:isSwitch_dSv_memBit
 80034810:onSwitch_dSv_memBit
+80035200:onSwitch_dSv_info
 800352b0:offSwitch_dSv_info
 80034838:offSwitch_dSv_memBit
+80034be8:isSwitch_dSv_danBit
+80034dac:onOneSwitch
 803a13e8:saveBitLabels
 80032bb0:isDarkClearLV
 80032fb8:setItem
@@ -70,8 +76,13 @@
 80034368:onLightDropGetFlag
 80032bec:isTransformLV
 800337ec:checkEmptyBottle
+80033c2c:setWarashibeItem
+80032e4c:onRegionBit
+80032e78:isRegionBit
+80033e94:offFirstBit
 
 // d_event.o
+80041D34:talkEnd
 80042778:defaultSkipStb
 800429D4:skipper
 
@@ -118,6 +129,7 @@
 803A96D8:item_getcheck_func_ptr
 80098704:item_func_WOOD_STICK
 800982f4:item_func_UTUWA_HEART
+800982dc:item_func_KAKERA_HEART
 
 // d_a_alink.h
 8009da98:checkStageName
@@ -150,6 +162,15 @@
 8012d90c:procWolfDashReverseInit
 8013c914:procWolfAttackReverseInit
 8012dbf4:procWolfAtnActorMoveInit
+800b52bc:decideDoStatus
+800b9f88:checkGroundSpecialMode
+800c0348:checkDungeon
+800c02bc:checkField
+800c0300:checkBossRoom
+800c0390:checkCastleTown
+800e1440:checkForestOldCentury
+80141518:checkMagneBootsOn
+801237f4:setLightningSwordEffect
 
 // data
 80388C0C:climbVars
@@ -163,6 +184,7 @@
 801b070c:dMenuCollect_screenSet
 
 // JKRHeap.o
+802D0AC0:resize1_JKRHeap
 802D1134:__nw_JKRHeap
 802D11D8:__dl_JKRHeap
 
@@ -284,6 +306,9 @@
 8002dca8:dComIfGs_getMaxLifeGauge
 8002d2fc:dComIfGp_setNextStage
 8002d7d0:dComIfGs_onStageBossEnemy
+8002d628:dComIfGs_onStageSwitch
+8002d740:dComIfGs_isStageSwitch
+8002e974:dComIfGs_gameStart
 
 // data
 80400300:dComIfG_gameInfo
@@ -292,6 +317,7 @@
 801ac6cc:dKy_darkworld_stage_check
 8019f740:GetTimePass
 8019fa78:dKy_daynight_check
+801ac53c:dKy_darkworld_check
 
 // data
 80426B94:env_light
@@ -334,6 +360,7 @@
 
 // d_camera.o
 80182b24:checkRide
+801617fc:updatePad
 
 // d_resource.o
 8003c1e4:getResInfo
@@ -349,6 +376,9 @@
 801eb424:dMenuRing__draw
 801eb2d8:dMenuRing__create
 801eb344:dMenuRing__delete
+801e9854:dMenuRing_ct
+801ee7b4:getItemNum
+801ee8b8:getItemMaxNum
 
 // control.o
 802a9e60:setMessageCode_inSequence
@@ -356,11 +386,14 @@
 // d_msg_class.o
 80229048:getFontCCColorTable
 802290f4:getFontGCColorTable
-8022c944:jmessage_tSequenceProcessor__do_tag
 8022bdfc:jmessage_tSequenceProcessor__do_begin
+8022c1e0:jmessage_tSequenceProcessor__do_end
+8022c944:jmessage_tSequenceProcessor__do_tag
 
 // d_msg_object.o
+80234618:setMessageIndex
 802372EC:isSend
+802389AC:endFlowGroup
 
 // processor.o
 802AA094:getResource_groupID
@@ -383,7 +416,11 @@
 8024f130:event035
 8024dc08:query049
 8024bc40:doFlow
+8024c134:setNodeIndex
+8024c2c4:setSelectMsg
 8024c3b8:setNormalMsg
+8024c6bc:branchNodeProc
+8024c754:eventNodeProc
 
 // d_a_npc.o
 8014ca78:daNpcT_onEvtBit
@@ -403,9 +440,13 @@
 80199de8:seq_decide_yes
 8019a314:setSoldOutFlag
 
+//d_meter2.o
+8021ff08:checkStatus
+
 // d_meter2_info.o
 8042a2c8:g_meter2_info
 8021e81c:resetMiniGameItem
+8021d660:readItemTexture
 
 //d_meter2_draw.o
 80215584:drawKanteraScreen
@@ -414,6 +455,7 @@
 802567d0:setBlackWhite
 
 // d_a_player.o
+8015f6ac:checkRoomRestartStart
 8044b158:m_midnaActor
 
 // J2DPicture.o
@@ -459,7 +501,12 @@
 // JKRArchivePri.o
 802D8A40:JKRArchive_findFsResource
 
+// d_menu_fmap.o
+801c85c0:region_map_proc
+801c95d8:spot_map_proc
+
 // d_menu_fmap2D.o
+801d257c:isShowRegion
 801d7a08:checkPlayerWarpAccept
 
 // vi.o
@@ -473,3 +520,24 @@
 
 // d_file_select.o
 80184418:dFile_select_c___create
+
+// d_menu_option.o
+801e57c8:dMenuOption__tv_open1_move
+
+// d_a_obj_item.o
+8015d0f4:itemGet
+8015cf38:itemGetNextExecute
+8015cd1c:mode_wait
+8015b424:CreateInit
+
+// d_s_play.o
+8025c120:dScnPlay_phase_1
+
+// JAISe.o
+802a1a90:JAISeMgr_start_ID
+
+// math 
+8036ee84:sinf
+
+// J2DPane.o
+802f9b94:setBasePosition

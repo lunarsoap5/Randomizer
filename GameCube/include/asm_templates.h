@@ -8,6 +8,7 @@
 #define ASM_COMPARE_WORD_IMMEDIATE(register, value) ((0x2C000000 + (register * 0x10000)) | (value & 0xFFFF))
 #define ASM_COMPARE_LOGICAL_WORD_IMMEDIATE(register, value) ((0x28000000 + (register * 0x10000)) | (value & 0xFFFF))
 #define ASM_BRANCH(length) (0x48000000 + (static_cast<uint32_t>(length) & 0x3FFFFFC))
+#define ASM_BRANCH_LINK_REGISTER (0x4E800020)
 
 #define ASM_BRANCH_CONDITIONAL(branchOption, conditionBit, value) \
     (0x40000000 + (branchOption * 0x200000) + (conditionBit * 0x10000) + (value & 0xFFFF))

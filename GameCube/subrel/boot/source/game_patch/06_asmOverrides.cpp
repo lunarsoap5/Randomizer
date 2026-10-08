@@ -4,6 +4,7 @@
 #include "game_patch/game_patch.h"
 #include "asm_templates.h"
 #include "tp/d_item.h"
+#include "tp/d_msg_class.h"
 #include "tp/d_msg_flow.h"
 #include "tp/d_a_alink.h"
 #include "data/items.h"
@@ -15,8 +16,12 @@
 #include "tp/d_com_inf_game.h"
 #include "tp/m_Do_dvd_thread.h"
 #include "Z2AudioLib/Z2SceneMgr.h"
-#include "tp/d_msg_object.h"
 #include "tp/d_meter2_draw.h"
+#include "functionHooks.h"
+#include "tp/d_menu_ring.h"
+#include "tp/d_a_obj_item.h"
+#include "tp/d_s_play.h"
+#include "tp/d_menu_fmap.h"
 
 namespace mod::game_patch
 {
@@ -33,7 +38,6 @@ namespace mod::game_patch
         uint32_t* enableCrashScreen = reinterpret_cast<uint32_t*>(0x8000B8A4);
         uint32_t* patchMessageCalculation = reinterpret_cast<uint32_t*>(0x802398E0);
 #endif
-
         // Perform the overwrites
 
         /* If the address is loaded into the cache before the overwrite is made,
@@ -44,6 +48,11 @@ namespace mod::game_patch
 
         // Nop out the instruction that causes a miscalculation in message resources.
         *patchMessageCalculation = ASM_NOP;
+
+        // Force checkTreasureRupeeReturn to return false by overwriting the first two instructions in it
+        uint32_t checkTreasureRupeeReturnAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkTreasureRupeeReturn);
+        *reinterpret_cast<uint32_t*>(checkTreasureRupeeReturnAddress) = ASM_LOAD_IMMEDIATE(3, 0);       // Previous 0x9421fff0
+        *reinterpret_cast<uint32_t*>(checkTreasureRupeeReturnAddress + 0x4) = ASM_BRANCH_LINK_REGISTER; // Previous 0x7c0802a6
 
         // Modify the Wooden Sword function to not set a region flag by default by nopping out the function call to isSwitch
         uint32_t woodenSwordFunctionAddress = reinterpret_cast<uint32_t>(libtp::tp::d_item::item_func_WOOD_STICK);
@@ -59,6 +68,10 @@ namespace mod::game_patch
         *reinterpret_cast<uint32_t*>(event035MemoAddress + 0x40) =
             ASM_COMPARE_WORD_IMMEDIATE(4, libtp::data::items::Asheis_Sketch); // Previous 0x2c040090
 
+        // Modify event035 to unset the item flag for the item wheel item instead of nullifying the slot
+        *reinterpret_cast<uint32_t*>(event035MemoAddress + 0x8C) = 0x7c832378; // Previous 0x388000ff
+        libtp::patch::writeBranchBL(event035MemoAddress + 0x90, events::offWarashibeItem);
+
         // Modify procCoGetItem to display the 20 and 60 poe messages when the player currently has 19 and 59 respectively, as
         // this project changes the poe count to increment after the message is displayed instead of before
         uint32_t procCoGetItemAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::procCoGetItem);
@@ -70,9 +83,16 @@ namespace mod::game_patch
         *reinterpret_cast<uint32_t*>(onStageBossEnemyAddress + 0x60) = ASM_NOP; // Previous 480070e9
         *reinterpret_cast<uint32_t*>(onStageBossEnemyAddress + 0x8C) = ASM_NOP; // Previous 480070bd
 
-        // Patch setSceneName so that the Morpheel Boss Music plays even if MDH is skipped.
+        // Patch setSceneName so that certain Boss Music plays even if flags are set.
         uint32_t setSceneNameAddress = reinterpret_cast<uint32_t>(libtp::z2audiolib::z2scenemgr::setSceneName);
+        // Morpheel
         *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x216C) = ASM_BRANCH(0x28); // Previous beq- 0x28
+        // Stallord
+        *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x22E8) = ASM_BRANCH(0x24); // Previous beq- 0x24
+        // Armogohma
+        *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x254C) = ASM_BRANCH(0x24); // Previous beq- 0x24
+        // Diababa
+        *reinterpret_cast<uint32_t*>(setSceneNameAddress + 0x1F50) = ASM_BRANCH(0x24); // Previous beq- 0x24
 
         uint32_t mDoDvdThd_mountArchive_c__execute =
             reinterpret_cast<uint32_t>(libtp::tp::m_Do_dvd_thread::mountArchive__execute);
@@ -88,18 +108,103 @@ namespace mod::game_patch
         libtp::patch::writeBranchBL(screenSetAddress + 0xDCC, events::getPauseRupeeMax);
         libtp::patch::writeBranchBL(screenSetAddress + 0xDF0, events::getPauseRupeeMax);
 
-        // Modify isSend button checks to allow for automashing through text
-        uint32_t isSendAddress = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::isSend);
-        libtp::patch::writeBranchBL(isSendAddress + 0xE4, events::autoMashThroughText);
-        libtp::patch::writeBranchBL(isSendAddress + 0x160, events::autoMashThroughText);
-        libtp::patch::writeBranchBL(isSendAddress + 0x1B8, events::autoMashThroughText);
-
         // Modify drawKanteraScreen to change the lantern meter color to match lantern light color from seed.
         uint32_t drawKanteraAddress = reinterpret_cast<uint32_t>(libtp::tp::d_meter2_draw::drawKanteraScreen);
         libtp::patch::writeBranchBL(drawKanteraAddress + 0xE4, events::modifyLanternMeterColor);
 
         uint32_t procCoGetItemInitAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::procCoGetItemInit);
         libtp::patch::writeBranchBL(procCoGetItemInitAddress + 0x17C, procCoGetItemInitCreateItem);
+
+        // Modify the item wheel constructor to allow equipping of items, even as wolf
+        uint32_t itemWheelConstructorAddress = reinterpret_cast<uint32_t>(libtp::tp::d_menu_ring::dMenuRing_ct);
+        *reinterpret_cast<uint32_t*>(itemWheelConstructorAddress + 0x15C) = ASM_LOAD_IMMEDIATE(0, 0);
+
+        // Modify the checkStatus Function to show us the current equips, even as wolf
+        const uint32_t checkStatus_address = reinterpret_cast<uint32_t>(libtp::tp::d_meter2::checkStatus);
+        libtp::patch::writeBranchBL(checkStatus_address + 0x3C, assembly::asmManageEquippedItemsAsWolf);
+
+        const uint32_t decideDoStatus_address = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::decideDoStatus);
+        libtp::patch::writeBranchBL(decideDoStatus_address + 0x4D4, handleAdjustToTSwordReq);
+
+        // give all items that have an item ID of 0x13 or higher
+        const uint32_t itemGetAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::itemGet);
+        *reinterpret_cast<uint32_t*>(itemGetAddr + 0x54) = ASM_BRANCH(0x224);
+
+        // All non rupee/ammo items use procInitSimpleDemo and itemGet
+        const uint32_t itemGetNextExecuteAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::itemGetNextExecute);
+        *reinterpret_cast<uint32_t*>(itemGetNextExecuteAddr + 0x6C) = ASM_BRANCH(0x10);
+        *reinterpret_cast<uint32_t*>(itemGetNextExecuteAddr + 0x74) = ASM_BRANCH(0x70);
+
+        // prevent boomerang from being given on room load
+        const uint32_t createInitAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::CreateInit);
+        *reinterpret_cast<uint32_t*>(createInitAddr + 0x264) = ASM_BRANCH(0x10);
+
+        // Allow boomerang to rotate
+        const uint32_t modeWaitAddr = reinterpret_cast<uint32_t>(libtp::tp::d_a_obj_item::mode_wait);
+        *reinterpret_cast<uint32_t*>(modeWaitAddr + 0x78) = ASM_NOP;
+
+        // Modify checkGroundSpecialMode to patch twilight fog transforms
+        const uint32_t checkGroundAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkGroundSpecialMode);
+        libtp::patch::writeBranchBL(checkGroundAddress + 0x4C, events::checkValidGroundTransform);
+
+        // Modify d_s_play::phase1 to not give the horse call during the cutscene and instead give our custom item.
+        const uint32_t dScnPlayPhase1Addr = reinterpret_cast<uint32_t>(libtp::tp::d_s_play::dScnPlay_phase_1);
+        *reinterpret_cast<uint32_t*>(dScnPlayPhase1Addr + 0x234) = ASM_NOP;
+        libtp::patch::writeBranchBL(dScnPlayPhase1Addr + 0x24C, events::replaceHorseCallItem);
+
+        // Modify dMenu_Fmap2DBack_c::isShowRegion so region you are currently in does not automatically show.
+        const uint32_t isShowRegionAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap2D::isShowRegion);
+        *reinterpret_cast<uint32_t*>(isShowRegionAddr + 0x130) = ASM_LOAD_IMMEDIATE(3, 0);
+
+        // Modify dMenu_Fmap_c::region_map_proc so Z button press does not show
+        // portals when zoomed on region if that region is not unlocked/showing.
+        const uint32_t regionMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::region_map_proc);
+        libtp::patch::writeBranchBL(regionMapProcAddr + 0xE0, assembly::asmFmapPreventPortalsRegion);
+
+        // Modify dMenu_Fmap_c::spot_map_proc so Z button press does not show
+        // portals when double-zoomed on region if that region is not unlocked/showing.
+        const uint32_t spotMapProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_menu_fmap::spot_map_proc);
+        libtp::patch::writeBranchBL(spotMapProcAddr + 0xD8, assembly::asmFmapPreventPortalsSpot);
+
+        // Modifications to dMsgFlow_c::branchNodeProc
+        const uint32_t branchNodeProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::branchNodeProc);
+        // Allow for dynamic branch node patching.
+        libtp::patch::writeBranchBL(branchNodeProcAddr + 0x2C, assembly::asmGetFlowBranchNode);
+        // Allow for custom query functions.
+        libtp::patch::writeBranchBL(branchNodeProcAddr + 0x4C, assembly::asmGetFlowQueryFnPtr);
+        // Allow for dynamic next nodes for branch nodes.
+        libtp::patch::writeBranchBL(branchNodeProcAddr + 0x74, assembly::asmAdjustFlowBranchNextNode);
+
+        // Modifications to dMsgFlow_c::eventNodeProc
+        const uint32_t eventNodeProcAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_flow::eventNodeProc);
+        // Allow for dynamic event node patching.
+        libtp::patch::writeBranchBL(eventNodeProcAddr + 0x2C, assembly::asmGetFlowEventNode);
+        // Allow for custom event functions.
+        libtp::patch::writeBranchBL(eventNodeProcAddr + 0x48, assembly::asmGetFlowEventFnPtr);
+        // Allow for dynamic next nodes for event nodes.
+        libtp::patch::writeBranchBL(eventNodeProcAddr + 0x1E8, assembly::asmAdjustFlowEventNextNode);
+        // Modify Talk to Midna to ignore `getMidnaMsgNum` so that it always goes to our custom menu.
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x114) = ASM_NOP;
+        // Modify Talk to Midna to use the normal 0xbb8 FLI value regardless of the current room when talking to Midna
+        // with no special overrides.
+        *reinterpret_cast<uint32_t*>(eventNodeProcAddr + 0x138) = ASM_LOAD_IMMEDIATE(29, 0xbb8);
+
+        // Skip isMidona check result in tSequenceProcessor do_end so 3-option Midna menus work past the initial one.
+        const uint32_t tSeqProcDoEndAddr =
+            reinterpret_cast<uint32_t>(libtp::tp::d_msg_class::jmessage_tSequenceProcessor__do_end);
+        *reinterpret_cast<uint32_t*>(tSeqProcDoEndAddr + 0xA0) = ASM_NOP;
+
+        // Allow for custom strings for the options text in a msgFlow menu.
+        const uint32_t setMessageIndexAddr = reinterpret_cast<uint32_t>(libtp::tp::d_msg_object::setMessageIndex);
+        libtp::patch::writeBranchBL(setMessageIndexAddr + 0x11C, assembly::asmAdjustSelectMsg);
+
+        const uint32_t gameStartAddr = reinterpret_cast<uint32_t>(libtp::tp::d_com_inf_game::dComIfGs_gameStart);
+        *reinterpret_cast<uint32_t*>(gameStartAddr + 0x34) = 0x88c3000a; // Previous li r6, -1
+
+        const uint32_t setLightningSwordEffect_address =
+            reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::setLightningSwordEffect);
+        libtp::patch::writeBranchBL(setLightningSwordEffect_address + 0xFC, assembly::asmAdjustLightSwordColor);
+
 #ifdef TP_JP
         uint32_t checkWarpStartAddress = reinterpret_cast<uint32_t>(libtp::tp::d_a_alink::checkWarpStart);
 

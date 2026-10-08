@@ -1,4 +1,5 @@
 #include "game_patch/game_patch.h"
+#include "data/flags.h"
 #include "data/items.h"
 #include "data/stages.h"
 #include "tp/bmgres.h"
@@ -12,8 +13,10 @@
 #include "tp/JKRArchivePub.h"
 #include "gc_wii/OSCache.h"
 #include "rando/customItems.h"
+#include "events.h"
+#include "user_patch/00_wallet.h"
 
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
 #include "tp/d_s_logo.h"
 #endif
 
@@ -24,8 +27,6 @@
 
 namespace mod::game_patch
 {
-    KEEP_VAR uint8_t dungeonItemAreaColorIndex = 0;
-
     /*
     int32_t getItemIdFromMsgId( const void* TProcessor, uint16_t unk3, uint32_t msgId )
     {
@@ -73,7 +74,7 @@ namespace mod::game_patch
 
     // Most checks will use zel_00.bmg, so use a dedicated function for it that specifies the archive, so less code runs per
     // check
-    void* getZel00BmgInf()
+    void* _05_getZel00BmgInf()
     {
         uint32_t infPtrRaw = reinterpret_cast<uint32_t>(libtp::tp::JKRArchivePub::JKRArchivePub_getGlbResource(
             0x524F4F54, // ROOT
@@ -155,14 +156,14 @@ namespace mod::game_patch
 
     const char* getSkyBookMessage(uint32_t msgId)
     {
-        using namespace rando::customItems;
+        using namespace libtp::data::items;
 
         // Check if this is for the individual characters or the Item Wheel description
         bool isForCharacter = false;
         if (msgId != 0x34D) // Item Wheel description
         {
             // Not for the Item Wheel description, so assume this is for the individual characters
-            msgId = ITEM_TO_ID(Ancient_Sky_Book_First_Character);
+            msgId = ITEM_TO_ID(Ancient_Sky_Book_Partly_Filled);
             isForCharacter = true;
         }
 
@@ -175,21 +176,13 @@ namespace mod::game_patch
         }
 
         // Figure out how many characters the player currently has
-        uint32_t skyCharacterCount = 0;
+        uint32_t skyCharacterCount =
+            libtp::tp::d_com_inf_game::dComIfG_gameInfo.save.save_file.player.player_item_record.unk5_ammo[0];
 
         // If this is for the individual characters, then the flag for the current character won't update until the textbox has
         // closed, so add one
         if (isForCharacter)
         {
-            skyCharacterCount++;
-        }
-
-        for (uint32_t i = 0; i < 5; i++)
-        {
-            if (!events::haveItem(Ancient_Sky_Book_First_Character + i))
-            {
-                break;
-            }
             skyCharacterCount++;
         }
 
@@ -213,11 +206,55 @@ namespace mod::game_patch
         return createString(format, msgSize, poeCount);
     };
 
-#ifdef TP_EU
-    bool __attribute__((noinline)) shouldGetTheText()
+    const char* getWalletMessage(rando::Randomizer* randoPtr, uint32_t msgId)
     {
+        using namespace libtp::data::items;
+
+        uint16_t msgSize;
+        uint8_t walletSize = randoPtr->getSeedPtr()->getHeaderPtr()->getWalletSize();
+        uint16_t walletCount = 0;
+        const char* format = _05_getMsgById(msgId, &msgSize);
+
+        if (!format)
+        {
+            return nullptr;
+        }
+
+        switch (msgId)
+        {
+            case ITEM_TO_ID(Big_Wallet):
+            case 0x299:
+            {
+                walletCount = mod::user_patch::walletValues[walletSize][1];
+                break;
+            }
+
+            case ITEM_TO_ID(Giant_Wallet):
+            case 0x29a:
+            {
+                walletCount = mod::user_patch::walletValues[walletSize][2];
+                break;
+            }
+
+            // Small Wallet Menu Text
+            case 0x298:
+            {
+                walletCount = mod::user_patch::walletValues[walletSize][0];
+                break;
+            }
+        }
+
+        return createString(format, msgSize, walletCount);
+    };
+
+    // The following function is set up to be used in the function getDungeonItemMessage
+    // 'the' text is only used for some languages
+    static bool getTheText(rando::Randomizer* randoPtr)
+    {
+#if defined TP_EU || defined TP_WUS2
         using namespace libtp::tp::d_s_logo;
-        switch (currentLanguage)
+
+        switch (randoPtr->getCurrentLanguage())
         {
             case Languages::uk:
             default: // The language is invalid/unsupported, so the game defaults to English
@@ -232,6 +269,43 @@ namespace mod::game_patch
                 return false;
             }
         }
+#elif defined TP_US
+        (void)randoPtr;
+        return true;
+#elif defined TP_JP
+        // Shouldn't be necessary, but do anyway
+        (void)randoPtr;
+        return false;
+#endif
+    }
+
+#ifndef TP_JP
+    // The following function is set up to be used in the function getDungeonItemMessage
+    // 'for' text is only used for some languages
+    static bool getForText(rando::Randomizer* randoPtr)
+    {
+#if defined TP_EU || defined TP_WUS2
+        using namespace libtp::tp::d_s_logo;
+
+        switch (randoPtr->getCurrentLanguage())
+        {
+            case Languages::uk:
+            case Languages::de:
+            case Languages::it:
+            default: // The language is invalid/unsupported, so the game defaults to English
+            {
+                return true;
+            }
+            case Languages::fr:
+            case Languages::sp:
+            {
+                return false;
+            }
+        }
+#else
+        (void)randoPtr;
+        return true;
+#endif
     }
 #endif
 
@@ -239,10 +313,11 @@ namespace mod::game_patch
     {
         using namespace libtp::data::items;
         using namespace rando::customItems;
-#ifdef TP_EU
+#if defined TP_EU || defined TP_WUS2
         using namespace libtp::tp::d_s_logo;
 #endif
         // Get the text and size of the format text
+        rando::Randomizer* randoPtr = rando::gRandomizer;
         uint32_t itemIdForBase;
 #ifdef TP_JP
         switch (itemId)
@@ -283,46 +358,6 @@ namespace mod::game_patch
 #endif
         };
 
-        // 'for' text is only used for some languages
-        auto getForText = []()
-        {
-#ifdef TP_EU
-            switch (currentLanguage)
-            {
-                case Languages::uk:
-                case Languages::de:
-                case Languages::it:
-                default: // The language is invalid/unsupported, so the game defaults to English
-                {
-                    return true;
-                }
-                case Languages::fr:
-                case Languages::sp:
-                {
-                    return false;
-                }
-            }
-#elif defined TP_US
-            return true;
-#elif defined TP_JP
-            // Shouldn't be necessary, but do anyway
-            return false;
-#endif
-        };
-
-        // 'the' text is only used for some languages
-        auto getTheText = []()
-        {
-#ifdef TP_EU
-            return shouldGetTheText();
-#elif defined TP_US
-            return true;
-#elif defined TP_JP
-            // Shouldn't be necessary, but do anyway
-            return false;
-#endif
-        };
-
         // JP Snowpeak Ruins doesn't need anything from the next section as the colors are already defined in
         // the customMessage object in japaneseMessages.cpp
         const char* areaText = nullptr;
@@ -346,7 +381,7 @@ namespace mod::game_patch
                 {
                     areaColorId = MSG_COLOR_GREEN_HEX;
                     dungeonAreaMsgId = SpecialMessageIds::FOREST_TEMPLE;
-                    addTheText = getTheText();
+                    addTheText = getTheText(randoPtr);
                     break;
                 }
                 case Goron_Mines_Small_Key:
@@ -364,7 +399,7 @@ namespace mod::game_patch
                 {
                     areaColorId = CUSTOM_MSG_COLOR_BLUE_HEX;
                     dungeonAreaMsgId = SpecialMessageIds::LAKEBED_TEMPLE;
-                    addTheText = getTheText();
+                    addTheText = getTheText(randoPtr);
                     break;
                 }
                 case Arbiters_Grounds_Small_Key:
@@ -391,7 +426,7 @@ namespace mod::game_patch
                 {
                     areaColorId = CUSTOM_MSG_COLOR_DARK_GREEN_HEX;
                     dungeonAreaMsgId = SpecialMessageIds::TEMPLE_OF_TIME;
-                    addTheText = getTheText();
+                    addTheText = getTheText(randoPtr);
                     break;
                 }
                 case City_in_The_Sky_Small_Key:
@@ -401,7 +436,7 @@ namespace mod::game_patch
                 {
                     areaColorId = MSG_COLOR_YELLOW_HEX;
                     dungeonAreaMsgId = SpecialMessageIds::CITY_IN_THE_SKY;
-                    addTheText = getTheText();
+                    addTheText = getTheText(randoPtr);
                     break;
                 }
                 case Palace_of_Twilight_Small_Key:
@@ -411,7 +446,7 @@ namespace mod::game_patch
                 {
                     areaColorId = MSG_COLOR_PURPLE_HEX;
                     dungeonAreaMsgId = SpecialMessageIds::PALACE_OF_TWILIGHT;
-                    addTheText = getTheText();
+                    addTheText = getTheText(randoPtr);
                     break;
                 }
                 case Hyrule_Castle_Small_Key:
@@ -427,7 +462,7 @@ namespace mod::game_patch
                 {
                     areaColorId = MSG_COLOR_ORANGE_HEX;
                     dungeonAreaMsgId = SpecialMessageIds::BULBLIN_CAMP;
-                    addTheText = getTheText();
+                    addTheText = getTheText(randoPtr);
                     break;
                 }
                 default:
@@ -446,7 +481,7 @@ namespace mod::game_patch
 
             // Replace the dungeon area color
             // Make sure the index was properly adjusted
-            uint32_t colorIndex = dungeonItemAreaColorIndex;
+            const uint32_t colorIndex = randoPtr->getDungeonItemAreaColorIndex();
             if (colorIndex != 0)
             {
                 char* colorAddress = const_cast<char*>(&format[colorIndex]);
@@ -528,7 +563,7 @@ namespace mod::game_patch
 #ifndef TP_JP
         // Get the 'for' text
         const char* forText;
-        if (getForText())
+        if (getForText(randoPtr))
         {
             forText = _05_getMsgById(SpecialMessageIds::FOR);
             if (!forText)
@@ -558,8 +593,7 @@ namespace mod::game_patch
 
         return createString(format, msgSize, dungeonItemText, forText, theText, areaText);
 #else
-        // Prevent the compiler from complaining about getForText and addTheText being unused
-        (void)getForText();
+        // Prevent the compiler from complaining about addTheText being unused
         (void)addTheText;
 
         // JP doesn't use `for` nor `the` and the params are in a different order
@@ -625,14 +659,18 @@ namespace mod::game_patch
             {
                 return getPoeSoulMessage();
             }
-            case ITEM_TO_ID(Ancient_Sky_Book_First_Character):
-            case ITEM_TO_ID(Ancient_Sky_Book_Second_Character):
-            case ITEM_TO_ID(Ancient_Sky_Book_Third_Character):
-            case ITEM_TO_ID(Ancient_Sky_Book_Fourth_Character):
-            case ITEM_TO_ID(Ancient_Sky_Book_Fifth_Character):
+            case ITEM_TO_ID(Ancient_Sky_Book_Partly_Filled):
             case 0x34D: // Sky Book Item Wheel description
             {
                 return getSkyBookMessage(msgId);
+            }
+            case 0x299:
+            case 0x298:
+            case 0x29a:
+            case ITEM_TO_ID(Big_Wallet):
+            case ITEM_TO_ID(Giant_Wallet):
+            {
+                return getWalletMessage(rando::gRandomizer, msgId);
             }
             default:
             {
@@ -668,37 +706,28 @@ namespace mod::game_patch
         }
         const void* currentInf1 = *reinterpret_cast<void**>(reinterpret_cast<uint32_t>(unk) + 0xC);
 
-        // Most text replacements are for zel_00.bmg, so check that first
-        if (currentInf1 == getZel00BmgInf())
+        bool isZel00BmgInf = currentInf1 == _05_getZel00BmgInf();
+
+        uint8_t bmgNumber = 0;
+        if (!isZel00BmgInf)
         {
-            // If msgId is for a foolish item, then only use the value from the first one to avoid duplicate entries
-            switch (ID_TO_ITEM(msgId))
-            {
-                case Foolish_Item_2:
-                case Foolish_Item_3:
-                case Foolish_Item_4:
-                case Foolish_Item_5:
-                case Foolish_Item_6:
-                {
-                    msgId = ITEM_TO_ID(Foolish_Item_1);
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
+            bmgNumber = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mStageData.mStagInfo->mMsgGroup;
+        }
 
-            const char* newMessage;
-            if (msgId == 0x1369) // The custom message ID used for hints on custom signs
-            {
-                newMessage = _05_getSpecialMsgById(msgId);
-            }
-            else
-            {
-                newMessage = getCustomMessage(msgId);
-            }
+        const char* remappedStr =
+            rando::gRandomizer->getSeedPtr()->getBMG0SectionPtr()->getReplacementStr(bmgNumber,
+                                                                                     rando::gRandomizer->getFlowContext(),
+                                                                                     msgId);
+        if (remappedStr != nullptr)
+        {
+            setMessageText(remappedStr);
+            return;
+        }
 
+        // Most text replacements are for zel_00.bmg, so check that first
+        if (isZel00BmgInf)
+        {
+            const char* newMessage = getCustomMessage(msgId);
             setMessageText(newMessage);
             return;
         }
@@ -746,20 +775,16 @@ namespace mod::game_patch
     {
         using namespace libtp::data::items;
 
+        rando::Randomizer* randoPtr = rando::gRandomizer;
+        rando::Seed* seedPtr = randoPtr->getSeedPtr();
+
         // If there are any special message IDs that require additional logic, we handle them here.
         switch (msgId)
         {
-            case ITEM_TO_ID(Big_Wallet):   // Big Wallet Item Get Text
-            case ITEM_TO_ID(Giant_Wallet): // Giant Wallet Item Get Text
-            case 0x298:                    // Small Wallet Pause Menu Text
-            case 0x299:                    // Big Wallet Pause Menu Text
-            case 0x29A:                    // Giant Wallet Pause Menu Text
+            case 0x42:
             {
-                if (!walletsPatched)
-                {
-                    return nullptr;
-                }
-                break;
+                // This is the `Choose a Quest Log` text on the file select screen
+                return seedPtr->getHeaderPtr()->getSeedNamePtr();
             }
             case 0xFFFF:
             {
@@ -774,7 +799,7 @@ namespace mod::game_patch
         }
 
         // Make sure the custom text is loaded
-        const uint32_t msgTableInfoRaw = reinterpret_cast<uint32_t>(m_MsgTableInfo);
+        const uint32_t msgTableInfoRaw = reinterpret_cast<uint32_t>(randoPtr->getMsgTableInfoPtr());
         if (!msgTableInfoRaw)
         {
             return nullptr;
@@ -784,7 +809,7 @@ namespace mod::game_patch
         const uint16_t* msgIds = reinterpret_cast<uint16_t*>(msgTableInfoRaw);
 
         // Get the total size of the message ids
-        const uint32_t totalMessages = m_TotalMsgEntries;
+        const uint32_t totalMessages = randoPtr->getTotalMsgEntries();
         uint32_t msgIdTableSize = totalMessages * sizeof(uint16_t);
 
         // Round msgIdTableSize up to the size of the offset type to make sure the offsets are properly aligned
@@ -824,7 +849,8 @@ namespace mod::game_patch
         using namespace rando;
 
         // Make sure the hints text is loaded
-        const uint32_t hintMsgTableInfoRaw = reinterpret_cast<uint32_t>(m_HintMsgTableInfo);
+        rando::Randomizer* randoPtr = gRandomizer;
+        const uint32_t hintMsgTableInfoRaw = reinterpret_cast<uint32_t>(randoPtr->getHintMsgTableInfoPtr());
         if (!hintMsgTableInfoRaw)
         {
             return nullptr;
@@ -840,7 +866,7 @@ namespace mod::game_patch
         const int32_t stageIDX = libtp::tools::getStageIndex(currentStage);
 
         // Get the total size of the message ids
-        const uint32_t hintTotalMessages = m_TotalHintMsgEntries;
+        const uint32_t hintTotalMessages = randoPtr->getTotalHintMsgEntries();
         uint32_t msgIdTableSize = hintTotalMessages * sizeof(CustomMessageData);
 
         // Round msgIdTableSize up to the size of the offset type to make sure the offsets are properly aligned
@@ -863,10 +889,12 @@ namespace mod::game_patch
         {
             const CustomMessageData* currentMsgData = &msgData[i];
 
-            if (currentMsgData->msgID == msgId)
+            if (currentMsgData->getMsgID() == msgId)
             {
-                if (((stageIDX == currentMsgData->stageIDX) && (currentRoom == currentMsgData->roomIDX)) ||
-                    (currentMsgData->stageIDX == 0xFF))
+                const int32_t currentStageIdx = static_cast<int32_t>(currentMsgData->getStageIDX());
+
+                if (((stageIDX == currentStageIdx) && (currentRoom == currentMsgData->getRoomIDX())) ||
+                    (currentStageIdx == 0xFF))
                 {
                     return &hintMessages[hintMsgOffsets[i]];
                 }
@@ -876,4 +904,85 @@ namespace mod::game_patch
         // Didn't find msgId
         return nullptr;
     }
+
+    // Convenience query fn for returning static value.
+    int customQuery053_returnParams(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    {
+        uint16_t params = reinterpret_cast<uint16_t*>(flowNode)[2];
+        return params;
+    }
+
+    // Return 0 if can change ToD, else 1 if cannot.
+    int customQuery054_canChangeTod()
+    {
+        // This function is based on query044 which is used to determine whether to show the Midna menu which includes
+        // "Warp" or not. We also add a check to ensure the current environment is not twilight. "R_SP161" is STAR tent.
+        if (!libtp::tp::d_kankyo::dKy_darkworld_check() && !libtp::tp::d_a_alink::checkForestOldCentury() &&
+            (libtp::tp::d_a_alink::checkField() || libtp::tp::d_a_alink::checkCastleTown()) &&
+            !libtp::tp::d_a_alink::checkStageName("R_SP161"))
+        {
+            return 0;
+        }
+        return 1;
+    }
+
+    // Return 0 if can return to dungeon entrance, 1 if in dungeon but can only return to spawn, or 2 if not in dungeon.
+    int customQuery055_canReturnToDungeonEntrance()
+    {
+        uint8_t stageIDX = rando::gRandomizer->getSeedPtr()->getStageIDX();
+        if (stageIDX <= 29)
+        {
+            // In a Dungeon or (mini)boss room.
+            const rando::ReturnPlace* returnPlace =
+                rando::gRandomizer->getSeedPtr()->getReturnPlaceSectionPtr()->getReturnPlace(stageIDX, -1, -1, -1);
+            if (returnPlace != nullptr && returnPlace->getStageIDX() != 0xFF)
+                return 0;
+            else
+                return 1;
+        }
+        return 2;
+    }
+
+    // Does nothing. This provides an easy way to patch existing event nodes to simply do nothing.
+    int customEvent043_nop()
+    {
+        return 1;
+    }
+
+    int customEvent044_changeTimeOfDay(libtp::tp::d_msg_flow::dMsgFlow*, void*, libtp::tp::f_op_actor::fopAc_ac_c*)
+    {
+        // Check if player is wolf the same way query002 does. If player is wolf, we should queue the ToD change so it
+        // runs once the conversation ends (to avoid Midna flow restarting after it ends). If we are a human, go ahead
+        // and queue the event so we do not have to wait for the shadow Midna to fully disappear (mainly relevant for
+        // when time does not flow and the room will immediately reload).
+        libtp::tp::d_a_alink::daAlink* linkMapPtr = libtp::tp::d_com_inf_game::dComIfG_gameInfo.play.mPlayer;
+        if (linkMapPtr->mNoResetFlg1 & 0x2000000)
+            rando::gRandomizer->setHasPendingTodChange(true);
+        else
+            events::handleTimeOfDayChange();
+
+        return 1;
+    }
+
+    int customEvent045_returnToLocation(libtp::tp::d_msg_flow::dMsgFlow*, void* flowNode)
+    {
+        // Note: we intentionally let the Midna flow restart when talking as wolf so the game stays paused while the
+        // exit happens. This avoids edge cases such as using a bomb to defeat Ook right as you are exiting which sets
+        // Ook to defeated but does not give you the item.
+        bool isReturnToDungeonEntrance = reinterpret_cast<uint32_t*>(flowNode)[1] != 0;
+        events::handleReturnToLocation(isReturnToDungeonEntrance);
+
+        return 1;
+    }
+
+    // These are arrays of PTMFs (pointer to member function).
+    // A function's number matches the index which points to it.
+    uint32_t _05_customQueryList[3][3] = {
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery053_returnParams)},
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery054_canChangeTod)},
+        {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customQuery055_canReturnToDungeonEntrance)}};
+
+    uint32_t _05_customEventList[3][3] = {{0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent043_nop)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent044_changeTimeOfDay)},
+                                          {0, 0xFFFFFFFF, reinterpret_cast<uint32_t>(customEvent045_returnToLocation)}};
 } // namespace mod::game_patch

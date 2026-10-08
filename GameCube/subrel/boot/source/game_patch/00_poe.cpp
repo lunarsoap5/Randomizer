@@ -4,7 +4,7 @@
 
 namespace mod::game_patch
 {
-    void _00_poe(void)
+    void _00_poe()
     {
         libtp::tp::d_item::item_func_ptr[libtp::data::items::Poe_Soul] = _00_handle_poeItem;
     }

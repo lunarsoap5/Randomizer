@@ -16,7 +16,7 @@ namespace mod::user_patch
     /**
      * @brief Patches the functions that modify the IB speed
      */
-    void removeIBLimit(rando::Randomizer* randomizer, bool set);
+    void removeIBLimit(rando::Randomizer* randomizer);
 } // namespace mod::user_patch
 
 #endif

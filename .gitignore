@@ -3,6 +3,7 @@
 **/*.rel
 **/*.elf
 **/*.gci
+**/*.bin
 **/build.*
 **/codehandler/*.bin
 **/codehandler/*.h
@@ -12,3 +13,5 @@ Generator/src/obj
 Generator/bin
 *.tga
 *.DS_Store
+
+GameCube/bin/seed.bin
