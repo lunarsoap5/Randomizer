@@ -509,7 +509,7 @@ namespace mod::customMessages
         // AP Item
         apItemDe,
         sizeof(apItemDe),
-        0x00F3,
+        0x0140,
 
         // Sky Book Item Wheel Description
         skyBookDescriptionDe,

@@ -81,6 +81,7 @@ namespace mod::rando::customItems
         Sacred_Grove_Portal = 0xBF,
         Bridge_of_Eldin_Portal = 0xE8,
         Upper_Zoras_River_Portal = 0x39,
+        Archipelago_Item = 0xDC,
     };
 
     class FoolishItems

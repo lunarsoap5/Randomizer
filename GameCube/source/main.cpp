@@ -57,6 +57,7 @@
 #include "tp/dynamic_link.h"
 #include "events.h"
 #include "functionHooks.h"
+#include "tp/d_item.h"
 
 namespace mod
 {
@@ -534,6 +535,14 @@ namespace mod
 
                     if (storedItem)
                     {
+                        // If for some reason a null byte is inserted into the queue, clear it and continue
+                        // through the queue.
+                        if (storedItem == 0xFF)
+                        {
+                            reserveBytesPtr[i] = 0;
+                            continue;
+                        }
+
                         const EventItemStatus giveItemToPlayerStatus = randoPtr->getGiveItemToPlayerStatus();
 
                         // If we have the call to clear the queue, then we want to clear the item and break out.
@@ -565,7 +574,7 @@ namespace mod
                 if (itemToGive < 0x1f)
                 {
                     libtp::tp::d_item::execItemGet(itemToGive);
-                    giveItemToPlayer = CLEAR_QUEUE;
+                    rando::gRandomizer->setGiveItemToPlayerStatus(CLEAR_QUEUE);
                     break;
                 }
 
@@ -2112,7 +2121,7 @@ namespace mod
     KEEP_FUNC bool handle_procGanonFinishInit(libtp::tp::d_a_alink::daAlink* linkActrPtr)
     {
         events::setSaveFileEventFlag(0x6780); // Flag set for the "victory condition in AP"
-        return return_procGanonFinishInit(linkActrPtr);
+        return gReturn_procGanonFinishInit(linkActrPtr);
     }
 
     KEEP_FUNC libtp::tp::f_op_actor::fopAc_ac_c* handle_searchBouDoor(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr)

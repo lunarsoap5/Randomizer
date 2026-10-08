@@ -169,6 +169,8 @@ namespace mod::game_patch
 
         // All previous obtained, so return last upgrade
         return Jovani_Bottle;
+    }
+
     uint8_t _04_getWarashibeItemCount()
     {
         using namespace libtp::data::items;
@@ -297,16 +299,15 @@ namespace mod::game_patch
                 break;
             }
 
-                case Coro_Bottle:
-                case Sera_Bottle:
-                case Empty_Bottle:
-                case Jovani_Bottle:
-                {
-                    itemID = _04_getProgressiveBottle();
-                    break;
-                }
+            case Coro_Bottle:
+            case Sera_Bottle:
+            case Empty_Bottle:
+            case Jovani_Bottle:
+            {
+                itemID = _04_getProgressiveBottle();
+                break;
+            }
 
-           
             case Mirror_Piece_1:
             case Mirror_Piece_2:
             case Mirror_Piece_3:

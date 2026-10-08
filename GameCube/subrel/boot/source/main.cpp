@@ -275,12 +275,9 @@ namespace mod
             gReturn_sceneChange = patch::hookFunction(libtp::z2audiolib::z2scenemgr::sceneChange, handle_sceneChange);
         }
 
-        return_procGanonFinishInit =
+        gReturn_procGanonFinishInit =
             patch::hookFunction(libtp::tp::d_a_alink::procGanonFinishInit, mod::handle_procGanonFinishInit);
 
-        return_searchBouDoor = patch::hookFunction(libtp::tp::d_a_alink::searchBouDoor, mod::handle_searchBouDoor);
-        return_checkCastleTownUseItem =
-            patch::hookFunction(libtp::tp::d_a_alink::checkCastleTownUseItem, mod::handle_checkCastleTownUseItem);
         // Only hook startSound if there is at least one replacement audio
         if (seedPtr->getNumShuffledFanfares() > 0)
         {

@@ -485,7 +485,7 @@ namespace mod::customMessages
         // AP Item
         apItemFr,
         sizeof(apItemFr),
-        0x00F3,
+        0x0140,
 
         // Big Wallet
         bigWalletFr,
