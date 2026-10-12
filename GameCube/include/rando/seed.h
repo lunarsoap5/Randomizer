@@ -101,6 +101,8 @@ namespace mod::rando
         uint8_t getHcBkReqCount() const { return this->hcBkReqCount; }
         uint8_t getHcBkRequirement() const { return this->hcBkRequirement; }
         uint8_t getWalletSize() const { return this->walletSize; }
+        const char* getSeedIDPtr() const { return &this->seedID[0]; }
+        const char* getSlotNamePtr() const { return &this->slotName[0]; }
 
         const EntryInfo* getVolatilePatchInfoPtr() const { return &this->volatilePatchInfo; }
         const EntryInfo* getOneTimePatchInfoPtr() const { return &this->oneTimePatchInfo; }
@@ -181,6 +183,9 @@ namespace mod::rando
         /* 0x97 */ uint8_t hcBkRequirement;
         /* 0x98 */ uint8_t hcBkReqCount; // See below for notes
         /* 0x99 */ uint8_t walletSize;
+        /* 0x9A */ uint8_t padding[0x2];
+        /* 0x9C */ char seedID[0x10];
+        /* 0xAC */ char slotName[0x10];
     } __attribute__((__packed__));
 
     /* The 'reqCount' variables are dynamic and based on their respective requirement. (i.e if reqCount is 4 and the requirement
