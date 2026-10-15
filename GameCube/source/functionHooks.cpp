@@ -193,6 +193,7 @@ namespace mod
     KEEP_VAR void (*gReturn_setWolfLockDomeModel)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*gReturn_procFrontRollCrashInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*gReturn_procWolfAttackReverseInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
+    KEEP_VAR bool (*gReturn_procGanonFinishInit)(libtp::tp::d_a_alink::daAlink* daALink) = nullptr;
     KEEP_VAR bool (*gReturn_procWolfDashReverseInit)(libtp::tp::d_a_alink::daAlink* daALink, bool param_1) = nullptr;
     KEEP_VAR libtp::tp::f_op_actor::fopAc_ac_c* (*gReturn_searchBouDoor)(libtp::tp::f_op_actor::fopAc_ac_c* actrPtr) = nullptr;
 

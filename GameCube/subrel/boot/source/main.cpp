@@ -275,6 +275,9 @@ namespace mod
             gReturn_sceneChange = patch::hookFunction(libtp::z2audiolib::z2scenemgr::sceneChange, handle_sceneChange);
         }
 
+        gReturn_procGanonFinishInit =
+            patch::hookFunction(libtp::tp::d_a_alink::procGanonFinishInit, mod::handle_procGanonFinishInit);
+
         // Only hook startSound if there is at least one replacement audio
         if (seedPtr->getNumShuffledFanfares() > 0)
         {

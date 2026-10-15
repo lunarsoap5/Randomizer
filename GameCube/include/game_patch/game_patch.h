@@ -167,6 +167,7 @@ namespace mod::game_patch
     int32_t _02_jumpStrikeItemGetCheck();
     int32_t _02_campSmallKeyItemGetCheck();
     int32_t _02_gateKeysItemGetCheck();
+    int32_t _02_seraBottleItemGetCheck();
     int32_t _02_letterItemGetCheck();
     int32_t _02_invoiceItemGetCheck();
     int32_t _02_statueItemGetCheck();
@@ -185,6 +186,7 @@ namespace mod::game_patch
     uint32_t _04_getProgressiveKeyShard();
     uint32_t _04_getProgressiveMirrorShard();
     uint32_t _04_getProgressiveFusedShadow();
+    uint32_t _04_getProgressiveBottle();
     uint8_t _04_getWarashibeItemCount();
 
     // 05 - Function definitions related to custom messages
